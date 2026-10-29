@@ -325,7 +325,7 @@ function render(){
     card.innerHTML=`<div class="team-main" data-expand-id="${esc(t.id)}" role="button" tabindex="0" aria-expanded="${isExpanded}" aria-label="${isExpanded?'Свернуть':'Раскрыть'} команду ${esc(t.name)}">
       <div class="rank">#${i+1}</div>
       <div class="teaminfo"><div class="logo">${t.logo?`<img src="${esc(t.logo)}" alt="Лого команды">`:esc(t.tag||t.name.slice(0,3).toUpperCase())}</div><div style="min-width:0"><div class="name">${esc(t.name)}</div><div class="players">${esc(t.players||'Состав не указан')}</div></div></div>
-      <div class="points">${Number(t.points).toLocaleString('ru-RU')}<small>RANKING POINTS</small></div>
+      <div class="points">${Number(t.points).toLocaleString('ru-RU')}<small>MVP POINTS</small></div>
       <div class="actions ${admin?'':'hidden'}"><button class="tiny" title="Отнять 100" data-act="minus" data-id="${esc(t.id)}">−</button><button class="tiny" title="Добавить 100" data-act="plus" data-id="${esc(t.id)}">+</button><button class="tiny" title="Редактировать" data-act="edit" data-id="${esc(t.id)}">✎</button><button class="tiny" title="Удалить" data-act="delete" data-id="${esc(t.id)}">×</button></div>
     </div>
     ${isExpanded?`<div class="roster-expanded" id="roster-${esc(t.id)}"><div class="roster-heading">Состав команды · 5 игроков</div><div class="roster-grid">${roster.map((player,n)=>rosterCardMarkup(player,n,playerPhotos[n])).join('')}</div><div class="roster-footer"><button class="btn team-profile-btn" data-profile-id="${esc(t.id)}">Профиль команды</button></div></div>`:''}`;
