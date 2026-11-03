@@ -1373,9 +1373,121 @@ body[data-theme="night"] .news-no-team-chip span:last-child {
 }
 </style>
 
-</head><body>
+
+<style id="mvp-2026-hltv-style-refresh">
+/* Primary NIGHT look: dark background, wider centered ranking, compact HLTV-style team rows. */
+:root{--mvp-night-bg:#121820;--mvp-panel:#1b232d;--mvp-card:#222c37;--mvp-card-hover:#293542;--mvp-border:#354250;--mvp-text:#f1f4f7;--mvp-muted:#a5b1be;--mvp-accent:#cba24d}
+.site-brand-bar{width:min(1240px,calc(100% - 32px));margin:12px auto 0;border:1px solid #d9dfe6;border-radius:8px;background:#f8fafc;color:#202a35;box-shadow:0 5px 18px rgba(13,20,29,.12)}
+.site-brand-inner{min-height:66px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:9px 18px}
+.site-brand-lockup{display:flex;align-items:center;gap:13px;min-width:0}
+.site-brand-logo{width:48px;height:48px;flex:0 0 48px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:7px;background:transparent;border:1px solid rgba(114,126,140,.3)}
+.site-brand-logo img{display:block;width:100%;height:100%;object-fit:contain;background:transparent}
+.site-brand-monogram{font-weight:1000;font-size:18px;letter-spacing:-1px;color:#f2ba41;background:#202832;border-radius:5px;padding:5px}
+.site-brand-name{font-size:20px;line-height:1.1;font-weight:950;letter-spacing:.55px}
+.site-brand-tagline{font-size:9px;letter-spacing:1.5px;margin-top:5px;opacity:.72;font-weight:800}
+.site-brand-caption{font-size:10px;letter-spacing:1.5px;font-weight:800;opacity:.55;white-space:nowrap}
+.site-logo-admin{margin-top:18px;padding:13px;border:1px solid #cfd6de;border-radius:8px;background:#f5f7fa}
+.site-logo-admin-preview{height:86px;display:flex;align-items:center;justify-content:center;margin:8px 0 12px;border:1px dashed #aeb9c5;border-radius:7px;background:#e9edf2;overflow:hidden}
+.site-logo-admin-preview img{max-width:100%;max-height:80px;object-fit:contain;background:transparent}
+.site-logo-admin-actions{display:flex;flex-wrap:wrap;gap:8px}
+.site-logo-admin-actions .btn{flex:1 1 130px}
+/* Wider page and ranking sheet lifted closer to the brand bar. */
+.wrap{max-width:1240px!important;margin:12px auto 28px!important;padding:0 16px!important}
+.wrap>.crumb{display:none!important}
+.heading{margin:5px 0 12px!important}
+.heading h1{font-size:25px!important;letter-spacing:-.4px!important}
+.ranking-with-news{display:grid!important;grid-template-columns:minmax(0,1fr) 196px!important;gap:12px!important;align-items:start!important;width:100%!important}
+.ranking-with-news>.panel{min-width:0!important;width:100%!important;min-height:calc(100vh - 255px)!important;border-radius:8px!important;overflow:hidden!important}
+/* Team rows are slightly shorter and sit on a defined panel like HLTV's list. */
+.tablehead,.team-main{grid-template-columns:48px minmax(0,1fr) 176px!important;align-items:center!important}
+.tablehead{min-height:33px!important;padding:7px 12px!important;gap:8px!important}
+.team-card{border-top:1px solid #dce1e7!important;background:#f6f8fa!important}
+.team-main{min-height:50px!important;height:auto!important;padding:5px 12px!important;gap:8px!important}
+.teaminfo{gap:9px!important;min-width:0!important}
+.teaminfo .logo{width:37px!important;height:37px!important;min-width:37px!important;flex:0 0 37px!important;background:transparent!important;border-color:rgba(135,146,160,.25)!important}
+.teaminfo .team-details{min-width:0!important}
+.team-name-points{display:flex!important;flex-flow:row nowrap!important;align-items:baseline!important;justify-content:flex-start!important;gap:7px!important;min-width:0!important;max-width:100%!important}
+.team-name-points .name{flex:0 1 auto!important;white-space:nowrap!important;min-width:0!important;font-size:14px!important}
+.team-name-points .points{flex:0 0 auto!important;display:inline-flex!important;align-items:baseline!important;gap:3px!important;margin:0!important;text-align:left!important;white-space:nowrap!important;font-size:11px!important;line-height:1!important}
+.team-name-points .points strong{font-size:11px!important;font-weight:800!important}
+.team-name-points .points small{display:inline!important;font-size:6.5px!important;letter-spacing:.3px!important;margin:0!important}
+.teaminfo .players{font-size:10px!important;margin-top:2px!important}
+.team-right-tools{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:8px!important;min-width:0!important}
+.team-rank-change{min-width:38px!important;text-align:right!important}
+.team-right-tools .actions{display:flex!important;gap:3px!important}
+.team-right-tools .actions .tiny{width:23px!important;min-width:23px!important;height:24px!important;font-size:14px!important}
+.roster-expanded{padding:12px 14px 14px!important}
+.roster-grid{gap:8px!important}
+.roster-player{min-height:150px!important;padding:10px 7px!important;gap:7px!important}
+.roster-player-photo{width:82px!important;height:82px!important;flex-basis:82px!important}
+.tier-divider{padding:8px 12px!important;min-height:31px!important}
+/* NIGHT: consistent graphite surfaces; all main labels remain white. */
+body[data-theme="night"]{background:var(--mvp-night-bg)!important;background-image:none!important;color:var(--mvp-text)!important}
+body[data-theme="night"] .top{background:#171e27!important;border-bottom:1px solid #303b48!important;box-shadow:0 3px 14px rgba(0,0,0,.28)!important;justify-content:flex-start!important}
+body[data-theme="night"] .top>.main-nav{margin-left:0!important}
+body[data-theme="night"] .top>.topright{margin-left:auto!important}
+body[data-theme="night"] .site-brand-bar{background:#1b232d!important;color:#f1f4f7!important;border-color:#34414e!important;box-shadow:0 5px 20px rgba(0,0,0,.26)!important}
+body[data-theme="night"] .site-brand-logo{border-color:#414d5b!important;background:transparent!important}
+body[data-theme="night"] .site-brand-caption,body[data-theme="night"] .site-brand-tagline{color:#aab5c1!important}
+body[data-theme="night"] .site-brand-name{color:#f1f4f7!important}
+body[data-theme="night"] .wrap{color:var(--mvp-text)!important}
+body[data-theme="night"] .heading h1{color:#f4f6f8!important}
+body[data-theme="night"] .heading .sub{color:#aab5c1!important}
+body[data-theme="night"] .ranking-with-news>.panel{background:#1b232d!important;border:1px solid #354250!important;box-shadow:0 7px 24px rgba(0,0,0,.22)!important}
+body[data-theme="night"] .tablehead{background:#252f3a!important;color:#b8c3ce!important;border-color:#354250!important}
+body[data-theme="night"] .team-card{background:#202a34!important;border-top-color:#34414e!important}
+body[data-theme="night"] .team-main{background:#202a34!important;color:#f1f4f7!important;border-color:#34414e!important}
+body[data-theme="night"] .team-main:hover,body[data-theme="night"] .team-main:focus-visible,body[data-theme="night"] .team-main[aria-expanded="true"]{background:#293541!important}
+body[data-theme="night"] .team-main .name,body[data-theme="night"] .team-main .name::after{color:#f3f5f7!important;-webkit-text-fill-color:#f3f5f7!important}
+body[data-theme="night"] .team-main .players{color:#aab5c1!important}
+body[data-theme="night"] .team-name-points .points{color:#e0e6ed!important}
+body[data-theme="night"] .team-name-points .points small{color:#aeb9c5!important}
+body[data-theme="night"] .rank{color:#9ba8b6!important}
+body[data-theme="night"] .team-right-tools .tiny{background:#2a3541!important;border-color:#465362!important;color:#edf1f5!important}
+body[data-theme="night"] .tier-divider{background:#252f3a!important;color:#d5dde6!important;border-color:#394653!important}
+body[data-theme="night"] .tier-divider-badge{background:#303b48!important;color:#f3f5f7!important;border-color:#4b5968!important}
+body[data-theme="night"] .roster-expanded{background:#1a222b!important;border-color:#34414e!important}
+body[data-theme="night"] .roster-heading{color:#bac5d0!important}
+body[data-theme="night"] .roster-player{background:#242f3a!important;border-color:#3b4856!important;color:#f1f4f7!important}
+body[data-theme="night"] .roster-player-name{color:#f3f5f7!important}
+body[data-theme="night"] .mvp-news-rail .news-rail-section{background:#1b232d!important;border-color:#354250!important}
+body[data-theme="night"] .news-rail-head{background:#252f3a!important;color:#edf1f5!important;border-color:#3a4653!important}
+body[data-theme="night"] .site-logo-admin{background:#202a34!important;border-color:#414e5c!important}
+body[data-theme="night"] .site-logo-admin-preview{background:#18212a!important;border-color:#465362!important}
+body[data-theme="night"] .site-logo-admin .field label{color:#dce3ea!important}
+body[data-theme="night"] .site-logo-admin input{background:#18212a!important;color:#f1f4f7!important;border-color:#465362!important}
+/* Responsive layout: keep the new brand visible and ranking compact. */
+@media(max-width:900px){
+ .site-brand-bar{width:calc(100% - 20px);margin-top:9px}
+ .site-brand-inner{min-height:58px;padding:7px 11px}
+ .site-brand-caption{display:none}
+ .wrap{max-width:100%!important;margin-top:9px!important;padding:0 8px!important}
+ .ranking-with-news{grid-template-columns:minmax(0,1fr)!important}
+ .ranking-with-news>.panel{min-height:0!important}
+}
+@media(max-width:650px){
+ .site-brand-logo{width:38px;height:38px;flex-basis:38px}
+ .site-brand-name{font-size:16px}
+ .site-brand-tagline{font-size:8px;letter-spacing:1px}
+ .site-brand-inner{min-height:52px}
+ .heading h1{font-size:21px!important}
+ .tablehead,.team-main{grid-template-columns:34px minmax(0,1fr) 92px!important;padding-left:6px!important;padding-right:6px!important;gap:3px!important}
+ .team-main{min-height:47px!important;padding-top:4px!important;padding-bottom:4px!important}
+ .teaminfo{gap:5px!important}
+ .teaminfo .logo{width:30px!important;height:30px!important;min-width:30px!important;flex-basis:30px!important}
+ .team-name-points{gap:4px!important}
+ .team-name-points .name{font-size:11px!important}
+ .team-name-points .points strong{font-size:9px!important}
+ .team-name-points .points small{font-size:5.5px!important}
+ .teaminfo .players{font-size:8px!important}
+ .team-rank-change{min-width:18px!important}
+ .team-right-tools{gap:3px!important}
+ .team-right-tools .actions .tiny{width:19px!important;min-width:19px!important;height:21px!important}
+}
+</style>
+
+</head><body data-theme="night">
 <header class="top">
-  <div class="brand"><b>MVP</b>CS2 RANKING</div>
   <nav class="main-nav" aria-label="Основная навигация">
     <button class="nav-btn active" type="button" data-main-nav="ranking">Рейтинг</button>
     <button class="nav-btn" type="button" data-main-nav="live">LIVE</button>
@@ -1387,6 +1499,15 @@ body[data-theme="night"] .news-no-team-chip span:last-child {
   </nav>
   <div class="topright"><nav class="social-links" aria-label="Социальные сети"><a class="social-btn" href="https://t.me/csgmajor" target="_blank" rel="noopener noreferrer" aria-label="Telegram" title="Telegram"><img src="https://i.ibb.co/35mw6gdG/2026-10-29-215633-removebg-preview.png" alt="Telegram"></a><a class="social-btn" href="https://www.tiktok.com/@csgmajor" target="_blank" rel="noopener noreferrer" aria-label="TikTok" title="TikTok"><img src="https://i.ibb.co/RkTsf5W3/tiktok-791102.jpg" alt="TikTok"></a><a class="social-btn" href="https://www.youtube.com/@mvpcsg" target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube"><img src="https://i.imgur.com/SBqivqB.png" alt="YouTube"></a></nav><button class="social-btn settings-trigger" id="settingsBtn" type="button" title="Настройки" aria-label="Настройки">⚙</button><span id="adminState" style="font-size:12px;color:#777">Публичный просмотр</span><button class="btn" id="loginBtn">Войти / регистрация</button></div>
 </header>
+<div class="site-brand-bar" role="banner">
+  <div class="site-brand-inner">
+    <div class="site-brand-lockup">
+      <div class="site-brand-logo" id="siteBrandLogo" aria-label="Логотип MVP CS2 Ranking"><span class="site-brand-monogram">MVP</span></div>
+      <div class="site-brand-copy"><div class="site-brand-name">MVP CS2 RANKING</div><div class="site-brand-tagline">COUNTER-STRIKE 2 · TEAM RANKING</div></div>
+    </div>
+    <div class="site-brand-caption">COMMUNITY ESPORTS RANKING</div>
+  </div>
+</div>
 <main class="wrap"><div class="crumb">COUNTER-STRIKE 2 · TEAM RANKING</div><div class="heading"><div><h1>Рейтинг команд</h1><div class="sub">Собственный рейтинг киберспортивных команд</div></div><button class="btn primary hidden" id="addBtn">＋ Добавить команду</button></div>
 <div id="adminBar" class="adminbar hidden"><strong id="staffBarText">Режим управления включён.</strong><div class="adminbar-actions"><button class="btn hidden" id="manageUsersBtn" type="button">Управление доступом</button><button class="btn hidden" id="manageBansBtn" type="button">Блокировки</button><button class="btn" id="logoutBtn">Выйти</button></div></div>
 <div id="dbStatus" class="hidden" style="margin:0 0 14px;padding:10px 13px;border:1px solid #dfe3e8;border-radius:6px;font-size:13px"></div>
@@ -1420,19 +1541,79 @@ let helpRefreshTimer = null, activeHelpProfile = null;
 let liveRealtimeChannel = null, liveRefreshTimer = null, liveLoadBusy = false;
 let activeTournament = null, tournamentRealtimeChannel = null, tournamentRefreshTimer = null, tournamentLoadBusy = false;
 function can(permission){return admin || (moderator && userPermissions?.[permission] === true)}
-const MOD_PERMISSION_LABELS={manage_teams:'Управление командами и очками',manage_matches:'Создание и редактирование матчей',manage_players:'Управление профилями игроков',manage_trophies:'Выдача и удаление кубков',manage_streams:'Управление трансляциями',manage_support:'Ответы в чате помощи',manage_bans:'Блокировка игроков и команд',manage_news:'Публикация и редактирование новостей'};
-const THEME_STORAGE_KEY='mvp_cs2_theme_mode';
-function getThemeMode(){try{return localStorage.getItem(THEME_STORAGE_KEY)==='night'?'night':'day'}catch(_){return 'day'}}
+const MOD_PERMISSION_LABELS={manage_teams:'Управление командами и очками',manage_matches:'Создание и редактирование матчей',manage_players:'Управление профилями игроков',manage_trophies:'Выдача и удаление кубков',manage_streams:'Управление трансляциями',manage_support:'Ответы в чате помощи',manage_bans:'Блокировка игроков и команд',manage_news:'Публикация и редактирование новостей',manage_site_settings:'Изменение логотипа сайта'};
+const THEME_STORAGE_KEY='mvp_cs2_theme_mode_v2';
+function getThemeMode(){try{const saved=localStorage.getItem(THEME_STORAGE_KEY);return saved==='day'?'day':'night'}catch(_){return 'night'}}
 function applyThemeMode(mode){const theme=mode==='night'?'night':'day';document.body.dataset.theme=theme;try{localStorage.setItem(THEME_STORAGE_KEY,theme)}catch(_){}const btn=document.getElementById('settingsBtn');if(btn)btn.setAttribute('aria-label',theme==='night'?'Настройки · Ночная тема':'Настройки · Дневная тема');document.querySelectorAll('[data-theme-choice]').forEach(b=>b.classList.toggle('active',b.dataset.themeChoice===theme));}
+let currentSiteLogoUrl='';
+function renderSiteBrand(){
+  const host=document.getElementById('siteBrandLogo');
+  if(!host)return;
+  host.replaceChildren();
+  if(currentSiteLogoUrl){
+    const img=document.createElement('img');
+    img.src=currentSiteLogoUrl;img.alt='Логотип MVP CS2 Ranking';img.loading='eager';
+    img.onerror=()=>{host.replaceChildren();const fallback=document.createElement('span');fallback.className='site-brand-monogram';fallback.textContent='MVP';host.appendChild(fallback)};
+    host.appendChild(img);
+  }else{
+    const fallback=document.createElement('span');fallback.className='site-brand-monogram';fallback.textContent='MVP';host.appendChild(fallback);
+  }
+}
+async function loadSiteBrand(){
+  try{
+    const {data,error}=await client.from('mvp_site_settings').select('setting_value').eq('setting_key','site_logo_url').maybeSingle();
+    if(error)throw error;
+    currentSiteLogoUrl=String(data?.setting_value||'').trim();
+    renderSiteBrand();
+  }catch(error){
+    console.warn('Логотип сайта пока не загружен. Выполни mvp_site_brand_settings.sql.',error);
+    renderSiteBrand();
+  }
+}
+async function saveSiteLogoUrl(url){
+  if(!can('manage_site_settings'))throw new Error('Нет разрешения на изменение логотипа сайта.');
+  const value=String(url||'').trim();
+  if(value){
+    let parsed;try{parsed=new URL(value)}catch(_){throw new Error('Укажи корректную полную ссылку на изображение.')}
+    if(!['https:','http:'].includes(parsed.protocol))throw new Error('Разрешены только HTTP- и HTTPS-ссылки.');
+  }
+  const {error}=await client.from('mvp_site_settings').upsert({setting_key:'site_logo_url',setting_value:value,updated_at:new Date().toISOString(),updated_by:currentUser?.id||null},{onConflict:'setting_key'});
+  if(error)throw error;
+  currentSiteLogoUrl=value;renderSiteBrand();
+}
+async function uploadSiteLogo(file){
+  if(!can('manage_site_settings'))throw new Error('Нет разрешения на изменение логотипа сайта.');
+  if(!file)throw new Error('Сначала выбери изображение.');
+  if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type))throw new Error('Поддерживаются PNG, JPG, WebP и GIF.');
+  if(file.size>8*1024*1024)throw new Error('Размер логотипа не должен превышать 8 МБ.');
+  const safeName=String(file.name||'logo').replace(/[^a-zA-Z0-9._-]+/g,'-').slice(-80)||'logo';
+  const path=`site-logo/${Date.now()}-${safeName}`;
+  const {error:uploadError}=await client.storage.from('mvp-site-assets').upload(path,file,{upsert:true,cacheControl:'3600',contentType:file.type});
+  if(uploadError)throw uploadError;
+  const {data}=client.storage.from('mvp-site-assets').getPublicUrl(path);
+  if(!data?.publicUrl)throw new Error('Не удалось получить публичную ссылку на логотип.');
+  await saveSiteLogoUrl(data.publicUrl);
+  return data.publicUrl;
+}
 function openSettingsCenter(){
  const current=getThemeMode();
+ const logoAdmin=can('manage_site_settings')?`<div class="site-logo-admin"><div class="roster-heading">ЛОГОТИП САЙТА</div><div class="site-logo-admin-preview" id="siteLogoAdminPreview">${currentSiteLogoUrl?`<img src="${esc(currentSiteLogoUrl)}" alt="Текущий логотип">`:'<span class="site-brand-monogram">MVP</span>'}</div><div class="field"><label for="siteLogoUrlInput">Ссылка на логотип (необязательно)</label><input id="siteLogoUrlInput" type="url" placeholder="https://..." value="${esc(currentSiteLogoUrl)}"></div><div class="field"><label for="siteLogoFileInput">Или загрузить изображение с компьютера</label><input id="siteLogoFileInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"></div><div class="site-logo-admin-actions"><button class="btn" id="saveSiteLogoUrlBtn" type="button">Сохранить ссылку</button><button class="btn primary" id="uploadSiteLogoBtn" type="button">Загрузить логотип</button><button class="btn" id="removeSiteLogoBtn" type="button">Убрать логотип</button></div><div class="notice">Логотип будет виден всем посетителям. Файл хранится в Supabase Storage.</div></div>`:'';
  modal(`<div class="page-head"><div><h2>Настройки</h2><div class="page-intro">Выбери оформление сайта. Настройка сохраняется на этом устройстве.</div></div><button class="btn" id="closeSettings">Закрыть</button></div>
  <div class="roster-heading">ОФОРМЛЕНИЕ</div><div class="theme-choice-row">
- <button class="theme-choice ${current==='day'?'active':''}" data-theme-choice="day" type="button"><div class="theme-preview"></div><strong>DAY · Дневная</strong><span>Светлая тема, текущий вид сайта</span></button>
- <button class="theme-choice ${current==='night'?'active':''}" data-theme-choice="night" type="button"><div class="theme-preview night"></div><strong>NIGHT · Ночная</strong><span>Тёмно-серые панели и мягкий контраст</span></button>
- </div><div class="notice">Тема применяется ко всему сайту и запоминается при следующем посещении.</div>`,false);
+ <button class="theme-choice ${current==='day'?'active':''}" data-theme-choice="day" type="button"><div class="theme-preview"></div><strong>DAY · Дневная</strong><span>Светлая тема</span></button>
+ <button class="theme-choice ${current==='night'?'active':''}" data-theme-choice="night" type="button"><div class="theme-preview night"></div><strong>NIGHT · Ночная</strong><span>Тёмно-серые панели</span></button>
+ </div><div class="notice">Тема применяется ко всему сайту и запоминается при следующем посещении.</div>${logoAdmin}`,false);
  document.getElementById('closeSettings').onclick=closeModal;
  document.querySelectorAll('[data-theme-choice]').forEach(b=>b.onclick=()=>applyThemeMode(b.dataset.themeChoice));
+ if(can('manage_site_settings')){
+   const preview=document.getElementById('siteLogoAdminPreview');
+   const urlInput=document.getElementById('siteLogoUrlInput');
+   const fileInput=document.getElementById('siteLogoFileInput');
+   if(urlInput&&preview)urlInput.addEventListener('input',()=>{const val=urlInput.value.trim();preview.innerHTML=val?`<img src="${esc(val)}" alt="Предпросмотр логотипа" onerror="this.style.display='none'">`:'<span class="site-brand-monogram">MVP</span>'});
+   document.getElementById('saveSiteLogoUrlBtn').onclick=async()=>{const b=document.getElementById('saveSiteLogoUrlBtn');b.disabled=true;try{await saveSiteLogoUrl(urlInput.value);alert('Логотип сайта сохранён.')}catch(e){alert('Не удалось сохранить логотип: '+niceError(e))}finally{b.disabled=false}};
+   document.getElementById('uploadSiteLogoBtn').onclick=async()=>{const b=document.getElementById('uploadSiteLogoBtn');b.disabled=true;try{await uploadSiteLogo(fileInput.files?.[0]);alert('Логотип загружен и опубликован.')}catch(e){alert('Не удалось загрузить логотип: '+niceError(e))}finally{b.disabled=false}};
+   document.getElementById('removeSiteLogoBtn').onclick=async()=>{if(!confirm('Убрать логотип сайта?'))return;try{await saveSiteLogoUrl('');if(urlInput)urlInput.value='';if(preview)preview.innerHTML='<span class="site-brand-monogram">MVP</span>';alert('Логотип убран.')}catch(e){alert('Не удалось убрать логотип: '+niceError(e))}};
+ }
 }
 
 
@@ -3015,6 +3196,7 @@ async function init(){
   const {data,error}=await client.auth.getSession();
   if(error){setStatus('Ошибка авторизации Supabase: '+niceError(error),'error');return}
   await refreshSignedInUser(data.session?.user||null);
+  await loadSiteBrand();
   startNewsRail();
   if(!teams.length && !admin) setStatus('Общая база подключена. Команды появятся после их переноса администратором.');
 }
