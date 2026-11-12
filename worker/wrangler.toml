@@ -1,3 +1,4 @@
+# Cloudflare Worker configuration for the Neon-backed MVP API.
 name = "mvp-cs2-api"
 main = "src/index.js"
 compatibility_date = "2026-11-12"
