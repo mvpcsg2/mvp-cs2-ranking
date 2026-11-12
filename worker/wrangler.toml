@@ -1,0 +1,7 @@
+name = "mvp-cs2-api"
+main = "src/index.js"
+compatibility_date = "2026-11-12"
+workers_dev = true
+
+[vars]
+CORS_ORIGIN = "https://mvpcsg2.github.io"
