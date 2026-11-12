@@ -3,11 +3,16 @@
 <script>
 /* MVP CS2 Ranking: official GitHub Pages host gate. This is a copy-deterrent, not a security boundary. */
 (function(){
-  const allowedHost = 'mvpcsg2.github.io';
+  const allowedHosts = new Set([
+    'mvpcsg2.github.io',
+    'mvp-cs2-ranking.pages.dev'
+  ]);
   const allowedPath = '/mvp-cs2-ranking';
+  const host = location.hostname.toLowerCase();
   const currentPath = (location.pathname || '/').replace(/\/+$/, '') || '/';
-  const allowed = location.hostname.toLowerCase() === allowedHost &&
-    (currentPath === allowedPath || currentPath === allowedPath + '/index.html');
+  const allowed = (host === 'mvp-cs2-ranking.pages.dev' ||
+    (host === 'mvpcsg2.github.io' &&
+      (currentPath === allowedPath || currentPath === allowedPath + '/index.html')));
   window.__MVP_SITE_DOMAIN_OK__ = allowed;
   if (!allowed) {
     document.documentElement.classList.add('mvp-domain-blocked');
