@@ -12,10 +12,14 @@ const json = (data, status = 200, headers = {}) =>
 
 function getCors(request, env) {
   const origin = request.headers.get("Origin") || "";
-  const allowedOrigin = env.CORS_ORIGIN || "https://mvpcsg2.github.io";
-  return origin === allowedOrigin
+  const allowedOrigins = new Set([
+    env.CORS_ORIGIN || "https://mvpcsg2.github.io",
+    "https://mvpcsg2.github.io",
+    "https://mvp-cs2-ranking.pages.dev",
+  ]);
+  return allowedOrigins.has(origin)
     ? {
-        "access-control-allow-origin": allowedOrigin,
+        "access-control-allow-origin": origin,
         "access-control-allow-methods": "GET, OPTIONS",
         "access-control-allow-headers": "content-type, authorization",
         "vary": "Origin",
