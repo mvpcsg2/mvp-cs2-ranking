@@ -1697,6 +1697,13 @@ const SUPABASE_URL = 'https://garbvoswmmlsrxerbden.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_eluKu1nKkVuJs9WqxpON4w_SUgpHwFU';
 const LOCAL_STORE = 'mvp_cs2_ranking_v3';
 const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const MVP_API_URL = 'https://mvp-cs2-api.mvpcsgo2.workers.dev';
+async function mvpApiGet(path){
+  const response = await fetch(`${MVP_API_URL}${path}`, {method:'GET',headers:{'accept':'application/json'}});
+  const result = await response.json();
+  if(!response.ok || result?.ok !== true) throw new Error(result?.error || `API request failed (${response.status})`);
+  return result.data;
+}
 let admin = false, moderator = false, userPermissions = {}, currentUser = null, teams = [], busy = false, expandedTeamId = null, initialTeamExpansionDone = false;
 let teamRankMovements = new Map();
 function berlinTodayISO(){const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Berlin',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const pick=type=>parts.find(x=>x.type===type)?.value||'00';return `${pick('year')}-${pick('month')}-${pick('day')}`;}
@@ -2062,8 +2069,7 @@ async function loadRosterPlayerDirectory(){
     rosterPlayerDirectory=new Map(snapshotRows('players').map(row=>[String(row.nickname||'').trim().toLowerCase(),row]));return;
   }
   try{
-    const {data,error}=await client.from('cs2_players').select('nickname,photo_url,country_code').limit(2000);
-    if(error)throw error;
+    const data=await mvpApiGet('/api/players');
     rosterPlayerDirectory=new Map((data||[]).map(row=>[String(row.nickname||'').trim().toLowerCase(),row]));
   }catch(error){
     // The ranking remains usable even if the player directory cannot be read; team photos remain as fallback.
@@ -2676,9 +2682,12 @@ async function loadTeams(){
     applyInitialTeamExpansion();render();return;
   }
   const previousTeams=teams.slice();
-  const {data,error}=await client.from('teams').select('*').order('points',{ascending:false}).order('id',{ascending:true});
-  if(error){teams=[];render();setStatus('Не удалось загрузить общую базу. Проверь, что SQL-скрипт из инструкции выполнен в Supabase SQL Editor. Ошибка: '+niceError(error),'error');return}
-  const loadedTeams=data||[];
+  let loadedTeams;
+  try{
+    loadedTeams=await mvpApiGet('/api/teams')||[];
+  }catch(error){
+    teams=[];render();setStatus('Не удалось загрузить команды из Neon API: '+niceError(error),'error');return;
+  }
   const locallyObservedMovement=calculateTeamRankMovement(previousTeams,loadedTeams);
   teams=loadedTeams;
   if(!teams.length && admin){const imported=await migrateLocalTeamsIfNeeded();if(imported){await loadRosterPlayerDirectory();await loadTeamRankMovements();applyInitialTeamExpansion();render();return}}
