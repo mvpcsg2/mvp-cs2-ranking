@@ -2934,7 +2934,7 @@ async function loadTournamentIntoModal(force=false){
   try{
     let data=null;
     if(isViewingHistoricalData())data=snapshotRows('tournaments').filter(row=>row.is_active).sort((a,b)=>new Date(b.updated_at||0)-new Date(a.updated_at||0))[0]||null;
-    else if(!isFutureSeason()){const {data:dbData,error}=await client.from('mvp_tournaments').select('id,name,best_of,status,is_active,bracket_data,updated_at').eq('is_active',true).order('updated_at',{ascending:false}).limit(1).maybeSingle();if(error)throw error;data=dbData;}
+    else if(!isFutureSeason()){const rows=await mvpApiGet('/api/tournaments')||[];data=rows.filter(row=>row.is_active).sort((a,b)=>new Date(b.updated_at||0)-new Date(a.updated_at||0))[0]||null;}
     activeTournament=data||null;
     host.innerHTML=tournamentMarkup(activeTournament);
     bindTournamentControls(host);
@@ -3119,9 +3119,9 @@ async function openStreamsCenter(){
 }
 async function loadStreamsIntoModal(){
   const host=document.getElementById('streamContent');if(!host)return;
-  const {data,error}=await client.from('cs2_streams').select('id,title,youtube_url,created_at').order('created_at',{ascending:false}).limit(100);
-  if(error){host.className='stream-empty';host.innerHTML=`Не удалось загрузить трансляции. Администратору нужно выполнить SQL-файл <b>streams_setup.sql</b> в Supabase. Ошибка: ${esc(niceError(error))}`;return;}
-  if(!data?.length){host.className='stream-empty';host.textContent=admin?'Пока нет трансляций. Добавь первый YouTube-эфир выше.':'Пока нет добавленных трансляций. Загляни позже!';return;}
+  let data=[];
+  try{data=await mvpApiGet('/api/streams')||[];}catch(error){host.className='stream-empty';host.innerHTML=`Не удалось загрузить трансляции из Neon API: ${esc(niceError(error))}`;return;}
+  if(!data.length){host.className='stream-empty';host.textContent=admin?'Пока нет трансляций. Добавление эфиров будет доступно после переноса защищённых операций.':'Пока нет добавленных трансляций. Загляни позже!';return;}
   host.className='stream-grid';
   host.innerHTML=data.map(stream=>{
     const embed=youtubeEmbedUrl(stream.youtube_url);
@@ -3209,7 +3209,7 @@ async function loadGlobalMatches(){
   const host=document.getElementById('globalMatchesList');if(!host)return;
   let data=[];
   if(isViewingHistoricalData())data=snapshotRows('team_matches');
-  else if(!isFutureSeason()){const {data:rows,error}=await client.from('team_matches').select('id,team_id,opponent_team_id,opponent_name,team_score,opponent_score,map_name,played_at,match_status,tournament_name').order('played_at',{ascending:true}).limit(300);if(error){host.className='stream-empty';host.innerHTML=`Не удалось загрузить матчи. Выполни новую SQL-миграцию для вкладки «Матчи». Ошибка: ${esc(niceError(error))}`;return;}data=rows||[];}
+  else if(!isFutureSeason()){try{data=await mvpApiGet('/api/matches')||[];}catch(error){host.className='stream-empty';host.innerHTML=`Не удалось загрузить матчи из Neon API: ${esc(niceError(error))}`;return;}}
   if(!data.length){host.className='stream-empty';host.textContent=isViewingHistoricalData()?`В статистике за ${formatDailyDate(selectedRankDate,false)} матчей нет.`:admin?'Матчей пока нет. Нажми «Создать матч», чтобы добавить первый.':'Пока нет запланированных или завершённых матчей.';return;}
   const teamMap=new Map(teams.map(t=>[String(t.id),t]));
   const sorted=[...data].sort((a,b)=>{const as=a.match_status==='scheduled'?0:1,bs=b.match_status==='scheduled'?0:1;return as-bs||(as===0?new Date(a.played_at)-new Date(b.played_at):new Date(b.played_at)-new Date(a.played_at))});
