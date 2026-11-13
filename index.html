@@ -3446,7 +3446,23 @@ async function editTeam(t=null){
   let logo=old.logo||'';
   let playerPhotos=[...oldPlayerPhotos];
   document.getElementById('cancelTeam').onclick=closeModal;
-  document.getElementById('teamLogo').onchange=async ev=>{const f=ev.target.files[0];if(!f)return;if(f.size>2*1024*1024){alert('Файл логотипа должен быть меньше 2 МБ.');ev.target.value='';return}if(!['image/png','image/jpeg','image/webp'].includes(f.type)){alert('Выбери PNG, JPG или WEBP.');ev.target.value='';return}try{logo=await compressLogoImage(f,512);document.getElementById('logoPreview').innerHTML=`<img src="${logo}" alt="Лого">`}catch(err){alert('Не получилось обработать логотип: '+niceError(err))}};
+  document.getElementById('teamLogo').onchange=async ev=>{
+    const f=ev.target.files[0];if(!f)return;
+    if(f.size>2*1024*1024){alert('Файл логотипа должен быть меньше 2 МБ.');ev.target.value='';return}
+    if(!['image/png','image/jpeg','image/webp'].includes(f.type)){alert('Выбери PNG, JPG или WEBP.');ev.target.value='';return}
+    try{
+      const compressed=await compressLogoImage(f,512);
+      const blob=await (await fetch(compressed)).blob();
+      const safeName=String(f.name||'team-logo').replace(/[^a-zA-Z0-9._-]+/g,'-').slice(-70)||'team-logo';
+      const path=`team-logos/${Date.now()}-${safeName}.webp`;
+      const {error:uploadError}=await client.storage.from('mvp-site-assets').upload(path,blob,{upsert:false,contentType:blob.type||'image/webp'});
+      if(uploadError)throw uploadError;
+      const {data}=client.storage.from('mvp-site-assets').getPublicUrl(path);
+      if(!data?.publicUrl)throw new Error('Не удалось получить ссылку на логотип.');
+      logo=data.publicUrl;
+      document.getElementById('logoPreview').innerHTML=`<img src="${logo}" alt="Лого">`;
+    }catch(err){alert('Не получилось загрузить логотип: '+niceError(err));ev.target.value='';}
+  };
   for(let i=0;i<5;i++){
     document.getElementById('playerPhoto'+i).onchange=async ev=>{
       const file=ev.target.files[0];if(!file)return;
