@@ -87,7 +87,7 @@ CREATE OR REPLACE FUNCTION public.mvp_admin_save_team(
 RETURNS public.teams
 LANGUAGE plpgsql
 SET search_path TO ''
-AS $
+AS $mvp_fn$
 DECLARE
   v_team public.teams;
   v_player record;
@@ -182,7 +182,7 @@ BEGIN
   IF v_count<>v_roster_total THEN RAISE EXCEPTION 'Не удалось синхронизировать состав команды'; END IF;
   RETURN v_team;
 END;
-$;
+$mvp_fn$;
 
 REVOKE ALL ON FUNCTION public.mvp_admin_save_team(bigint,text,text,integer,text,text,jsonb,integer,boolean,text) FROM PUBLIC;
 
@@ -192,7 +192,7 @@ RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path TO ''
-AS $
+AS $mvp_fn$
 DECLARE
   v_current_year integer;
   v_snapshot jsonb;
@@ -246,6 +246,6 @@ BEGIN
     'success', true
   );
 END;
-$;
+$mvp_fn$;
 
 REVOKE ALL ON FUNCTION public.mvp_wipe_and_advance_season(integer) FROM PUBLIC;
