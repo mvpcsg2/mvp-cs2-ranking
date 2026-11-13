@@ -1788,7 +1788,7 @@ function createMvpApiClient(){
         const parsed=String(expression||'').split(',').map(part=>{
           const bits=part.split('.');
           if(bits.length<3)throw new Error('Неподдерживаемое OR-условие.');
-          const raw=bits.slice(2).join('.');const value=/^-?\\d+(?:\\.\\d+)?$/.test(raw)?Number(raw):raw==='true'?true:raw==='false'?false:raw;return {column:bits[0],op:bits[1],value};
+          const raw=bits.slice(2).join('.');const value=/^-?\d+(?:\.\d+)?$/.test(raw)?Number(raw):raw==='true'?true:raw==='false'?false:raw;return {column:bits[0],op:bits[1],value};
         });
         state.orFilters.push(...parsed);return this;
       },
