@@ -21,7 +21,8 @@ The website source on this branch no longer loads the Supabase SDK or calls Supa
 - [x] Remove Supabase JS CDN and Supabase client initialization from `index.html`.
 - [x] Replace the browser client with a Neon Worker adapter for select/insert/update/delete/upsert.
 - [x] Add allowlisted Neon table access with per-table fields and server-side role/permission checks.
-- [x] Replace all 15 browser RPC calls with validated Worker RPC routes (including season reset, team save, player rename/bans, moderation accounts, and email bans).
+- [x] Add atomic team-save SQL function that updates teams, assigns roster players, removes stale team assignments, and synchronizes player photos.
+- [x] Replace all 12 browser RPC operations with validated Worker RPC routes (including season reset, team save with atomic player-roster synchronization, player rename/bans, moderation accounts, and email bans).
 - [x] Replace Supabase Realtime channels with polling against Neon API routes.
 - [x] Move FACEIT Elo sync into a Worker endpoint.
 - [ ] Verify actual row counts and CRUD behavior against the production Neon schema for every supported table.
