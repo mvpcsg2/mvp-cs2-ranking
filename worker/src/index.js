@@ -138,6 +138,153 @@ export default {
       }
     }
 
+
+    // Public read-only content endpoints. Private account and support tables are deliberately excluded.
+    if (url.pathname === "/api/site-news") {
+      try {
+        const rows = await sql`SELECT * FROM public.mvp_site_news ORDER BY created_at DESC LIMIT 500`;
+        return json({ ok: true, data: rows }, 200, cors);
+      } catch (error) {
+        console.error("Site news query failed", error);
+        return json({ ok: false, error: "Could not load site news" }, 503, cors);
+      }
+    }
+
+    if (url.pathname === "/api/editorial-news") {
+      try {
+        const rows = await sql`SELECT * FROM public.mvp_editorial_news WHERE published = true ORDER BY created_at DESC LIMIT 300`;
+        return json({ ok: true, data: rows }, 200, cors);
+      } catch (error) {
+        console.error("Editorial news query failed", error);
+        return json({ ok: false, error: "Could not load editorial news" }, 503, cors);
+      }
+    }
+
+    if (url.pathname === "/api/team-matches") {
+      try {
+        const teamId = url.searchParams.get("team_id");
+        const rows = teamId
+          ? await sql`SELECT * FROM public.team_matches WHERE team_id = ${teamId}::bigint OR opponent_team_id = ${teamId}::bigint ORDER BY played_at DESC LIMIT 500`
+          : await sql`SELECT * FROM public.team_matches ORDER BY played_at DESC LIMIT 1000`;
+        return json({ ok: true, data: rows }, 200, cors);
+      } catch (error) {
+        console.error("Team matches query failed", error);
+        return json({ ok: false, error: "Could not load team matches" }, 503, cors);
+      }
+    }
+
+    if (url.pathname === "/api/tournaments") {
+      try {
+        const rows = await sql`SELECT id, name, best_of, status, is_active, bracket_data, created_at, updated_at FROM public.mvp_tournaments ORDER BY updated_at DESC LIMIT 100`;
+        return json({ ok: true, data: rows }, 200, cors);
+      } catch (error) {
+        console.error("Tournaments query failed", error);
+        return json({ ok: false, error: "Could not load tournaments" }, 503, cors);
+      }
+    }
+
+    if (url.pathname === "/api/season-state") {
+      try {
+        const rows = await sql`SELECT active_year, updated_at FROM public.mvp_season_state WHERE id = 1 LIMIT 1`;
+        return json({ ok: true, data: rows[0] || null }, 200, cors);
+      } catch (error) {
+        console.error("Season state query failed", error);
+        return json({ ok: false, error: "Could not load season state" }, 503, cors);
+      }
+    }
+
+    if (url.pathname === "/api/season-archives") {
+      try {
+        const rows = await sql`SELECT season_year, created_at, note FROM public.mvp_season_archives ORDER BY season_year ASC LIMIT 100`;
+        return json({ ok: true, data: rows }, 200, cors);
+      } catch (error) {
+        console.error("Season archives query failed", error);
+        return json({ ok: false, error: "Could not load season archives" }, 503, cors);
+      }
+    }
+
+    if (url.pathname === "/api/season-archive") {
+      const year = Number(url.searchParams.get("year"));
+      if (!Number.isInteger(year) || year < 2000 || year > 2200) {
+        return json({ ok: false, error: "A valid year is required" }, 400, cors);
+      }
+      try {
+        const rows = await sql`SELECT snapshot FROM public.mvp_season_archives WHERE season_year = ${year} LIMIT 1`;
+        return json({ ok: true, data: rows[0] || null }, 200, cors);
+      } catch (error) {
+        console.error("Season archive query failed", error);
+        return json({ ok: false, error: "Could not load season archive" }, 503, cors);
+      }
+    }
+
+    if (url.pathname === "/api/daily-archive-dates") {
+      try {
+        const rows = await sql`SELECT snapshot_date FROM public.mvp_daily_archives ORDER BY snapshot_date ASC LIMIT 5000`;
+        return json({ ok: true, data: rows }, 200, cors);
+      } catch (error) {
+        console.error("Daily archive dates query failed", error);
+        return json({ ok: false, error: "Could not load daily archive dates" }, 503, cors);
+      }
+    }
+
+    if (url.pathname === "/api/daily-archive") {
+      const date = url.searchParams.get("date");
+      if (!date || !/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) {
+        return json({ ok: false, error: "A valid date is required" }, 400, cors);
+      }
+      try {
+        const rows = await sql`SELECT snapshot FROM public.mvp_daily_archives WHERE snapshot_date = ${date}::date LIMIT 1`;
+        return json({ ok: true, data: rows[0] || null }, 200, cors);
+      } catch (error) {
+        console.error("Daily archive query failed", error);
+        return json({ ok: false, error: "Could not load daily archive" }, 503, cors);
+      }
+    }
+
+    if (url.pathname === "/api/site-brand") {
+      try {
+        const rows = await sql`SELECT setting_key, setting_value FROM public.mvp_site_settings WHERE setting_key IN ('site_logo_url', 'site_background_url')`;
+        return json({ ok: true, data: rows }, 200, cors);
+      } catch (error) {
+        console.error("Site brand query failed", error);
+        return json({ ok: false, error: "Could not load site branding" }, 503, cors);
+      }
+    }
+
+    if (url.pathname === "/api/trophy-catalog") {
+      try {
+        const rows = await sql`SELECT id, name, description, image_url, created_at FROM public.mvp_trophy_catalog ORDER BY created_at DESC LIMIT 100`;
+        return json({ ok: true, data: rows }, 200, cors);
+      } catch (error) {
+        console.error("Trophy catalog query failed", error);
+        return json({ ok: false, error: "Could not load trophy catalog" }, 503, cors);
+      }
+    }
+
+    if (url.pathname === "/api/player-trophies") {
+      const playerId = url.searchParams.get("player_id");
+      if (!playerId || !/^\\d+$/.test(playerId)) return json({ ok: false, error: "A valid player_id is required" }, 400, cors);
+      try {
+        const rows = await sql`SELECT id, player_id, team_id, place, tournament_name, awarded_at, custom_trophy_name, custom_trophy_image_url, custom_trophy_description FROM public.player_trophies WHERE player_id = ${playerId}::bigint ORDER BY awarded_at DESC LIMIT 300`;
+        return json({ ok: true, data: rows }, 200, cors);
+      } catch (error) {
+        console.error("Player trophies query failed", error);
+        return json({ ok: false, error: "Could not load player trophies" }, 503, cors);
+      }
+    }
+
+    if (url.pathname === "/api/player-prize-money") {
+      const playerId = url.searchParams.get("player_id");
+      if (!playerId || !/^\\d+$/.test(playerId)) return json({ ok: false, error: "A valid player_id is required" }, 400, cors);
+      try {
+        const rows = await sql`SELECT id, player_id, team_id, tournament_name, amount, currency, awarded_at FROM public.player_prize_money WHERE player_id = ${playerId}::bigint ORDER BY awarded_at DESC LIMIT 300`;
+        return json({ ok: true, data: rows }, 200, cors);
+      } catch (error) {
+        console.error("Player prize money query failed", error);
+        return json({ ok: false, error: "Could not load player prize money" }, 503, cors);
+      }
+    }
+
     return json({ ok: false, error: "Not found" }, 404, cors);
   },
 };
