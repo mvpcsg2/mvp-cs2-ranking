@@ -285,6 +285,38 @@ export default {
       }
     }
 
+
+    if (url.pathname === "/api/team-rank-history") {
+      try {
+        const rows = await sql`SELECT team_id, previous_rank, current_rank, movement_delta, changed_at FROM public.mvp_team_rank_history WHERE changed_at >= now() - interval '3 days' ORDER BY changed_at DESC LIMIT 1000`;
+        return json({ ok: true, data: rows }, 200, cors);
+      } catch (error) {
+        console.error("Team rank history query failed", error);
+        return json({ ok: false, error: "Could not load team rank history" }, 503, cors);
+      }
+    }
+
+    if (url.pathname === "/api/player-match-history") {
+      const playerId = url.searchParams.get("player_id");
+      if (!playerId || !/^\\d+$/.test(playerId)) return json({ ok: false, error: "A valid player_id is required" }, 400, cors);
+      try {
+        const rows = await sql`
+          SELECT s.id, s.match_id, s.player_id, s.team_id, s.kills, s.deaths, s.kd, s.created_at,
+                 m.opponent_name, m.opponent_team_id, m.team_score, m.opponent_score,
+                 m.map_name, m.played_at, m.match_status, m.tournament_name
+          FROM public.match_player_stats s
+          LEFT JOIN public.team_matches m ON m.id = s.match_id
+          WHERE s.player_id = ${playerId}::bigint
+          ORDER BY m.played_at DESC NULLS LAST, s.created_at DESC
+          LIMIT 500
+        `;
+        return json({ ok: true, data: rows }, 200, cors);
+      } catch (error) {
+        console.error("Player match history query failed", error);
+        return json({ ok: false, error: "Could not load player match history" }, 503, cors);
+      }
+    }
+
     return json({ ok: false, error: "Not found" }, 404, cors);
   },
 };
