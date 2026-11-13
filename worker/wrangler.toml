@@ -13,3 +13,8 @@ AUTH_API_URL = "https://mvp-cs2-api.mvpcsgo2.workers.dev"
 # Check every 15 minutes; SQL stores each completed Berlin day only once.
 [triggers]
 crons = ["*/15 * * * *"]
+
+# Create this bucket once in Cloudflare R2 before deploying the Worker.
+[[r2_buckets]]
+binding = "MVP_ASSETS"
+bucket_name = "mvp-cs2-assets"
