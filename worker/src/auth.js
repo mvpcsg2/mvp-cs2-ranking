@@ -110,7 +110,7 @@ function bearerToken(request) {
   const match = value.match(/^Bearer\s+([A-Za-z0-9_-]{32,})$/i);
   return match?.[1] || "";
 }
-async function getSessionUser(sql, request) {
+export async function getSessionUser(sql, request) {
   const token = bearerToken(request);
   if (!token) return null;
   const digest = await sha256(token);
