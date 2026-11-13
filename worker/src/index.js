@@ -98,6 +98,46 @@ export default {
       }
     }
 
+    // Public aggregate used for player ranking badges; raw match rows stay server-side.
+    if (url.pathname === "/api/player-top-positions") {
+      try {
+        const rows = await sql`
+          WITH active_players AS (
+            SELECT id, nickname
+            FROM public.cs2_players
+            WHERE COALESCE(is_banned, false) = false
+            ORDER BY nickname ASC
+            LIMIT 2000
+          ),
+          aggregates AS (
+            SELECT s.player_id,
+                   AVG(COALESCE(s.kd, 0)) AS average,
+                   SUM(COALESCE(s.kills, 0)) AS kills,
+                   COUNT(*)::int AS matches
+            FROM public.match_player_stats s
+            INNER JOIN active_players p ON p.id = s.player_id
+            GROUP BY s.player_id
+          )
+          SELECT p.id::text AS id, p.nickname,
+                 COALESCE(a.average, 0)::float8 AS average,
+                 COALESCE(a.kills, 0)::int AS kills,
+                 COALESCE(a.matches, 0)::int AS matches,
+                 ROW_NUMBER() OVER (
+                   ORDER BY COALESCE(a.average, 0) DESC,
+                            COALESCE(a.kills, 0) DESC,
+                            p.nickname ASC
+                 )::int AS position
+          FROM active_players p
+          LEFT JOIN aggregates a ON a.player_id = p.id
+          ORDER BY position ASC
+        `;
+        return json({ ok: true, data: rows }, 200, cors);
+      } catch (error) {
+        console.error("Player top positions query failed", error);
+        return json({ ok: false, error: "Could not load player rankings" }, 503, cors);
+      }
+    }
+
     return json({ ok: false, error: "Not found" }, 404, cors);
   },
 };
