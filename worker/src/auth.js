@@ -34,11 +34,17 @@ function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
 }
 function emailLink(env, purpose, token) {
-  const base = env.AUTH_PUBLIC_URL || "https://mvp-cs2-ranking.pages.dev/";
-  const url = new URL(base);
-  url.searchParams.set("auth", purpose);
+  const base = env.AUTH_API_URL || "https://mvp-cs2-api.mvpcsgo2.workers.dev";
+  const path = purpose === "verify" ? "/api/auth/verify-email" : "/api/auth/reset-password";
+  const url = new URL(path, base);
   url.searchParams.set("token", token);
   return url.toString();
+}
+function htmlPage(body) {
+  return new Response(body, {
+    status: 200,
+    headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-content-type-options": "nosniff" },
+  });
 }
 async function sendMail(env, { to, subject, heading, message, link, button }) {
   if (!env.RESEND_API_KEY || !env.RESEND_FROM_EMAIL) {
@@ -208,6 +214,28 @@ export async function handleAuthRequest(request, env, cors) {
       return json({ ok: true, message: "Если аккаунт ожидает подтверждения, письмо будет отправлено." }, 200, cors);
     }
 
+    if (path === "/api/auth/verify-email" && request.method === "GET") {
+      if (!(await rateLimit(sql, request, "verify-email", 10))) return htmlPage("<h2>Слишком много попыток</h2><p>Попробуй позже.</p>");
+      const token = url.searchParams.get("token") || "";
+      const digest = await sha256(token);
+      const adminEmail = String(env.AUTH_ADMIN_EMAIL || "").trim().toLowerCase();
+      const verified = token.length >= 32 ? await sql`
+        UPDATE public.mvp_auth_users u
+        SET email_verified_at = COALESCE(u.email_verified_at, now()),
+            role = CASE WHEN lower(u.email) = ${adminEmail} AND ${adminEmail} <> '' THEN 'admin' ELSE u.role END,
+            updated_at = now()
+        FROM public.mvp_auth_email_tokens t
+        WHERE t.user_id = u.id AND t.token_hash = ${digest}
+          AND t.purpose = 'verify_email' AND t.consumed_at IS NULL AND t.expires_at > now()
+        RETURNING u.id, u.email
+      ` : [];
+      if (!verified.length) return htmlPage("<!doctype html><html lang='ru'><meta charset='utf-8'><title>Ссылка недействительна</title><body style='font-family:Arial;padding:32px'><h2>Ссылка подтверждения недействительна или устарела</h2><p>Запроси новое письмо подтверждения на сайте.</p></body></html>");
+      await sql`UPDATE public.mvp_auth_email_tokens SET consumed_at = now() WHERE token_hash = ${digest}`;
+      const site = escapeHtml(env.AUTH_PUBLIC_URL || "https://mvp-cs2-ranking.pages.dev/");
+      const adminNotice = String(verified[0].email).toLowerCase() === adminEmail ? "<p>Тебе назначена роль администратора.</p>" : "";
+      return htmlPage(`<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Email подтверждён</title><body style="font-family:Arial,sans-serif;padding:32px;max-width:600px;margin:auto;color:#20242a"><h2>Email подтверждён!</h2><p>Аккаунт MVP CS2 Ranking активирован.</p>${adminNotice}<p><a href="${site}" style="display:inline-block;padding:12px 18px;background:#f2a900;color:#20242a;text-decoration:none;border-radius:6px;font-weight:bold">Вернуться на сайт</a></p></body></html>`);
+    }
+
     if (path === "/api/auth/verify-email" && request.method === "POST") {
       if (!(await rateLimit(sql, request, "verify-email", 10))) return json({ ok: false, error: "Слишком много попыток. Попробуй позже." }, 429, cors);
       const body = await readBody(request);
@@ -266,6 +294,13 @@ export async function handleAuthRequest(request, env, cors) {
         await sendMail(env, { to: email, subject: "Сброс пароля — MVP CS2 Ranking", heading: "Сброс пароля", message: "По запросу создана ссылка для установки нового пароля. Она действует один час.", link, button: "Изменить пароль" });
       }
       return json({ ok: true, message: "Если подтверждённый аккаунт существует, письмо для восстановления будет отправлено." }, 200, cors);
+    }
+
+    if (path === "/api/auth/reset-password" && request.method === "GET") {
+      const token = url.searchParams.get("token") || "";
+      if (token.length < 32 || token.length > 128) return htmlPage("<h2>Ссылка восстановления недействительна</h2>");
+      const safeToken = escapeHtml(token);
+      return htmlPage(`<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Новый пароль</title><body style="font-family:Arial,sans-serif;padding:32px;max-width:460px;margin:auto;color:#20242a"><h2>Установить новый пароль</h2><form id="resetForm"><label>Новый пароль (не менее 10 символов)<br><input id="password" type="password" minlength="10" maxlength="128" required autocomplete="new-password" style="box-sizing:border-box;width:100%;padding:12px;margin:10px 0 16px"></label><button style="padding:12px 18px;background:#f2a900;border:0;border-radius:6px;font-weight:bold;cursor:pointer">Сохранить пароль</button></form><p id="message" role="status"></p><script>const token="${safeToken}";document.getElementById("resetForm").addEventListener("submit",async e=>{e.preventDefault();const password=document.getElementById("password").value;const message=document.getElementById("message");message.textContent="Сохраняем…";try{const response=await fetch(location.pathname,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({token,password})});const result=await response.json();message.textContent=result.message||result.error||"Не удалось изменить пароль";if(result.ok)document.getElementById("resetForm").remove()}catch(_){message.textContent="Ошибка соединения. Попробуй ещё раз."}});</script></body></html>`);
     }
 
     if (path === "/api/auth/reset-password" && request.method === "POST") {
