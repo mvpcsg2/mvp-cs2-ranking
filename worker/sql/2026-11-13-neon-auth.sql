@@ -94,10 +94,16 @@ DECLARE
   v_player_id bigint;
   v_photo text;
   v_count integer := 0;
+  v_roster_total integer := 0;
 BEGIN
   IF length(btrim(COALESCE(p_name,''))) < 2 OR length(btrim(p_name)) > 80 THEN
     RAISE EXCEPTION 'Название команды должно содержать от 2 до 80 символов';
   END IF;
+
+  SELECT count(*)::integer INTO v_roster_total
+  FROM regexp_split_to_table(COALESCE(p_players,''), '[,;[:space:]·•|]+') AS item(nickname)
+  WHERE btrim(item.nickname)<>'';
+  IF v_roster_total>5 THEN RAISE EXCEPTION 'В команде может быть не более пяти игроков'; END IF;
 
   IF p_team_id IS NULL THEN
     INSERT INTO public.teams
@@ -139,7 +145,6 @@ BEGIN
       WITH ORDINALITY AS item(nickname, ordinality)
     WHERE btrim(item.nickname)<>''
     ORDER BY item.ordinality
-    LIMIT 5
   LOOP
     v_count := v_count + 1;
     IF EXISTS (
@@ -174,7 +179,7 @@ BEGIN
     v_player_id := NULL;
   END LOOP;
 
-  IF v_count>5 THEN RAISE EXCEPTION 'В команде может быть не более пяти игроков'; END IF;
+  IF v_count<>v_roster_total THEN RAISE EXCEPTION 'Не удалось синхронизировать состав команды'; END IF;
   RETURN v_team;
 END;
 $;
