@@ -6,3 +6,7 @@ workers_dev = true
 
 [vars]
 CORS_ORIGIN = "https://mvpcsg2.github.io"
+
+# Check every 15 minutes; SQL stores each completed Berlin day only once.
+[triggers]
+crons = ["*/15 * * * *"]
