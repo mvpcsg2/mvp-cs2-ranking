@@ -1729,7 +1729,7 @@ async function loadDailyArchiveIndex(){
   catch(error){dailyArchiveReady=false;dailyArchiveDates=[];console.warn('Ежедневные архивы Neon API пока недоступны.',error);}
   renderDailyDateNavigator();
 }
-async function captureCompletedDailySnapshot(){try{const {error}=await client.rpc('mvp_capture_completed_daily_snapshot');if(error)throw error;await loadDailyArchiveIndex();return true;}catch(error){console.warn('Не удалось сохранить завершённый день. Проверь SQL-миграцию mvp_daily_rank_archive_migration.sql.',error);return false;}}
+async function captureCompletedDailySnapshot(){try{await loadDailyArchiveIndex();return true;}catch(error){console.warn('Не удалось обновить список дневных архивов. Снимки создаются планировщиком Neon Worker.',error);return false;}}
 function renderDailyDateNavigator(){
   const host=document.getElementById('dailyDateNav');if(!host)return;
   const yearDates=dailyArchiveDates.filter(date=>date.startsWith(`${selectedSeasonYear}-`));
