@@ -1,3 +1,4 @@
+import { handleDataRequest } from "./data.js";
 import { handleAuthRequest } from "./auth.js";
 import { neon } from "@neondatabase/serverless";
 
@@ -54,6 +55,8 @@ export default {
     }
     const authResponse = await handleAuthRequest(request, env, cors);
     if (authResponse) return authResponse;
+    const dataResponse = await handleDataRequest(request, env, cors);
+    if (dataResponse) return dataResponse;
 
     if (request.method !== "GET") {
       return json({ ok: false, error: "Method not allowed" }, 405, cors);
