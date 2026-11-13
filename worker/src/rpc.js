@@ -88,7 +88,8 @@ async function runRpc(sql,user,name,args,env){
       const email=String(p.p_email||"").trim().toLowerCase();
       if(!email.includes("@"))throw new Error("Некорректный email.");
       if(email===String(env.AUTH_ADMIN_EMAIL||"").trim().toLowerCase())throw new Error("Главного администратора нельзя заблокировать.");
-      const rows=await sql`UPDATE public.mvp_auth_users SET is_banned=true,ban_reason=\${String(p.p_reason||'').trim().slice(0,500)},updated_at=now() WHERE lower(email)=${email} RETURNING id,email,is_banned`;
+      const reason=String(p.p_reason||"").trim().slice(0,500);
+      const rows=await sql`UPDATE public.mvp_auth_users SET is_banned=true,ban_reason=${reason},updated_at=now() WHERE lower(email)=${email} RETURNING id,email,is_banned`;
       if(!rows.length)throw new Error("Аккаунт с таким email не найден в Neon.");
       await sql`DELETE FROM public.mvp_auth_sessions WHERE user_id=${rows[0].id}::uuid`;
       return rows[0];
@@ -130,7 +131,7 @@ async function runRpc(sql,user,name,args,env){
       const nextYear=Number(p.p_next_year);
       if(!Number.isInteger(nextYear)||nextYear<2020||nextYear>2200)throw new Error("Некорректный год сезона.");
       // This operation intentionally calls a dedicated database function so the archive,
-      // score reset, and season switch remain atomic. The function must be installed separately.
+      // score reset, and season switch remain atomic. The Neon auth SQL migration installs this function.
       const rows=await sql`SELECT public.mvp_wipe_and_advance_season(${nextYear}) AS result`;
       return rows?.[0]?.result||null;
     }
