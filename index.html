@@ -1725,8 +1725,8 @@ function isSeasonReadOnly(){return isViewingArchivedSeason()||isFutureSeason()||
 function seasonRows(key){const value=seasonSnapshot?.[key];return Array.isArray(value)?value:[];}
 function snapshotRows(key){if(dailySnapshot&&String(dailySnapshot.snapshot_date||'')===String(selectedRankDate)){const value=dailySnapshot[key];if(Array.isArray(value))return value;}return seasonRows(key);}
 async function loadDailyArchiveIndex(){
-  try{const {data,error}=await client.from('mvp_daily_archives').select('snapshot_date').order('snapshot_date',{ascending:true}).limit(5000);if(error)throw error;dailyArchiveDates=(data||[]).map(row=>String(row.snapshot_date).slice(0,10));dailyArchiveReady=true;}
-  catch(error){dailyArchiveReady=false;dailyArchiveDates=[];console.warn('Ежедневные архивы пока не подключены. Выполни mvp_daily_rank_archive_migration.sql в Supabase.',error);}
+  try{const data=await mvpApiGet('/api/daily-archive-dates');dailyArchiveDates=(data||[]).map(row=>String(row.snapshot_date).slice(0,10));dailyArchiveReady=true;}
+  catch(error){dailyArchiveReady=false;dailyArchiveDates=[];console.warn('Ежедневные архивы Neon API пока недоступны.',error);}
   renderDailyDateNavigator();
 }
 async function captureCompletedDailySnapshot(){try{const {error}=await client.rpc('mvp_capture_completed_daily_snapshot');if(error)throw error;await loadDailyArchiveIndex();return true;}catch(error){console.warn('Не удалось сохранить завершённый день. Проверь SQL-миграцию mvp_daily_rank_archive_migration.sql.',error);return false;}}
@@ -1795,14 +1795,12 @@ function applySiteBackground(url){
 }
 async function loadSiteBrand(){
   try{
-    const {data,error}=await client.from('mvp_site_settings').select('setting_key,setting_value').in('setting_key',['site_logo_url','site_background_url']);
-    if(error)throw error;
-    const rows=data||[];
+    const rows=await mvpApiGet('/api/site-brand')||[];
     currentSiteLogoUrl=String(rows.find(x=>x.setting_key==='site_logo_url')?.setting_value||'').trim();
     currentSiteBackgroundUrl=String(rows.find(x=>x.setting_key==='site_background_url')?.setting_value||'').trim();
     renderSiteBrand();applySiteBackground(currentSiteBackgroundUrl);
   }catch(error){
-    console.warn('Настройки бренда пока не загружены. Выполни mvp_site_background_rank_migration.sql.',error);
+    console.warn('Настройки бренда Neon API пока не загружены.',error);
     renderSiteBrand();applySiteBackground('');
   }
 }
@@ -1810,12 +1808,10 @@ async function loadSeasonState(){
   const fallbackYear=new Date().getFullYear();
   activeSeasonYear=fallbackYear;selectedSeasonYear=fallbackYear;seasonArchiveYears=new Set();seasonFeatureReady=false;
   try{
-    const {data:state,error:stateError}=await client.from('mvp_season_state').select('active_year').eq('id',1).maybeSingle();
-    if(stateError)throw stateError;
+    const state=await mvpApiGet('/api/season-state');
     activeSeasonYear=Number(state?.active_year)||fallbackYear;
     selectedSeasonYear=activeSeasonYear;
-    const {data:archives,error:archiveError}=await client.from('mvp_season_archives').select('season_year,created_at').order('season_year',{ascending:true});
-    if(archiveError)throw archiveError;
+    const archives=await mvpApiGet('/api/season-archives');
     seasonArchiveYears=new Set((archives||[]).map(row=>Number(row.season_year)).filter(Number.isInteger));
     seasonFeatureReady=true;
   }catch(error){
@@ -3651,9 +3647,8 @@ async function loadNewsRail(){
   let rows=[];
   if(isViewingHistoricalData())rows=snapshotRows('site_news');
   else if(!isFutureSeason()){
-    const {data,error}=await client.from('mvp_site_news').select(fields).order('created_at',{ascending:false}).limit(60);
-    if(error){const msg='Выполни SQL-файл mvp_news_visuals_migration.sql в Supabase.';transfersHost.innerHTML=`<div class="news-rail-empty">${esc(msg)}<br>${esc(niceError(error))}</div>`;bansHost.innerHTML=`<div class="news-rail-empty">${esc(msg)}</div>`;return;}
-    rows=data||[];
+    try{rows=(await mvpApiGet('/api/site-news')||[]).slice(0,60);}
+    catch(error){const msg='Не удалось загрузить новости из Neon API.';transfersHost.innerHTML=`<div class="news-rail-empty">${esc(msg)}<br>${esc(niceError(error))}</div>`;bansHost.innerHTML=`<div class="news-rail-empty">${esc(msg)}</div>`;return;}
   }
   rows=rows.filter(row=>!row.created_at||new Date(row.created_at).getFullYear()===Number(selectedSeasonYear));
   if(isViewingPastDay())rows=rows.filter(row=>String(row.created_at||'').slice(0,10)===selectedRankDate);
@@ -3667,9 +3662,8 @@ async function openAllTransfers(){
   let rows=[];
   if(isViewingHistoricalData())rows=snapshotRows('site_news');
   else if(!isFutureSeason()){
-    const {data,error}=await client.from('mvp_site_news').select(fields).in('event_type',['player_released','player_transfer','player_rejoined','player_joined']).order('created_at',{ascending:false}).limit(500);
-    if(error){modal(`<h2>Все трансферы</h2><div class="help-empty">Не удалось загрузить новости. Проверь SQL-миграцию mvp_news_visuals_migration.sql.<br>${esc(niceError(error))}</div><div class="modalfoot"><button class="btn primary" id="closeAllTransfers">Закрыть</button></div>`,true);document.getElementById('closeAllTransfers').onclick=closeModal;return;}
-    rows=data||[];
+    try{rows=(await mvpApiGet('/api/site-news')||[]).filter(row=>['player_released','player_transfer','player_rejoined','player_joined'].includes(row.event_type)).slice(0,500);}
+    catch(error){modal(`<h2>Все трансферы</h2><div class="help-empty">Не удалось загрузить новости из Neon API.<br>${esc(niceError(error))}</div><div class="modalfoot"><button class="btn primary" id="closeAllTransfers">Закрыть</button></div>`,true);document.getElementById('closeAllTransfers').onclick=closeModal;return;}
   }
   rows=rows.filter(row=>['player_released','player_transfer','player_rejoined','player_joined'].includes(row.event_type)&&(!row.created_at||new Date(row.created_at).getFullYear()===Number(selectedSeasonYear)));
   if(isViewingPastDay())rows=rows.filter(row=>String(row.created_at||'').slice(0,10)===selectedRankDate);
