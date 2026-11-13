@@ -30,11 +30,25 @@ Do not merge this branch as a complete Supabase replacement. It currently contai
 - [ ] Test ranking, team detail, player detail, matches, news, tournaments, and archives, including older dates with legacy snapshots and new team-only dates.
 
 ## Phase C — identity and protected writes
-- [ ] Decide whether Supabase Auth remains the identity provider during transition.
-- [ ] Verify bearer tokens server-side (never trust browser-supplied role/permissions).
+
+### Neon authentication foundation
+- [x] Add separate Neon account/session/email-token/rate-limit tables SQL.
+- [x] Add Worker endpoints for registration, email verification, login, session lookup, logout, and password reset.
+- [x] Hash passwords with PBKDF2-HMAC-SHA-256; store only password hashes/salts and hashed one-time/session tokens.
+- [x] Add IP-based rate limiting to auth operations.
+- [x] Configure server-side admin allowlist for `semkimr@gmail.com`; admin role is granted only after email verification.
+- [ ] Run `worker/sql/2026-11-13-neon-auth.sql` in Neon.
+- [ ] Configure Cloudflare secret `RESEND_API_KEY` and verified sender variable `RESEND_FROM_EMAIL`.
+- [ ] Deploy Worker and test all auth endpoints and email delivery.
+- [ ] Add browser-side verification/reset link handlers and connect registration/login/session UI to Neon auth.
+
+### Protected-operation migration (required before Supabase Auth can be disabled)
+- [ ] Move every protected admin/moderator write and read from Supabase to Worker routes.
+- [ ] Verify Neon bearer sessions server-side for every protected operation (never trust browser-supplied role/permissions).
 - [ ] Implement explicit authorization for each admin/moderator action.
 - [ ] Port RPC behavior as separate validated operations, not arbitrary SQL.
 - [ ] Add request validation, rate limits, audit logging, and safe error responses.
+- [ ] Migrate or reset existing accounts without exposing or copying plaintext passwords.
 - [ ] Test unauthorized, non-admin, moderator, and admin cases.
 
 ## Phase D — assets and realtime
