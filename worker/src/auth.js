@@ -6,7 +6,8 @@ const json = (data, status = 200, cors = {}) => new Response(JSON.stringify(data
 });
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PBKDF2_ITERATIONS = 600000;
+// Cloudflare Workers Web Crypto supports PBKDF2 up to 100,000 iterations.
+const PBKDF2_ITERATIONS = 100000;
 const SESSION_DAYS = 7;
 
 function base64Url(bytes) {
