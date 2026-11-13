@@ -40,7 +40,7 @@ const TABLES = {
   },
   mvp_trophy_catalog: {
     read: ["id","name","description","image_url","created_at"],
-    write: ["name","description","image_url","created_at","created_by"],
+    write: ["name","description","image_url","created_at","updated_at","created_by"],
     permission: "manage_trophies",
   },
   player_trophies: {
@@ -55,7 +55,7 @@ const TABLES = {
   },
   mvp_editorial_news: {
     read: ["id","title","category","summary","body","image_url","external_url","author_name","published","created_at","updated_at"],
-    write: ["title","category","summary","body","image_url","external_url","author_name","published","created_at","updated_at"],
+    write: ["title","category","summary","body","image_url","external_url","author_id","author_name","published","created_at","updated_at"],
     permission: "manage_news",
     special: "editorial",
   },
