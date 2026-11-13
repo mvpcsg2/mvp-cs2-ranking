@@ -1,3 +1,4 @@
+import { handleAuthRequest } from "./auth.js";
 import { neon } from "@neondatabase/serverless";
 
 const json = (data, status = 200, headers = {}) =>
@@ -20,7 +21,7 @@ function getCors(request, env) {
   return allowedOrigins.has(origin)
     ? {
         "access-control-allow-origin": origin,
-        "access-control-allow-methods": "GET, OPTIONS",
+        "access-control-allow-methods": "GET, POST, OPTIONS",
         "access-control-allow-headers": "content-type, authorization",
         "vary": "Origin",
       }
@@ -51,6 +52,9 @@ export default {
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: cors });
     }
+    const authResponse = await handleAuthRequest(request, env, cors);
+    if (authResponse) return authResponse;
+
     if (request.method !== "GET") {
       return json({ ok: false, error: "Method not allowed" }, 405, cors);
     }
