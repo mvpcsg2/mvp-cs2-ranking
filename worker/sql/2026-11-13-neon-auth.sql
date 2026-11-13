@@ -101,7 +101,7 @@ BEGIN
   END IF;
 
   SELECT count(*)::integer INTO v_roster_total
-  FROM regexp_split_to_table(COALESCE(p_players,''), '[,;\\n\\r·•|]+') AS item(nickname)
+  FROM regexp_split_to_table(COALESCE(p_players,''), '[,;\n\r·•|]+') AS item(nickname)
   WHERE btrim(item.nickname)<>'';
   IF v_roster_total>5 THEN RAISE EXCEPTION 'В команде может быть не более пяти игроков'; END IF;
 
@@ -135,13 +135,13 @@ BEGIN
   WHERE p.team_id=v_team.id
     AND NOT EXISTS (
       SELECT 1
-      FROM regexp_split_to_table(COALESCE(p_players,''), '[,;\\n\\r·•|]+') AS item(nickname)
+      FROM regexp_split_to_table(COALESCE(p_players,''), '[,;\n\r·•|]+') AS item(nickname)
       WHERE btrim(item.nickname)<>'' AND lower(btrim(item.nickname))=lower(p.nickname)
     );
 
   FOR v_player IN
     SELECT btrim(item.nickname) AS nickname, item.ordinality::integer AS position
-    FROM regexp_split_to_table(COALESCE(p_players,''), '[,;\\n\\r·•|]+')
+    FROM regexp_split_to_table(COALESCE(p_players,''), '[,;\n\r·•|]+')
       WITH ORDINALITY AS item(nickname, ordinality)
     WHERE btrim(item.nickname)<>''
     ORDER BY item.ordinality
