@@ -2261,7 +2261,7 @@ async function getPlayerTopPosition(playerId){
     playerTopPositionCache.pending=(async()=>{
       const rankingRows=await mvpApiGet('/api/player-top-positions')||[];
       const activeRows=rankingRows.filter(row=>activeNicknames.has(String(row.nickname||'').trim().toLowerCase()));
-      const positions=new Map(activeRows.map(row=>[String(row.id),Number(row.position)||null]));
+      const positions=new Map(activeRows.map((row,index)=>[String(row.id),index+1]));
       playerTopPositionCache={expiresAt:Date.now()+120000,signature,positions,pending:null};
       return positions;
     })();
