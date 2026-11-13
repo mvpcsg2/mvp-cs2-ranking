@@ -1932,8 +1932,7 @@ async function openSettingsCenter(){
  const current=getThemeMode();
  let trophyCatalogRows=[],trophyCatalogLoadError='';
  if(can('manage_trophies')){
-   const {data,error}=await client.from('mvp_trophy_catalog').select('id,name,description,image_url,created_at').order('created_at',{ascending:false}).limit(100);
-   if(error)trophyCatalogLoadError=niceError(error);else trophyCatalogRows=data||[];
+   try{trophyCatalogRows=await mvpApiGet('/api/trophy-catalog')||[];}catch(error){trophyCatalogLoadError=niceError(error);}
  }
  const trophyAdmin=can('manage_trophies')?`<section class="site-logo-admin trophy-catalog-admin"><div class="roster-heading">КОНСТРУКТОР КУБКОВ</div><p class="page-intro">Создавай собственные награды с названием и изображением. Затем выдавай их игрокам из профиля.</p>${trophyCatalogLoadError?`<div class="notice">Не удалось загрузить список кубков: ${esc(trophyCatalogLoadError)}. Проверь SQL-миграцию mvp_custom_trophy_catalog.sql.</div>`:''}<input type="hidden" id="customTrophyId"><div class="field"><label for="customTrophyName">Название кубка</label><input id="customTrophyName" maxlength="100" placeholder="Например, MVP Champions Cup"></div><div class="field"><label for="customTrophyDescription">Описание (необязательно)</label><input id="customTrophyDescription" maxlength="240" placeholder="Победитель весеннего турнира"></div><div class="field"><label for="customTrophyImageUrl">Ссылка на фото (необязательно)</label><input id="customTrophyImageUrl" type="url" maxlength="2048" placeholder="https://..."></div><div class="field"><label for="customTrophyImageFile">Или загрузить фото кубка с компьютера</label><input id="customTrophyImageFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div><div class="custom-trophy-form-preview" id="customTrophyPreview"></div><div class="site-logo-admin-actions"><button class="btn primary" id="saveCustomTrophy" type="button">Сохранить кубок</button><button class="btn" id="resetCustomTrophy" type="button">Очистить форму</button></div><div class="notice">Поддерживаются PNG, JPG, WebP и GIF до 8 МБ. Выданные игрокам кубки сохраняют копию названия и изображения, даже если шаблон позже изменить или удалить.</div><div class="custom-trophy-catalog-list" id="customTrophyCatalogList">${trophyCatalogRows.length?trophyCatalogRows.map(trophyCatalogCardMarkup).join(''):'<div class="player-trophies-empty">Пока нет собственных кубков. Создай первый выше.</div>'}</div></section>`:'';
  const seasonAdmin=admin&&!isSeasonReadOnly()?`<section class="season-admin-card"><div class="roster-heading">АРХИВ И ГОДОВОЙ ВАЙП</div><p>Активный сезон: <b>${activeSeasonYear}</b>. Перед запуском ${activeSeasonYear+1} сайт сохранит архив ${activeSeasonYear}, затем обнулит очки и турнирные победы, архивирует матчи, статистику K/D, награды и турнирную сетку. Составы команд и профили игроков останутся.</p><div class="notice">Архив будет доступен всем посетителям в левой панели. Прошлые сезоны доступны только для просмотра.</div>${seasonFeatureReady?`<button class="btn danger" id="wipeAndAdvanceSeason" type="button">Сохранить ${activeSeasonYear} и начать ${activeSeasonYear+1}</button>`:`<div class="notice">Для годовых архивов сначала выполни SQL-файл mvp_year_archive_migration.sql в Supabase.</div>`}</section>`:'';
@@ -3719,15 +3718,12 @@ async function loadNewsHubItems(filter=newsCenterFilter){
   let events=[],articles=[];
   if(isViewingHistoricalData()){events=snapshotRows('site_news');articles=snapshotRows('editorial_news').filter(row=>row.published);}
   else if(!isFutureSeason()){
-    const [{data:eventData,error:eventError},{data:articleData,error:articleError}]=await Promise.all([
-      client.from('mvp_site_news').select('*').order('created_at',{ascending:false}).limit(500),
-      client.from('mvp_editorial_news').select('*').eq('published',true).order('created_at',{ascending:false}).limit(300)
-    ]);
-    if(eventError||articleError){
-      const issues=[eventError?`Автоматические события: ${niceError(eventError)}`:'',articleError?`Публикации: ${niceError(articleError)}. Проверь SQL-миграцию mvp_editorial_news_setup.sql.`:''].filter(Boolean).join('<br>');
-      host.innerHTML=`<div class="news-hub-empty">Не удалось загрузить все новости.<br>${issues}</div>`;return;
+    try{
+      const [eventData,articleData]=await Promise.all([mvpApiGet('/api/site-news'),mvpApiGet('/api/editorial-news')]);
+      events=eventData||[];articles=articleData||[];
+    }catch(error){
+      host.innerHTML='<div class="news-hub-empty">Не удалось загрузить новости из Neon API.<br>'+esc(niceError(error))+'</div>';return;
     }
-    events=eventData||[];articles=articleData||[];
   }
   const transferTypes=['player_released','player_transfer','player_rejoined','player_joined'];
   const inSeason=row=>!row.created_at||new Date(row.created_at).getFullYear()===Number(selectedSeasonYear);
