@@ -12,11 +12,14 @@ Do not merge this branch as a complete Supabase replacement. It currently contai
 - [ ] `GET /api/player-top-positions` returns aggregate ranking positions.
 - [ ] Verify `/api/site-news`, `/api/editorial-news`, `/api/team-matches`, `/api/matches`, `/api/tournaments`, `/api/streams`, `/api/live-matches`, `/api/player-stats`, `/api/season-state`, `/api/season-archives`, `/api/daily-archive-dates`, `/api/site-brand`, `/api/trophy-catalog`, `/api/team-rank-history`, `/api/player-match-history`, `/api/player-trophies`, and `/api/player-prize-money` after Worker deployment.
 - [ ] Verify CORS from `https://mvpcsg2.github.io`.
+- [ ] Run `worker/sql/2026-11-13-daily-archive-compact.sql` in Neon SQL Editor; verify daily archive dates and compact team-only snapshots.
+- [ ] Run `VACUUM (FULL, ANALYZE) public.mvp_daily_archives;` separately after checking the compacted rows; this reclaims disk space but takes an exclusive table lock.
 
 ## Phase B — browser read migration
 - [x] Move team and player-directory reads to typed Worker routes.
 - [x] Move player top-position aggregate reads to a typed Worker route.
 - [x] Add typed public GET routes for news, tournaments, team matches, archives, site branding, trophy catalog, rank history, and player profile history.
+- [x] Add compact daily archive migration: archive only team ranking state, retain one date per day, and remove redundant full-database snapshot triggers.
 - [x] Switch selected website public reads (news rail, news hub, daily/season archives, site branding, trophy catalog, player profile history, top players, matches, tournament display, streams, live match display) to the Neon API.
 - [ ] Move each remaining public read to a typed Worker route.
 - [ ] Confirm response field names and nullability against Neon schema.
