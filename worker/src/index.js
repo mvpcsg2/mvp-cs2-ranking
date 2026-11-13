@@ -229,7 +229,7 @@ export default {
 
     if (url.pathname === "/api/daily-archive") {
       const date = url.searchParams.get("date");
-      if (!date || !/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) {
+      if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
         return json({ ok: false, error: "A valid date is required" }, 400, cors);
       }
       try {
@@ -263,7 +263,7 @@ export default {
 
     if (url.pathname === "/api/player-trophies") {
       const playerId = url.searchParams.get("player_id");
-      if (!playerId || !/^\\d+$/.test(playerId)) return json({ ok: false, error: "A valid player_id is required" }, 400, cors);
+      if (!playerId || !/^\d+$/.test(playerId)) return json({ ok: false, error: "A valid player_id is required" }, 400, cors);
       try {
         const rows = await sql`SELECT id, player_id, team_id, place, tournament_name, awarded_at, custom_trophy_name, custom_trophy_image_url, custom_trophy_description FROM public.player_trophies WHERE player_id = ${playerId}::bigint ORDER BY awarded_at DESC LIMIT 300`;
         return json({ ok: true, data: rows }, 200, cors);
@@ -275,7 +275,7 @@ export default {
 
     if (url.pathname === "/api/player-prize-money") {
       const playerId = url.searchParams.get("player_id");
-      if (!playerId || !/^\\d+$/.test(playerId)) return json({ ok: false, error: "A valid player_id is required" }, 400, cors);
+      if (!playerId || !/^\d+$/.test(playerId)) return json({ ok: false, error: "A valid player_id is required" }, 400, cors);
       try {
         const rows = await sql`SELECT id, player_id, team_id, tournament_name, amount, currency, awarded_at FROM public.player_prize_money WHERE player_id = ${playerId}::bigint ORDER BY awarded_at DESC LIMIT 300`;
         return json({ ok: true, data: rows }, 200, cors);
@@ -298,7 +298,7 @@ export default {
 
     if (url.pathname === "/api/player-match-history") {
       const playerId = url.searchParams.get("player_id");
-      if (!playerId || !/^\\d+$/.test(playerId)) return json({ ok: false, error: "A valid player_id is required" }, 400, cors);
+      if (!playerId || !/^\d+$/.test(playerId)) return json({ ok: false, error: "A valid player_id is required" }, 400, cors);
       try {
         const rows = await sql`
           SELECT s.id, s.match_id, s.player_id, s.team_id, s.kills, s.deaths, s.kd, s.created_at,
