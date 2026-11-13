@@ -220,7 +220,11 @@ BEGIN
     'team_matches', COALESCE((SELECT jsonb_agg(to_jsonb(m) ORDER BY m.played_at) FROM public.team_matches m), '[]'::jsonb),
     'match_player_stats', COALESCE((SELECT jsonb_agg(to_jsonb(s)) FROM public.match_player_stats s), '[]'::jsonb),
     'player_trophies', COALESCE((SELECT jsonb_agg(to_jsonb(t) ORDER BY t.awarded_at) FROM public.player_trophies t), '[]'::jsonb),
-    'player_prize_money', COALESCE((SELECT jsonb_agg(to_jsonb(p) ORDER BY p.awarded_at) FROM public.player_prize_money p), '[]'::jsonb)
+    'player_prize_money', COALESCE((SELECT jsonb_agg(to_jsonb(p) ORDER BY p.awarded_at) FROM public.player_prize_money p), '[]'::jsonb),
+    'team_rank_history', COALESCE((SELECT jsonb_agg(to_jsonb(r) ORDER BY r.changed_at) FROM public.mvp_team_rank_history r), '[]'::jsonb),
+    'tournaments', COALESCE((SELECT jsonb_agg(to_jsonb(t) ORDER BY t.updated_at) FROM public.mvp_tournaments t), '[]'::jsonb),
+    'site_news', COALESCE((SELECT jsonb_agg(to_jsonb(n) ORDER BY n.created_at) FROM public.mvp_site_news n), '[]'::jsonb),
+    'editorial_news', COALESCE((SELECT jsonb_agg(to_jsonb(n) ORDER BY n.created_at) FROM public.mvp_editorial_news n), '[]'::jsonb)
   );
 
   INSERT INTO public.mvp_season_archives (season_year, snapshot, note)
