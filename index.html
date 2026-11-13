@@ -1759,7 +1759,7 @@ function createMvpApiClient(){
   function from(table){
     const state={table,action:'select',columns:'*',filters:[],orFilters:[],orders:[],limit:500,values:null,returning:null,conflictColumns:[],single:null};
     const builder={
-      select(columns='*'){if(state.action==='select')state.columns=columns||'*';else state.returning=columns==='*'?null:String(columns).split(',').map(x=>x.trim());return this;},
+      select(columns='*'){if(state.action==='select')state.columns=columns||'*';else state.returning=columns==='*'?'*':String(columns).split(',').map(x=>x.trim());return this;},
       insert(values){state.action='insert';state.values=values;return this;},
       update(values){state.action='update';state.values=values;return this;},
       delete(){state.action='delete';return this;},
@@ -1776,7 +1776,7 @@ function createMvpApiClient(){
         const parsed=String(expression||'').split(',').map(part=>{
           const bits=part.split('.');
           if(bits.length<3)throw new Error('Неподдерживаемое OR-условие.');
-          return {column:bits[0],op:bits[1],value:bits.slice(2).join('.')};
+          const raw=bits.slice(2).join('.');const value=/^-?\\d+(?:\\.\\d+)?$/.test(raw)?Number(raw):raw==='true'?true:raw==='false'?false:raw;return {column:bits[0],op:bits[1],value};
         });
         state.orFilters.push(...parsed);return this;
       },
