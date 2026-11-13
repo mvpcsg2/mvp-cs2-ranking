@@ -2738,22 +2738,16 @@ function youtubeEmbedUrl(raw){
 }
 function cleanupLiveCenter(){
   if(liveRefreshTimer){clearInterval(liveRefreshTimer);liveRefreshTimer=null;}
-  if(liveRealtimeChannel){client.removeChannel(liveRealtimeChannel);liveRealtimeChannel=null;}
   liveLoadBusy=false;
 }
 async function openLiveCenter(){
   cleanupLiveCenter();
   setMainNavActive('live');
-  modal(`<div class="page-head"><div><h2><span style="display:inline-block;background:#c62828;color:#fff;border-radius:4px;padding:3px 7px;font-size:11px;vertical-align:middle;margin-right:6px">LIVE</span>Матчи MVP CS2</h2><div class="page-intro">Счёт и K/D/A поступают с локального сервера во время игры.</div></div><button class="btn" id="closeLiveCenter">Закрыть</button></div><div id="liveMatchesContent"><div class="stream-empty">Подключаемся к live-данным…</div></div><div class="notice" style="margin-top:12px">Если матч не появляется, проверь, что сервер запущен, плагин MVPStats загружен и настроено подключение Supabase.</div>`,true);
+  modal(`<div class="page-head"><div><h2><span style="display:inline-block;background:#c62828;color:#fff;border-radius:4px;padding:3px 7px;font-size:11px;vertical-align:middle;margin-right:6px">LIVE</span>Матчи MVP CS2</h2><div class="page-intro">Счёт и K/D/A поступают с локального сервера во время игры.</div></div><button class="btn" id="closeLiveCenter">Закрыть</button></div><div id="liveMatchesContent"><div class="stream-empty">Подключаемся к live-данным…</div></div><div class="notice" style="margin-top:12px">Если матч не появляется, проверь, что сервер запущен, плагин MVPStats загружен и настроено подключение сервера статистики.</div>`,true);
   document.querySelector('#modalRoot .modal').classList.add('modal-page');
   document.getElementById('closeLiveCenter').onclick=()=>{closeModal();setMainNavActive('ranking')};
   await loadLiveMatchesIntoModal();
-  liveRealtimeChannel=client.channel('mvp-live-ranking-ui')
-    .on('postgres_changes',{event:'*',schema:'public',table:'mvp_live_matches'},()=>loadLiveMatchesIntoModal())
-    .on('postgres_changes',{event:'*',schema:'public',table:'mvp_live_players'},()=>loadLiveMatchesIntoModal())
-    .on('postgres_changes',{event:'*',schema:'public',table:'mvp_live_events'},()=>loadLiveMatchesIntoModal())
-    .subscribe();
-  // Fallback refresh in case a browser or network temporarily misses a Realtime message.
+  // Poll the Neon Worker API; no Supabase Realtime subscription is required.
   liveRefreshTimer=setInterval(()=>loadLiveMatchesIntoModal(),20000);
 }
 async function loadLiveMatchesIntoModal(){
@@ -2807,7 +2801,6 @@ const TOURNAMENT_DESCENDANTS = {
 };
 function cleanupTournamentCenter(){
   if(tournamentRefreshTimer){clearInterval(tournamentRefreshTimer);tournamentRefreshTimer=null;}
-  if(tournamentRealtimeChannel){client.removeChannel(tournamentRealtimeChannel);tournamentRealtimeChannel=null;}
   tournamentLoadBusy=false;
   tournamentRefreshPending=false;
 }
@@ -2949,7 +2942,7 @@ async function openTournamentCenter(){
   document.getElementById('closeTournamentCenter').onclick=()=>{closeModal();setMainNavActive('ranking')};
   await loadTournamentIntoModal();
   if(!isSeasonReadOnly()){
-    tournamentRealtimeChannel=client.channel('mvp-tournament-ui').on('postgres_changes',{event:'*',schema:'public',table:'mvp_tournaments'},()=>loadTournamentIntoModal()).subscribe();
+    // Tournament updates are polled from the Neon-backed API.
     tournamentRefreshTimer=setInterval(()=>loadTournamentIntoModal(),30000);
   }
 }
@@ -3662,9 +3655,8 @@ async function openAllTransfers(){
 document.getElementById('allTransfersBtn')?.addEventListener('click',openAllTransfers);
 function startNewsRail(){
   if(newsPollTimer)clearInterval(newsPollTimer);
-  if(newsRealtimeChannel){client.removeChannel(newsRealtimeChannel);newsRealtimeChannel=null;}
+  // News is refreshed from the Neon API on a slow polling interval.
   loadNewsRail();
-  newsRealtimeChannel=client.channel('mvp-news-rail').on('postgres_changes',{event:'*',schema:'public',table:'mvp_site_news'},()=>{loadNewsRail();const host=document.getElementById('newsHubContent');if(host)loadNewsHubItems(newsCenterFilter);}).on('postgres_changes',{event:'*',schema:'public',table:'mvp_editorial_news'},()=>{const host=document.getElementById('newsHubContent');if(host)loadNewsHubItems(newsCenterFilter);}).subscribe();
   newsPollTimer=setInterval(()=>{loadNewsRail();const host=document.getElementById('newsHubContent');if(host)loadNewsHubItems(newsCenterFilter);},300000);
 }
 
