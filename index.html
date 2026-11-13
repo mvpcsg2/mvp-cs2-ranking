@@ -2757,16 +2757,9 @@ async function loadLiveMatchesIntoModal(){
   if(!host||liveLoadBusy)return;
   liveLoadBusy=true;
   try{
-    const {data:matches,error}=await client.from('mvp_live_matches').select('id,server_key,map_name,status,round_number,score_t,score_ct,started_at,updated_at,finished_at').in('status',['live','finished']).order('started_at',{ascending:false}).limit(12);
-    if(error)throw error;
-    if(!matches?.length){host.innerHTML='<div class="stream-empty">Сейчас нет активных или недавно завершённых матчей. Запусти свой сервер и начни игру — матч появится здесь автоматически.</div>';return;}
-    const ids=matches.map(m=>m.id);
-    const [{data:players,error:playersError},{data:events,error:eventsError}]=await Promise.all([
-      client.from('mvp_live_players').select('match_id,steam_id,player_name,team_num,kills,deaths,assists').in('match_id',ids).order('kills',{ascending:false}),
-      client.from('mvp_live_events').select('match_id,event_type,round_number,payload,created_at').in('match_id',ids).order('created_at',{ascending:false}).limit(60)
-    ]);
-    if(playersError)throw playersError;
-    if(eventsError)throw eventsError;
+    const liveData=await mvpApiGet('/api/live-matches');
+    const matches=liveData?.matches||[],players=liveData?.players||[],events=liveData?.events||[];
+    if(!matches.length){host.innerHTML='<div class="stream-empty">Сейчас нет активных или недавно завершённых матчей. Запусти свой сервер и начни игру — матч появится здесь автоматически.</div>';return;}
     const byMatch=new Map();(players||[]).forEach(p=>{const list=byMatch.get(String(p.match_id))||[];list.push(p);byMatch.set(String(p.match_id),list)});
     const eventByMatch=new Map();(events||[]).forEach(ev=>{const list=eventByMatch.get(String(ev.match_id))||[];list.push(ev);eventByMatch.set(String(ev.match_id),list)});
     const renderSide=(rows,teamNum,label)=>{
