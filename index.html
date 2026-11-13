@@ -1746,6 +1746,18 @@ function createMvpApiClient(){
         return {data:{user,session:{access_token:result.token,user}},error:null};
       }catch(error){return {data:{user:null,session:null},error};}
     },
+    async resetPasswordForEmail(email){
+      try{
+        const result=await mvpApiRequest('/api/auth/forgot-password',{method:'POST',body:JSON.stringify({email})});
+        return {data:result,error:null};
+      }catch(error){return {data:null,error};}
+    },
+    async resendVerification(email){
+      try{
+        const result=await mvpApiRequest('/api/auth/resend-verification',{method:'POST',body:JSON.stringify({email})});
+        return {data:result,error:null};
+      }catch(error){return {data:null,error};}
+    },
     async signOut(){
       const token=localStorage.getItem(AUTH_TOKEN_KEY);
       try{
