@@ -4,12 +4,12 @@ import { getSessionUser } from "./auth.js";
 const TABLES = {
   teams: {
     read: ["id","name","tag","points","players","logo","created_at","player_photos","tournament_wins","is_banned","ban_reason"],
-    write: ["name","tag","points","players","logo","player_photos","tournament_wins","is_banned","ban_reason","created_at"],
+    write: ["name","tag","points","players","logo","player_photos","tournament_wins","created_at"],
     permission: "manage_teams",
   },
   cs2_players: {
     read: ["id","nickname","photo_url","created_at","role","team_id","is_banned","ban_reason","faceit_nickname","steam_id64","faceit_profile_url","faceit_elo","faceit_skill_level","faceit_last_synced_at","country_code"],
-    write: ["nickname","photo_url","role","team_id","is_banned","ban_reason","faceit_nickname","steam_id64","faceit_profile_url","faceit_elo","faceit_skill_level","faceit_last_synced_at","country_code"],
+    write: ["nickname","photo_url","role","team_id","faceit_nickname","steam_id64","faceit_profile_url","faceit_elo","faceit_skill_level","faceit_last_synced_at","country_code"],
     permission: "manage_players",
   },
   team_matches: {
@@ -34,11 +34,12 @@ const TABLES = {
   },
   mvp_site_settings: {
     read: ["setting_key","setting_value","updated_at","updated_by"],
+    privateRead: true,
     write: ["setting_key","setting_value","updated_at","updated_by"],
     permission: "manage_site_settings",
   },
   mvp_trophy_catalog: {
-    read: ["id","name","description","image_url","created_at","created_by"],
+    read: ["id","name","description","image_url","created_at"],
     write: ["name","description","image_url","created_at","created_by"],
     permission: "manage_trophies",
   },
@@ -56,6 +57,7 @@ const TABLES = {
     read: ["id","title","category","summary","body","image_url","external_url","author_name","published","created_at","updated_at"],
     write: ["title","category","summary","body","image_url","external_url","author_name","published","created_at","updated_at"],
     permission: "manage_news",
+    special: "editorial",
   },
   support_messages: {
     read: ["id","user_id","sender_id","message","created_at"],
@@ -169,11 +171,97 @@ async function runQuery(sql, body, user, cors) {
   }
 
   if(body.action==="select"){
+    if(config.privateRead && !hasPermission(user,config.permission))return fail("Недостаточно прав для чтения этих настроек.",403,cors);
     const columns=body.columns==="*"||!body.columns?config.read:body.columns;
     if(!Array.isArray(columns)||!columns.length||columns.some(c=>!config.read.includes(c)))return fail("Запрошены недоступные поля.",403,cors);
     if(requestedTable==="profiles" && !hasPermission(user,"manage_support") && columns.some(c=>!["id","email","username","role","permissions","created_at"].includes(c)))return fail("Нет доступа к полям профиля.",403,cors);
     const params=[];
     const where=buildWhere(body.filters,body.orFilters,params,config.read);
+    let enforcedWhere=where;
+    if(config.special==="editorial" && !hasPermission(user,"manage_news")){
+      params.push(true);
+      enforcedWhere += (enforcedWhere ? " AND " : " WHERE ") + '"published" = 
+    if(orders.length>5)return fail("Слишком много сортировок.",400,cors);
+    const orderSql=orders.map(o=>{
+      if(!config.read.includes(o.column))throw new Error("Недопустимое поле сортировки.");
+      return quoteIdent(o.column)+(o.ascending===false?" DESC":" ASC");
+    });
+    const limit=Math.min(Math.max(Number(body.limit)||100,1),2000);
+    const query="SELECT "+columns.map(quoteIdent).join(", ")+" FROM public."+quoteIdent(table)+enforcedWhere+(orderSql.length?" ORDER BY "+orderSql.join(", "):"")+" LIMIT "+limit;
+    const rows=await sql.query(query,params);
+    if(requestedTable==="support_messages"&&!hasPermission(user,"manage_support")&&rows.some(row=>String(row.user_id)!==String(user.id)))return fail("Нет доступа к этому чату.",403,cors);
+    return json({ok:true,data:rows},200,cors);
+  }
+
+  if(!user)return fail("Требуется вход в аккаунт.",401,cors);
+  if(config.special && config.special!=="support" && config.special!=="editorial")return fail("Операция запрещена.",403,cors);
+  if(!config.special && !hasPermission(user,config.permission))return fail("Недостаточно прав для изменения данных.",403,cors);
+  if(config.special==="editorial" && !hasPermission(user,"manage_news"))return fail("Нет прав.",403,cors);
+  if(body.action==="insert"||body.action==="upsert"){
+    const {rows,columns}=validatePayload(body.values,config.write);
+    if(body.action==="upsert"&&!Array.isArray(body.conflictColumns))return fail("Для upsert требуется ключ конфликта.",400,cors);
+    const params=[];
+    const valuesSql=rows.map(row=>"("+columns.map(column=>{
+      params.push(Object.hasOwn(row,column)?row[column]:null);return "$"+params.length;
+    }).join(", ")+")").join(", ");
+    let query="INSERT INTO public."+quoteIdent(table)+" ("+columns.map(quoteIdent).join(", ")+") VALUES "+valuesSql;
+    if(body.action==="upsert"){
+      const conflicts=body.conflictColumns;
+      if(!conflicts.length||conflicts.some(c=>!config.write.includes(c)))return fail("Недопустимый ключ upsert.",400,cors);
+      const updates=columns.filter(c=>!conflicts.includes(c));
+      query+=" ON CONFLICT ("+conflicts.map(quoteIdent).join(", ")+") ";
+      query+=updates.length?"DO UPDATE SET "+updates.map(c=>quoteIdent(c)+" = EXCLUDED."+quoteIdent(c)).join(", "):"DO NOTHING";
+    }
+    const returning=Array.isArray(body.returning)?body.returning:config.read.filter(c=>c==="id");
+    if(returning.some(c=>!config.read.includes(c)))return fail("Недопустимые возвращаемые поля.",400,cors);
+    query+=" RETURNING "+(returning.length?returning.map(quoteIdent).join(", "):"1 AS ok");
+    const result=await sql.query(query,params);
+    return json({ok:true,data:result},200,cors);
+  }
+
+  if(body.action==="update"||body.action==="delete"){
+    const params=[];
+    const where=buildWhere(body.filters,body.orFilters,params,config.read);
+    if(!where)return fail("Массовое изменение без фильтра запрещено.",400,cors);
+    let query;
+    if(body.action==="update"){
+      const payload=body.values;
+      if(!payload||typeof payload!=="object"||Array.isArray(payload))return fail("Некорректные данные обновления.",400,cors);
+      const columns=Object.keys(payload);
+      if(!columns.length||columns.some(c=>!config.write.includes(c)))return fail("Запрошено изменение недоступного поля.",403,cors);
+      const set=columns.map(column=>{params.push(payload[column]);return quoteIdent(column)+" = $"+params.length;}).join(", ");
+      query="UPDATE public."+quoteIdent(table)+" SET "+set+where;
+    }else{
+      query="DELETE FROM public."+quoteIdent(table)+where;
+    }
+    const returning=Array.isArray(body.returning)?body.returning:config.read.filter(c=>c==="id");
+    if(returning.some(c=>!config.read.includes(c)))return fail("Недопустимые возвращаемые поля.",400,cors);
+    query+=" RETURNING "+(returning.length?returning.map(quoteIdent).join(", "):"1 AS ok");
+    const result=await sql.query(query,params);
+    return json({ok:true,data:result},200,cors);
+  }
+  return fail("Недопустимая операция.",400,cors);
+}
+
+export async function handleDataRequest(request, env, cors) {
+  const url=new URL(request.url);
+  if(url.pathname!=="/api/data/query")return null;
+  if(request.method!=="POST")return fail("Method not allowed",405,cors);
+  if(!env.DATABASE_URL)return fail("DATABASE_URL secret is missing",500,cors);
+  try{
+    const text=await request.text();
+    if(text.length>250000)return fail("Слишком большой запрос.",413,cors);
+    const body=JSON.parse(text||"{}");
+    const sql=neon(env.DATABASE_URL);
+    const user=await getSessionUser(sql,request);
+    return await runQuery(sql,body,user,cors);
+  }catch(error){
+    console.error("Data API request failed",error?.message||error);
+    return fail(error?.message||"Ошибка запроса к базе.",400,cors);
+  }
+}
+ + params.length;
+    }
     const orders=Array.isArray(body.orders)?body.orders:[];
     if(orders.length>5)return fail("Слишком много сортировок.",400,cors);
     const orderSql=orders.map(o=>{
