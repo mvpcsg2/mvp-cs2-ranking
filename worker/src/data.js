@@ -156,7 +156,12 @@ async function runQuery(sql, body, user, cors) {
     }
   }else if(config.special==="support"){
     if(!user)return fail("Требуется вход в аккаунт.",401,cors);
-    if(!hasPermission(user,"manage_support") && (body.action!=="insert" && !(body.filters||[]).some(f=>f.column==="user_id"&&f.op==="eq"&&String(f.value)===String(user.id)))){
+    if(body.action==="insert"){
+      const rows=Array.isArray(body.values)?body.values:[body.values];
+      if(rows.length>20||rows.some(row=>!row||String(row.sender_id)!==String(user.id)||(!hasPermission(user,"manage_support")&&String(row.user_id)!==String(user.id)))){
+        return fail("Нет прав для отправки сообщения в этот чат.",403,cors);
+      }
+    }else if(!hasPermission(user,"manage_support") && !(body.filters||[]).some(f=>f.column==="user_id"&&f.op==="eq"&&String(f.value)===String(user.id))){
       return fail("Нет доступа к этому чату.",403,cors);
     }
   }else if(!isRead && !hasPermission(user,config.permission)){
@@ -183,8 +188,8 @@ async function runQuery(sql, body, user, cors) {
   }
 
   if(!user)return fail("Требуется вход в аккаунт.",401,cors);
-  if(!hasPermission(user,config.permission))return fail("Недостаточно прав для изменения данных.",403,cors);
-  if(config.special)return fail("Операция запрещена.",403,cors);
+  if(config.special && config.special!=="support")return fail("Операция запрещена.",403,cors);
+  if(!config.special && !hasPermission(user,config.permission))return fail("Недостаточно прав для изменения данных.",403,cors);
   if(body.action==="insert"||body.action==="upsert"){
     const {rows,columns}=validatePayload(body.values,config.write);
     if(body.action==="upsert"&&!Array.isArray(body.conflictColumns))return fail("Для upsert требуется ключ конфликта.",400,cors);
