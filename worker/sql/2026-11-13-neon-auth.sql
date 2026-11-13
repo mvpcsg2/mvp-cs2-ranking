@@ -173,7 +173,7 @@ BEGIN
     ELSE
       UPDATE public.cs2_players
       SET team_id=v_team.id,
-          photo_url=COALESCE(v_photo,photo_url)
+          photo_url=COALESCE(v_photo,'')
       WHERE id=v_player_id;
     END IF;
     v_player_id := NULL;
