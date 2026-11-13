@@ -71,6 +71,116 @@ COMMIT;
 -- The account receives the admin role only after its email verification token is used.
 -- No existing Supabase users or password hashes are deleted or modified by this script.
 
+-- Atomic save of a team and synchronization of its player roster.
+CREATE OR REPLACE FUNCTION public.mvp_admin_save_team(
+  p_team_id bigint,
+  p_name text,
+  p_tag text,
+  p_points integer,
+  p_players text,
+  p_logo text,
+  p_player_photos jsonb,
+  p_tournament_wins integer,
+  p_is_banned boolean,
+  p_ban_reason text
+)
+RETURNS public.teams
+LANGUAGE plpgsql
+SET search_path TO ''
+AS $
+DECLARE
+  v_team public.teams;
+  v_player record;
+  v_player_id bigint;
+  v_photo text;
+  v_count integer := 0;
+BEGIN
+  IF length(btrim(COALESCE(p_name,''))) < 2 OR length(btrim(p_name)) > 80 THEN
+    RAISE EXCEPTION 'Название команды должно содержать от 2 до 80 символов';
+  END IF;
+
+  IF p_team_id IS NULL THEN
+    INSERT INTO public.teams
+      (name, tag, points, players, logo, player_photos, tournament_wins, is_banned, ban_reason)
+    VALUES
+      (btrim(p_name), COALESCE(p_tag,''), GREATEST(COALESCE(p_points,0),0),
+       COALESCE(p_players,''), COALESCE(p_logo,''), COALESCE(p_player_photos,'[]'::jsonb),
+       GREATEST(COALESCE(p_tournament_wins,0),0), COALESCE(p_is_banned,false), COALESCE(p_ban_reason,''))
+    RETURNING * INTO v_team;
+  ELSE
+    UPDATE public.teams
+    SET name=btrim(p_name),
+        tag=COALESCE(p_tag,''),
+        points=GREATEST(COALESCE(p_points,0),0),
+        players=COALESCE(p_players,''),
+        logo=COALESCE(p_logo,''),
+        player_photos=COALESCE(p_player_photos,'[]'::jsonb),
+        tournament_wins=GREATEST(COALESCE(p_tournament_wins,0),0),
+        is_banned=COALESCE(p_is_banned,false),
+        ban_reason=COALESCE(p_ban_reason,'')
+    WHERE id=p_team_id
+    RETURNING * INTO v_team;
+    IF NOT FOUND THEN RAISE EXCEPTION 'Команда не найдена'; END IF;
+  END IF;
+
+  -- Detach players removed from this roster, but leave unrelated players untouched.
+  UPDATE public.cs2_players p
+  SET team_id=NULL
+  WHERE p.team_id=v_team.id
+    AND NOT EXISTS (
+      SELECT 1
+      FROM regexp_split_to_table(COALESCE(p_players,''), '[,;[:space:]·•|]+') AS item(nickname)
+      WHERE btrim(item.nickname)<>'' AND lower(btrim(item.nickname))=lower(p.nickname)
+    );
+
+  FOR v_player IN
+    SELECT btrim(item.nickname) AS nickname, item.ordinality::integer AS position
+    FROM regexp_split_to_table(COALESCE(p_players,''), '[,;[:space:]·•|]+')
+      WITH ORDINALITY AS item(nickname, ordinality)
+    WHERE btrim(item.nickname)<>''
+    ORDER BY item.ordinality
+    LIMIT 5
+  LOOP
+    v_count := v_count + 1;
+    IF EXISTS (
+      SELECT 1 FROM public.cs2_players p
+      WHERE lower(p.nickname)=lower(v_player.nickname)
+        AND p.team_id IS NOT NULL AND p.team_id<>v_team.id
+    ) THEN
+      RAISE EXCEPTION 'Игрок % уже состоит в другой команде', v_player.nickname;
+    END IF;
+
+    v_photo := NULL;
+    IF jsonb_typeof(p_player_photos)='array' THEN
+      v_photo := NULLIF(p_player_photos->>(v_player.position-1),'');
+    END IF;
+
+    SELECT p.id INTO v_player_id
+    FROM public.cs2_players p
+    WHERE lower(p.nickname)=lower(v_player.nickname)
+    ORDER BY p.id
+    LIMIT 1
+    FOR UPDATE;
+
+    IF v_player_id IS NULL THEN
+      INSERT INTO public.cs2_players (nickname, photo_url, team_id)
+      VALUES (v_player.nickname, COALESCE(v_photo,''), v_team.id);
+    ELSE
+      UPDATE public.cs2_players
+      SET team_id=v_team.id,
+          photo_url=COALESCE(v_photo,photo_url)
+      WHERE id=v_player_id;
+    END IF;
+    v_player_id := NULL;
+  END LOOP;
+
+  IF v_count>5 THEN RAISE EXCEPTION 'В команде может быть не более пяти игроков'; END IF;
+  RETURN v_team;
+END;
+$;
+
+REVOKE ALL ON FUNCTION public.mvp_admin_save_team(bigint,text,text,integer,text,text,jsonb,integer,boolean,text) FROM PUBLIC;
+
 -- Archive and reset the active season atomically from the Worker.
 CREATE OR REPLACE FUNCTION public.mvp_wipe_and_advance_season(p_next_year integer)
 RETURNS jsonb
