@@ -1,3 +1,4 @@
+import { handleRpcRequest } from "./rpc.js";
 import { handleDataRequest } from "./data.js";
 import { handleAuthRequest } from "./auth.js";
 import { neon } from "@neondatabase/serverless";
@@ -57,6 +58,8 @@ export default {
     if (authResponse) return authResponse;
     const dataResponse = await handleDataRequest(request, env, cors);
     if (dataResponse) return dataResponse;
+    const rpcResponse = await handleRpcRequest(request, env, cors);
+    if (rpcResponse) return rpcResponse;
 
     if (request.method !== "GET") {
       return json({ ok: false, error: "Method not allowed" }, 405, cors);
