@@ -3041,7 +3041,9 @@ function resolveTournament(tournament){
   return {games:out,champion:gf.winner,bestOf:bo,seeds,lowerSeeds};
 }
 function tournamentTeamLine(team,score,isWinner){
-  const logo=safeTournamentLogo(team?.logo);
+  // Bracket data stores compact team IDs; resolve the current logo from the teams list.
+  const current=team?teams.find(t=>String(t.id)===String(team.id)):null;
+  const logo=safeTournamentLogo(current?.logo)||safeTournamentLogo(team?.logo);
   return `<div class="tourney-teamline ${isWinner?'winner':''}">${team?(logo?`<img class="tourney-team-logo" src="${esc(logo)}" alt="">`:`<span class="tourney-team-logo" aria-hidden="true"></span>`):`<span class="tourney-team-logo" aria-hidden="true"></span>`}<span class="tourney-team-name ${team?'':'tbd'}">${team?esc(team.name):'Ожидает команду'}</span><span class="tourney-team-score">${score===null?'—':score}</span></div>`;
 }
 function tournamentMatchCard(game,tournament){
