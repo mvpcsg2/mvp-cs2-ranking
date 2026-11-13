@@ -234,6 +234,7 @@ BEGIN
   DELETE FROM public.team_matches;
   DELETE FROM public.player_trophies;
   DELETE FROM public.player_prize_money;
+  DELETE FROM public.mvp_team_rank_history;
 
   UPDATE public.teams
   SET points = 0,
