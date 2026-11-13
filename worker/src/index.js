@@ -1,3 +1,4 @@
+import { handleStorageRequest } from "./storage.js";
 import { handleRpcRequest } from "./rpc.js";
 import { handleDataRequest } from "./data.js";
 import { handleAuthRequest } from "./auth.js";
@@ -60,6 +61,8 @@ export default {
     if (dataResponse) return dataResponse;
     const rpcResponse = await handleRpcRequest(request, env, cors);
     if (rpcResponse) return rpcResponse;
+    const storageResponse = await handleStorageRequest(request, env, cors);
+    if (storageResponse) return storageResponse;
 
     if (request.method !== "GET") {
       return json({ ok: false, error: "Method not allowed" }, 405, cors);
