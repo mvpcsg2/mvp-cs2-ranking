@@ -2259,18 +2259,9 @@ async function getPlayerTopPosition(playerId){
     }
     playerTopPositionCache.signature=signature;
     playerTopPositionCache.pending=(async()=>{
-      const {data:dbPlayers,error:playersError}=await client.from('cs2_players').select('id,nickname,is_banned').limit(2000);
-      if(playersError)throw playersError;
-      const activeIds=(dbPlayers||[]).filter(p=>!p.is_banned&&activeNicknames.has(String(p.nickname||'').trim().toLowerCase())).map(p=>p.id);
-      if(!activeIds.length)return new Map();
-      const {data:dbStats,error:statsError}=await client.from('match_player_stats')
-        .select('player_id,kills,deaths,kd,created_at')
-        .in('player_id',activeIds).order('created_at',{ascending:false}).limit(5000);
-      if(statsError)throw statsError;
-      const aggregates=new Map();
-      (dbStats||[]).forEach(st=>{const key=String(st.player_id);let a=aggregates.get(key);if(!a){a={sum:0,count:0,kills:0,deaths:0};aggregates.set(key,a)}a.sum+=Number(st.kd)||0;a.count++;a.kills+=Number(st.kills)||0;a.deaths+=Number(st.deaths)||0;});
-      const rows=(dbPlayers||[]).filter(p=>!p.is_banned&&activeNicknames.has(String(p.nickname||'').trim().toLowerCase())).map(p=>{const a=aggregates.get(String(p.id))||{sum:0,count:0,kills:0,deaths:0};return {id:String(p.id),nickname:p.nickname,average:a.count?a.sum/a.count:0,kills:a.kills,matches:a.count}}).sort((a,b)=>b.average-a.average||b.kills-a.kills||String(a.nickname).localeCompare(String(b.nickname)));
-      const positions=new Map(rows.map((row,index)=>[row.id,index+1]));
+      const rankingRows=await mvpApiGet('/api/player-top-positions')||[];
+      const activeRows=rankingRows.filter(row=>activeNicknames.has(String(row.nickname||'').trim().toLowerCase()));
+      const positions=new Map(activeRows.map(row=>[String(row.id),Number(row.position)||null]));
       playerTopPositionCache={expiresAt:Date.now()+120000,signature,positions,pending:null};
       return positions;
     })();
