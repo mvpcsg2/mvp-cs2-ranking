@@ -1,3 +1,4 @@
+import { handleFaceitRequest } from "./faceit.js";
 import { handleStorageRequest } from "./storage.js";
 import { handleRpcRequest } from "./rpc.js";
 import { handleDataRequest } from "./data.js";
@@ -63,6 +64,8 @@ export default {
     if (rpcResponse) return rpcResponse;
     const storageResponse = await handleStorageRequest(request, env, cors);
     if (storageResponse) return storageResponse;
+    const faceitResponse = await handleFaceitRequest(request, env, cors);
+    if (faceitResponse) return faceitResponse;
 
     if (request.method !== "GET") {
       return json({ ok: false, error: "Method not allowed" }, 405, cors);
