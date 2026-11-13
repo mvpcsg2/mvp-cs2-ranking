@@ -197,8 +197,9 @@ async function runQuery(sql, body, user, cors) {
   }
 
   if(!user)return fail("Требуется вход в аккаунт.",401,cors);
-  if(config.special && config.special!=="support")return fail("Операция запрещена.",403,cors);
+  if(config.special && !["support","editorial"].includes(config.special))return fail("Операция запрещена.",403,cors);
   if(!config.special && !hasPermission(user,config.permission))return fail("Недостаточно прав для изменения данных.",403,cors);
+  if(config.special==="support" && body.action!=="insert" && !hasPermission(user,"manage_support"))return fail("Изменение сообщений доступно только службе поддержки.",403,cors);
   if(body.action==="insert"||body.action==="upsert"){
     const {rows,columns}=validatePayload(body.values,config.write);
     if(body.action==="upsert"&&!Array.isArray(body.conflictColumns))return fail("Для upsert требуется ключ конфликта.",400,cors);
