@@ -9,10 +9,13 @@ Do not merge this branch as a complete Supabase replacement. It currently contai
 - [ ] `GET /api/db-check` returns `{ok:true,database:"connected"}`.
 - [ ] `GET /api/teams` returns the expected team rows.
 - [ ] `GET /api/players` returns the expected player rows.
+- [ ] `GET /api/player-top-positions` returns aggregate ranking positions.
 - [ ] Verify CORS from `https://mvpcsg2.github.io`.
 
 ## Phase B — browser read migration
-- [ ] Move each public read to a typed Worker route.
+- [x] Move team and player-directory reads to typed Worker routes.
+- [x] Move player top-position aggregate reads to a typed Worker route.
+- [ ] Move each remaining public read to a typed Worker route.
 - [ ] Confirm response field names and nullability against Neon schema.
 - [ ] Compare row counts and representative records with the old source.
 - [ ] Add loading/error states; do not silently fall back to empty arrays.
