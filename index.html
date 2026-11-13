@@ -91,7 +91,7 @@
 .player-photo-edit label{margin-bottom:5px}
 .player-photo-preview{width:68px;height:68px;margin-bottom:6px}
 .player-photo-edit input[type=file]{max-width:100%;font-size:9px;padding:3px}
-.modalfoot{position:sticky;bottom:-16px;z-index:2;background:rgba(255,255,255,.98);padding:10px 0 0;margin-top:10px}
+.modalfoot{position:sticky;bottom:-16px;z-index:2;background:transparent!important;padding:10px 0 0;margin-top:10px}
 @media(max-width:1000px) and (min-width:801px){.roster-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.roster-player-photo{width:min(100%,145px)}}
 @media(max-width:800px){.roster-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.roster-player-photo{width:min(100%,140px)}}
 @media(max-width:650px){.modalback{padding:10px;align-items:flex-start;overflow-y:auto}.modal,.modal.modal-wide{width:100%;max-height:calc(100vh - 20px);max-height:calc(100dvh - 20px);padding:14px}.formrow{gap:8px}.player-photo-editor{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.player-photo-preview{width:70px;height:70px}.modalfoot{bottom:-14px}.roster-player{padding:9px 5px;gap:7px}.roster-player-name{font-size:12px}}
@@ -2600,7 +2600,8 @@ async function editTeamMatch(team,match=null){
 function stopHelpPolling(){if(helpRefreshTimer){clearInterval(helpRefreshTimer);helpRefreshTimer=null}}
 function modal(content,wide=false){stopHelpPolling();activeHelpProfile=null;document.getElementById('modalRoot').innerHTML=`<div class="modalback" id="backdrop"><div class="modal${wide?' modal-wide':''}">${content}</div></div>`;document.getElementById('backdrop').addEventListener('click',e=>{if(e.target.id==='backdrop')closeModal()})}
 function closeModal(){cleanupLiveCenter();cleanupTournamentCenter();stopHelpPolling();activeHelpProfile=null;document.getElementById('modalRoot').innerHTML=''}
-function niceError(error){return error?.message||'Неизвестная ошибка. Проверь настройки Supabase и подключение к интернету.'}
+function niceError(error){return error?.message||'Не удалось выполнить действие. Проверь соединение и попробуй ещё раз.'}
+function showAuthFeedback(message){const box=document.getElementById('authFeedback');if(!box)return;box.textContent=String(message||'Не удалось выполнить действие.');box.classList.remove('hidden');}
 async function refreshSignedInUser(user){
   currentUser=null; admin=false; moderator=false; userPermissions={};
   if(user){
@@ -2689,14 +2690,15 @@ async function loadTeams(){
 async function signOut(){await client.auth.signOut();currentUser=null;admin=false;moderator=false;userPermissions={};closeModal();render();await loadTeams()}
 function authModal(mode='login'){
   if(currentUser){modal(`<h2>Профиль</h2><p><b>${esc(currentUser.username)}</b></p><p>${esc(currentUser.email||'')}</p><p>Роль: <b>${admin?'Администратор':moderator?'Модератор':'Игрок'}</b></p>${moderator?`<p class="notice">Разрешения: ${Object.keys(MOD_PERMISSION_LABELS).filter(k=>userPermissions[k]).map(k=>MOD_PERMISSION_LABELS[k]).join(' · ')||'нет выданных разрешений'}</p>`:admin?'<p class="notice">У тебя полный доступ к управлению проектом.</p>':'<p class="notice">Ты можешь просматривать общий рейтинг и пользоваться чатом помощи.</p>'}<div class="modalfoot"><button class="btn" id="profileClose">Закрыть</button><button class="btn primary" id="profileLogout">Выйти из аккаунта</button></div>`);document.getElementById('profileClose').onclick=closeModal;document.getElementById('profileLogout').onclick=signOut;return}
-  modal(`<h2>${mode==='register'?'Регистрация':'Вход в аккаунт'}</h2>${mode==='register'?'<div class="field"><label>Имя пользователя</label><input id="authName" maxlength="24" autocomplete="username" placeholder="Например, MVPplayer"></div>':''}<div class="field"><label>Email</label><input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required></div><div class="field"><label>Пароль${mode==='register'?' (минимум 8 символов)':''}</label><input id="authPass" type="password" autocomplete="${mode==='register'?'new-password':'current-password'}" minlength="8" required></div><div class="notice">${mode==='register'?'Новый аккаунт получает роль игрока. Чтобы твой аккаунт стал администратором, сначала зарегистрируйся, затем назначь роль через SQL Editor в Supabase.':'Введи email и пароль, использованные при регистрации Supabase.'}</div><div class="modalfoot"><button class="btn" id="switchAuth">${mode==='register'?'Уже есть аккаунт':'Регистрация'}</button><button class="btn primary" id="submitAuth">${mode==='register'?'Создать аккаунт':'Войти'}</button></div>`);
+  modal(`<h2>${mode==='register'?'Регистрация':'Вход в аккаунт'}</h2>${mode==='register'?'<div class="field"><label>Имя пользователя</label><input id="authName" maxlength="24" autocomplete="username" placeholder="Например, MVPplayer"></div>':''}<div class="field"><label>Email</label><input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required></div><div class="field"><label>Пароль${mode==='register'?' (минимум 8 символов)':''}</label><input id="authPass" type="password" autocomplete="${mode==='register'?'new-password':'current-password'}" minlength="8" required></div><div class="notice">${mode==='register'?'Новый аккаунт получает роль игрока. После подтверждения почты аккаунт активируется.':'Введи email и пароль от своего аккаунта.'}</div><div id="authFeedback" class="auth-feedback hidden" role="alert" aria-live="polite"></div><div class="modalfoot"><button class="btn" id="switchAuth">${mode==='register'?'Уже есть аккаунт':'Регистрация'}</button><button class="btn primary" id="submitAuth">${mode==='register'?'Создать аккаунт':'Войти'}</button></div>`);
+  document.querySelector('#modalRoot .modal').classList.add('auth-modal');
   document.getElementById('switchAuth').onclick=()=>authModal(mode==='register'?'login':'register');
   document.getElementById('submitAuth').onclick=async()=>{
     if(busy)return;const button=document.getElementById('submitAuth');
     const email=document.getElementById('authEmail').value.trim().toLowerCase(),password=document.getElementById('authPass').value;
     const username=mode==='register'?(document.getElementById('authName').value.trim()||email.split('@')[0]):email.split('@')[0];
-    if(!email||!document.getElementById('authEmail').checkValidity())return alert('Введи корректный email.');
-    if(password.length<8)return alert('Пароль должен содержать минимум 8 символов.');
+    if(!email||!document.getElementById('authEmail').checkValidity())return showAuthFeedback('Введи корректный email.');
+    if(password.length<8)return showAuthFeedback('Пароль должен содержать минимум 8 символов.');
     busy=true;button.disabled=true;button.textContent='Подожди…';
     try{
       if(mode==='register'){
@@ -2709,7 +2711,7 @@ function authModal(mode='login'){
         if(error)throw error;
         closeModal();await refreshSignedInUser(data.user);
       }
-    }catch(e){alert('Не удалось выполнить вход/регистрацию: '+niceError(e))}
+    }catch(e){const raw=String(e?.message||'');const message=/exceed_egress_quota|service for this project is restricted/i.test(raw)?'Вход и регистрация временно недоступны. Сервис авторизации сейчас ограничен. Мы работаем над переносом; попробуй позже.':niceError(e);showAuthFeedback(message)}
     finally{busy=false;const next=document.getElementById('submitAuth');if(next){next.disabled=false;next.textContent=mode==='register'?'Создать аккаунт':'Войти'}}
   };
 }
@@ -4080,4 +4082,10 @@ body[data-theme="night"] .custom-trophy-card-copy strong{color:#edf1f5}
 body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"] .custom-trophy-award-preview small{color:#aab4c0}
 </style>
 
+<style id="mvp-auth-modal-cleanup">
+#modalRoot .modal.auth-modal .modalfoot{background:transparent!important;border:0!important;box-shadow:none!important;padding:10px 0 0!important;margin-top:10px!important}
+#modalRoot .modal.auth-modal .auth-feedback{margin:12px 0 4px;padding:10px 12px;border:1px solid rgba(242,169,0,.42);border-radius:7px;background:rgba(242,169,0,.09);color:var(--modal-text,#f1f3f5);font-size:12px;line-height:1.45}
+#modalRoot .modal.auth-modal .auth-feedback.hidden{display:none!important}
+#modalRoot .modal.auth-modal .notice{color:#aeb8c4}
+</style>
 </body></html>
