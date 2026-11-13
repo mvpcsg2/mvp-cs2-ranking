@@ -1946,7 +1946,7 @@ async function loadSeasonState(){
     seasonArchiveYears=new Set((archives||[]).map(row=>Number(row.season_year)).filter(Number.isInteger));
     seasonFeatureReady=true;
   }catch(error){
-    console.warn('Годовые архивы пока не подключены. Выполни mvp_year_archive_migration.sql в Supabase.',error);
+    console.warn('Годовые архивы пока не подключены. Выполни mvp_year_archive_migration.sql в Neon.',error);
   }
   renderSeasonRail();
 }
@@ -2525,7 +2525,7 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
       if(!safeFaceitProfileUrl(player?.faceit_profile_url||faceitUrl))return alert('Сначала сохрани ссылку FACEIT в профиле.');
       const btn=document.getElementById('syncFaceitElo');btn.disabled=true;btn.textContent='Получаю Elo…';
       const {data,error}=await client.functions.invoke('sync-faceit-player',{body:{player_id:player.id}});
-      if(error||data?.error){alert('Не удалось обновить FACEIT Elo. Проверь Edge Function и секрет FACEIT_API_KEY. '+(data?.error||niceError(error)));btn.disabled=false;btn.textContent='↻ Обновить FACEIT Elo';return}
+      if(error||data?.error){alert('Не удалось обновить FACEIT Elo. Проверь FACEIT Worker и секрет FACEIT_API_KEY. '+(data?.error||niceError(error)));btn.disabled=false;btn.textContent='↻ Обновить FACEIT Elo';return}
       await openPlayerProfile(nickname,photo);
     }}
     if(can('manage_bans')&&document.getElementById('togglePlayerBan')){document.getElementById('togglePlayerBan').onclick=async()=>{const next=!player.is_banned;const reason=next?(prompt('Причина блокировки игрока:','Подозрение на использование читов')||''):'';if(next&&!reason)return;const {error}=await client.rpc('admin_set_player_ban',{p_player_id:player.id,p_banned:next,p_reason:reason});if(error){alert('Не удалось изменить блокировку: '+niceError(error));return}await loadTeams();openPlayerProfile(nickname,photo)}}
@@ -2819,9 +2819,23 @@ async function loadTeams(){
 async function signOut(){await client.auth.signOut();currentUser=null;admin=false;moderator=false;userPermissions={};closeModal();render();await loadTeams()}
 function authModal(mode='login'){
   if(currentUser){modal(`<h2>Профиль</h2><p><b>${esc(currentUser.username)}</b></p><p>${esc(currentUser.email||'')}</p><p>Роль: <b>${admin?'Администратор':moderator?'Модератор':'Игрок'}</b></p>${moderator?`<p class="notice">Разрешения: ${Object.keys(MOD_PERMISSION_LABELS).filter(k=>userPermissions[k]).map(k=>MOD_PERMISSION_LABELS[k]).join(' · ')||'нет выданных разрешений'}</p>`:admin?'<p class="notice">У тебя полный доступ к управлению проектом.</p>':'<p class="notice">Ты можешь просматривать общий рейтинг и пользоваться чатом помощи.</p>'}<div class="modalfoot"><button class="btn" id="profileClose">Закрыть</button><button class="btn primary" id="profileLogout">Выйти из аккаунта</button></div>`);document.getElementById('profileClose').onclick=closeModal;document.getElementById('profileLogout').onclick=signOut;return}
-  modal(`<h2>${mode==='register'?'Регистрация':'Вход в аккаунт'}</h2>${mode==='register'?'<div class="field"><label>Имя пользователя</label><input id="authName" maxlength="24" autocomplete="username" placeholder="Например, MVPplayer"></div>':''}<div class="field"><label>Email</label><input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required></div><div class="field"><label>Пароль${mode==='register'?' (минимум 10 символов)':''}</label><input id="authPass" type="password" autocomplete="${mode==='register'?'new-password':'current-password'}" minlength="8" required></div><div class="notice">${mode==='register'?'Новый аккаунт получает роль игрока. После подтверждения почты аккаунт активируется.':'Введи email и пароль от аккаунта MVP CS2 Ranking.'}</div><div id="authFeedback" class="auth-feedback hidden" role="alert" aria-live="polite"></div><div class="modalfoot"><button class="btn" id="switchAuth">${mode==='register'?'Уже есть аккаунт':'Регистрация'}</button><button class="btn primary" id="submitAuth">${mode==='register'?'Создать аккаунт':'Войти'}</button></div>`);
+  modal(`<h2>${mode==='register'?'Регистрация':'Вход в аккаунт'}</h2>${mode==='register'?'<div class="field"><label>Имя пользователя</label><input id="authName" maxlength="24" autocomplete="username" placeholder="Например, MVPplayer"></div>':''}<div class="field"><label>Email</label><input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required></div><div class="field"><label>Пароль${mode==='register'?' (минимум 10 символов)':''}</label><input id="authPass" type="password" autocomplete="${mode==='register'?'new-password':'current-password'}" minlength="10" required></div><div class="notice">${mode==='register'?'Новый аккаунт получает роль игрока. После подтверждения почты аккаунт активируется.':'Введи email и пароль от аккаунта MVP CS2 Ranking.'}</div><div id="authFeedback" class="auth-feedback hidden" role="alert" aria-live="polite"></div>${mode==='login'?'<div class="auth-extra"><button type="button" class="auth-link" id="forgotAuthPassword">Забыли пароль?</button><button type="button" class="auth-link" id="resendAuthVerification">Отправить письмо подтверждения</button></div>':''}<div class="modalfoot"><button class="btn" id="switchAuth">${mode==='register'?'Уже есть аккаунт':'Регистрация'}</button><button class="btn primary" id="submitAuth">${mode==='register'?'Создать аккаунт':'Войти'}</button></div>`);
   document.querySelector('#modalRoot .modal').classList.add('auth-modal');
   document.getElementById('switchAuth').onclick=()=>authModal(mode==='register'?'login':'register');
+  if(mode==='login'){
+    document.getElementById('forgotAuthPassword').onclick=async()=>{
+      const email=document.getElementById('authEmail').value.trim().toLowerCase();
+      if(!email||!document.getElementById('authEmail').checkValidity())return showAuthFeedback('Сначала введи корректный email.');
+      const {data,error}=await client.auth.resetPasswordForEmail(email);
+      showAuthFeedback(error?niceError(error):(data?.message||'Если подтверждённый аккаунт существует, письмо для восстановления будет отправлено.'));
+    };
+    document.getElementById('resendAuthVerification').onclick=async()=>{
+      const email=document.getElementById('authEmail').value.trim().toLowerCase();
+      if(!email||!document.getElementById('authEmail').checkValidity())return showAuthFeedback('Сначала введи корректный email.');
+      const {data,error}=await client.auth.resendVerification(email);
+      showAuthFeedback(error?niceError(error):(data?.message||'Если аккаунт ожидает подтверждения, письмо будет отправлено.'));
+    };
+  }
   document.getElementById('submitAuth').onclick=async()=>{
     if(busy)return;const button=document.getElementById('submitAuth');
     const email=document.getElementById('authEmail').value.trim().toLowerCase(),password=document.getElementById('authPass').value;
@@ -4203,6 +4217,11 @@ body[data-theme="night"] .custom-trophy-card-copy strong{color:#edf1f5}
 body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"] .custom-trophy-award-preview small{color:#aab4c0}
 </style>
 
+<style id="mvp-auth-extra-styles">
+#modalRoot .modal.auth-modal .auth-extra{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:8px 0 2px}
+#modalRoot .modal.auth-modal .auth-link{border:0;background:transparent;color:#d8a432;text-decoration:underline;text-underline-offset:3px;font:inherit;font-size:12px;cursor:pointer;padding:4px 0}
+#modalRoot .modal.auth-modal .auth-link:hover{color:#f2c15d}
+</style>
 <style id="mvp-auth-modal-cleanup">
 #modalRoot .modal.auth-modal .modalfoot{background:transparent!important;border:0!important;box-shadow:none!important;padding:10px 0 0!important;margin-top:10px!important}
 #modalRoot .modal.auth-modal .auth-feedback{margin:12px 0 4px;padding:10px 12px;border:1px solid rgba(242,169,0,.42);border-radius:7px;background:rgba(242,169,0,.09);color:var(--modal-text,#f1f3f5);font-size:12px;line-height:1.45}
