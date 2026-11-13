@@ -53,23 +53,26 @@ async function runRpc(sql,user,name,args,env){
       if(name.length<2||name.length>80)throw new Error("Название команды должно содержать от 2 до 80 символов.");
       const banned=parseBool(p.p_is_banned);
       if(banned&&!hasPermission(user,"manage_bans"))throw new Error("Нет разрешения на блокировку команд.");
-      const values={
-        name,
-        tag:String(p.p_tag||"").trim().slice(0,20),
-        points:Math.max(0,Math.floor(Number(p.p_points)||0)),
-        players:String(p.p_players||"").slice(0,4000),
-        logo:String(p.p_logo||"").slice(0,2000),
-        player_photos:p.p_player_photos??{},
-        tournament_wins:Math.max(0,Math.floor(Number(p.p_tournament_wins)||0)),
-        is_banned:banned,
-        ban_reason:banned?String(p.p_ban_reason||"").trim().slice(0,500):""
-      };
-      const id=String(p.p_team_id||"");
-      const rows=id&&/^\d+$/.test(id)
-        ? await sql`UPDATE public.teams SET name=${values.name},tag=${values.tag},points=${values.points},players=${values.players},logo=${values.logo},player_photos=${JSON.stringify(values.player_photos)}::jsonb,tournament_wins=${values.tournament_wins},is_banned=${values.is_banned},ban_reason=${values.ban_reason} WHERE id=${id}::bigint RETURNING *`
-        : await sql`INSERT INTO public.teams (name,tag,points,players,logo,player_photos,tournament_wins,is_banned,ban_reason) VALUES (${values.name},${values.tag},${values.points},${values.players},${values.logo},${JSON.stringify(values.player_photos)}::jsonb,${values.tournament_wins},${values.is_banned},${values.ban_reason}) RETURNING *`;
-      if(!rows.length)throw new Error("Не удалось сохранить команду.");
-      return rows[0];
+      const id=p.p_team_id==null?null:String(p.p_team_id);
+      if(id!==null&&!/^\d+$/.test(id))throw new Error("Некорректный ID команды.");
+      const photos=Array.isArray(p.p_player_photos)?p.p_player_photos:[];
+      const rows=await sql`
+        SELECT public.mvp_admin_save_team(
+          ${id}::bigint,
+          ${name},
+          ${String(p.p_tag||"").trim().slice(0,20)},
+          ${Math.max(0,Math.floor(Number(p.p_points)||0))},
+          ${String(p.p_players||"").slice(0,4000)},
+          ${String(p.p_logo||"").slice(0,2000)},
+          ${JSON.stringify(photos)}::jsonb,
+          ${Math.max(0,Math.floor(Number(p.p_tournament_wins)||0))},
+          ${banned},
+          ${banned?String(p.p_ban_reason||"").trim().slice(0,500):""}
+        ) AS saved
+      `;
+      const saved=rows?.[0]?.saved;
+      if(!saved)throw new Error("Не удалось сохранить команду.");
+      return saved;
     }
 
     case "admin_set_moderator_by_email": {
