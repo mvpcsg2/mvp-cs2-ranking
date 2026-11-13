@@ -1,7 +1,9 @@
 -- Compact daily ranking archive for Neon.
--- Keeps daily team state only. Player/match/news/trophy data remains in normalized tables
--- and is not duplicated into a full JSON document every day.
--- Run once in Neon SQL Editor. Existing daily dates and team history are preserved.
+-- IMPORTANT: existing legacy snapshots are deliberately preserved because the
+-- current website still reads players/matches/trophies from those older JSON documents.
+-- New snapshots contain only team ranking state; historical normalized data remains
+-- in its source tables. Do not run VACUUM FULL until the UI has been migrated and
+-- old snapshots have been safely compacted in a later migration.
 
 BEGIN;
 
@@ -12,24 +14,6 @@ CREATE TABLE IF NOT EXISTS public.mvp_daily_archives (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
--- Shrink existing full-database snapshots in place to team-only snapshots.
-UPDATE public.mvp_daily_archives
-SET snapshot = jsonb_build_object(
-  'snapshot_date', snapshot_date,
-  'captured_at', COALESCE(snapshot->'captured_at', to_jsonb(captured_at)),
-  'teams', COALESCE(snapshot->'teams', '[]'::jsonb)
-)
-WHERE snapshot ? 'players'
-   OR snapshot ? 'team_matches'
-   OR snapshot ? 'match_player_stats'
-   OR snapshot ? 'player_trophies'
-   OR snapshot ? 'player_prize_money'
-   OR snapshot ? 'tournaments'
-   OR snapshot ? 'site_news'
-   OR snapshot ? 'editorial_news'
-   OR snapshot ? 'team_rank_history';
-
--- Daily team ranking rows are stored once per team and date.
 CREATE TABLE IF NOT EXISTS public.mvp_team_rank_snapshots (
   team_id bigint NOT NULL,
   snapshot_date date NOT NULL,
@@ -43,6 +27,29 @@ CREATE INDEX IF NOT EXISTS mvp_daily_archives_created_idx
 CREATE INDEX IF NOT EXISTS mvp_team_rank_snapshots_date_idx
   ON public.mvp_team_rank_snapshots (snapshot_date DESC, team_id);
 
+-- Remove every trigger that calls the old full-database snapshot trigger function.
+-- This avoids relying on a possibly different trigger name across installations.
+DO $$
+DECLARE
+  trigger_row record;
+BEGIN
+  FOR trigger_row IN
+    SELECT n.nspname AS schema_name, c.relname AS table_name, t.tgname AS trigger_name
+    FROM pg_trigger t
+    JOIN pg_class c ON c.oid = t.tgrelid
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    JOIN pg_proc p ON p.oid = t.tgfoid
+    JOIN pg_namespace pn ON pn.oid = p.pronamespace
+    WHERE NOT t.tgisinternal
+      AND pn.nspname = 'public'
+      AND p.proname = 'mvp_daily_snapshot_before_change'
+  LOOP
+    EXECUTE format('DROP TRIGGER IF EXISTS %I ON %I.%I',
+      trigger_row.trigger_name, trigger_row.schema_name, trigger_row.table_name);
+  END LOOP;
+END;
+$$;
+
 CREATE OR REPLACE FUNCTION public.mvp_capture_completed_daily_snapshot()
 RETURNS jsonb
 LANGUAGE plpgsql
@@ -50,15 +57,12 @@ SECURITY DEFINER
 SET search_path TO ''
 AS $$
 DECLARE
-  v_today date := (now() AT TIME ZONE 'Europe/Berlin')::date;
   v_day date := (now() AT TIME ZONE 'Europe/Berlin')::date - 1;
   v_snapshot jsonb;
   v_inserted integer := 0;
 BEGIN
   PERFORM pg_advisory_xact_lock(hashtext('mvp_cs2_daily_archive_capture'));
 
-  -- Only archive the immediately preceding day. We cannot truthfully invent
-  -- intermediate daily states if the site was offline for several days.
   v_snapshot := jsonb_build_object(
     'snapshot_date', v_day,
     'captured_at', now(),
@@ -86,7 +90,6 @@ BEGIN
   INSERT INTO public.mvp_daily_archives (snapshot_date, snapshot, captured_at)
   VALUES (v_day, v_snapshot, now())
   ON CONFLICT (snapshot_date) DO NOTHING;
-
   GET DIAGNOSTICS v_inserted = ROW_COUNT;
 
   INSERT INTO public.mvp_team_rank_snapshots (team_id, snapshot_date, rank_position, captured_at)
@@ -108,26 +111,8 @@ BEGIN
 END;
 $$;
 
--- Capture the previous day's ranking only before team changes.
--- Changes to players, news, matches, tournaments and trophies no longer
--- trigger a complete archive operation.
-DROP TRIGGER IF EXISTS mvp_daily_snapshot_before_change ON public.cs2_players;
-DROP TRIGGER IF EXISTS mvp_daily_snapshot_before_change ON public.match_player_stats;
-DROP TRIGGER IF EXISTS mvp_daily_snapshot_before_change ON public.mvp_editorial_news;
-DROP TRIGGER IF EXISTS mvp_daily_snapshot_before_change ON public.mvp_site_news;
-DROP TRIGGER IF EXISTS mvp_daily_snapshot_before_change ON public.mvp_tournaments;
-DROP TRIGGER IF EXISTS mvp_daily_snapshot_before_change ON public.player_prize_money;
-DROP TRIGGER IF EXISTS mvp_daily_snapshot_before_change ON public.player_trophies;
-DROP TRIGGER IF EXISTS mvp_daily_snapshot_before_change ON public.team_matches;
-DROP TRIGGER IF EXISTS mvp_daily_snapshot_before_change ON public.teams;
-
-CREATE TRIGGER mvp_daily_snapshot_before_change
-BEFORE INSERT OR UPDATE OR DELETE ON public.teams
-FOR EACH STATEMENT
-EXECUTE FUNCTION public.mvp_daily_snapshot_before_change();
-
 COMMIT;
 
--- After verifying the migration, reclaim space from old, replaced JSONB rows:
--- VACUUM (FULL, ANALYZE) public.mvp_daily_archives;
--- Run VACUUM separately (outside a transaction). It takes an exclusive table lock.
+-- Existing JSONB rows are not rewritten by this migration. The current UI still
+-- needs their historical player/match/trophy fields. Reclaim disk only after
+-- a separate UI migration proves those fields are no longer required.
