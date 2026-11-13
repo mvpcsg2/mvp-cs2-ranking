@@ -317,6 +317,51 @@ export default {
       }
     }
 
+
+    if (url.pathname === "/api/matches") {
+      try {
+        const rows = await sql`SELECT id, team_id, opponent_team_id, opponent_name, team_score, opponent_score, map_name, played_at, match_status, tournament_name FROM public.team_matches ORDER BY played_at ASC LIMIT 500`;
+        return json({ ok: true, data: rows }, 200, cors);
+      } catch (error) {
+        console.error("Matches query failed", error);
+        return json({ ok: false, error: "Could not load matches" }, 503, cors);
+      }
+    }
+
+    if (url.pathname === "/api/tournaments") {
+      try {
+        const rows = await sql`SELECT id, name, best_of, status, is_active, bracket_data, updated_at FROM public.mvp_tournaments ORDER BY updated_at DESC LIMIT 100`;
+        return json({ ok: true, data: rows }, 200, cors);
+      } catch (error) {
+        console.error("Tournaments query failed", error);
+        return json({ ok: false, error: "Could not load tournaments" }, 503, cors);
+      }
+    }
+
+    if (url.pathname === "/api/streams") {
+      try {
+        const rows = await sql`SELECT id, title, youtube_url, created_at FROM public.cs2_streams ORDER BY created_at DESC LIMIT 100`;
+        return json({ ok: true, data: rows }, 200, cors);
+      } catch (error) {
+        console.error("Streams query failed", error);
+        return json({ ok: false, error: "Could not load streams" }, 503, cors);
+      }
+    }
+
+    if (url.pathname === "/api/live-matches") {
+      try {
+        const matches = await sql`SELECT id, server_key, map_name, status, round_number, score_t, score_ct, started_at, updated_at, finished_at FROM public.mvp_live_matches WHERE status IN ('live','finished') ORDER BY started_at DESC LIMIT 12`;
+        if (!matches.length) return json({ ok: true, data: { matches: [], players: [], events: [] } }, 200, cors);
+        const ids = matches.map(row => row.id);
+        const players = await sql`SELECT match_id, steam_id, player_name, team_num, kills, deaths, assists FROM public.mvp_live_players WHERE match_id = ANY(${ids}) ORDER BY kills DESC`;
+        const events = await sql`SELECT match_id, event_type, round_number, payload, created_at FROM public.mvp_live_events WHERE match_id = ANY(${ids}) ORDER BY created_at DESC LIMIT 100`;
+        return json({ ok: true, data: { matches, players, events } }, 200, cors);
+      } catch (error) {
+        console.error("Live matches query failed", error);
+        return json({ ok: false, error: "Could not load live matches" }, 503, cors);
+      }
+    }
+
     return json({ ok: false, error: "Not found" }, 404, cors);
   },
 };
