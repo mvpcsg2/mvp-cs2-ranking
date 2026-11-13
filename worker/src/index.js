@@ -362,6 +362,26 @@ export default {
       }
     }
 
+
+    if (url.pathname === "/api/player-stats") {
+      try {
+        const rows = await sql`
+          SELECT s.player_id::text AS player_id,
+                 AVG(COALESCE(s.kd, 0))::float8 AS average,
+                 SUM(COALESCE(s.kills, 0))::int AS kills,
+                 SUM(COALESCE(s.deaths, 0))::int AS deaths,
+                 COUNT(*)::int AS matches,
+                 ARRAY_REMOVE(ARRAY_AGG(DISTINCT s.team_id::text), NULL) AS team_ids
+          FROM public.match_player_stats s
+          GROUP BY s.player_id
+        `;
+        return json({ ok: true, data: rows }, 200, cors);
+      } catch (error) {
+        console.error("Player stats aggregate query failed", error);
+        return json({ ok: false, error: "Could not load player statistics" }, 503, cors);
+      }
+    }
+
     return json({ ok: false, error: "Not found" }, 404, cors);
   },
 };
