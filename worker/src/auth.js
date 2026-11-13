@@ -69,16 +69,16 @@ async function rateLimit(sql, request, bucket, limit = 8) {
   const ip = request.headers.get("CF-Connecting-IP") || "unknown";
   const key = (await sha256(ip + ":" + bucket)).slice(0, 48);
   const rows = await sql`
-    INSERT INTO public.mvp_auth_rate_limits (bucket_key, window_started_at, hit_count)
+    INSERT INTO public.mvp_auth_rate_limits AS rate_limit (bucket_key, window_started_at, hit_count)
     VALUES (${key}, now(), 1)
     ON CONFLICT (bucket_key) DO UPDATE SET
       hit_count = CASE
-        WHEN public.mvp_auth_rate_limits.window_started_at < now() - interval '15 minutes' THEN 1
-        ELSE public.mvp_auth_rate_limits.hit_count + 1
+        WHEN rate_limit.window_started_at < now() - interval '15 minutes' THEN 1
+        ELSE rate_limit.hit_count + 1
       END,
       window_started_at = CASE
-        WHEN public.mvp_auth_rate_limits.window_started_at < now() - interval '15 minutes' THEN now()
-        ELSE public.mvp_auth_rate_limits.window_started_at
+        WHEN rate_limit.window_started_at < now() - interval '15 minutes' THEN now()
+        ELSE rate_limit.window_started_at
       END
     RETURNING hit_count
   `;
