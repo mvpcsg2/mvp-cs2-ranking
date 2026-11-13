@@ -27,7 +27,25 @@ function getCors(request, env) {
     : {};
 }
 
+async function captureDailyArchive(env) {
+  if (!env.DATABASE_URL) throw new Error("DATABASE_URL secret is missing");
+  const sql = neon(env.DATABASE_URL);
+  const rows = await sql`SELECT public.mvp_capture_completed_daily_snapshot() AS result`;
+  return rows?.[0]?.result ?? null;
+}
+
 export default {
+  // Cloudflare Cron Trigger calls this in the background. The SQL function is
+  // idempotent per Berlin calendar date, so frequent cron checks do not duplicate archives.
+  async scheduled(controller, env, ctx) {
+    ctx.waitUntil(
+      captureDailyArchive(env).then(
+        result => console.log("Daily archive check completed", result),
+        error => console.error("Daily archive capture failed", error)
+      )
+    );
+  },
+
   async fetch(request, env) {
     const cors = getCors(request, env);
     if (request.method === "OPTIONS") {
