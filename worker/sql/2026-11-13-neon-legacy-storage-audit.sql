@@ -25,6 +25,12 @@ FROM (
   SELECT 'mvp_site_news.to_team_logo', to_team_logo FROM public.mvp_site_news
   UNION ALL
   SELECT 'mvp_site_news.team_logo', team_logo FROM public.mvp_site_news
+  UNION ALL
+  SELECT 'mvp_tournaments.bracket_data', bracket_data::text FROM public.mvp_tournaments
+  UNION ALL
+  SELECT 'mvp_daily_archives.snapshot', snapshot::text FROM public.mvp_daily_archives
+  UNION ALL
+  SELECT 'mvp_season_archives.snapshot', snapshot::text FROM public.mvp_season_archives
 ) AS refs
 WHERE value ILIKE '%supabase%'
 GROUP BY source
