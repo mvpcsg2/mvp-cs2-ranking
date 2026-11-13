@@ -20,6 +20,8 @@ CREATE TABLE IF NOT EXISTS public.mvp_auth_users (
   CONSTRAINT mvp_auth_username_length CHECK (char_length(username) BETWEEN 2 AND 24)
 );
 
+ALTER TABLE public.mvp_auth_users ADD COLUMN IF NOT EXISTS ban_reason text;
+
 CREATE UNIQUE INDEX IF NOT EXISTS mvp_auth_users_email_lower_uidx
   ON public.mvp_auth_users (lower(email));
 CREATE INDEX IF NOT EXISTS mvp_auth_users_created_idx
