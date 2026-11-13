@@ -6,6 +6,8 @@ workers_dev = true
 
 [vars]
 CORS_ORIGIN = "https://mvpcsg2.github.io"
+AUTH_ADMIN_EMAIL = "semkimr@gmail.com"
+AUTH_PUBLIC_URL = "https://mvp-cs2-ranking.pages.dev/"
 
 # Check every 15 minutes; SQL stores each completed Berlin day only once.
 [triggers]
