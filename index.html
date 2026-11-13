@@ -3147,11 +3147,12 @@ async function openTopPlayersCenter(){
     let dbPlayers=[],stats=[];
     if(isViewingHistoricalData()){dbPlayers=snapshotRows('players');stats=snapshotRows('match_player_stats');}
     else if(!isFutureSeason()){
-      const [{data:playersData,error:playersError},{data:statsData,error:statsError}]=await Promise.all([
-        client.from('cs2_players').select('id,nickname,photo_url,role,is_banned,team_id,country_code').limit(1000),
-        client.from('match_player_stats').select('player_id,team_id,kills,deaths,kd,created_at').order('created_at',{ascending:false}).limit(5000)
+      const [playersData,statsData]=await Promise.all([
+        mvpApiGet('/api/players'),
+        mvpApiGet('/api/player-stats')
       ]);
-      if(playersError)throw playersError;if(statsError)throw statsError;dbPlayers=playersData||[];stats=statsData||[];
+      dbPlayers=playersData||[];
+      stats=(statsData||[]).map(row=>({player_id:row.player_id,kills:row.kills,deaths:row.deaths,kd:row.average,team_ids:row.team_ids,matches:row.matches}));
     }
     const dbByNick=new Map((dbPlayers||[]).map(p=>[String(p.nickname).toLowerCase(),p]));
     const members=new Map();
@@ -3174,13 +3175,12 @@ async function openTopPlayersCenter(){
     });
     const statMap=new Map();
     (stats||[]).forEach(st=>{
-      const key=String(st.player_id);let a=statMap.get(key);
-      if(!a){a={kds:[],kills:0,deaths:0,matches:0,teamIds:[]};statMap.set(key,a)}
-      a.kds.push(Number(st.kd)||0);a.kills+=Number(st.kills)||0;a.deaths+=Number(st.deaths)||0;a.matches++;if(st.team_id&&!a.teamIds.includes(String(st.team_id)))a.teamIds.push(String(st.team_id));
+      const key=String(st.player_id);
+      statMap.set(key,{average:Number(st.kd)||0,kills:Number(st.kills)||0,deaths:Number(st.deaths)||0,matches:Number(st.matches)||0,teamIds:Array.isArray(st.team_ids)?st.team_ids.map(String):[]});
     });
     const rows=[...members.values()].map(member=>{
       const aggregate=member.dbPlayer?statMap.get(String(member.dbPlayer.id)):null;
-      const average=aggregate?.matches?aggregate.kds.reduce((x,y)=>x+y,0)/aggregate.matches:0;
+      const average=aggregate?.average||0;
       const statsTeams=(aggregate?.teamIds||[]).map(id=>teams.find(t=>String(t.id)===id)).filter(Boolean);
       return {...member,teams:member.teams.length?member.teams:statsTeams,average,kills:aggregate?.kills||0,deaths:aggregate?.deaths||0,matches:aggregate?.matches||0};
     }).sort((a,b)=>b.average-a.average||b.kills-a.kills||a.nickname.localeCompare(b.nickname));
