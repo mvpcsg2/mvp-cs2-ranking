@@ -126,6 +126,13 @@ export async function getSessionUser(sql, request) {
   if (!user || user.is_banned || !user.email_verified_at) return null;
   return user;
 }
+async function enforcePrimaryAdmin(sql,user,env) {
+  const adminEmail=String(env.AUTH_ADMIN_EMAIL||"").trim().toLowerCase();
+  if(!user||!adminEmail||String(user.email||"").toLowerCase()!==adminEmail||!user.email_verified_at)return user;
+  const rows=await sql`UPDATE public.mvp_auth_users SET role='admin',permissions='{}'::jsonb,updated_at=now() WHERE id=${user.id}::uuid RETURNING id,email,username,role,permissions,is_banned,email_verified_at`;
+  return rows[0]||user;
+}
+
 async function createSession(sql, userId) {
   const token = randomToken();
   const digest = await sha256(token);
@@ -162,7 +169,8 @@ export async function handleAuthRequest(request, env, cors) {
 
   try {
     if (path === "/api/auth/session" && request.method === "GET") {
-      const user = await getSessionUser(sql, request);
+      const activeUser = await getSessionUser(sql, request);
+      const user = activeUser ? await enforcePrimaryAdmin(sql,activeUser,env) : null;
       return json({ ok: true, user: user ? publicUser(user) : null }, 200, cors);
     }
 
@@ -270,9 +278,10 @@ export async function handleAuthRequest(request, env, cors) {
       if (!user || candidate !== user.password_hash || !user.email_verified_at || user.is_banned) {
         return json({ ok: false, error: "Неверный email или пароль. Убедись, что email подтверждён." }, 401, cors);
       }
-      const token = await createSession(sql, user.id);
+      const verifiedUser = await enforcePrimaryAdmin(sql,user,env);
+      const token = await createSession(sql, verifiedUser.id);
       await sql`DELETE FROM public.mvp_auth_sessions WHERE user_id = ${user.id}::uuid AND expires_at < now()`;
-      return json({ ok: true, token, user: publicUser(user), expires_in: SESSION_DAYS * 86400 }, 200, cors);
+      return json({ ok: true, token, user: publicUser(verifiedUser), expires_in: SESSION_DAYS * 86400 }, 200, cors);
     }
 
     if (path === "/api/auth/logout" && request.method === "POST") {
