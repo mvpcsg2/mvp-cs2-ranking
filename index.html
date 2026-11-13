@@ -2974,6 +2974,28 @@ function safeTournamentLogo(value){
   const raw=String(value||'').trim();
   try{const u=new URL(raw);return ['https:','http:'].includes(u.protocol)?u.href:'';}catch(_){return '';}
 }
+function compactTournamentTeam(team){
+  if(!team||typeof team!=='object')return null;
+  const id=String(team.id??'');
+  const current=teams.find(t=>String(t.id)===id)||null;
+  return {
+    id,
+    name:String(team.name||current?.name||''),
+    tag:String(team.tag||current?.tag||''),
+    // Store only a normal URL. Never duplicate inline/base64 image data in bracket_data.
+    logo:safeTournamentLogo(team.logo)||safeTournamentLogo(current?.logo)||''
+  };
+}
+function compactTournamentData(state){
+  const source=state&&typeof state==='object'?state:{};
+  return {
+    ...source,
+    version:Number(source.version)||2,
+    teams:(Array.isArray(source.teams)?source.teams:[]).map(compactTournamentTeam).filter(Boolean),
+    lower_teams:(Array.isArray(source.lower_teams)?source.lower_teams:[]).map(compactTournamentTeam).filter(Boolean),
+    scores:source.scores&&typeof source.scores==='object'?source.scores:{}
+  };
+}
 function tournamentTeamById(state,id){return (state?.teams||[]).find(t=>String(t.id)===String(id))||null;}
 function tournamentWinTarget(bestOf){return Math.floor(Number(bestOf||3)/2)+1;}
 function resolveTournament(tournament){
@@ -3157,7 +3179,7 @@ async function saveTournamentEdits(event){
   const hadScores=Object.keys(oldData.scores||{}).length>0;
   if(lineupChanged&&hadScores&&!confirm('Изменяется состав, посев или формат BO. Все результаты матчей этой сетки будут сброшены. Продолжить?'))return;
   if(lineupChanged&&!hadScores&&!confirm('Сохранить новый состав, посев и формат турнира?'))return;
-  const nextData={...oldData,version:1,teams:picked.map(t=>({id:String(t.id),name:String(t.name||''),tag:String(t.tag||''),logo:String(t.logo||'')})),scores:lineupChanged?{}:{...(oldData.scores||{})}};
+  const nextData=compactTournamentData({...oldData,version:1,teams:picked.map(t=>({id:String(t.id),name:String(t.name||''),tag:String(t.tag||''),logo:String(t.logo||'')})),scores:lineupChanged?{}:{...(oldData.scores||{})}});
   const resolved=resolveTournament({...activeTournament,name,best_of:bestOf,bracket_data:nextData});
   const hasResults=Object.values(resolved.games).some(g=>g.winner);
   const status=resolved.champion?'completed':hasResults?'live':'registration';
@@ -3195,7 +3217,7 @@ async function createTournamentFromForm(event){
   if(picked.length!==8)return alert('Не удалось найти все выбранные команды. Обнови страницу и повтори.');
   const submit=form.querySelector('button[type="submit"]');submit.disabled=true;submit.textContent='Создаём…';
   try{
-    const bracket_data={version:2,teams:picked.map(t=>({id:String(t.id),name:String(t.name||''),tag:String(t.tag||''),logo:String(t.logo||'')})),lower_teams:[],scores:{}};
+    const bracket_data=compactTournamentData({version:2,teams:picked.map(t=>({id:String(t.id),name:String(t.name||''),tag:String(t.tag||''),logo:String(t.logo||'')})),lower_teams:[],scores:{}});
     const {data:created,error:insertError}=await client.from('mvp_tournaments').insert({name,best_of:bestOf,status:'registration',is_active:false,bracket_data,created_by:currentUser.id}).select('id').single();
     if(insertError)throw insertError;
     const {error:archiveError}=await client.from('mvp_tournaments').update({is_active:false}).eq('is_active',true);
@@ -3207,6 +3229,7 @@ async function createTournamentFromForm(event){
 }
 async function persistTournamentData(nextState){
   if(!activeTournament?.id)throw new Error('Активный турнир не найден.');
+  nextState=compactTournamentData(nextState);
   const resolved=resolveTournament({...activeTournament,bracket_data:nextState});
   const completed=!!resolved.champion;
   const hasResults=Object.values(resolved.games).some(g=>g.winner);
