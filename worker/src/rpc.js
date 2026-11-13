@@ -88,7 +88,7 @@ async function runRpc(sql,user,name,args,env){
       const email=String(p.p_email||"").trim().toLowerCase();
       if(!email.includes("@"))throw new Error("Некорректный email.");
       if(email===String(env.AUTH_ADMIN_EMAIL||"").trim().toLowerCase())throw new Error("Главного администратора нельзя заблокировать.");
-      const rows=await sql`UPDATE public.mvp_auth_users SET is_banned=true,updated_at=now() WHERE lower(email)=${email} RETURNING id,email,is_banned`;
+      const rows=await sql`UPDATE public.mvp_auth_users SET is_banned=true,ban_reason=\${String(p.p_reason||'').trim().slice(0,500)},updated_at=now() WHERE lower(email)=${email} RETURNING id,email,is_banned`;
       if(!rows.length)throw new Error("Аккаунт с таким email не найден в Neon.");
       await sql`DELETE FROM public.mvp_auth_sessions WHERE user_id=${rows[0].id}::uuid`;
       return rows[0];
@@ -97,7 +97,7 @@ async function runRpc(sql,user,name,args,env){
     case "admin_unban_email": {
       if(!isAdmin(user))throw new Error("Снимать блокировки может только администратор.");
       const email=String(p.p_email||"").trim().toLowerCase();
-      const rows=await sql`UPDATE public.mvp_auth_users SET is_banned=false,updated_at=now() WHERE lower(email)=${email} RETURNING id,email,is_banned`;
+      const rows=await sql`UPDATE public.mvp_auth_users SET is_banned=false,ban_reason=NULL,updated_at=now() WHERE lower(email)=${email} RETURNING id,email,is_banned`;
       if(!rows.length)throw new Error("Аккаунт не найден в Neon.");
       return rows[0];
     }
@@ -122,7 +122,7 @@ async function runRpc(sql,user,name,args,env){
 
     case "admin_list_banned_emails": {
       if(!hasPermission(user,"manage_bans"))throw new Error("Нет доступа к списку блокировок.");
-      return await sql`SELECT email, 'Аккаунт заблокирован администратором'::text AS reason FROM public.mvp_auth_users WHERE is_banned=true ORDER BY email LIMIT 500`;
+      return await sql`SELECT email, COALESCE(ban_reason,'Аккаунт заблокирован администратором') AS reason FROM public.mvp_auth_users WHERE is_banned=true ORDER BY email LIMIT 500`;
     }
 
     case "mvp_wipe_and_advance_season": {
