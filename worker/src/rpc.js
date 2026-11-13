@@ -57,7 +57,7 @@ async function runRpc(sql,user,name,args,env){
       if(id!==null&&!/^\d+$/.test(id))throw new Error("Некорректный ID команды.");
       const photos=Array.isArray(p.p_player_photos)?p.p_player_photos:[];
       const rows=await sql`
-        SELECT public.mvp_admin_save_team(
+        SELECT to_jsonb(public.mvp_admin_save_team(
           ${id}::bigint,
           ${name},
           ${String(p.p_tag||"").trim().slice(0,20)},
@@ -68,7 +68,7 @@ async function runRpc(sql,user,name,args,env){
           ${Math.max(0,Math.floor(Number(p.p_tournament_wins)||0))},
           ${banned},
           ${banned?String(p.p_ban_reason||"").trim().slice(0,500):""}
-        ) AS saved
+        )) AS saved
       `;
       const saved=rows?.[0]?.saved;
       if(!saved)throw new Error("Не удалось сохранить команду.");
