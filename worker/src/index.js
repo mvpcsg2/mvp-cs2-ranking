@@ -142,7 +142,7 @@ export default {
     // Public read-only content endpoints. Private account and support tables are deliberately excluded.
     if (url.pathname === "/api/site-news") {
       try {
-        const rows = await sql`SELECT * FROM public.mvp_site_news ORDER BY created_at DESC LIMIT 500`;
+        const rows = await sql`SELECT id, event_type, player_id, player_name, team_id, team_name, from_team_id, from_team_name, to_team_id, to_team_name, reason, created_at, updated_at, player_photo_url, from_team_logo, to_team_logo, team_logo, team_snapshot_id, from_team_snapshot_id, to_team_snapshot_id FROM public.mvp_site_news ORDER BY created_at DESC LIMIT 500`;
         return json({ ok: true, data: rows }, 200, cors);
       } catch (error) {
         console.error("Site news query failed", error);
@@ -152,7 +152,7 @@ export default {
 
     if (url.pathname === "/api/editorial-news") {
       try {
-        const rows = await sql`SELECT * FROM public.mvp_editorial_news WHERE published = true ORDER BY created_at DESC LIMIT 300`;
+        const rows = await sql`SELECT id, title, category, summary, body, image_url, external_url, author_name, published, created_at, updated_at FROM public.mvp_editorial_news WHERE published = true ORDER BY created_at DESC LIMIT 300`;
         return json({ ok: true, data: rows }, 200, cors);
       } catch (error) {
         console.error("Editorial news query failed", error);
