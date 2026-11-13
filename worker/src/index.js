@@ -46,12 +46,18 @@ export default {
       return json({ ok: false, error: "DATABASE_URL secret is missing" }, 500, cors);
     }
 
-    const sql = neon(env.DATABASE_URL);
+    let sql;
+    try {
+      sql = neon(env.DATABASE_URL);
+    } catch (error) {
+      console.error("Neon client initialization failed", error);
+      return json({ ok: false, error: "Database client initialization failed" }, 500, cors);
+    }
 
     if (url.pathname === "/api/db-check") {
       try {
         const rows = await sql`SELECT 1 AS ok`;
-        return json({ ok: rows?.[0]?.ok === 1, database: "connected" }, 200, cors);
+        return json({ ok: Number(rows?.[0]?.ok) === 1, database: "connected" }, 200, cors);
       } catch (error) {
         console.error("Neon connectivity check failed", error);
         return json({ ok: false, error: "Database connection failed" }, 503, cors);
