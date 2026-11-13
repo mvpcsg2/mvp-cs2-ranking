@@ -1697,20 +1697,149 @@ body[data-theme="night"] .season-admin-card{background:#2d2b24;border-color:#806
 </footer>
 </main><div id="modalRoot"></div>
 <button id="helpFab" class="help-fab" type="button" aria-label="Открыть помощь"><span class="help-fab-icon">?</span><span>Помощь</span></button>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
 if (window.__MVP_SITE_DOMAIN_OK__ !== true) { throw new Error('MVP CS2 Ranking: unauthorized domain'); }
-const SUPABASE_URL = 'https://garbvoswmmlsrxerbden.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_eluKu1nKkVuJs9WqxpON4w_SUgpHwFU';
 const LOCAL_STORE = 'mvp_cs2_ranking_v3';
-const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 const MVP_API_URL = 'https://mvp-cs2-api.mvpcsgo2.workers.dev';
+const AUTH_TOKEN_KEY = 'mvp_neon_access_token_v1';
+
+async function mvpApiRequest(path, options={}){
+  const headers = new Headers(options.headers || {});
+  headers.set('accept','application/json');
+  const token = localStorage.getItem(AUTH_TOKEN_KEY);
+  if(token)headers.set('authorization','Bearer '+token);
+  if(options.body && !(options.body instanceof Blob) && !(options.body instanceof ArrayBuffer) && !(options.body instanceof FormData))headers.set('content-type','application/json');
+  const response = await fetch(MVP_API_URL+path,{...options,headers});
+  const type=response.headers.get('content-type')||'';
+  const payload=type.includes('application/json')?await response.json():{ok:response.ok,data:await response.text()};
+  if(!response.ok||payload?.ok===false)throw new Error(payload?.error||'Ошибка сервера ('+response.status+').');
+  return payload;
+}
 async function mvpApiGet(path){
-  const response = await fetch(`${MVP_API_URL}${path}`, {method:'GET',headers:{'accept':'application/json'}});
-  const result = await response.json();
-  if(!response.ok || result?.ok !== true) throw new Error(result?.error || `API request failed (${response.status})`);
+  const result=await mvpApiRequest(path,{method:'GET'});
   return result.data;
 }
+function createMvpApiClient(){
+  const auth={
+    async getSession(){
+      const token=localStorage.getItem(AUTH_TOKEN_KEY);
+      if(!token)return {data:{session:null},error:null};
+      try{
+        const result=await mvpApiRequest('/api/auth/session',{method:'GET'});
+        if(!result.user){localStorage.removeItem(AUTH_TOKEN_KEY);return {data:{session:null},error:null};}
+        const user={...result.user,user_metadata:{username:result.user.username}};
+        return {data:{session:{access_token:token,user,expires_at:null}},error:null};
+      }catch(error){return {data:{session:null},error};}
+    },
+    async signUp({email,password,options={}}){
+      try{
+        const result=await mvpApiRequest('/api/auth/register',{method:'POST',body:JSON.stringify({email,password,username:options?.data?.username||String(email||'').split('@')[0]})});
+        return {data:{user:null,session:null,message:result.message},error:null};
+      }catch(error){return {data:{user:null,session:null},error};}
+    },
+    async signInWithPassword({email,password}){
+      try{
+        const result=await mvpApiRequest('/api/auth/login',{method:'POST',body:JSON.stringify({email,password})});
+        localStorage.setItem(AUTH_TOKEN_KEY,result.token);
+        const user={...result.user,user_metadata:{username:result.user.username}};
+        return {data:{user,session:{access_token:result.token,user}},error:null};
+      }catch(error){return {data:{user:null,session:null},error};}
+    },
+    async signOut(){
+      const token=localStorage.getItem(AUTH_TOKEN_KEY);
+      try{
+        if(token)await mvpApiRequest('/api/auth/logout',{method:'POST',headers:{authorization:'Bearer '+token},body:'{}'});
+      }catch(_){}
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      return {error:null};
+    }
+  };
+
+  function from(table){
+    const state={table,action:'select',columns:'*',filters:[],orFilters:[],orders:[],limit:500,values:null,returning:null,conflictColumns:[],single:null};
+    const builder={
+      select(columns='*'){if(state.action==='select')state.columns=columns||'*';else state.returning=columns==='*'?null:String(columns).split(',').map(x=>x.trim());return this;},
+      insert(values){state.action='insert';state.values=values;return this;},
+      update(values){state.action='update';state.values=values;return this;},
+      delete(){state.action='delete';return this;},
+      upsert(values,options={}){state.action='upsert';state.values=values;state.conflictColumns=String(options.onConflict||'').split(',').map(x=>x.trim()).filter(Boolean);return this;},
+      eq(column,value){state.filters.push({column,op:'eq',value});return this;},
+      neq(column,value){state.filters.push({column,op:'neq',value});return this;},
+      gt(column,value){state.filters.push({column,op:'gt',value});return this;},
+      gte(column,value){state.filters.push({column,op:'gte',value});return this;},
+      lt(column,value){state.filters.push({column,op:'lt',value});return this;},
+      lte(column,value){state.filters.push({column,op:'lte',value});return this;},
+      is(column,value){state.filters.push({column,op:'is',value});return this;},
+      in(column,values){state.filters.push({column,op:'in',value:values});return this;},
+      or(expression){
+        const parsed=String(expression||'').split(',').map(part=>{
+          const bits=part.split('.');
+          if(bits.length<3)throw new Error('Неподдерживаемое OR-условие.');
+          return {column:bits[0],op:bits[1],value:bits.slice(2).join('.')};
+        });
+        state.orFilters.push(...parsed);return this;
+      },
+      order(column,options={}){state.orders.push({column,ascending:options.ascending!==false});return this;},
+      limit(value){state.limit=value;return this;},
+      single(){state.single='single';return this;},
+      maybeSingle(){state.single='maybe';return this;},
+      then(resolve,reject){
+        const execute=async()=>{
+          try{
+            const body={table:state.table,action:state.action,columns:state.columns==='*'?'*':String(state.columns||'*').split(',').map(x=>x.trim()),filters:state.filters,orFilters:state.orFilters,orders:state.orders,limit:state.limit,values:state.values,conflictColumns:state.conflictColumns,returning:state.returning};
+            const result=await mvpApiRequest('/api/data/query',{method:'POST',body:JSON.stringify(body)});
+            let data=result.data;
+            if(state.single==='single'){
+              if(!Array.isArray(data)||data.length!==1)return {data:null,error:{message:'Ожидалась ровно одна запись.'}};
+              data=data[0];
+            }else if(state.single==='maybe'){
+              data=Array.isArray(data)?(data[0]||null):data;
+            }
+            return {data,error:null};
+          }catch(error){return {data:null,error:{message:error?.message||'Ошибка запроса к Neon.'}};}
+        };
+        return execute().then(resolve,reject);
+      }
+    };
+    return builder;
+  }
+
+  return {
+    auth,
+    from,
+    async rpc(name,args={}){
+      try{const result=await mvpApiRequest('/api/data/rpc',{method:'POST',body:JSON.stringify({name,args})});return {data:result.data,error:null};}
+      catch(error){return {data:null,error:{message:error?.message||'Ошибка операции Neon.'}};}
+    },
+    storage:{
+      from(bucket){
+        return {
+          async upload(path,file,options={}){
+            try{
+              const response=await mvpApiRequest('/api/storage/upload?path='+encodeURIComponent(path),{method:'POST',headers:{'content-type':options.contentType||file.type||'application/octet-stream'},body:file});
+              return {data:response.data,error:null};
+            }catch(error){return {data:null,error:{message:error?.message||'Не удалось загрузить файл.'}};}
+          },
+          getPublicUrl(path){
+            const publicUrl=MVP_API_URL+'/assets/'+String(path).split('/').map(encodeURIComponent).join('/');
+            return {data:{publicUrl}};
+          }
+        };
+      }
+    },
+    functions:{
+      async invoke(name,options={}){
+        try{
+          const route=name==='sync-faceit-player'?'/api/faceit/sync':'/api/functions/'+encodeURIComponent(name);
+          const result=await mvpApiRequest(route,{method:'POST',body:JSON.stringify(options.body||{})});
+          return {data:result.data??result,error:null};
+        }catch(error){return {data:null,error:{message:error?.message||'Функция временно недоступна.'}};}
+      }
+    }
+  };
+}
+const client=createMvpApiClient();
 let admin = false, moderator = false, userPermissions = {}, currentUser = null, teams = [], busy = false, expandedTeamId = null, initialTeamExpansionDone = false;
 let teamRankMovements = new Map();
 function berlinTodayISO(){const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Berlin',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const pick=type=>parts.find(x=>x.type===type)?.value||'00';return `${pick('year')}-${pick('month')}-${pick('day')}`;}
@@ -2690,7 +2819,7 @@ async function loadTeams(){
 async function signOut(){await client.auth.signOut();currentUser=null;admin=false;moderator=false;userPermissions={};closeModal();render();await loadTeams()}
 function authModal(mode='login'){
   if(currentUser){modal(`<h2>Профиль</h2><p><b>${esc(currentUser.username)}</b></p><p>${esc(currentUser.email||'')}</p><p>Роль: <b>${admin?'Администратор':moderator?'Модератор':'Игрок'}</b></p>${moderator?`<p class="notice">Разрешения: ${Object.keys(MOD_PERMISSION_LABELS).filter(k=>userPermissions[k]).map(k=>MOD_PERMISSION_LABELS[k]).join(' · ')||'нет выданных разрешений'}</p>`:admin?'<p class="notice">У тебя полный доступ к управлению проектом.</p>':'<p class="notice">Ты можешь просматривать общий рейтинг и пользоваться чатом помощи.</p>'}<div class="modalfoot"><button class="btn" id="profileClose">Закрыть</button><button class="btn primary" id="profileLogout">Выйти из аккаунта</button></div>`);document.getElementById('profileClose').onclick=closeModal;document.getElementById('profileLogout').onclick=signOut;return}
-  modal(`<h2>${mode==='register'?'Регистрация':'Вход в аккаунт'}</h2>${mode==='register'?'<div class="field"><label>Имя пользователя</label><input id="authName" maxlength="24" autocomplete="username" placeholder="Например, MVPplayer"></div>':''}<div class="field"><label>Email</label><input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required></div><div class="field"><label>Пароль${mode==='register'?' (минимум 8 символов)':''}</label><input id="authPass" type="password" autocomplete="${mode==='register'?'new-password':'current-password'}" minlength="8" required></div><div class="notice">${mode==='register'?'Новый аккаунт получает роль игрока. После подтверждения почты аккаунт активируется.':'Введи email и пароль от своего аккаунта.'}</div><div id="authFeedback" class="auth-feedback hidden" role="alert" aria-live="polite"></div><div class="modalfoot"><button class="btn" id="switchAuth">${mode==='register'?'Уже есть аккаунт':'Регистрация'}</button><button class="btn primary" id="submitAuth">${mode==='register'?'Создать аккаунт':'Войти'}</button></div>`);
+  modal(`<h2>${mode==='register'?'Регистрация':'Вход в аккаунт'}</h2>${mode==='register'?'<div class="field"><label>Имя пользователя</label><input id="authName" maxlength="24" autocomplete="username" placeholder="Например, MVPplayer"></div>':''}<div class="field"><label>Email</label><input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required></div><div class="field"><label>Пароль${mode==='register'?' (минимум 10 символов)':''}</label><input id="authPass" type="password" autocomplete="${mode==='register'?'new-password':'current-password'}" minlength="8" required></div><div class="notice">${mode==='register'?'Новый аккаунт получает роль игрока. После подтверждения почты аккаунт активируется.':'Введи email и пароль от аккаунта MVP CS2 Ranking.'}</div><div id="authFeedback" class="auth-feedback hidden" role="alert" aria-live="polite"></div><div class="modalfoot"><button class="btn" id="switchAuth">${mode==='register'?'Уже есть аккаунт':'Регистрация'}</button><button class="btn primary" id="submitAuth">${mode==='register'?'Создать аккаунт':'Войти'}</button></div>`);
   document.querySelector('#modalRoot .modal').classList.add('auth-modal');
   document.getElementById('switchAuth').onclick=()=>authModal(mode==='register'?'login':'register');
   document.getElementById('submitAuth').onclick=async()=>{
@@ -2698,7 +2827,7 @@ function authModal(mode='login'){
     const email=document.getElementById('authEmail').value.trim().toLowerCase(),password=document.getElementById('authPass').value;
     const username=mode==='register'?(document.getElementById('authName').value.trim()||email.split('@')[0]):email.split('@')[0];
     if(!email||!document.getElementById('authEmail').checkValidity())return showAuthFeedback('Введи корректный email.');
-    if(password.length<8)return showAuthFeedback('Пароль должен содержать минимум 8 символов.');
+    if(password.length<10)return showAuthFeedback('Пароль должен содержать минимум 10 символов.');
     busy=true;button.disabled=true;button.textContent='Подожди…';
     try{
       if(mode==='register'){
@@ -3785,7 +3914,7 @@ function openEditorialNewsArticle(row){
 document.getElementById('helpFab').addEventListener('click',openHelpCenter);
 
 async function init(){
-  if(!window.supabase?.createClient){setStatus('Не загрузилась библиотека Supabase. Проверь интернет-соединение и обнови страницу.','error');return}
+  if(!client?.auth?.getSession){setStatus('Не удалось инициализировать API Neon. Обнови страницу.','error');return}
   setStatus('Подключаем общую базу рейтинга…');
   const {data,error}=await client.auth.getSession();
   if(error){setStatus('Ошибка авторизации Supabase: '+niceError(error),'error');return}
