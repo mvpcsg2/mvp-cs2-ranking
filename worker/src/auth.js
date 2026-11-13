@@ -95,7 +95,7 @@ async function createEmailToken(sql, userId, purpose) {
   `;
   await sql`
     INSERT INTO public.mvp_auth_email_tokens (user_id, purpose, token_hash, expires_at)
-    VALUES (${userId}::uuid, ${purpose}, ${digest}, now() + (${hours}::text || ' hours')::interval)
+    VALUES (${userId}::uuid, ${purpose}, ${digest}, now() + make_interval(hours => ${hours}))
   `;
   return token;
 }
@@ -125,7 +125,7 @@ async function createSession(sql, userId) {
   const digest = await sha256(token);
   await sql`
     INSERT INTO public.mvp_auth_sessions (user_id, token_hash, expires_at)
-    VALUES (${userId}::uuid, ${digest}, now() + (${SESSION_DAYS}::text || ' days')::interval)
+    VALUES (${userId}::uuid, ${digest}, now() + make_interval(days => ${SESSION_DAYS}))
   `;
   return token;
 }
