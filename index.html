@@ -1752,7 +1752,7 @@ async function selectRankDate(date){
   selectedRankDate=date;dailySnapshot=null;expandedTeamId=null;initialTeamExpansionDone=false;teamRankMovements=new Map();
   renderDailyDateNavigator();
   if(date<berlinTodayISO()){
-    try{const {data,error}=await client.from('mvp_daily_archives').select('snapshot').eq('snapshot_date',date).maybeSingle();if(error)throw error;dailySnapshot=data?.snapshot||null;}
+    try{const row=await mvpApiGet('/api/daily-archive?date='+encodeURIComponent(date));dailySnapshot=row?.snapshot||null;}
     catch(error){alert(`Не удалось открыть статистику за ${formatDailyDate(date)}: ${niceError(error)}`);dailySnapshot=null;}
   }
   await loadTeams();await loadNewsRail();
@@ -1848,11 +1848,10 @@ async function selectSeasonYear(year){
   try{
     if(year>activeSeasonYear){teams=[];rosterPlayerDirectory=new Map();render();return;}
     if(year===activeSeasonYear){await loadTeams();return;}
-    const {data,error}=await client.from('mvp_season_archives').select('snapshot').eq('season_year',year).maybeSingle();
-    if(error)throw error;
-    if(!data?.snapshot)throw new Error(`Архив ${year} года не найден.`);
-    seasonSnapshot=data.snapshot;
-    if(yearDates.length){const {data:dayData,error:dayError}=await client.from('mvp_daily_archives').select('snapshot').eq('snapshot_date',selectedRankDate).maybeSingle();if(dayError)throw dayError;dailySnapshot=dayData?.snapshot||null;}
+    const archive=await mvpApiGet('/api/season-archive?year='+encodeURIComponent(year));
+    if(!archive?.snapshot)throw new Error(`Архив ${year} года не найден.`);
+    seasonSnapshot=archive.snapshot;
+    if(yearDates.length){const dayRow=await mvpApiGet('/api/daily-archive?date='+encodeURIComponent(selectedRankDate));dailySnapshot=dayRow?.snapshot||null;}
     await loadTeams();
   }catch(error){
     seasonSnapshot=null;dailySnapshot=null;selectedSeasonYear=activeSeasonYear;selectedRankDate=berlinTodayISO();await loadTeams();
@@ -2283,7 +2282,7 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
     let player;
     if(isFutureSeason())player=null;
     else if(isViewingHistoricalData())player=snapshotRows('players').find(row=>String(row.nickname||'').toLowerCase()===nickname.toLowerCase())||null;
-    else{const {data:pdata,error:perr}=await client.from('cs2_players').select('id,nickname,photo_url,role,is_banned,ban_reason,team_id,faceit_profile_url,faceit_nickname,steam_id64,faceit_elo,faceit_skill_level,faceit_last_synced_at,country_code').eq('nickname',nickname).maybeSingle();if(perr)throw perr;player=pdata;}
+    else{player=[...rosterPlayerDirectory.values()].find(row=>String(row.nickname||'').toLowerCase()===nickname.toLowerCase())||null;}
     let stats=[],history=[],trophies=[],prizeRows=[];
     if(player){
       if(isViewingHistoricalData()){
@@ -2294,15 +2293,14 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
         const byId=new Map(snapshotRows('team_matches').filter(row=>ids.has(String(row.id))).map(row=>[String(row.id),row]));
         history=stats.map(st=>({...st,match:byId.get(String(st.match_id))})).filter(x=>x.match).sort((a,b)=>new Date(b.match.played_at||0)-new Date(a.match.played_at||0));
       }else{
-        const [{data:sdata,error:serr},{data:tdata,error:terr}]=await Promise.all([
-          client.from('match_player_stats').select('match_id,team_id,kills,deaths,kd,created_at').eq('player_id',player.id).order('created_at',{ascending:false}).limit(500),
-          client.from('player_trophies').select('id,place,tournament_name,awarded_at,team_id,custom_trophy_name,custom_trophy_image_url,custom_trophy_description').eq('player_id',player.id).order('awarded_at',{ascending:false}).limit(100),
+        const [matchRows,trophyRows,prizeRowsData]=await Promise.all([
+          mvpApiGet('/api/player-match-history?player_id='+encodeURIComponent(player.id)),
+          mvpApiGet('/api/player-trophies?player_id='+encodeURIComponent(player.id)),
+          mvpApiGet('/api/player-prize-money?player_id='+encodeURIComponent(player.id))
         ]);
-        // The prize-money query is deliberately separate below to keep compatibility with existing profile data.
-        if(serr)throw serr;if(terr)throw terr;stats=sdata||[];trophies=tdata||[];
-        const {data:prizeData,error:prizeError}=await client.from('player_prize_money').select('id,amount,currency,tournament_name,awarded_at,team_id').eq('player_id',player.id).order('awarded_at',{ascending:false}).limit(200);
-        if(prizeError)throw prizeError;prizeRows=prizeData||[];
-        if(stats.length){const ids=[...new Set(stats.map(x=>x.match_id))];const {data:mdata,error:merr}=await client.from('team_matches').select('id,team_id,opponent_team_id,opponent_name,team_score,opponent_score,map_name,played_at').in('id',ids);if(merr)throw merr;const byId=new Map((mdata||[]).map(m=>[String(m.id),m]));history=stats.map(st=>({...st,match:byId.get(String(st.match_id))})).filter(x=>x.match).sort((a,b)=>new Date(b.match.played_at||0)-new Date(a.match.played_at||0));}
+        stats=matchRows||[];
+        history=stats.filter(row=>row.match_id).map(row=>({...row,match:row})).sort((a,b)=>new Date(b.match.played_at||0)-new Date(a.match.played_at||0));
+        trophies=trophyRows||[];prizeRows=prizeRowsData||[];
       }
     }
     const photo=player?.photo_url||fallback,role=PLAYER_ROLE_ICONS[player?.role]?player.role:'',avg=stats.length?stats.reduce((sum,x)=>sum+Number(x.kd||0),0)/stats.length:0;
@@ -2652,15 +2650,8 @@ async function loadTeamRankMovements(){
   if(!teams.length)return;
   try{
     const since=new Date(Date.now()-3*24*60*60*1000).toISOString();
-    const {data,error}=await client
-      .from('mvp_team_rank_history')
-      .select('team_id,movement_delta,changed_at')
-      .gte('changed_at',since)
-      .order('changed_at',{ascending:false});
-    if(error)throw error;
-    teamRankMovements=new Map((data||[])
-      .filter(row=>Number(row.movement_delta)!==0)
-      .map(row=>[String(row.team_id),Number(row.movement_delta)||0]));
+    const data=await mvpApiGet('/api/team-rank-history');
+    teamRankMovements=new Map((data||[]).filter(row=>Number(row.movement_delta)!==0).map(row=>[String(row.team_id),Number(row.movement_delta)||0]));
   }catch(error){
     console.warn('Публичная история изменения мест недоступна. Выполни mvp_team_rank_history_3days.sql в Supabase.',error);
   }
