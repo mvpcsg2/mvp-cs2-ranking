@@ -214,7 +214,7 @@ async function runQuery(sql, body, user, cors) {
       query+=" ON CONFLICT ("+conflicts.map(quoteIdent).join(", ")+") ";
       query+=updates.length?"DO UPDATE SET "+updates.map(c=>quoteIdent(c)+" = EXCLUDED."+quoteIdent(c)).join(", "):"DO NOTHING";
     }
-    const returning=Array.isArray(body.returning)?body.returning:config.read.filter(c=>c==="id");
+    const returning=body.returning==="*"?config.read:(Array.isArray(body.returning)?body.returning:config.read.filter(c=>c==="id"));
     if(returning.some(c=>!config.read.includes(c)))return fail("Недопустимые возвращаемые поля.",400,cors);
     query+=" RETURNING "+(returning.length?returning.map(quoteIdent).join(", "):"1 AS ok");
     const result=await sql.query(query,params);
