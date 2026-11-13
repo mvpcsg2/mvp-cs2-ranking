@@ -48,28 +48,33 @@ function htmlPage(body) {
   });
 }
 async function sendMail(env, { to, subject, heading, message, link, button }) {
-  if (!env.RESEND_API_KEY || !env.RESEND_FROM_EMAIL) {
-    throw new Error("Email delivery is not configured. Set RESEND_API_KEY and RESEND_FROM_EMAIL in Cloudflare.");
+  if (!env.MAIL_RELAY_URL || !env.MAIL_RELAY_SECRET) {
+    throw new Error("Email delivery is not configured. Set MAIL_RELAY_URL and MAIL_RELAY_SECRET in Cloudflare.");
   }
   const safeLink = escapeHtml(link);
   const safeHeading = escapeHtml(heading);
   const safeMessage = escapeHtml(message);
   const safeButton = escapeHtml(button);
-  const response = await fetch("https://api.resend.com/emails", {
+  const response = await fetch(env.MAIL_RELAY_URL, {
     method: "POST",
-    headers: { authorization: "Bearer " + env.RESEND_API_KEY, "content-type": "application/json" },
+    headers: { "content-type": "application/json" },
     body: JSON.stringify({
-      from: env.RESEND_FROM_EMAIL,
-      to: [to],
+      secret: env.MAIL_RELAY_SECRET,
+      to,
       subject,
-      text: heading + "\n\n" + message + "\n\n" + link,
+      text: heading + "\\n\\n" + message + "\\n\\n" + link,
       html: `<!doctype html><html><body style="font-family:Arial,sans-serif;color:#20242a;line-height:1.5"><h2>${safeHeading}</h2><p>${safeMessage}</p><p><a href="${safeLink}" style="display:inline-block;padding:12px 18px;background:#f2a900;color:#20242a;text-decoration:none;border-radius:6px;font-weight:bold">${safeButton}</a></p><p style="font-size:12px;color:#777">Если ты не запрашивал это письмо, просто проигнорируй его.</p></body></html>`,
     }),
   });
   if (!response.ok) {
     const details = await response.text().catch(() => "");
-    console.error("Resend delivery failed", response.status, details.slice(0, 400));
-    throw new Error("Не удалось отправить письмо. Проверь настройки Resend.");
+    console.error("Mail relay HTTP failure", response.status, details.slice(0, 300));
+    throw new Error("Не удалось отправить письмо через Gmail. Проверь настройки почтового relay.");
+  }
+  const result = await response.json().catch(() => null);
+  if (!result?.ok) {
+    console.error("Mail relay rejected request", result?.error || "unknown error");
+    throw new Error("Gmail не смог отправить письмо. Проверь настройки Google Apps Script.");
   }
 }
 async function rateLimit(sql, request, bucket, limit = 8) {
@@ -184,7 +189,7 @@ export async function handleAuthRequest(request, env, cors) {
       if (!EMAIL_RE.test(email) || email.length > 254) return json({ ok: false, error: "Введи корректный email." }, 400, cors);
       if (username.length < 2 || username.length > 24) return json({ ok: false, error: "Имя пользователя должно содержать от 2 до 24 символов." }, 400, cors);
       if (password.length < 10 || password.length > 128) return json({ ok: false, error: "Пароль должен содержать от 10 до 128 символов." }, 400, cors);
-      if (!env.RESEND_API_KEY || !env.RESEND_FROM_EMAIL) return json({ ok: false, error: "Регистрация временно недоступна: не настроена отправка почты." }, 503, cors);
+      if (!env.MAIL_RELAY_URL || !env.MAIL_RELAY_SECRET) return json({ ok: false, error: "Регистрация временно недоступна: не настроена отправка почты." }, 503, cors);
       const salt = randomToken();
       const hash = await passwordHash(password, salt);
       let inserted;
