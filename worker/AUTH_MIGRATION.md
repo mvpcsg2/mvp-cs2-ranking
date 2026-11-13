@@ -16,6 +16,7 @@ In Cloudflare Dashboard → Workers & Pages → `mvp-cs2-api` → Settings → V
 The Worker configuration already sets:
 - `AUTH_ADMIN_EMAIL=semkimr@gmail.com`
 - `AUTH_PUBLIC_URL=https://mvp-cs2-ranking.pages.dev/`
+- `AUTH_API_URL=https://mvp-cs2-api.mvpcsgo2.workers.dev`
 
 Only an account that registers with this exact email and successfully verifies ownership of it receives the `admin` role. All other newly registered accounts receive `player`.
 
@@ -25,8 +26,9 @@ Deploy from the `worker/` directory after the SQL and email settings are in plac
 - `GET /health`
 - `GET /api/auth/session` (without a token it should return `user: null`)
 - `POST /api/auth/register` with `{ "email": "...", "username": "...", "password": "at-least-10-characters" }`
-- Click the verification link received by email; it opens the site with an `auth=verify` URL parameter. The browser UI still needs the matching verification handler before this flow is convenient end-to-end.
+- Click the verification link received by email; the Worker verifies it and displays a confirmation page.
 - `POST /api/auth/login` after verification.
+- `POST /api/auth/forgot-password` and follow the email link to set a new password; the Worker serves the reset form.
 
 ## Important: browser cutover is not complete
 
