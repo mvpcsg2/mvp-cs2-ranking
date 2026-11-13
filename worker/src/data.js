@@ -190,7 +190,7 @@ async function runQuery(sql, body, user, cors) {
       return quoteIdent(o.column)+(o.ascending===false?" DESC":" ASC");
     });
     const limit=Math.min(Math.max(Number(body.limit)||100,1),2000);
-    const query="SELECT "+columns.map(quoteIdent).join(", ")+" FROM public."+quoteIdent(table)+where+(orderSql.length?" ORDER BY "+orderSql.join(", "):"")+" LIMIT "+limit;
+    const query="SELECT "+columns.map(quoteIdent).join(", ")+" FROM public."+quoteIdent(table)+enforcedWhere+(orderSql.length?" ORDER BY "+orderSql.join(", "):"")+" LIMIT "+limit;
     const rows=await sql.query(query,params);
     if(requestedTable==="support_messages"&&!hasPermission(user,"manage_support")&&rows.some(row=>String(row.user_id)!==String(user.id)))return fail("Нет доступа к этому чату.",403,cors);
     return json({ok:true,data:rows},200,cors);
@@ -236,7 +236,7 @@ async function runQuery(sql, body, user, cors) {
     }else{
       query="DELETE FROM public."+quoteIdent(table)+where;
     }
-    const returning=Array.isArray(body.returning)?body.returning:config.read.filter(c=>c==="id");
+    const returning=body.returning==="*"?config.read:(Array.isArray(body.returning)?body.returning:config.read.filter(c=>c==="id"));
     if(returning.some(c=>!config.read.includes(c)))return fail("Недопустимые возвращаемые поля.",400,cors);
     query+=" RETURNING "+(returning.length?returning.map(quoteIdent).join(", "):"1 AS ok");
     const result=await sql.query(query,params);
