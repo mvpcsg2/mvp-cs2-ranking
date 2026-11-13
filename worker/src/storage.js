@@ -1,3 +1,4 @@
+import { neon } from "@neondatabase/serverless";
 import { getSessionUser } from "./auth.js";
 
 const json=(data,status=200,cors={})=>new Response(JSON.stringify(data),{status,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store",...cors}});
@@ -29,7 +30,8 @@ export async function handleStorageRequest(request,env,cors){
     const key=decodeAssetPath(url.searchParams.get("path")||"");
     if(!key)return fail("Некорректный путь к файлу.",400,cors);
     const prefix=key.split("/")[0];
-    const sqlUser=await getSessionUser((await import("@neondatabase/serverless")).neon(env.DATABASE_URL),request);
+    if(!env.DATABASE_URL)return fail("DATABASE_URL secret is missing",500,cors);
+    const sqlUser=await getSessionUser(neon(env.DATABASE_URL),request);
     if(!allowed(sqlUser,prefix))return fail("Недостаточно прав для загрузки файла.",403,cors);
     const type=(request.headers.get("content-type")||"").split(";")[0].trim().toLowerCase();
     if(!TYPES.has(type))return fail("Поддерживаются только PNG, JPG, WebP и GIF.",415,cors);
