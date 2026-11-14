@@ -3837,7 +3837,7 @@ async function editTeam(t=null){
       const {data,error}=await client.rpc('admin_save_team',payload);if(error)throw error;
       const saved=Array.isArray(data)?data[0]:data;if(!saved)throw new Error('Сохранённая команда не вернулась из базы.');
        // Keep the old teams array intact until loadTeams compares old and new rank positions.
-       closeModal();await loadTeams();setStatus('Изменение сохранено в общей базе и будет видно другим посетителям.','success');
+       closeModal();await loadTeams();await loadNewsRail();setStatus('Изменение сохранено в общей базе и будет видно другим посетителям.','success');
 
     }catch(e){alert('Не удалось сохранить команду или состав. Проверь структуру таблицы teams и права Worker. Ошибка: '+niceError(e))}
     finally{busy=false;const saveBtn=document.getElementById('saveTeam');if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Сохранить'}}
@@ -4172,7 +4172,7 @@ function startNewsRail(){
   if(newsPollTimer)clearInterval(newsPollTimer);
   // News is refreshed from the Neon API on a slow polling interval.
   loadNewsRail();
-  newsPollTimer=setInterval(()=>{loadNewsRail();const host=document.getElementById('newsHubContent');if(host)loadNewsHubItems(newsCenterFilter);},300000);
+  newsPollTimer=setInterval(()=>{loadNewsRail();const host=document.getElementById('newsHubContent');if(host)loadNewsHubItems(newsCenterFilter);},30000);
 }
 
 
