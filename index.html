@@ -4539,8 +4539,8 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  const STORAGE_KEY=KEY;
  const originalText=new WeakMap();
  const originalAttributes=new WeakMap();
- const TRANSLATABLE_ATTRIBUTES=['placeholder','title','aria-label','alt'];
- const SKIP_TAGS=/^(SCRIPT|STYLE|TEXTAREA|INPUT)$/;
+ const TRANSLATABLE_ATTRIBUTES=['placeholder','title','aria-label','alt','value'];
+ const SKIP_TAGS=/^(SCRIPT|STYLE)$/;
 
  function readLanguage(){
    try{
@@ -4549,7 +4549,6 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
    }catch(error){return 'en'}
  }
  function translateString(source){
-   if(lang==='ru')return source;
    const dictionary=dictionaries[lang]||{};
    let result=source;
    const keys=Object.keys(dictionary).filter(key=>key.length>2).sort((a,b)=>b.length-a.length);
@@ -4562,10 +4561,14 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
    if(!node||node.nodeType!==Node.TEXT_NODE)return;
    const parent=node.parentElement;
    if(parent&&SKIP_TAGS.test(parent.tagName))return;
-   if(!originalText.has(node))originalText.set(node,node.nodeValue);
-   const original=originalText.get(node);
-   const translated=translateString(original);
+   let state=originalText.get(node);
+   if(!state||node.nodeValue!==state.rendered){
+     state={source:node.nodeValue,rendered:node.nodeValue};
+     originalText.set(node,state);
+   }
+   const translated=translateString(state.source);
    if(node.nodeValue!==translated)node.nodeValue=translated;
+   state.rendered=translated;
  }
  function translateElement(element){
    if(!element||element.nodeType!==Node.ELEMENT_NODE||SKIP_TAGS.test(element.tagName))return;
@@ -4578,9 +4581,15 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
    if(!originals){originals={};originalAttributes.set(element,originals)}
    TRANSLATABLE_ATTRIBUTES.forEach(attribute=>{
      if(!element.hasAttribute(attribute))return;
-     if(!(attribute in originals))originals[attribute]=element.getAttribute(attribute);
-     const translated=translateString(originals[attribute]);
-     if(element.getAttribute(attribute)!==translated)element.setAttribute(attribute,translated);
+     const current=element.getAttribute(attribute);
+     let state=originals[attribute];
+     if(!state||current!==state.rendered){
+       state={source:current,rendered:current};
+       originals[attribute]=state;
+     }
+     const translated=translateString(state.source);
+     if(current!==translated)element.setAttribute(attribute,translated);
+     state.rendered=translated;
    });
  }
  function syncSelector(){
@@ -4618,6 +4627,7 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  const observer=new MutationObserver(records=>{
    for(const record of records){
      if(record.type==='characterData')translateTextNode(record.target);
+     if(record.type==='attributes')translateElement(record.target);
      if(record.type==='childList'){
        record.addedNodes.forEach(node=>{
          if(node.nodeType===Node.TEXT_NODE)translateTextNode(node);
@@ -4629,7 +4639,7 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  function initializeLanguage(){
    lang=readLanguage();
    applyLanguage();
-   if(document.body)observer.observe(document.body,{subtree:true,childList:true,characterData:true});
+   if(document.body)observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:TRANSLATABLE_ATTRIBUTES});
  }
  if(document.readyState==='loading'){
    document.addEventListener('DOMContentLoaded',initializeLanguage,{once:true});
