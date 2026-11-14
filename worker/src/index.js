@@ -22,7 +22,18 @@ function getCors(request, env) {
     "https://mvpcsg2.github.io",
     "https://mvp-cs2-ranking.pages.dev",
   ]);
-  return allowedOrigins.has(origin)
+  // Allow HTTPS Cloudflare Pages preview deployments for this project only.
+  let isProjectPreview = false;
+  try {
+    const parsedOrigin = new URL(origin);
+    isProjectPreview =
+      parsedOrigin.protocol === "https:" &&
+      (parsedOrigin.hostname === "mvp-cs2-ranking.pages.dev" ||
+        parsedOrigin.hostname.endsWith(".mvp-cs2-ranking.pages.dev"));
+  } catch {
+    isProjectPreview = false;
+  }
+  return (allowedOrigins.has(origin) || isProjectPreview)
     ? {
         "access-control-allow-origin": origin,
         "access-control-allow-methods": "GET, POST, OPTIONS",
