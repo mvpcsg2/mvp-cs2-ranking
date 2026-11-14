@@ -2103,6 +2103,14 @@ async function openSettingsCenter(){
  <button class="theme-choice ${current==='night'?'active':''}" data-theme-choice="night" type="button"><div class="theme-preview night"></div><strong>NIGHT · Ночная</strong><span>Тёмно-серые панели</span></button>
  </div><div class="notice">Выбор темы сохраняется на этом устройстве. Логотип и фон сайта сохраняются в общей базе и видны всем посетителям.</div>${siteAdmin}${trophyAdmin}${seasonAdmin}`,false);
  document.getElementById('closeSettings').onclick=closeModal;
+ const languageSelect=document.getElementById('siteLanguageSelect');
+ if(languageSelect){
+   languageSelect.value=window.mvpGetLanguage?window.mvpGetLanguage():'en';
+   languageSelect.addEventListener('change',event=>{
+     const selected=event.currentTarget.value;
+     if(window.mvpSetLanguage)window.mvpSetLanguage(selected);
+   });
+ }
  if(can('manage_trophies')&&document.getElementById('saveCustomTrophy')){
    const idInput=document.getElementById('customTrophyId'),nameInput=document.getElementById('customTrophyName'),descInput=document.getElementById('customTrophyDescription'),urlInput=document.getElementById('customTrophyImageUrl'),fileInput=document.getElementById('customTrophyImageFile'),preview=document.getElementById('customTrophyPreview');
    const showPreview=(url)=>{preview.innerHTML=url?`<img src="${esc(url)}" alt="Предпросмотр кубка" onerror="this.style.display='none'">`:''};
