@@ -3,11 +3,12 @@
 <script>
 /* MVP CS2 Ranking: official GitHub Pages host gate. This is a copy-deterrent, not a security boundary. */
 (function(){
-  const allowedHost = 'mvpcsg2.github.io';
+  const allowedHosts = ['mvpcsg2.github.io', 'mvp-cs2-ranking.pages.dev'];
   const allowedPath = '/mvp-cs2-ranking';
   const currentPath = (location.pathname || '/').replace(/\/+$/, '') || '/';
-  const allowed = location.hostname.toLowerCase() === allowedHost &&
-    (currentPath === allowedPath || currentPath === allowedPath + '/index.html');
+  const host = location.hostname.toLowerCase();
+  const allowed = (host === 'mvp-cs2-ranking.pages.dev' && currentPath === '/') ||
+    (host === 'mvpcsg2.github.io' && (currentPath === allowedPath || currentPath === allowedPath + '/index.html'));
   window.__MVP_SITE_DOMAIN_OK__ = allowed;
   if (!allowed) {
     document.documentElement.classList.add('mvp-domain-blocked');
@@ -2115,7 +2116,7 @@ function render(){
       <div class="teaminfo"><div class="logo">${t.logo?`<img src="${esc(t.logo)}" alt="Лого команды">`:esc(t.tag||t.name.slice(0,3).toUpperCase())}</div><div class="team-details"><div class="team-name-points"><div class="name">${esc(t.name)}${t.is_banned&&(can('manage_teams')||can('manage_bans'))?' <span class="team-ban-tag">БАН</span>':''}</div><div class="points"><strong>${Number(t.points).toLocaleString('ru-RU')}</strong><small>MVP POINTS</small></div></div><div class="players">${esc(t.players||'Состав не указан')}</div></div></div>
       <div class="team-right-tools"><div class="team-rank-change">${movementMarkup}</div><div class="actions ${can('manage_teams')?'':'hidden'}" ${can('manage_teams')?'':'hidden'} style="${can('manage_teams')?'':'display:none!important'}"><button class="tiny" title="Отнять 100" data-act="minus" data-id="${esc(t.id)}">−</button><button class="tiny" title="Добавить 100" data-act="plus" data-id="${esc(t.id)}">+</button><button class="tiny" title="Редактировать" data-act="edit" data-id="${esc(t.id)}">✎</button><button class="tiny" title="Удалить" data-act="delete" data-id="${esc(t.id)}">×</button></div></div>
     </div>
-    ${isExpanded?`<div class="roster-expanded" id="roster-${esc(t.id)}"><div class="roster-heading">Состав команды · ${roster.length} ${roster.length===1?'игрок':roster.length>=2&&roster.length<=4?'игрока':'игроков'}</div>${roster.length?`<div class="roster-grid">${roster.map((player,n)=>rosterCardMarkup(player,n,playerPhotos[n])).join('')}</div>`:'<div class="empty" style="padding:14px">Состав пока не указан.</div>'}<div class="roster-footer"><button class="btn team-profile-btn" data-profile-id="${esc(t.id)}">Профиль команды</button></div></div>`:''}`;
+    ${isExpanded?`<div class="roster-expanded" id="roster-${esc(t.id)}"><div class="roster-heading">Состав команды · ${roster.length} ${roster.length===1?'игрок':roster.length>=2&&roster.length<=4?'игрока':'игроков'}</div>${roster.length?`<div class="roster-swipe-hint" aria-hidden="true">Проведите пальцем влево или вправо, чтобы посмотреть всех игроков <span>↔</span></div><div class="roster-grid roster-horizontal-scroll" tabindex="0" role="region" aria-label="Состав команды. Прокручивайте по горизонтали">${roster.map((player,n)=>rosterCardMarkup(player,n,playerPhotos[n])).join('')}</div>`:'<div class="empty" style="padding:14px">Состав пока не указан.</div>'}<div class="roster-footer"><button class="btn team-profile-btn" data-profile-id="${esc(t.id)}">Профиль команды</button></div></div>`:''}`;
     host.appendChild(card);
     // Attach the expand/collapse handler directly to each team's header.
     // Clicks on admin action buttons must not toggle the roster.
