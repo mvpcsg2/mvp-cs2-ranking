@@ -10,9 +10,10 @@
   const allowedPath = '/mvp-cs2-ranking';
   const host = location.hostname.toLowerCase();
   const currentPath = (location.pathname || '/').replace(/\/+$/, '') || '/';
-  const allowed = (host === 'mvp-cs2-ranking.pages.dev' ||
+  const isCloudflarePagesHost = host === 'mvp-cs2-ranking.pages.dev' || host.endsWith('.mvp-cs2-ranking.pages.dev');
+  const allowed = isCloudflarePagesHost ||
     (host === 'mvpcsg2.github.io' &&
-      (currentPath === allowedPath || currentPath === allowedPath + '/index.html')));
+      (currentPath === allowedPath || currentPath === allowedPath + '/index.html'));
   window.__MVP_SITE_DOMAIN_OK__ = allowed;
   if (!allowed) {
     document.documentElement.classList.add('mvp-domain-blocked');
