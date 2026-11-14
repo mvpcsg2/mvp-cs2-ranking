@@ -2098,7 +2098,7 @@ async function openSettingsCenter(){
    <div class="notice">Фон появится за панелями сайта. Для удобной читаемости NIGHT автоматически затемняет изображение, DAY слегка осветляет его. Если убрать фон, останется базовый цвет темы.</div>
  </div>`:'<div class="notice">Управление логотипом и фоном доступно администраторам и модераторам с разрешением «Изменение настроек сайта».</div>';
  modal(`<div class="page-head"><div><h2>Настройки</h2><div class="page-intro">Выбери оформление сайта и настрой его внешний вид.</div></div><button class="btn" id="closeSettings">Закрыть</button></div>
- <div class="language-setting" style="display:block!important;visibility:visible!important;margin:0 0 18px"><label for="siteLanguageSelect" style="display:block;font-size:12px;font-weight:800;margin:0 0 7px">ЯЗЫК / LANGUAGE</label><select id="siteLanguageSelect" class="btn" style="width:100%;text-align:left"><option value="en">🇬🇧 English</option><option value="ru">🇷🇺 Русский</option><option value="uk">🇺🇦 Українська</option><option value="de">🇩🇪 Deutsch</option></select><div class="notice">Язык интерфейса сохраняется на этом устройстве.</div></div><div class="roster-heading">ОФОРМЛЕНИЕ</div><div class="theme-choice-row">
+ <div class="language-setting" style="display:block!important;visibility:visible!important;margin:0 0 18px"><label for="siteLanguageSelect" style="display:block;font-size:12px;font-weight:800;margin:0 0 7px">ЯЗЫК / LANGUAGE</label><select id="siteLanguageSelect" class="btn" style="width:100%;text-align:left" onchange="window.mvpSetLanguage(this.value)"><option value="en">🇬🇧 English</option><option value="ru">🇷🇺 Русский</option><option value="uk">🇺🇦 Українська</option><option value="de">🇩🇪 Deutsch</option></select><div class="notice">Язык интерфейса сохраняется на этом устройстве.</div></div><div class="roster-heading">ОФОРМЛЕНИЕ</div><div class="theme-choice-row">
  <button class="theme-choice ${current==='day'?'active':''}" data-theme-choice="day" type="button"><div class="theme-preview"></div><strong>DAY · Дневная</strong><span>Светлая тема</span></button>
  <button class="theme-choice ${current==='night'?'active':''}" data-theme-choice="night" type="button"><div class="theme-preview night"></div><strong>NIGHT · Ночная</strong><span>Тёмно-серые панели</span></button>
  </div><div class="notice">Выбор темы сохраняется на этом устройстве. Логотип и фон сайта сохраняются в общей базе и видны всем посетителям.</div>${siteAdmin}${trophyAdmin}${seasonAdmin}`,false);
@@ -4569,20 +4569,25 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
      el.setAttribute(attr,result);
    }
  }
+ function syncLanguageSelect(){
+   const select=document.getElementById('siteLanguageSelect');
+   if(select)select.value=lang;
+ }
  function apply(){
    document.documentElement.lang=lang;
    if(document.body)translateElement(document.body);
-   const select=document.getElementById('siteLanguageSelect');
-   if(select)select.value=lang;
+   syncLanguageSelect();
    const labels={en:'Settings',ru:'Настройки',uk:'Налаштування',de:'Einstellungen'};
    const btn=document.getElementById('settingsBtn');
    if(btn){btn.title=labels[lang];btn.setAttribute('aria-label',labels[lang])}
  }
+ window.mvpGetLanguage=function(){return lang};
  window.mvpSetLanguage=function(next){
    if(!['en','ru','uk','de'].includes(next))return;
    lang=next;
    try{localStorage.setItem(KEY,lang)}catch(_){}
    apply();
+   syncLanguageSelect();
  };
  document.addEventListener('change',function(e){
    if(e.target&&e.target.id==='siteLanguageSelect')window.mvpSetLanguage(e.target.value);
@@ -4594,6 +4599,7 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
        if(node.nodeType===Node.TEXT_NODE)translateText(node);
        else if(node.nodeType===Node.ELEMENT_NODE)translateElement(node);
      });
+     syncLanguageSelect();
    }
  });
  function start(){
