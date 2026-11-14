@@ -2758,7 +2758,7 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
       const faceit_profile_url=document.getElementById('playerFaceitUrl').value.trim();
       const steam_id64=document.getElementById('playerSteamId').value.trim();
       if(faceit_profile_url&&!safeFaceitProfileUrl(faceit_profile_url)){alert('Укажи полную HTTPS-ссылку на профиль FACEIT, например https://www.faceit.com/ru/players/username');return}
-      if(steam_id64&&!/^\\d{17}$/.test(steam_id64)){alert('SteamID64 должен состоять ровно из 17 цифр.');return}
+      if(steam_id64&&!/^\d{17}$/.test(steam_id64)){alert('SteamID64 должен состоять ровно из 17 цифр.');return}
       const btn=document.getElementById('savePlayerExternalLinks');btn.disabled=true;btn.textContent='Сохраняю…';
       try{
         const {data,error}=await client.from('cs2_players').update({faceit_profile_url,steam_id64}).eq('id',player.id).select('id,nickname,faceit_profile_url,steam_id64').single();
@@ -2805,6 +2805,7 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
             ...data,
             country_code
           });
+          render();
           await openPlayerProfile(nickname,photo);
         }catch(error){
           alert('Не удалось сохранить флаг страны: '+niceError(error));
