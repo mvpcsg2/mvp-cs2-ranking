@@ -2689,7 +2689,7 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
     const faceitAdminValue=player?.faceit_profile_url||legacyFaceitUrl;
     const playerRankHtml=player?`<div class="player-profile-rank">${playerTopPosition?`#${playerTopPosition} В ТОПЕ ИГРОКОВ`:'НЕ ВХОДИТ В ТОП ИГРОКОВ'}</div>`:'';
     const faceitEloHtml=player&&faceitUrl?`<div class="player-profile-stat faceit-elo-stat"><small>FACEIT ELO</small><strong>${Number.isFinite(Number(player.faceit_elo))&&player.faceit_elo!==null?Number(player.faceit_elo).toLocaleString('ru-RU'):'—'}</strong>${player.faceit_skill_level?`<span class="faceit-level">LEVEL ${Number(player.faceit_skill_level)}</span>`:''}</div>`:'';
-    const playerAdminEditor=player&&can('manage_players')?`<div class="player-admin-editor"><div class="notice">Постоянный ID игрока: <b>#${player.id}</b>. Переименование не сбрасывает K/D и историю матчей.</div><div class="field"><label for="renamePlayerNick">Изменить ник игрока</label><input id="renamePlayerNick" maxlength=50 value="${esc(player.nickname)}"></div><button class="btn primary" id="savePlayerNickname" type="button">Сохранить новый ник</button><div class="player-links-editor"><div class="field"><label for="playerFaceitUrl">Ссылка на профиль FACEIT</label><input id="playerFaceitUrl" type="url" maxlength="300" value="${esc(faceitAdminValue)}" placeholder="https://www.faceit.com/ru/players/username"></div><div class="field"><label for="playerSteamId">SteamID64 (17 цифр)</label><input id="playerSteamId" inputmode="numeric" maxlength="17" value="${esc(player.steam_id64||'')}" placeholder="7656119…"></div><div class="field"><label for="playerCountryCode">Страна игрока (ISO, 2 буквы)</label><input id="playerCountryCode" maxlength="2" value="${esc(player.country_code||'')}" placeholder="DE, RU, PL, UA…" autocapitalize="characters"></div></div><button class="btn" id="savePlayerExternalLinks" type="button">Сохранить ссылки и флаг</button>${faceitUrl?`<button class="btn faceit-sync-btn" id="syncFaceitElo" type="button">↻ Обновить FACEIT Elo</button>`:''}</div>`:'';
+    const playerAdminEditor=player&&can('manage_players')?`<div class="player-admin-editor"><div class="notice">Постоянный ID игрока: <b>#${player.id}</b>. Переименование не сбрасывает K/D и историю матчей.</div><div class="field"><label for="renamePlayerNick">Изменить ник игрока</label><input id="renamePlayerNick" maxlength=50 value="${esc(player.nickname)}"></div><button class="btn primary" id="savePlayerNickname" type="button">Сохранить новый ник</button><div class="player-links-editor"><div class="field"><label for="playerFaceitUrl">Ссылка на профиль FACEIT</label><input id="playerFaceitUrl" type="url" maxlength="300" value="${esc(faceitAdminValue)}" placeholder="https://www.faceit.com/ru/players/username"></div><div class="field"><label for="playerSteamId">SteamID64 (17 цифр)</label><input id="playerSteamId" inputmode="numeric" maxlength="17" value="${esc(player.steam_id64||'')}" placeholder="7656119…"></div><div class="field"><label for="playerCountryCode">Страна игрока (ISO, 2 буквы)</label><input id="playerCountryCode" maxlength="2" value="${esc(player.country_code||'')}" placeholder="DE, RU, PL, UA…" autocapitalize="characters"><button class="btn" id="savePlayerCountryCode" type="button">Сохранить флаг страны</button></div></div><button class="btn" id="savePlayerExternalLinks" type="button">Сохранить ссылки FACEIT и Steam</button>${faceitUrl?`<button class="btn faceit-sync-btn" id="syncFaceitElo" type="button">↻ Обновить FACEIT Elo</button>`:''}</div>`:'';
     const playerBanButton=player&&can('manage_bans')?`<button class="btn" id="togglePlayerBan" type="button">${player.is_banned?'Разблокировать игрока':'Заблокировать игрока'}</button>`:'';
     const bannedPlayerNotice=player?.is_banned?`<div class="notice" style="color:#a12b2b;font-weight:800">ИГРОК ЗАБЛОКИРОВАН · ${esc(player.ban_reason||'Причина не указана')}</div>`:'';
     modal(`<section class="player-hltv-hero" aria-label="Основная статистика игрока">
@@ -2754,7 +2754,66 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
       };
     }
     if(can('manage_players')&&document.getElementById('savePlayerNickname')){document.getElementById('savePlayerNickname').onclick=async()=>{const newNick=document.getElementById('renamePlayerNick').value.trim();if(!newNick)return alert('Введи новый ник.');if(newNick.toLowerCase()===nickname.toLowerCase())return alert('Ник не изменился.');const btn=document.getElementById('savePlayerNickname');btn.disabled=true;const {error}=await client.rpc('admin_rename_player',{p_player_id:player.id,p_new_nickname:newNick});if(error){alert('Не удалось изменить ник: '+niceError(error));btn.disabled=false;return}await loadTeams();openPlayerProfile(newNick,photo)}}
-    if(can('manage_players')&&document.getElementById('savePlayerExternalLinks')){document.getElementById('savePlayerExternalLinks').onclick=async()=>{const faceit_profile_url=document.getElementById('playerFaceitUrl').value.trim(),steam_id64=document.getElementById('playerSteamId').value.trim(),country_code=document.getElementById('playerCountryCode').value.trim().toUpperCase();if(faceit_profile_url&&!safeFaceitProfileUrl(faceit_profile_url)){alert('Укажи полную HTTPS-ссылку на профиль FACEIT, например https://www.faceit.com/ru/players/username');return}if(steam_id64&&!/^\d{17}$/.test(steam_id64)){alert('SteamID64 должен состоять ровно из 17 цифр.');return}if(country_code&&!/^[A-Z]{2}$/.test(country_code)){alert('Код страны должен содержать две латинские буквы, например DE, RU, PL или UA.');return}const btn=document.getElementById('savePlayerExternalLinks');btn.disabled=true;btn.textContent='Сохраняю…';const {error}=await client.from('cs2_players').update({faceit_profile_url,steam_id64,country_code}).eq('id',player.id);if(error){alert('Не удалось сохранить ссылки или флаг. Сначала выполни новую SQL-миграцию mvp_player_country_rank_migration.sql. Ошибка: '+niceError(error));btn.disabled=false;btn.textContent='Сохранить ссылки и флаг';return}await openPlayerProfile(nickname,photo)}}
+    if(can('manage_players')&&document.getElementById('savePlayerExternalLinks')){document.getElementById('savePlayerExternalLinks').onclick=async()=>{
+      const faceit_profile_url=document.getElementById('playerFaceitUrl').value.trim();
+      const steam_id64=document.getElementById('playerSteamId').value.trim();
+      if(faceit_profile_url&&!safeFaceitProfileUrl(faceit_profile_url)){alert('Укажи полную HTTPS-ссылку на профиль FACEIT, например https://www.faceit.com/ru/players/username');return}
+      if(steam_id64&&!/^\d{17}$/.test(steam_id64)){alert('SteamID64 должен состоять ровно из 17 цифр.');return}
+      const btn=document.getElementById('savePlayerExternalLinks');btn.disabled=true;btn.textContent='Сохраняю…';
+      try{
+        const {data,error}=await client.from('cs2_players').update({faceit_profile_url,steam_id64}).eq('id',player.id).select('id,nickname,faceit_profile_url,steam_id64').single();
+        if(error)throw new Error(error.message||niceError(error));
+        if(!data)throw new Error('Игрок не найден. Обнови страницу и открой профиль снова.');
+        const key=String(data.nickname||nickname).trim().toLowerCase();
+        rosterPlayerDirectory.set(key,{...(rosterPlayerDirectory.get(key)||player),...data});
+        await openPlayerProfile(nickname,photo);
+      }catch(error){
+        alert('Не удалось сохранить ссылки: '+niceError(error));
+      }finally{
+        btn.disabled=false;btn.textContent='Сохранить ссылки FACEIT и Steam';
+      }
+    }}
+    if(can('manage_players')&&player&&document.getElementById('savePlayerCountryCode')){
+      const countryInput=document.getElementById('playerCountryCode');
+      const saveCountryBtn=document.getElementById('savePlayerCountryCode');
+      countryInput.addEventListener('input',()=>{
+        const start=countryInput.selectionStart;
+        countryInput.value=countryInput.value.toUpperCase().replace(/[^A-Z]/g,'').slice(0,2);
+        try{countryInput.setSelectionRange(Math.min(start,countryInput.value.length),Math.min(start,countryInput.value.length))}catch(_){}
+      });
+      saveCountryBtn.onclick=async()=>{
+        const country_code=countryInput.value.trim().toUpperCase();
+        if(!/^[A-Z]{2}$/.test(country_code)){
+          alert('Введи двухбуквенный код страны: RU, UA, DE, PL и т. д.');
+          countryInput.focus();
+          return;
+        }
+        saveCountryBtn.disabled=true;saveCountryBtn.textContent='Сохраняю флаг…';
+        try{
+          const {data,error}=await client.from('cs2_players')
+            .update({country_code})
+            .eq('id',player.id)
+            .select('id,nickname,country_code')
+            .single();
+          if(error)throw new Error(error.message||niceError(error));
+          if(!data||String(data.country_code||'').toUpperCase()!==country_code){
+            throw new Error('База не подтвердила сохранение кода страны. Обнови страницу и попробуй ещё раз.');
+          }
+          const key=String(data.nickname||nickname).trim().toLowerCase();
+          rosterPlayerDirectory.set(key,{
+            ...(rosterPlayerDirectory.get(key)||player),
+            ...data,
+            country_code
+          });
+          render();
+          await openPlayerProfile(nickname,photo);
+        }catch(error){
+          alert('Не удалось сохранить флаг страны: '+niceError(error));
+        }finally{
+          saveCountryBtn.disabled=false;saveCountryBtn.textContent='Сохранить флаг страны';
+        }
+      };
+    }
     if(can('manage_players')&&document.getElementById('syncFaceitElo')){document.getElementById('syncFaceitElo').onclick=async()=>{
       if(!safeFaceitProfileUrl(player?.faceit_profile_url||faceitUrl))return alert('Сначала сохрани ссылку FACEIT в профиле.');
       const btn=document.getElementById('syncFaceitElo');btn.disabled=true;btn.textContent='Получаю Elo…';
