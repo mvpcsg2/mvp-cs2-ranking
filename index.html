@@ -1856,7 +1856,7 @@ let admin = false, moderator = false, userPermissions = {}, currentUser = null, 
 let teamRankMovements = new Map();
 function berlinTodayISO(){const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Berlin',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const pick=type=>parts.find(x=>x.type===type)?.value||'00';return `${pick('year')}-${pick('month')}-${pick('day')}`;}
 function shiftISODate(iso,days){const [y,m,d]=String(iso||'').split('-').map(Number);const date=new Date(Date.UTC(y,m-1,d+days,12));return `${date.getUTCFullYear()}-${String(date.getUTCMonth()+1).padStart(2,'0')}-${String(date.getUTCDate()).padStart(2,'0')}`;}
-function formatDailyDate(iso,withWeekday=true){const [y,m,d]=String(iso||'').split('-').map(Number);if(!y||!m||!d)return String(iso||'');return new Date(Date.UTC(y,m-1,d,12)).toLocaleDateString('ru-RU',{timeZone:'UTC',...(withWeekday?{weekday:'long'}:{}),day:'numeric',month:'long',year:'numeric'});}
+function formatDailyDate(iso,withWeekday=true){const [y,m,d]=String(iso||'').split('-').map(Number);if(!y||!m||!d)return String(iso||'');return new Date(Date.UTC(y,m-1,d,12)).toLocaleDateString(({ru:'ru-RU',en:'en-GB',uk:'uk-UA',de:'de-DE'}[document.documentElement.lang]||'ru-RU'),{timeZone:'UTC',...(withWeekday?{weekday:'long'}:{}),day:'numeric',month:'long',year:'numeric'});}
 let activeSeasonYear = new Date().getFullYear(), selectedSeasonYear = new Date().getFullYear();
 let selectedRankDate=berlinTodayISO(),dailyArchiveDates=[],dailyArchiveReady=false,dailySnapshot=null,dailyDateMonitor=null,lastDailyMonitorDate=berlinTodayISO();
 let seasonArchiveYears = new Set(), seasonSnapshot = null, seasonFeatureReady = false, seasonSwitchBusy = false;
@@ -2097,7 +2097,7 @@ async function openSettingsCenter(){
    <div class="notice">Фон появится за панелями сайта. Для удобной читаемости NIGHT автоматически затемняет изображение, DAY слегка осветляет его. Если убрать фон, останется базовый цвет темы.</div>
  </div>`:'<div class="notice">Управление логотипом и фоном доступно администраторам и модераторам с разрешением «Изменение настроек сайта».</div>';
  modal(`<div class="page-head"><div><h2>Настройки</h2><div class="page-intro">Выбери оформление сайта и настрой его внешний вид.</div></div><button class="btn" id="closeSettings">Закрыть</button></div>
- <div class="roster-heading">ОФОРМЛЕНИЕ</div><div class="theme-choice-row">
+ <div class="language-setting" style="display:block!important;visibility:visible!important;margin:0 0 18px"><label for="siteLanguageSelect" style="display:block;font-size:12px;font-weight:800;margin:0 0 7px">ЯЗЫК / LANGUAGE</label><select id="siteLanguageSelect" class="btn" style="width:100%;text-align:left" onchange="window.mvpSetLanguage(this.value)"><option value="en">🇬🇧 English</option><option value="ru">🇷🇺 Русский</option><option value="uk">🇺🇦 Українська</option><option value="de">🇩🇪 Deutsch</option></select><div class="notice">Язык интерфейса сохраняется на этом устройстве.</div></div><div class="roster-heading">ОФОРМЛЕНИЕ</div><div class="theme-choice-row">
  <button class="theme-choice ${current==='day'?'active':''}" data-theme-choice="day" type="button"><div class="theme-preview"></div><strong>DAY · Дневная</strong><span>Светлая тема</span></button>
  <button class="theme-choice ${current==='night'?'active':''}" data-theme-choice="night" type="button"><div class="theme-preview night"></div><strong>NIGHT · Ночная</strong><span>Тёмно-серые панели</span></button>
  </div><div class="notice">Выбор темы сохраняется на этом устройстве. Логотип и фон сайта сохраняются в общей базе и видны всем посетителям.</div>${siteAdmin}${trophyAdmin}${seasonAdmin}`,false);
@@ -2739,7 +2739,7 @@ async function editTeamMatch(team,match=null){
   };
 }
 function stopHelpPolling(){if(helpRefreshTimer){clearInterval(helpRefreshTimer);helpRefreshTimer=null}}
-function modal(content,wide=false){stopHelpPolling();activeHelpProfile=null;document.getElementById('modalRoot').innerHTML=`<div class="modalback" id="backdrop"><div class="modal${wide?' modal-wide':''}">${content}</div></div>`;document.getElementById('backdrop').addEventListener('click',e=>{if(e.target.id==='backdrop')closeModal()})}
+function modal(content,wide=false){stopHelpPolling();activeHelpProfile=null;document.getElementById('modalRoot').innerHTML=`<div class="modalback" id="backdrop"><div class="modal${wide?' modal-wide':''}">${content}</div></div>`;document.getElementById('backdrop').addEventListener('click',e=>{if(e.target.id==='backdrop')closeModal()});if(window.mvpApplyLanguage)window.mvpApplyLanguage()}
 function closeModal(){cleanupLiveCenter();cleanupTournamentCenter();stopHelpPolling();activeHelpProfile=null;document.getElementById('modalRoot').innerHTML=''}
 function niceError(error){return error?.message||'Не удалось выполнить действие. Проверь соединение и попробуй ещё раз.'}
 function showAuthFeedback(message){const box=document.getElementById('authFeedback');if(!box)return;box.textContent=String(message||'Не удалось выполнить действие.');box.classList.remove('hidden');}
@@ -4279,4 +4279,324 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
 #modalRoot .modal.auth-modal .auth-feedback.hidden{display:none!important}
 #modalRoot .modal.auth-modal .notice{color:#aeb8c4}
 </style>
+<script id="mvp-language-system">
+(function(){
+ const KEY='mvp_cs2_language_v1';
+ const dictionaries={
+ en:{
+ 'Рейтинг':'Ranking','Турнир':'Tournament','Матчи':'Matches','Трансляции':'Streams','Топ игроков':'Top players','Новости':'News',
+ 'Настройки':'Settings','Войти / регистрация':'Login / Register','Выйти':'Log out','Публичный просмотр':'Public view','Помощь':'Help',
+ 'ОФОРМЛЕНИЕ':'APPEARANCE','Выбери оформление сайта и настрой его внешний вид.':'Choose the site appearance and customize its look.',
+ 'Закрыть':'Close','Светлая тема':'Light theme','Тёмно-серые панели':'Dark gray panels','DAY · Дневная':'DAY · Light','NIGHT · Ночная':'NIGHT · Dark',
+ 'Выбор темы сохраняется на этом устройстве. Логотип и фон сайта сохраняются в общей базе и видны всем посетителям.':'Your theme choice is saved on this device. The logo and background are saved centrally and visible to all visitors.',
+ 'ЯЗЫК / LANGUAGE':'LANGUAGE','Язык интерфейса сохраняется на этом устройстве.':'Your language choice is saved on this device.',
+ 'Состав команды':'Team roster','Состав команды ·':'Team roster ·','Профиль команды':'Team profile','Игроков':'players',
+ 'Место':'Rank','Команда':'Team','Очки':'Points','Сохранить':'Save','Отмена':'Cancel','Удалить':'Delete','Изменить':'Edit',
+ 'Добавить':'Add','Поиск':'Search','Загрузка…':'Loading…','Сохранить изменения':'Save changes','Назад':'Back','Далее':'Next',
+ 'Текущий день':'Current day','Сегодня':'Today','Вчера':'Yesterday','Кубки':'Trophies','Статистика':'Statistics',
+ 'Участники':'Participants','Результаты':'Results','Дата':'Date','Время':'Time','Сезон':'Season','Архив':'Archive',
+ 'Нет данных':'No data','Пока нет данных.':'No data yet.','Обновить':'Refresh','Подтвердить':'Confirm','Отправить':'Send',
+ 'Сообщение':'Message','Имя':'Name','Описание':'Description','Ссылка':'Link','Загрузить':'Upload','Убрать':'Remove',
+ 'Сохранить кубок':'Save trophy','Очистить форму':'Clear form','Название кубка':'Trophy name',
+ 'ФОН САЙТА':'SITE BACKGROUND','ЛОГОТИП САЙТА':'SITE LOGO','КОНСТРУКТОР КУБКОВ':'TROPHY BUILDER',
+ 'Рейтинг команд':'Team ranking',
+ 'Текущий сезон':'Current season',
+ 'рейтинг и статистика команд':'team rankings and statistics',
+ 'НУЖНА SQL-МИГРАЦИЯ':'SQL MIGRATION REQUIRED',
+ 'Пока нет команд в общей базе данных. Администратор может перенести сохранённые команды или добавить первую команду.':'There are no teams in the shared database yet. An administrator can migrate saved teams or add the first team.',
+ 'Общая база подключена. Команды появятся после их переноса администратором.':'Shared database connected. Teams will appear after an administrator migrates them.',
+ 'Суббота':'Saturday',
+ 'Воскресенье':'Sunday',
+ 'Понедельник':'Monday',
+ 'Вторник':'Tuesday',
+ 'Среда':'Wednesday',
+ 'Четверг':'Thursday',
+ 'Пятница':'Friday',
+ 'ТРАНСФЕРЫ':'TRANSFERS',
+ 'БЛОКИРОВКИ':'BANS',
+ 'SEASONS · ГОДЫ':'SEASONS · YEARS',
+ 'МЕСТО':'RANK',
+ 'КОМАНДА':'TEAM',
+ 'ИЗМЕНЕНИЕ':'CHANGE',
+ 'Не удалось загрузить новости из Neon API.':'Could not load news from Neon API.',
+ 'Трансферов за этот год пока нет.':'There are no transfers for this year yet.',
+ },
+ uk:{
+ 'Рейтинг':'Рейтинг','Турнир':'Турнір','Матчи':'Матчі','Трансляции':'Трансляції','Топ игроков':'Топ гравців','Новости':'Новини',
+ 'Настройки':'Налаштування','Войти / регистрация':'Увійти / реєстрація','Выйти':'Вийти','Публичный просмотр':'Публічний перегляд','Помощь':'Допомога',
+ 'ОФОРМЛЕНИЕ':'ОФОРМЛЕННЯ','Выбери оформление сайта и настрой его внешний вид.':'Обери оформлення сайту та налаштуй його вигляд.',
+ 'Закрыть':'Закрити','Светлая тема':'Світла тема','Тёмно-серые панели':'Темно-сірі панелі','DAY · Дневная':'DAY · Денна','NIGHT · Ночная':'NIGHT · Нічна',
+ 'Выбор темы сохраняется на этом устройстве. Логотип и фон сайта сохраняются в общей базе и видны всем посетителям.':'Вибір теми зберігається на цьому пристрої. Логотип і тло сайту зберігаються в спільній базі та видимі всім відвідувачам.',
+ 'ЯЗЫК / LANGUAGE':'МОВА / LANGUAGE','Язык интерфейса сохраняется на этом устройстве.':'Мову інтерфейсу збережено на цьому пристрої.',
+ 'Состав команды':'Склад команди','Состав команды ·':'Склад команди ·','Профиль команды':'Профіль команди','Игроков':'гравців',
+ 'Место':'Місце','Команда':'Команда','Очки':'Бали','Сохранить':'Зберегти','Отмена':'Скасувати','Удалить':'Видалити','Изменить':'Змінити',
+ 'Добавить':'Додати','Поиск':'Пошук','Загрузка…':'Завантаження…','Сохранить изменения':'Зберегти зміни','Назад':'Назад','Далее':'Далі',
+ 'Текущий день':'Поточний день','Сегодня':'Сьогодні','Вчера':'Учора','Кубки':'Кубки','Статистика':'Статистика',
+ 'Участники':'Учасники','Результаты':'Результати','Дата':'Дата','Время':'Час','Сезон':'Сезон','Архив':'Архів',
+ 'Нет данных':'Немає даних','Пока нет данных.':'Поки немає даних.','Обновить':'Оновити','Подтвердить':'Підтвердити','Отправить':'Надіслати',
+ 'Сообщение':'Повідомлення','Имя':'Ім’я','Описание':'Опис','Ссылка':'Посилання','Загрузить':'Завантажити','Убрать':'Прибрати',
+ 'Сохранить кубок':'Зберегти кубок','Очистить форму':'Очистити форму','Название кубка':'Назва кубка',
+ 'ФОН САЙТА':'ТЛО САЙТУ','ЛОГОТИП САЙТА':'ЛОГОТИП САЙТУ','КОНСТРУКТОР КУБКОВ':'КОНСТРУКТОР КУБКІВ',
+ 'Рейтинг команд':'Рейтинг команд',
+ 'Текущий сезон':'Поточний сезон',
+ 'рейтинг и статистика команд':'рейтинг і статистика команд',
+ 'НУЖНА SQL-МИГРАЦИЯ':'ПОТРІБНА SQL-МІГРАЦІЯ',
+ 'Пока нет команд в общей базе данных. Администратор может перенести сохранённые команды или добавить первую команду.':'У спільній базі даних поки немає команд. Адміністратор може перенести збережені команди або додати першу команду.',
+ 'Общая база подключена. Команды появятся после их переноса администратором.':'Спільну базу даних підключено. Команди з’являться після перенесення адміністратором.',
+ 'Суббота':'Субота',
+ 'Воскресенье':'Неділя',
+ 'Понедельник':'Понеділок',
+ 'Вторник':'Вівторок',
+ 'Среда':'Середа',
+ 'Четверг':'Четвер',
+ 'Пятница':'П’ятниця',
+ 'ТРАНСФЕРЫ':'ТРАНСФЕРИ',
+ 'БЛОКИРОВКИ':'БЛОКУВАННЯ',
+ 'SEASONS · ГОДЫ':'СЕЗОНИ · РОКИ',
+ 'МЕСТО':'МІСЦЕ',
+ 'КОМАНДА':'КОМАНДА',
+ 'ИЗМЕНЕНИЕ':'ЗМІНА',
+ 'Не удалось загрузить новости из Neon API.':'Не вдалося завантажити новини з Neon API.',
+ 'Трансферов за этот год пока нет.':'Цього року трансферів поки немає.',
+ },
+ de:{
+ 'Рейтинг':'Rangliste','Турнир':'Turnier','Матчи':'Spiele','Трансляции':'Streams','Топ игроков':'Top-Spieler','Новости':'News',
+ 'Настройки':'Einstellungen','Войти / регистрация':'Anmelden / Registrieren','Выйти':'Abmelden','Публичный просмотр':'Öffentliche Ansicht','Помощь':'Hilfe',
+ 'ОФОРМЛЕНИЕ':'DARSTELLUNG','Выбери оформление сайта и настрой его внешний вид.':'Wähle das Erscheinungsbild der Website.',
+ 'Закрыть':'Schließen','Светлая тема':'Helles Design','Тёмно-серые панели':'Dunkelgraue Felder','DAY · Дневная':'DAY · Hell','NIGHT · Ночная':'NIGHT · Dunkel',
+ 'Выбор темы сохраняется на этом устройстве. Логотип и фон сайта сохраняются в общей базе и видны всем посетителям.':'Die Designauswahl wird auf diesem Gerät gespeichert. Logo und Hintergrund sind für alle Besucher sichtbar.',
+ 'ЯЗЫК / LANGUAGE':'SPRACHE / LANGUAGE','Язык интерфейса сохраняется на этом устройстве.':'Die Sprachauswahl wird auf diesem Gerät gespeichert.',
+ 'Состав команды':'Teamaufstellung','Состав команды ·':'Teamaufstellung ·','Профиль команды':'Teamprofil','Игроков':'Spieler',
+ 'Место':'Platz','Команда':'Team','Очки':'Punkte','Сохранить':'Speichern','Отмена':'Abbrechen','Удалить':'Löschen','Изменить':'Bearbeiten',
+ 'Добавить':'Hinzufügen','Поиск':'Suche','Загрузка…':'Wird geladen…','Сохранить изменения':'Änderungen speichern','Назад':'Zurück','Далее':'Weiter',
+ 'Текущий день':'Aktueller Tag','Сегодня':'Heute','Вчера':'Gestern','Кубки':'Pokale','Статистика':'Statistik',
+ 'Участники':'Teilnehmer','Результаты':'Ergebnisse','Дата':'Datum','Время':'Uhrzeit','Сезон':'Saison','Архив':'Archiv',
+ 'Нет данных':'Keine Daten','Пока нет данных.':'Noch keine Daten.','Обновить':'Aktualisieren','Подтвердить':'Bestätigen','Отправить':'Senden',
+ 'Сообщение':'Nachricht','Имя':'Name','Описание':'Beschreibung','Ссылка':'Link','Загрузить':'Hochladen','Убрать':'Entfernen',
+ 'Сохранить кубок':'Pokal speichern','Очистить форму':'Formular leeren','Название кубка':'Pokalname',
+ 'ФОН САЙТА':'WEBSITE-HINTERGRUND','ЛОГОТИП САЙТА':'WEBSITE-LOGO','КОНСТРУКТОР КУБКОВ':'POKAL-EDITOR',
+ 'Рейтинг команд':'Team-Rangliste',
+ 'Текущий сезон':'Aktuelle Saison',
+ 'рейтинг и статистика команд':'Team-Ranglisten und Statistiken',
+ 'НУЖНА SQL-МИГРАЦИЯ':'SQL-MIGRATION ERFORDERLICH',
+ 'Пока нет команд в общей базе данных. Администратор может перенести сохранённые команды или добавить первую команду.':'Es gibt noch keine Teams in der gemeinsamen Datenbank. Ein Administrator kann gespeicherte Teams migrieren oder das erste Team hinzufügen.',
+ 'Общая база подключена. Команды появятся после их переноса администратором.':'Gemeinsame Datenbank verbunden. Teams erscheinen, sobald ein Administrator sie migriert hat.',
+ 'Суббота':'Samstag',
+ 'Воскресенье':'Sonntag',
+ 'Понедельник':'Montag',
+ 'Вторник':'Dienstag',
+ 'Среда':'Mittwoch',
+ 'Четверг':'Donnerstag',
+ 'Пятница':'Freitag',
+ 'ТРАНСФЕРЫ':'TRANSFERS',
+ 'БЛОКИРОВКИ':'SPERREN',
+ 'SEASONS · ГОДЫ':'SAISONS · JAHRE',
+ 'МЕСТО':'PLATZ',
+ 'КОМАНДА':'TEAM',
+ 'ИЗМЕНЕНИЕ':'ÄNDERUNG',
+ 'Не удалось загрузить новости из Neon API.':'Nachrichten konnten nicht von der Neon API geladen werden.',
+ 'Трансферов за этот год пока нет.':'Für dieses Jahr gibt es noch keine Transfers.',
+ }
+ };
+
+ // Full modal/navigation coverage. Source strings may be Russian OR English,
+ // because several older dialogs are authored directly in English.
+ const modalTranslations={
+ en:{
+ 'Все':'All','News сайта':'Site news','Трансферы':'Transfers','Блокировки':'Bans','Close':'Close',
+ 'News':'News','Top players':'Top players','Streams CS2':'CS2 Streams','Matches MVP CS2':'MVP CS2 Matches',
+ 'Tournamentная сетка MVP CS2':'MVP CS2 Tournament Bracket','Help':'Help','Log in':'Log in','Register':'Register',
+ 'Войти':'Log in','Забыли пароль?':'Forgot password?','Отправить письмо подтверждения':'Send confirmation email',
+ 'Email':'Email','Пароль':'Password','Введите email и пароль от аккаунта MVP CS2 Ranking':'Enter your MVP CS2 Ranking account email and password',
+ 'Расписание и результаты матчей команд.':'Team match schedule and results.',
+ 'YouTube-эфиры и записи, добавленные администрацией MVP CS2 Ranking.':'YouTube live streams and recordings added by MVP CS2 Ranking administrators.',
+ 'Игроки из составов команд · рейтинг по среднему K/D за записанные матчи.':'Players from team rosters · ranked by average K/D across recorded matches.',
+ 'Трансферы, блокировки, объявления и события киберспортивного сообщества.':'Transfers, bans, announcements and esports community events.',
+ 'Could not load news from Neon API.':'Could not load news from Neon API.',
+ 'Failed to fetch':'Failed to fetch','Could not load news from Neon API. Failed to fetch':'Could not load news from Neon API. Failed to fetch',
+ 'Не удалось загрузить матчи из Neon API: Failed to fetch':'Could not load matches from Neon API: Failed to fetch',
+ 'Не удалось загрузить трансляции из Neon API: Failed to fetch':'Could not load streams from Neon API: Failed to fetch',
+ 'Не удалось загрузить топ игроков. Убедись, что выполнена миграция match_history_players_setup.sql. Ошибка: Failed to fetch':'Could not load top players. Make sure match_history_players_setup.sql has been migrated. Error: Failed to fetch',
+ 'Не удалось загрузить турнир.':'Could not load tournament.',
+ 'Проверь, что таблицы турниров перенесены в Neon.':'Check that the tournament tables have been migrated to Neon.',
+ 'Чтобы написать сообщение администратору, войди в аккаунт или зарегистрируйся.':'To message the administrator, log in or register.',
+ 'Общая база подключена. Команды появятся после их переноса администратором.':'Shared database connected. Teams will appear after an administrator migrates them.',
+ 'Рейтинг команд':'Team ranking','Текущий сезон':'Current season',
+ },
+ ru:{
+ 'All':'Все','Site news':'Новости сайта','News сайта':'Новости сайта','Transfers':'Трансферы','Bans':'Блокировки','Close':'Закрыть',
+ 'News':'Новости','Top players':'Топ игроков','Streams CS2':'Трансляции CS2','Matches MVP CS2':'Матчи MVP CS2',
+ 'MVP CS2 Tournament Bracket':'Турнирная сетка MVP CS2','Tournamentная сетка MVP CS2':'Турнирная сетка MVP CS2',
+ 'Help':'Помощь','Log in':'Войти','Register':'Регистрация','Email':'Электронная почта','Password':'Пароль',
+ 'Forgot password?':'Забыли пароль?','Send confirmation email':'Отправить письмо подтверждения',
+ 'Enter your MVP CS2 Ranking account email and password':'Введите email и пароль от аккаунта MVP CS2 Ranking',
+ 'Team match schedule and results.':'Расписание и результаты матчей команд.',
+ 'YouTube live streams and recordings added by MVP CS2 Ranking administrators.':'YouTube-эфиры и записи, добавленные администрацией MVP CS2 Ranking.',
+ 'Players from team rosters · ranked by average K/D across recorded matches.':'Игроки из составов команд · рейтинг по среднему K/D за записанные матчи.',
+ 'Transfers, bans, announcements and esports community events.':'Трансферы, блокировки, объявления и события киберспортивного сообщества.',
+ 'Could not load news from Neon API.':'Не удалось загрузить новости из Neon API.',
+ 'Could not load matches from Neon API: Failed to fetch':'Не удалось загрузить матчи из Neon API: Failed to fetch',
+ 'Could not load streams from Neon API: Failed to fetch':'Не удалось загрузить трансляции из Neon API: Failed to fetch',
+ 'Could not load top players. Make sure match_history_players_setup.sql has been migrated. Error: Failed to fetch':'Не удалось загрузить топ игроков. Убедись, что выполнена миграция match_history_players_setup.sql. Ошибка: Failed to fetch',
+ 'Could not load tournament.':'Не удалось загрузить турнир.',
+ 'Check that the tournament tables have been migrated to Neon.':'Проверь, что таблицы турниров перенесены в Neon.',
+ 'To message the administrator, log in or register.':'Чтобы написать сообщение администратору, войди в аккаунт или зарегистрируйся.',
+ },
+ uk:{
+ 'All':'Усі','Site news':'Новини сайту','News сайта':'Новини сайту','Transfers':'Трансфери','Bans':'Блокування','Close':'Закрити',
+ 'News':'Новини','Top players':'Топ гравців','Streams CS2':'Трансляції CS2','Matches MVP CS2':'Матчі MVP CS2',
+ 'MVP CS2 Tournament Bracket':'Турнірна сітка MVP CS2','Tournamentная сетка MVP CS2':'Турнірна сітка MVP CS2',
+ 'Help':'Допомога','Log in':'Увійти','Register':'Реєстрація','Email':'Електронна пошта','Password':'Пароль',
+ 'Forgot password?':'Забули пароль?','Send confirmation email':'Надіслати лист підтвердження',
+ 'Enter your MVP CS2 Ranking account email and password':'Введи email і пароль від облікового запису MVP CS2 Ranking',
+ 'Team match schedule and results.':'Розклад і результати матчів команд.',
+ 'YouTube live streams and recordings added by MVP CS2 Ranking administrators.':'YouTube-трансляції та записи, додані адміністрацією MVP CS2 Ranking.',
+ 'Players from team rosters · ranked by average K/D across recorded matches.':'Гравці зі складів команд · рейтинг за середнім K/D у записаних матчах.',
+ 'Transfers, bans, announcements and esports community events.':'Трансфери, блокування, оголошення та події кіберспортивної спільноти.',
+ 'Could not load news from Neon API.':'Не вдалося завантажити новини з Neon API.',
+ 'Could not load matches from Neon API: Failed to fetch':'Не вдалося завантажити матчі з Neon API: Failed to fetch',
+ 'Could not load streams from Neon API: Failed to fetch':'Не вдалося завантажити трансляції з Neon API: Failed to fetch',
+ 'Could not load top players. Make sure match_history_players_setup.sql has been migrated. Error: Failed to fetch':'Не вдалося завантажити топ гравців. Переконайся, що виконано міграцію match_history_players_setup.sql. Помилка: Failed to fetch',
+ 'Could not load tournament.':'Не вдалося завантажити турнір.',
+ 'Check that the tournament tables have been migrated to Neon.':'Перевір, чи перенесено таблиці турнірів до Neon.',
+ 'To message the administrator, log in or register.':'Щоб написати адміністратору, увійди в обліковий запис або зареєструйся.',
+ },
+ de:{
+ 'All':'Alle','Site news':'Website-News','News сайта':'Website-News','Transfers':'Transfers','Bans':'Sperren','Close':'Schließen',
+ 'News':'Nachrichten','Top players':'Top-Spieler','Streams CS2':'CS2-Streams','Matches MVP CS2':'MVP-CS2-Spiele',
+ 'MVP CS2 Tournament Bracket':'MVP-CS2-Turnierbaum','Tournamentная сетка MVP CS2':'MVP-CS2-Turnierbaum',
+ 'Help':'Hilfe','Log in':'Anmelden','Register':'Registrieren','Email':'E-Mail','Password':'Passwort',
+ 'Forgot password?':'Passwort vergessen?','Send confirmation email':'Bestätigungs-E-Mail senden',
+ 'Enter your MVP CS2 Ranking account email and password':'Gib deine E-Mail-Adresse und dein Passwort für MVP CS2 Ranking ein',
+ 'Team match schedule and results.':'Spielplan und Ergebnisse der Team-Matches.',
+ 'YouTube live streams and recordings added by MVP CS2 Ranking administrators.':'YouTube-Livestreams und Aufzeichnungen, die von der MVP-CS2-Ranking-Administration hinzugefügt wurden.',
+ 'Players from team rosters · ranked by average K/D across recorded matches.':'Spieler aus Teamaufstellungen · Rangliste nach durchschnittlichem K/D in aufgezeichneten Matches.',
+ 'Transfers, bans, announcements and esports community events.':'Transfers, Sperren, Ankündigungen und Ereignisse der Esport-Community.',
+ 'Could not load news from Neon API.':'Nachrichten konnten nicht von der Neon API geladen werden.',
+ 'Could not load matches from Neon API: Failed to fetch':'Matches konnten nicht von der Neon API geladen werden: Failed to fetch',
+ 'Could not load streams from Neon API: Failed to fetch':'Streams konnten nicht von der Neon API geladen werden: Failed to fetch',
+ 'Could not load top players. Make sure match_history_players_setup.sql has been migrated. Error: Failed to fetch':'Top-Spieler konnten nicht geladen werden. Stelle sicher, dass match_history_players_setup.sql migriert wurde. Fehler: Failed to fetch',
+ 'Could not load tournament.':'Turnier konnte nicht geladen werden.',
+ 'Check that the tournament tables have been migrated to Neon.':'Prüfe, ob die Turniertabellen zu Neon migriert wurden.',
+ 'To message the administrator, log in or register.':'Um dem Administrator eine Nachricht zu senden, melde dich an oder registriere dich.',
+ }
+ };
+ Object.keys(modalTranslations).forEach(code=>Object.assign(dictionaries[code],modalTranslations[code]));
+ // Extended interface coverage for dynamically rendered sections.
+ const extraTranslations={"en":{"Состав пока не указан.":"Roster not provided yet.","Состав не указан":"Roster not provided","Команда не указана":"No team specified","Все трансферы":"All transfers","Матчей пока нет.":"No matches yet.","История боёв пока пуста.":"Match history is empty.","Пока нет сообщений":"No messages yet","Пока нет зарегистрированных пользователей.":"No registered users yet.","Блокировок пока нет.":"No bans yet.","Трансферных новостей пока нет.":"No transfer news yet.","Добавить команду":"Add team","Добавить бой":"Add match","Создать матч":"Create match","Создать турнир":"Create tournament","Редактировать матч":"Edit match","Редактировать команду":"Edit team","Заблокировать":"Ban","Разблокировать":"Unban","Имя пользователя":"Username","Ник игрока":"Player nickname","Причина блокировки":"Ban reason","Ответ пользователю":"Reply to user","Чат с администратором":"Chat with administrator","Предыдущий день":"Previous day","Следующий день":"Next day","Верхняя":"Upper bracket","Нижняя":"Lower bracket","полуфинал":"semifinal","четвертьфинал":"quarterfinal","Гранд-финал":"Grand final","Чемпион определён":"Champion determined","Профиль игрока":"Player profile","Профиль":"Profile","Управление доступом":"Access management","Управление командами и очками":"Manage teams and points","Управление профилями игроков":"Manage player profiles","Управление трансляциями":"Manage streams","Выдать кубок":"Award trophy","Убрать награду":"Remove award","Забыли пароль?":"Forgot password?","Вход в аккаунт":"Log in","Регистрация":"Register","Состав команды. Прокручивайте по горизонтали":"Team roster. Scroll horizontally","Матч создан":"Match created","Матч завершён":"Match completed","Завершён":"Completed","Запланирован":"Scheduled","ОЖИДАЕТ РЕЗУЛЬТАТА":"AWAITING RESULT","ОЖИДАЕТ СТАРТА":"AWAITING START","Сохранить бой и статистику":"Save match and statistics","Пока нет добавленных трансляций. Загляни позже!":"No streams have been added yet. Check back later!","Пока нет запланированных или завершённых матчей.":"No scheduled or completed matches yet.","Пока нет трансляций.":"No streams yet.","Общая база подключена. Команды появятся после их переноса администратором.":"Shared database connected. Teams will appear after an administrator migrates them."},"uk":{"Состав пока не указан.":"Склад поки не вказано.","Состав не указан":"Склад не вказано","Команда не указана":"Команду не вказано","Все трансферы":"Усі трансфери","Матчей пока нет.":"Матчів поки немає.","История боёв пока пуста.":"Історія матчів поки порожня.","Пока нет сообщений":"Повідомлень поки немає","Пока нет зарегистрированных пользователей.":"Зареєстрованих користувачів поки немає.","Блокировок пока нет.":"Блокувань поки немає.","Трансферных новостей пока нет.":"Новин про трансфери поки немає.","Добавить команду":"Додати команду","Добавить бой":"Додати матч","Создать матч":"Створити матч","Создать турнир":"Створити турнір","Редактировать матч":"Редагувати матч","Редактировать команду":"Редагувати команду","Заблокировать":"Заблокувати","Разблокировать":"Розблокувати","Имя пользователя":"Ім’я користувача","Ник игрока":"Нік гравця","Причина блокировки":"Причина блокування","Ответ пользователю":"Відповідь користувачу","Чат с администратором":"Чат з адміністратором","Предыдущий день":"Попередній день","Следующий день":"Наступний день","Верхняя":"Верхня сітка","Нижняя":"Нижня сітка","полуфинал":"півфінал","четвертьфинал":"чвертьфінал","Гранд-финал":"Гранд-фінал","Чемпион определён":"Чемпіона визначено","Профиль игрока":"Профіль гравця","Профиль":"Профіль","Управление доступом":"Керування доступом","Управление командами и очками":"Керування командами та балами","Управление профилями игроков":"Керування профілями гравців","Управление трансляциями":"Керування трансляціями","Выдать кубок":"Видати кубок","Убрать награду":"Прибрати нагороду","Забыли пароль?":"Забули пароль?","Вход в аккаунт":"Вхід до акаунта","Регистрация":"Реєстрація","Состав команды. Прокручивайте по горизонтали":"Склад команди. Гортайте горизонтально","Матч создан":"Матч створено","Матч завершён":"Матч завершено","Завершён":"Завершено","Запланирован":"Заплановано","ОЖИДАЕТ РЕЗУЛЬТАТА":"ОЧІКУЄ РЕЗУЛЬТАТУ","ОЖИДАЕТ СТАРТА":"ОЧІКУЄ ПОЧАТКУ","Сохранить бой и статистику":"Зберегти матч і статистику","Пока нет добавленных трансляций. Загляни позже!":"Трансляцій поки немає. Завітай пізніше!","Пока нет запланированных или завершённых матчей.":"Запланованих або завершених матчів поки немає.","Пока нет трансляций.":"Трансляцій поки немає.","Общая база подключена. Команды появятся после их переноса администратором.":"Спільну базу даних підключено. Команди з’являться після перенесення адміністратором."},"de":{"Состав пока не указан.":"Aufstellung noch nicht angegeben.","Состав не указан":"Aufstellung nicht angegeben","Команда не указана":"Kein Team angegeben","Все трансферы":"Alle Transfers","Матчей пока нет.":"Noch keine Spiele.","История боёв пока пуста.":"Der Spielverlauf ist noch leer.","Пока нет сообщений":"Noch keine Nachrichten","Пока нет зарегистрированных пользователей.":"Noch keine registrierten Benutzer.","Блокировок пока нет.":"Noch keine Sperren.","Трансферных новостей пока нет.":"Noch keine Transfermeldungen.","Добавить команду":"Team hinzufügen","Добавить бой":"Match hinzufügen","Создать матч":"Match erstellen","Создать турнир":"Turnier erstellen","Редактировать матч":"Match bearbeiten","Редактировать команду":"Team bearbeiten","Заблокировать":"Sperren","Разблокировать":"Entsperren","Имя пользователя":"Benutzername","Ник игрока":"Spielername","Причина блокировки":"Sperrgrund","Ответ пользователю":"Antwort an Benutzer","Чат с администратором":"Chat mit Administrator","Предыдущий день":"Vorheriger Tag","Следующий день":"Nächster Tag","Верхняя":"Obere","Нижняя":"Untere","полуфинал":"Halbfinale","четвертьфинал":"Viertelfinale","Гранд-финал":"Großes Finale","Чемпион определён":"Champion steht fest","Профиль игрока":"Spielerprofil","Профиль":"Profil","Управление доступом":"Zugriffsverwaltung","Управление командами и очками":"Teams und Punkte verwalten","Управление профилями игроков":"Spielerprofile verwalten","Управление трансляциями":"Streams verwalten","Выдать кубок":"Pokal verleihen","Убрать награду":"Auszeichnung entfernen","Забыли пароль?":"Passwort vergessen?","Вход в аккаунт":"Anmelden","Регистрация":"Registrieren","Состав команды. Прокручивайте по горизонтали":"Teamaufstellung. Horizontal scrollen","Матч создан":"Match erstellt","Матч завершён":"Match abgeschlossen","Завершён":"Abgeschlossen","Запланирован":"Geplant","ОЖИДАЕТ РЕЗУЛЬТАТА":"ERGEBNIS AUSSTEHEND","ОЖИДАЕТ СТАРТА":"START AUSSTEHEND","Сохранить бой и статистику":"Match und Statistiken speichern","Пока нет добавленных трансляций. Загляни позже!":"Noch keine Streams hinzugefügt. Schau später wieder vorbei!","Пока нет запланированных или завершённых матчей.":"Noch keine geplanten oder abgeschlossenen Spiele.","Пока нет трансляций.":"Noch keine Streams.","Общая база подключена. Команды появятся после их переноса администратором.":"Gemeinsame Datenbank verbunden. Teams erscheinen, sobald ein Administrator sie migriert hat."}};
+ Object.keys(extraTranslations).forEach(code=>Object.assign(dictionaries[code],extraTranslations[code]));
+
+ let lang='en';
+ const LANGUAGES=['en','ru','uk','de'];
+ const STORAGE_KEY=KEY;
+ const originalText=new WeakMap();
+ const originalAttributes=new WeakMap();
+ const TRANSLATABLE_ATTRIBUTES=['placeholder','title','aria-label','alt'];
+ const SKIP_TAGS=/^(SCRIPT|STYLE)$/;
+
+ function readLanguage(){
+   try{
+     const stored=localStorage.getItem(STORAGE_KEY);
+     return LANGUAGES.includes(stored)?stored:'en';
+   }catch(error){return 'en'}
+ }
+ function translateString(source){
+   const dictionary=dictionaries[lang]||{};
+   let result=source;
+   const keys=Object.keys(dictionary).filter(key=>key.length>2).sort((a,b)=>b.length-a.length);
+   for(const key of keys){
+     if(result.includes(key))result=result.split(key).join(dictionary[key]);
+   }
+   return result;
+ }
+ function translateTextNode(node){
+   if(!node||node.nodeType!==Node.TEXT_NODE)return;
+   const parent=node.parentElement;
+   if(parent&&(SKIP_TAGS.test(parent.tagName)||parent.tagName==='TEXTAREA'))return;
+   let state=originalText.get(node);
+   if(!state||node.nodeValue!==state.rendered){
+     state={source:node.nodeValue,rendered:node.nodeValue};
+     originalText.set(node,state);
+   }
+   const translated=translateString(state.source);
+   if(node.nodeValue!==translated)node.nodeValue=translated;
+   state.rendered=translated;
+ }
+ function translateElement(element){
+   if(!element||element.nodeType!==Node.ELEMENT_NODE||SKIP_TAGS.test(element.tagName))return;
+   if(element.closest('[data-no-translate]'))return;
+   if(element.tagName!=='TEXTAREA')element.childNodes.forEach(child=>{
+     if(child.nodeType===Node.TEXT_NODE)translateTextNode(child);
+     else if(child.nodeType===Node.ELEMENT_NODE)translateElement(child);
+   });
+   let originals=originalAttributes.get(element);
+   if(!originals){originals={};originalAttributes.set(element,originals)}
+   TRANSLATABLE_ATTRIBUTES.forEach(attribute=>{
+     if(!element.hasAttribute(attribute))return;
+     const current=element.getAttribute(attribute);
+     let state=originals[attribute];
+     if(!state||current!==state.rendered){
+       state={source:current,rendered:current};
+       originals[attribute]=state;
+     }
+     const translated=translateString(state.source);
+     if(current!==translated)element.setAttribute(attribute,translated);
+     state.rendered=translated;
+   });
+ }
+ function syncSelector(){
+   const selector=document.getElementById('siteLanguageSelect');
+   if(selector&&selector.value!==lang)selector.value=lang;
+ }
+ function applyLanguage(){
+   document.documentElement.lang=lang;
+   if(document.body)translateElement(document.body);
+   syncSelector();
+   const settings=document.getElementById('settingsBtn');
+   const labels={en:'Settings',ru:'Настройки',uk:'Налаштування',de:'Einstellungen'};
+   if(settings){
+     settings.title=labels[lang];
+     settings.setAttribute('aria-label',labels[lang]);
+   }
+ }
+ function setLanguage(next){
+   if(!LANGUAGES.includes(next))return;
+   lang=next;
+   try{localStorage.setItem(STORAGE_KEY,next)}catch(error){}
+   applyLanguage();
+ }
+ window.mvpGetLanguage=()=>lang;
+ window.mvpSetLanguage=setLanguage;
+ window.mvpApplyLanguage=applyLanguage;
+
+ document.addEventListener('change',event=>{
+   if(event.target&&event.target.id==='siteLanguageSelect')setLanguage(event.target.value);
+ });
+ document.addEventListener('input',event=>{
+   if(event.target&&event.target.id==='siteLanguageSelect')setLanguage(event.target.value);
+ });
+
+ const observer=new MutationObserver(records=>{
+   for(const record of records){
+     if(record.type==='characterData')translateTextNode(record.target);
+     if(record.type==='attributes')translateElement(record.target);
+     if(record.type==='childList'){
+       record.addedNodes.forEach(node=>{
+         if(node.nodeType===Node.TEXT_NODE)translateTextNode(node);
+         else if(node.nodeType===Node.ELEMENT_NODE)translateElement(node);
+       });
+     }
+   }
+ });
+ function initializeLanguage(){
+   lang=readLanguage();
+   applyLanguage();
+   if(document.body)observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:TRANSLATABLE_ATTRIBUTES});
+ }
+ if(document.readyState==='loading'){
+   document.addEventListener('DOMContentLoaded',initializeLanguage,{once:true});
+ }else{
+   initializeLanguage();
+ }
+</script>
 </body></html>
