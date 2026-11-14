@@ -22,7 +22,6 @@ function getCors(request, env) {
     "https://mvpcsg2.github.io",
     "https://mvp-cs2-ranking.pages.dev",
   ]);
-  // Preview CORS support for the isolated recovery candidate.
   // Allow HTTPS Cloudflare Pages preview deployments for this project only.
   let isProjectPreview = false;
   try {
