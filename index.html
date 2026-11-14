@@ -3,12 +3,17 @@
 <script>
 /* MVP CS2 Ranking: official GitHub Pages host gate. This is a copy-deterrent, not a security boundary. */
 (function(){
-  const allowedHosts = ['mvpcsg2.github.io', 'mvp-cs2-ranking.pages.dev'];
+  const allowedHosts = new Set([
+    'mvpcsg2.github.io',
+    'mvp-cs2-ranking.pages.dev'
+  ]);
   const allowedPath = '/mvp-cs2-ranking';
-  const currentPath = (location.pathname || '/').replace(/\/+$/, '') || '/';
   const host = location.hostname.toLowerCase();
-  const allowed = (host === 'mvp-cs2-ranking.pages.dev' && currentPath === '/') ||
-    (host === 'mvpcsg2.github.io' && (currentPath === allowedPath || currentPath === allowedPath + '/index.html'));
+  const currentPath = (location.pathname || '/').replace(/\/+$/, '') || '/';
+  const isCloudflarePagesHost = host === 'mvp-cs2-ranking.pages.dev' || host.endsWith('.mvp-cs2-ranking.pages.dev');
+  const allowed = isCloudflarePagesHost ||
+    (host === 'mvpcsg2.github.io' &&
+      (currentPath === allowedPath || currentPath === allowedPath + '/index.html'));
   window.__MVP_SITE_DOMAIN_OK__ = allowed;
   if (!allowed) {
     document.documentElement.classList.add('mvp-domain-blocked');
@@ -26,7 +31,9 @@
     document.head.appendChild(style);
   }
 })();
-</script><title>MVP CS2 Ranking</title>
+</script><link rel="icon" type="image/jpeg" href="https://i.imgur.com/ObChvPB.jpeg">
+<link rel="apple-touch-icon" href="https://i.imgur.com/ObChvPB.jpeg">
+<title>MVP CS2 Ranking</title>
 <style>
 :root{--orange:#f2a900;--ink:#20242a;--muted:#737982;--line:#e5e7eb;--bg:#fff;--soft:#f6f7f8}*{box-sizing:border-box}body{margin:0;background-color:#121820;background-image:none;background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed;color:var(--ink);font:15px/1.45 Arial,Helvetica,sans-serif}.top{height:68px;background:rgba(255,255,255,.90);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 max(20px,calc((100% - 1120px)/2));gap:16px}.brand{font-weight:900;font-size:23px;letter-spacing:-1px}.brand b{background:var(--orange);padding:5px 7px;margin-right:6px}.topright{display:flex;gap:10px;align-items:center}.social-links{display:flex;align-items:center;gap:7px}.social-btn{display:inline-flex;width:38px;height:38px;align-items:center;justify-content:center;border:1px solid #d6d9de;border-radius:7px;background:rgba(255,255,255,.95);transition:transform .15s ease,background .15s ease}.social-btn:hover{background:#fff;transform:translateY(-2px)}.social-btn img{display:block;width:27px;height:27px;object-fit:contain}.btn{border:1px solid #d6d9de;background:#fff;border-radius:5px;padding:9px 12px;cursor:pointer;font-weight:700;color:var(--ink)}.btn:hover{background:#f4f5f6}.primary{background:var(--orange);border-color:var(--orange)}.wrap{max-width:1120px;margin:30px auto;padding:0 20px}.crumb{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px}.heading{display:flex;justify-content:space-between;align-items:end;gap:16px;margin:8px 0 20px}.heading h1{font-size:32px;margin:0;letter-spacing:-1px}.sub{color:var(--muted);margin-top:5px}.panel{background:rgba(255,255,255,.93);backdrop-filter:blur(5px);border:1px solid rgba(229,231,235,.92);border-radius:8px;overflow:hidden}.tablehead{display:grid;grid-template-columns:64px minmax(180px,1fr) 150px 130px;align-items:center;background:#f5f6f7;color:#646a73;font-size:11px;font-weight:bold;letter-spacing:1px;padding:13px 18px;text-transform:uppercase}.team{background:rgba(255,255,255,.62);display:grid;grid-template-columns:64px minmax(180px,1fr) 150px 130px;align-items:center;min-height:86px;padding:12px 18px;border-top:1px solid var(--line);gap:0}.rank{font-size:20px;font-weight:800;color:#747982}.teaminfo{display:flex;align-items:center;gap:15px;min-width:0}.logo{width:52px;height:52px;border-radius:6px;border:1px solid #e5e7eb;background:#fafafa;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-size:12px;color:#999;font-weight:bold}.logo img{width:100%;height:100%;object-fit:contain}.name{font-size:17px;font-weight:800}.players{color:#777e87;font-size:12px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.points{font-size:20px;font-weight:800}.points small{display:block;font-size:11px;color:#888;font-weight:normal;margin-top:2px}.actions{display:flex;gap:6px;justify-content:flex-end}.tiny{width:34px;height:32px;border:1px solid #d9dde2;background:white;border-radius:4px;font-size:18px;cursor:pointer}.tiny:hover{background:#f1f2f3}.hidden{display:none!important}.adminbar{background:#fff8e4;border:1px solid #f2d58b;padding:12px 14px;border-radius:6px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:12px}.adminbar strong{font-size:13px}.modalback{position:fixed;inset:0;background:#0007;display:flex;align-items:center;justify-content:center;padding:20px;z-index:10}.modal{background:white;border-radius:9px;padding:24px;width:min(520px,100%);box-shadow:0 15px 60px #0003}.modal h2{margin:0 0 16px}.field{display:flex;flex-direction:column;gap:5px;margin:12px 0}.field label{font-size:12px;color:#666;font-weight:bold}.field input,.field textarea{font:inherit;border:1px solid #ccd0d6;border-radius:5px;padding:10px;width:100%}.field textarea{min-height:70px;resize:vertical}.formrow{display:grid;grid-template-columns:1fr 1fr;gap:12px}.modalfoot{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.empty{text-align:center;padding:40px;color:#7c828b}.foot{color:#8b9098;font-size:12px;margin:18px 0 35px}.notice{font-size:12px;color:#777;margin-top:8px}
 .team-card{border-top:1px solid var(--line);background:rgba(255,255,255,.62)}
@@ -85,7 +92,7 @@
 .player-photo-edit label{margin-bottom:5px}
 .player-photo-preview{width:68px;height:68px;margin-bottom:6px}
 .player-photo-edit input[type=file]{max-width:100%;font-size:9px;padding:3px}
-.modalfoot{position:sticky;bottom:-16px;z-index:2;background:rgba(255,255,255,.98);padding:10px 0 0;margin-top:10px}
+.modalfoot{position:sticky;bottom:-16px;z-index:2;background:transparent!important;padding:10px 0 0;margin-top:10px}
 @media(max-width:1000px) and (min-width:801px){.roster-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.roster-player-photo{width:min(100%,145px)}}
 @media(max-width:800px){.roster-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.roster-player-photo{width:min(100%,140px)}}
 @media(max-width:650px){.modalback{padding:10px;align-items:flex-start;overflow-y:auto}.modal,.modal.modal-wide{width:100%;max-height:calc(100vh - 20px);max-height:calc(100dvh - 20px);padding:14px}.formrow{gap:8px}.player-photo-editor{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.player-photo-preview{width:70px;height:70px}.modalfoot{bottom:-14px}.roster-player{padding:9px 5px;gap:7px}.roster-player-name{font-size:12px}}
@@ -1691,18 +1698,166 @@ body[data-theme="night"] .season-admin-card{background:#2d2b24;border-color:#806
 </footer>
 </main><div id="modalRoot"></div>
 <button id="helpFab" class="help-fab" type="button" aria-label="Открыть помощь"><span class="help-fab-icon">?</span><span>Помощь</span></button>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
 if (window.__MVP_SITE_DOMAIN_OK__ !== true) { throw new Error('MVP CS2 Ranking: unauthorized domain'); }
-const SUPABASE_URL = 'https://garbvoswmmlsrxerbden.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_eluKu1nKkVuJs9WqxpON4w_SUgpHwFU';
 const LOCAL_STORE = 'mvp_cs2_ranking_v3';
-const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const MVP_API_URL = 'https://mvp-cs2-api.mvpcsgo2.workers.dev';
+const AUTH_TOKEN_KEY = 'mvp_neon_access_token_v1';
+
+async function mvpApiRequest(path, options={}){
+  const headers = new Headers(options.headers || {});
+  headers.set('accept','application/json');
+  const token = localStorage.getItem(AUTH_TOKEN_KEY);
+  if(token)headers.set('authorization','Bearer '+token);
+  if(options.body && !(options.body instanceof Blob) && !(options.body instanceof ArrayBuffer) && !(options.body instanceof FormData))headers.set('content-type','application/json');
+  const response = await fetch(MVP_API_URL+path,{...options,headers});
+  const type=response.headers.get('content-type')||'';
+  const payload=type.includes('application/json')?await response.json():{ok:response.ok,data:await response.text()};
+  if(!response.ok||payload?.ok===false)throw new Error(payload?.error||'Ошибка сервера ('+response.status+').');
+  return payload;
+}
+async function mvpApiGet(path){
+  const result=await mvpApiRequest(path,{method:'GET'});
+  return result.data;
+}
+function createMvpApiClient(){
+  const auth={
+    async getSession(){
+      const token=localStorage.getItem(AUTH_TOKEN_KEY);
+      if(!token)return {data:{session:null},error:null};
+      try{
+        const result=await mvpApiRequest('/api/auth/session',{method:'GET'});
+        if(!result.user){localStorage.removeItem(AUTH_TOKEN_KEY);return {data:{session:null},error:null};}
+        const user={...result.user,user_metadata:{username:result.user.username}};
+        return {data:{session:{access_token:token,user,expires_at:null}},error:null};
+      }catch(error){return {data:{session:null},error};}
+    },
+    async signUp({email,password,options={}}){
+      try{
+        const result=await mvpApiRequest('/api/auth/register',{method:'POST',body:JSON.stringify({email,password,username:options?.data?.username||String(email||'').split('@')[0]})});
+        return {data:{user:null,session:null,message:result.message},error:null};
+      }catch(error){return {data:{user:null,session:null},error};}
+    },
+    async signInWithPassword({email,password}){
+      try{
+        const result=await mvpApiRequest('/api/auth/login',{method:'POST',body:JSON.stringify({email,password})});
+        localStorage.setItem(AUTH_TOKEN_KEY,result.token);
+        const user={...result.user,user_metadata:{username:result.user.username}};
+        return {data:{user,session:{access_token:result.token,user}},error:null};
+      }catch(error){return {data:{user:null,session:null},error};}
+    },
+    async resetPasswordForEmail(email){
+      try{
+        const result=await mvpApiRequest('/api/auth/forgot-password',{method:'POST',body:JSON.stringify({email})});
+        return {data:result,error:null};
+      }catch(error){return {data:null,error};}
+    },
+    async resendVerification(email){
+      try{
+        const result=await mvpApiRequest('/api/auth/resend-verification',{method:'POST',body:JSON.stringify({email})});
+        return {data:result,error:null};
+      }catch(error){return {data:null,error};}
+    },
+    async signOut(){
+      const token=localStorage.getItem(AUTH_TOKEN_KEY);
+      try{
+        if(token)await mvpApiRequest('/api/auth/logout',{method:'POST',headers:{authorization:'Bearer '+token},body:'{}'});
+      }catch(_){}
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      return {error:null};
+    }
+  };
+
+  function from(table){
+    const state={table,action:'select',columns:'*',filters:[],orFilters:[],orders:[],limit:500,values:null,returning:null,conflictColumns:[],single:null};
+    const builder={
+      select(columns='*'){if(state.action==='select')state.columns=columns||'*';else state.returning=columns==='*'?'*':String(columns).split(',').map(x=>x.trim());return this;},
+      insert(values){state.action='insert';state.values=values;return this;},
+      update(values){state.action='update';state.values=values;return this;},
+      delete(){state.action='delete';return this;},
+      upsert(values,options={}){state.action='upsert';state.values=values;state.conflictColumns=String(options.onConflict||'').split(',').map(x=>x.trim()).filter(Boolean);return this;},
+      eq(column,value){state.filters.push({column,op:'eq',value});return this;},
+      neq(column,value){state.filters.push({column,op:'neq',value});return this;},
+      gt(column,value){state.filters.push({column,op:'gt',value});return this;},
+      gte(column,value){state.filters.push({column,op:'gte',value});return this;},
+      lt(column,value){state.filters.push({column,op:'lt',value});return this;},
+      lte(column,value){state.filters.push({column,op:'lte',value});return this;},
+      is(column,value){state.filters.push({column,op:'is',value});return this;},
+      in(column,values){state.filters.push({column,op:'in',value:values});return this;},
+      or(expression){
+        const parsed=String(expression||'').split(',').map(part=>{
+          const bits=part.split('.');
+          if(bits.length<3)throw new Error('Неподдерживаемое OR-условие.');
+          const raw=bits.slice(2).join('.');const value=/^-?\d+(?:\.\d+)?$/.test(raw)?Number(raw):raw==='true'?true:raw==='false'?false:raw;return {column:bits[0],op:bits[1],value};
+        });
+        state.orFilters.push(...parsed);return this;
+      },
+      order(column,options={}){state.orders.push({column,ascending:options.ascending!==false});return this;},
+      limit(value){state.limit=value;return this;},
+      single(){state.single='single';return this;},
+      maybeSingle(){state.single='maybe';return this;},
+      then(resolve,reject){
+        const execute=async()=>{
+          try{
+            const body={table:state.table,action:state.action,columns:state.columns==='*'?'*':String(state.columns||'*').split(',').map(x=>x.trim()),filters:state.filters,orFilters:state.orFilters,orders:state.orders,limit:state.limit,values:state.values,conflictColumns:state.conflictColumns,returning:state.returning};
+            const result=await mvpApiRequest('/api/data/query',{method:'POST',body:JSON.stringify(body)});
+            let data=result.data;
+            if(state.single==='single'){
+              if(!Array.isArray(data)||data.length!==1)return {data:null,error:{message:'Ожидалась ровно одна запись.'}};
+              data=data[0];
+            }else if(state.single==='maybe'){
+              data=Array.isArray(data)?(data[0]||null):data;
+            }
+            return {data,error:null};
+          }catch(error){return {data:null,error:{message:error?.message||'Ошибка запроса к Neon.'}};}
+        };
+        return execute().then(resolve,reject);
+      }
+    };
+    return builder;
+  }
+
+  return {
+    auth,
+    from,
+    async rpc(name,args={}){
+      try{const result=await mvpApiRequest('/api/data/rpc',{method:'POST',body:JSON.stringify({name,args})});return {data:result.data,error:null};}
+      catch(error){return {data:null,error:{message:error?.message||'Ошибка операции Neon.'}};}
+    },
+    storage:{
+      from(bucket){
+        return {
+          async upload(path,file,options={}){
+            try{
+              const response=await mvpApiRequest('/api/storage/upload?path='+encodeURIComponent(path),{method:'POST',headers:{'content-type':options.contentType||file.type||'application/octet-stream'},body:file});
+              return {data:response.data,error:null};
+            }catch(error){return {data:null,error:{message:error?.message||'Не удалось загрузить файл.'}};}
+          },
+          getPublicUrl(path){
+            const publicUrl=MVP_API_URL+'/assets/'+String(path).split('/').map(encodeURIComponent).join('/');
+            return {data:{publicUrl}};
+          }
+        };
+      }
+    },
+    functions:{
+      async invoke(name,options={}){
+        try{
+          const route=name==='sync-faceit-player'?'/api/faceit/sync':'/api/functions/'+encodeURIComponent(name);
+          const result=await mvpApiRequest(route,{method:'POST',body:JSON.stringify(options.body||{})});
+          return {data:result.data??result,error:null};
+        }catch(error){return {data:null,error:{message:error?.message||'Функция временно недоступна.'}};}
+      }
+    }
+  };
+}
+const client=createMvpApiClient();
 let admin = false, moderator = false, userPermissions = {}, currentUser = null, teams = [], busy = false, expandedTeamId = null, initialTeamExpansionDone = false;
 let teamRankMovements = new Map();
 function berlinTodayISO(){const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Berlin',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const pick=type=>parts.find(x=>x.type===type)?.value||'00';return `${pick('year')}-${pick('month')}-${pick('day')}`;}
 function shiftISODate(iso,days){const [y,m,d]=String(iso||'').split('-').map(Number);const date=new Date(Date.UTC(y,m-1,d+days,12));return `${date.getUTCFullYear()}-${String(date.getUTCMonth()+1).padStart(2,'0')}-${String(date.getUTCDate()).padStart(2,'0')}`;}
-function formatDailyDate(iso,withWeekday=true){const [y,m,d]=String(iso||'').split('-').map(Number);if(!y||!m||!d)return String(iso||'');return new Date(Date.UTC(y,m-1,d,12)).toLocaleDateString('ru-RU',{timeZone:'UTC',...(withWeekday?{weekday:'long'}:{}),day:'numeric',month:'long',year:'numeric'});}
+function formatDailyDate(iso,withWeekday=true){const [y,m,d]=String(iso||'').split('-').map(Number);if(!y||!m||!d)return String(iso||'');return new Date(Date.UTC(y,m-1,d,12)).toLocaleDateString(({ru:'ru-RU',en:'en-GB',uk:'uk-UA',de:'de-DE'}[document.documentElement.lang]||'ru-RU'),{timeZone:'UTC',...(withWeekday?{weekday:'long'}:{}),day:'numeric',month:'long',year:'numeric'});}
 let activeSeasonYear = new Date().getFullYear(), selectedSeasonYear = new Date().getFullYear();
 let selectedRankDate=berlinTodayISO(),dailyArchiveDates=[],dailyArchiveReady=false,dailySnapshot=null,dailyDateMonitor=null,lastDailyMonitorDate=berlinTodayISO();
 let seasonArchiveYears = new Set(), seasonSnapshot = null, seasonFeatureReady = false, seasonSwitchBusy = false;
@@ -1714,11 +1869,11 @@ function isSeasonReadOnly(){return isViewingArchivedSeason()||isFutureSeason()||
 function seasonRows(key){const value=seasonSnapshot?.[key];return Array.isArray(value)?value:[];}
 function snapshotRows(key){if(dailySnapshot&&String(dailySnapshot.snapshot_date||'')===String(selectedRankDate)){const value=dailySnapshot[key];if(Array.isArray(value))return value;}return seasonRows(key);}
 async function loadDailyArchiveIndex(){
-  try{const {data,error}=await client.from('mvp_daily_archives').select('snapshot_date').order('snapshot_date',{ascending:true}).limit(5000);if(error)throw error;dailyArchiveDates=(data||[]).map(row=>String(row.snapshot_date).slice(0,10));dailyArchiveReady=true;}
-  catch(error){dailyArchiveReady=false;dailyArchiveDates=[];console.warn('Ежедневные архивы пока не подключены. Выполни mvp_daily_rank_archive_migration.sql в Supabase.',error);}
+  try{const data=await mvpApiGet('/api/daily-archive-dates');dailyArchiveDates=(data||[]).map(row=>String(row.snapshot_date).slice(0,10));dailyArchiveReady=true;}
+  catch(error){dailyArchiveReady=false;dailyArchiveDates=[];console.warn('Ежедневные архивы Neon API пока недоступны.',error);}
   renderDailyDateNavigator();
 }
-async function captureCompletedDailySnapshot(){try{const {error}=await client.rpc('mvp_capture_completed_daily_snapshot');if(error)throw error;await loadDailyArchiveIndex();return true;}catch(error){console.warn('Не удалось сохранить завершённый день. Проверь SQL-миграцию mvp_daily_rank_archive_migration.sql.',error);return false;}}
+async function captureCompletedDailySnapshot(){try{await loadDailyArchiveIndex();return true;}catch(error){console.warn('Не удалось обновить список дневных архивов. Снимки создаются планировщиком Neon Worker.',error);return false;}}
 function renderDailyDateNavigator(){
   const host=document.getElementById('dailyDateNav');if(!host)return;
   const yearDates=dailyArchiveDates.filter(date=>date.startsWith(`${selectedSeasonYear}-`));
@@ -1741,7 +1896,7 @@ async function selectRankDate(date){
   selectedRankDate=date;dailySnapshot=null;expandedTeamId=null;initialTeamExpansionDone=false;teamRankMovements=new Map();
   renderDailyDateNavigator();
   if(date<berlinTodayISO()){
-    try{const {data,error}=await client.from('mvp_daily_archives').select('snapshot').eq('snapshot_date',date).maybeSingle();if(error)throw error;dailySnapshot=data?.snapshot||null;}
+    try{const row=await mvpApiGet('/api/daily-archive?date='+encodeURIComponent(date));dailySnapshot=row?.snapshot||null;}
     catch(error){alert(`Не удалось открыть статистику за ${formatDailyDate(date)}: ${niceError(error)}`);dailySnapshot=null;}
   }
   await loadTeams();await loadNewsRail();
@@ -1784,14 +1939,12 @@ function applySiteBackground(url){
 }
 async function loadSiteBrand(){
   try{
-    const {data,error}=await client.from('mvp_site_settings').select('setting_key,setting_value').in('setting_key',['site_logo_url','site_background_url']);
-    if(error)throw error;
-    const rows=data||[];
+    const rows=await mvpApiGet('/api/site-brand')||[];
     currentSiteLogoUrl=String(rows.find(x=>x.setting_key==='site_logo_url')?.setting_value||'').trim();
     currentSiteBackgroundUrl=String(rows.find(x=>x.setting_key==='site_background_url')?.setting_value||'').trim();
     renderSiteBrand();applySiteBackground(currentSiteBackgroundUrl);
   }catch(error){
-    console.warn('Настройки бренда пока не загружены. Выполни mvp_site_background_rank_migration.sql.',error);
+    console.warn('Настройки бренда Neon API пока не загружены.',error);
     renderSiteBrand();applySiteBackground('');
   }
 }
@@ -1799,16 +1952,14 @@ async function loadSeasonState(){
   const fallbackYear=new Date().getFullYear();
   activeSeasonYear=fallbackYear;selectedSeasonYear=fallbackYear;seasonArchiveYears=new Set();seasonFeatureReady=false;
   try{
-    const {data:state,error:stateError}=await client.from('mvp_season_state').select('active_year').eq('id',1).maybeSingle();
-    if(stateError)throw stateError;
+    const state=await mvpApiGet('/api/season-state');
     activeSeasonYear=Number(state?.active_year)||fallbackYear;
     selectedSeasonYear=activeSeasonYear;
-    const {data:archives,error:archiveError}=await client.from('mvp_season_archives').select('season_year,created_at').order('season_year',{ascending:true});
-    if(archiveError)throw archiveError;
+    const archives=await mvpApiGet('/api/season-archives');
     seasonArchiveYears=new Set((archives||[]).map(row=>Number(row.season_year)).filter(Number.isInteger));
     seasonFeatureReady=true;
   }catch(error){
-    console.warn('Годовые архивы пока не подключены. Выполни mvp_year_archive_migration.sql в Supabase.',error);
+    console.warn('Годовые архивы пока не подключены. Выполни mvp_year_archive_migration.sql в Neon.',error);
   }
   renderSeasonRail();
 }
@@ -1841,11 +1992,10 @@ async function selectSeasonYear(year){
   try{
     if(year>activeSeasonYear){teams=[];rosterPlayerDirectory=new Map();render();return;}
     if(year===activeSeasonYear){await loadTeams();return;}
-    const {data,error}=await client.from('mvp_season_archives').select('snapshot').eq('season_year',year).maybeSingle();
-    if(error)throw error;
-    if(!data?.snapshot)throw new Error(`Архив ${year} года не найден.`);
-    seasonSnapshot=data.snapshot;
-    if(yearDates.length){const {data:dayData,error:dayError}=await client.from('mvp_daily_archives').select('snapshot').eq('snapshot_date',selectedRankDate).maybeSingle();if(dayError)throw dayError;dailySnapshot=dayData?.snapshot||null;}
+    const archive=await mvpApiGet('/api/season-archive?year='+encodeURIComponent(year));
+    if(!archive?.snapshot)throw new Error(`Архив ${year} года не найден.`);
+    seasonSnapshot=archive.snapshot;
+    if(yearDates.length){const dayRow=await mvpApiGet('/api/daily-archive?date='+encodeURIComponent(selectedRankDate));dailySnapshot=dayRow?.snapshot||null;}
     await loadTeams();
   }catch(error){
     seasonSnapshot=null;dailySnapshot=null;selectedSeasonYear=activeSeasonYear;selectedRankDate=berlinTodayISO();await loadTeams();
@@ -1926,11 +2076,10 @@ async function openSettingsCenter(){
  const current=getThemeMode();
  let trophyCatalogRows=[],trophyCatalogLoadError='';
  if(can('manage_trophies')){
-   const {data,error}=await client.from('mvp_trophy_catalog').select('id,name,description,image_url,created_at').order('created_at',{ascending:false}).limit(100);
-   if(error)trophyCatalogLoadError=niceError(error);else trophyCatalogRows=data||[];
+   try{trophyCatalogRows=await mvpApiGet('/api/trophy-catalog')||[];}catch(error){trophyCatalogLoadError=niceError(error);}
  }
  const trophyAdmin=can('manage_trophies')?`<section class="site-logo-admin trophy-catalog-admin"><div class="roster-heading">КОНСТРУКТОР КУБКОВ</div><p class="page-intro">Создавай собственные награды с названием и изображением. Затем выдавай их игрокам из профиля.</p>${trophyCatalogLoadError?`<div class="notice">Не удалось загрузить список кубков: ${esc(trophyCatalogLoadError)}. Проверь SQL-миграцию mvp_custom_trophy_catalog.sql.</div>`:''}<input type="hidden" id="customTrophyId"><div class="field"><label for="customTrophyName">Название кубка</label><input id="customTrophyName" maxlength="100" placeholder="Например, MVP Champions Cup"></div><div class="field"><label for="customTrophyDescription">Описание (необязательно)</label><input id="customTrophyDescription" maxlength="240" placeholder="Победитель весеннего турнира"></div><div class="field"><label for="customTrophyImageUrl">Ссылка на фото (необязательно)</label><input id="customTrophyImageUrl" type="url" maxlength="2048" placeholder="https://..."></div><div class="field"><label for="customTrophyImageFile">Или загрузить фото кубка с компьютера</label><input id="customTrophyImageFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div><div class="custom-trophy-form-preview" id="customTrophyPreview"></div><div class="site-logo-admin-actions"><button class="btn primary" id="saveCustomTrophy" type="button">Сохранить кубок</button><button class="btn" id="resetCustomTrophy" type="button">Очистить форму</button></div><div class="notice">Поддерживаются PNG, JPG, WebP и GIF до 8 МБ. Выданные игрокам кубки сохраняют копию названия и изображения, даже если шаблон позже изменить или удалить.</div><div class="custom-trophy-catalog-list" id="customTrophyCatalogList">${trophyCatalogRows.length?trophyCatalogRows.map(trophyCatalogCardMarkup).join(''):'<div class="player-trophies-empty">Пока нет собственных кубков. Создай первый выше.</div>'}</div></section>`:'';
- const seasonAdmin=admin&&!isSeasonReadOnly()?`<section class="season-admin-card"><div class="roster-heading">АРХИВ И ГОДОВОЙ ВАЙП</div><p>Активный сезон: <b>${activeSeasonYear}</b>. Перед запуском ${activeSeasonYear+1} сайт сохранит архив ${activeSeasonYear}, затем обнулит очки и турнирные победы, архивирует матчи, статистику K/D, награды и турнирную сетку. Составы команд и профили игроков останутся.</p><div class="notice">Архив будет доступен всем посетителям в левой панели. Прошлые сезоны доступны только для просмотра.</div>${seasonFeatureReady?`<button class="btn danger" id="wipeAndAdvanceSeason" type="button">Сохранить ${activeSeasonYear} и начать ${activeSeasonYear+1}</button>`:`<div class="notice">Для годовых архивов сначала выполни SQL-файл mvp_year_archive_migration.sql в Supabase.</div>`}</section>`:'';
+ const seasonAdmin=admin&&!isSeasonReadOnly()?`<section class="season-admin-card"><div class="roster-heading">АРХИВ И ГОДОВОЙ ВАЙП</div><p>Активный сезон: <b>${activeSeasonYear}</b>. Перед запуском ${activeSeasonYear+1} сайт сохранит архив ${activeSeasonYear}, затем обнулит очки и турнирные победы, архивирует матчи, статистику K/D, награды и турнирную сетку. Составы команд и профили игроков останутся.</p><div class="notice">Архив будет доступен всем посетителям в левой панели. Прошлые сезоны доступны только для просмотра.</div>${seasonFeatureReady?`<button class="btn danger" id="wipeAndAdvanceSeason" type="button">Сохранить ${activeSeasonYear} и начать ${activeSeasonYear+1}</button>`:`<div class="notice">Для годовых архивов сначала выполни SQL-файл mvp_year_archive_migration.sql в Neon.</div>`}</section>`:'';
  const siteAdmin=can('manage_site_settings')?`
  <div class="site-logo-admin">
    <div class="roster-heading">ЛОГОТИП САЙТА</div>
@@ -1949,11 +2098,19 @@ async function openSettingsCenter(){
    <div class="notice">Фон появится за панелями сайта. Для удобной читаемости NIGHT автоматически затемняет изображение, DAY слегка осветляет его. Если убрать фон, останется базовый цвет темы.</div>
  </div>`:'<div class="notice">Управление логотипом и фоном доступно администраторам и модераторам с разрешением «Изменение настроек сайта».</div>';
  modal(`<div class="page-head"><div><h2>Настройки</h2><div class="page-intro">Выбери оформление сайта и настрой его внешний вид.</div></div><button class="btn" id="closeSettings">Закрыть</button></div>
- <div class="language-setting" style="display:block!important;visibility:visible!important;margin:0 0 18px"><label for="siteLanguageSelect" style="display:block;font-size:12px;font-weight:800;margin:0 0 7px">ЯЗЫК / LANGUAGE</label><select id="siteLanguageSelect" class="btn" style="width:100%;text-align:left"><option value="en">🇬🇧 English</option><option value="ru">🇷🇺 Русский</option><option value="uk">🇺🇦 Українська</option><option value="de">🇩🇪 Deutsch</option></select><div class="notice">Язык интерфейса сохраняется на этом устройстве.</div></div><div class="roster-heading">ОФОРМЛЕНИЕ</div><div class="theme-choice-row">
+ <div class="language-setting" style="display:block!important;visibility:visible!important;margin:0 0 18px"><label for="siteLanguageSelect" style="display:block;font-size:12px;font-weight:800;margin:0 0 7px">ЯЗЫК / LANGUAGE</label><select id="siteLanguageSelect" class="btn" style="width:100%;text-align:left" onchange="window.mvpSetLanguage(this.value)"><option value="en">🇬🇧 English</option><option value="ru">🇷🇺 Русский</option><option value="uk">🇺🇦 Українська</option><option value="de">🇩🇪 Deutsch</option></select><div class="notice">Язык интерфейса сохраняется на этом устройстве.</div></div><div class="roster-heading">ОФОРМЛЕНИЕ</div><div class="theme-choice-row">
  <button class="theme-choice ${current==='day'?'active':''}" data-theme-choice="day" type="button"><div class="theme-preview"></div><strong>DAY · Дневная</strong><span>Светлая тема</span></button>
  <button class="theme-choice ${current==='night'?'active':''}" data-theme-choice="night" type="button"><div class="theme-preview night"></div><strong>NIGHT · Ночная</strong><span>Тёмно-серые панели</span></button>
  </div><div class="notice">Выбор темы сохраняется на этом устройстве. Логотип и фон сайта сохраняются в общей базе и видны всем посетителям.</div>${siteAdmin}${trophyAdmin}${seasonAdmin}`,false);
  document.getElementById('closeSettings').onclick=closeModal;
+ const languageSelect=document.getElementById('siteLanguageSelect');
+ if(languageSelect){
+   languageSelect.value=window.mvpGetLanguage?window.mvpGetLanguage():'en';
+   languageSelect.addEventListener('change',event=>{
+     const selected=event.currentTarget.value;
+     if(window.mvpSetLanguage)window.mvpSetLanguage(selected);
+   });
+ }
  if(can('manage_trophies')&&document.getElementById('saveCustomTrophy')){
    const idInput=document.getElementById('customTrophyId'),nameInput=document.getElementById('customTrophyName'),descInput=document.getElementById('customTrophyDescription'),urlInput=document.getElementById('customTrophyImageUrl'),fileInput=document.getElementById('customTrophyImageFile'),preview=document.getElementById('customTrophyPreview');
    const showPreview=(url)=>{preview.innerHTML=url?`<img src="${esc(url)}" alt="Предпросмотр кубка" onerror="this.style.display='none'">`:''};
@@ -1989,7 +2146,7 @@ async function openSettingsCenter(){
  }
  const wipeBtn=document.getElementById('wipeAndAdvanceSeason');
  if(wipeBtn&&admin)wipeBtn.onclick=async()=>{
-   if(!seasonFeatureReady)return alert('Сначала выполни SQL-файл годовых архивов в Supabase.');
+   if(!seasonFeatureReady)return alert('Сначала выполни SQL-файл годовых архивов в Neon.');
    const typed=prompt(`Для подтверждения архива и вайпа введи текущий год: ${activeSeasonYear}`);if(typed!==String(activeSeasonYear))return;
    if(!confirm(`Сохранить архив ${activeSeasonYear} и начать ${activeSeasonYear+1}?\n\nОчки и турнирные победы обнулятся. Матчи, K/D и награды сохранятся в архиве, затем будут очищены из активного сезона. Составы и профили останутся.`))return;
    wipeBtn.disabled=true;wipeBtn.textContent='Сохраняем архив…';
@@ -2063,8 +2220,7 @@ async function loadRosterPlayerDirectory(){
     rosterPlayerDirectory=new Map(snapshotRows('players').map(row=>[String(row.nickname||'').trim().toLowerCase(),row]));return;
   }
   try{
-    const {data,error}=await client.from('cs2_players').select('nickname,photo_url,country_code').limit(2000);
-    if(error)throw error;
+    const data=await mvpApiGet('/api/players');
     rosterPlayerDirectory=new Map((data||[]).map(row=>[String(row.nickname||'').trim().toLowerCase(),row]));
   }catch(error){
     // The ranking remains usable even if the player directory cannot be read; team photos remain as fallback.
@@ -2249,18 +2405,9 @@ async function getPlayerTopPosition(playerId){
     }
     playerTopPositionCache.signature=signature;
     playerTopPositionCache.pending=(async()=>{
-      const {data:dbPlayers,error:playersError}=await client.from('cs2_players').select('id,nickname,is_banned').limit(2000);
-      if(playersError)throw playersError;
-      const activeIds=(dbPlayers||[]).filter(p=>!p.is_banned&&activeNicknames.has(String(p.nickname||'').trim().toLowerCase())).map(p=>p.id);
-      if(!activeIds.length)return new Map();
-      const {data:dbStats,error:statsError}=await client.from('match_player_stats')
-        .select('player_id,kills,deaths,kd,created_at')
-        .in('player_id',activeIds).order('created_at',{ascending:false}).limit(5000);
-      if(statsError)throw statsError;
-      const aggregates=new Map();
-      (dbStats||[]).forEach(st=>{const key=String(st.player_id);let a=aggregates.get(key);if(!a){a={sum:0,count:0,kills:0,deaths:0};aggregates.set(key,a)}a.sum+=Number(st.kd)||0;a.count++;a.kills+=Number(st.kills)||0;a.deaths+=Number(st.deaths)||0;});
-      const rows=(dbPlayers||[]).filter(p=>!p.is_banned&&activeNicknames.has(String(p.nickname||'').trim().toLowerCase())).map(p=>{const a=aggregates.get(String(p.id))||{sum:0,count:0,kills:0,deaths:0};return {id:String(p.id),nickname:p.nickname,average:a.count?a.sum/a.count:0,kills:a.kills,matches:a.count}}).sort((a,b)=>b.average-a.average||b.kills-a.kills||String(a.nickname).localeCompare(String(b.nickname)));
-      const positions=new Map(rows.map((row,index)=>[row.id,index+1]));
+      const rankingRows=await mvpApiGet('/api/player-top-positions')||[];
+      const activeRows=rankingRows.filter(row=>activeNicknames.has(String(row.nickname||'').trim().toLowerCase()));
+      const positions=new Map(activeRows.map((row,index)=>[String(row.id),index+1]));
       playerTopPositionCache={expiresAt:Date.now()+120000,signature,positions,pending:null};
       return positions;
     })();
@@ -2286,7 +2433,7 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
     let player;
     if(isFutureSeason())player=null;
     else if(isViewingHistoricalData())player=snapshotRows('players').find(row=>String(row.nickname||'').toLowerCase()===nickname.toLowerCase())||null;
-    else{const {data:pdata,error:perr}=await client.from('cs2_players').select('id,nickname,photo_url,role,is_banned,ban_reason,team_id,faceit_profile_url,faceit_nickname,steam_id64,faceit_elo,faceit_skill_level,faceit_last_synced_at,country_code').eq('nickname',nickname).maybeSingle();if(perr)throw perr;player=pdata;}
+    else{player=[...rosterPlayerDirectory.values()].find(row=>String(row.nickname||'').toLowerCase()===nickname.toLowerCase())||null;}
     let stats=[],history=[],trophies=[],prizeRows=[];
     if(player){
       if(isViewingHistoricalData()){
@@ -2297,15 +2444,14 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
         const byId=new Map(snapshotRows('team_matches').filter(row=>ids.has(String(row.id))).map(row=>[String(row.id),row]));
         history=stats.map(st=>({...st,match:byId.get(String(st.match_id))})).filter(x=>x.match).sort((a,b)=>new Date(b.match.played_at||0)-new Date(a.match.played_at||0));
       }else{
-        const [{data:sdata,error:serr},{data:tdata,error:terr}]=await Promise.all([
-          client.from('match_player_stats').select('match_id,team_id,kills,deaths,kd,created_at').eq('player_id',player.id).order('created_at',{ascending:false}).limit(500),
-          client.from('player_trophies').select('id,place,tournament_name,awarded_at,team_id,custom_trophy_name,custom_trophy_image_url,custom_trophy_description').eq('player_id',player.id).order('awarded_at',{ascending:false}).limit(100),
+        const [matchRows,trophyRows,prizeRowsData]=await Promise.all([
+          mvpApiGet('/api/player-match-history?player_id='+encodeURIComponent(player.id)),
+          mvpApiGet('/api/player-trophies?player_id='+encodeURIComponent(player.id)),
+          mvpApiGet('/api/player-prize-money?player_id='+encodeURIComponent(player.id))
         ]);
-        // The prize-money query is deliberately separate below to keep compatibility with existing profile data.
-        if(serr)throw serr;if(terr)throw terr;stats=sdata||[];trophies=tdata||[];
-        const {data:prizeData,error:prizeError}=await client.from('player_prize_money').select('id,amount,currency,tournament_name,awarded_at,team_id').eq('player_id',player.id).order('awarded_at',{ascending:false}).limit(200);
-        if(prizeError)throw prizeError;prizeRows=prizeData||[];
-        if(stats.length){const ids=[...new Set(stats.map(x=>x.match_id))];const {data:mdata,error:merr}=await client.from('team_matches').select('id,team_id,opponent_team_id,opponent_name,team_score,opponent_score,map_name,played_at').in('id',ids);if(merr)throw merr;const byId=new Map((mdata||[]).map(m=>[String(m.id),m]));history=stats.map(st=>({...st,match:byId.get(String(st.match_id))})).filter(x=>x.match).sort((a,b)=>new Date(b.match.played_at||0)-new Date(a.match.played_at||0));}
+        stats=matchRows||[];
+        history=stats.filter(row=>row.match_id).map(row=>({...row,match:row})).sort((a,b)=>new Date(b.match.played_at||0)-new Date(a.match.played_at||0));
+        trophies=trophyRows||[];prizeRows=prizeRowsData||[];
       }
     }
     const photo=player?.photo_url||fallback,role=PLAYER_ROLE_ICONS[player?.role]?player.role:'',avg=stats.length?stats.reduce((sum,x)=>sum+Number(x.kd||0),0)/stats.length:0;
@@ -2400,7 +2546,7 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
       if(!safeFaceitProfileUrl(player?.faceit_profile_url||faceitUrl))return alert('Сначала сохрани ссылку FACEIT в профиле.');
       const btn=document.getElementById('syncFaceitElo');btn.disabled=true;btn.textContent='Получаю Elo…';
       const {data,error}=await client.functions.invoke('sync-faceit-player',{body:{player_id:player.id}});
-      if(error||data?.error){alert('Не удалось обновить FACEIT Elo. Проверь Edge Function и секрет FACEIT_API_KEY. '+(data?.error||niceError(error)));btn.disabled=false;btn.textContent='↻ Обновить FACEIT Elo';return}
+      if(error||data?.error){alert('Не удалось обновить FACEIT Elo. Проверь FACEIT Worker и секрет FACEIT_API_KEY. '+(data?.error||niceError(error)));btn.disabled=false;btn.textContent='↻ Обновить FACEIT Elo';return}
       await openPlayerProfile(nickname,photo);
     }}
     if(can('manage_bans')&&document.getElementById('togglePlayerBan')){document.getElementById('togglePlayerBan').onclick=async()=>{const next=!player.is_banned;const reason=next?(prompt('Причина блокировки игрока:','Подозрение на использование читов')||''):'';if(next&&!reason)return;const {error}=await client.rpc('admin_set_player_ban',{p_player_id:player.id,p_banned:next,p_reason:reason});if(error){alert('Не удалось изменить блокировку: '+niceError(error));return}await loadTeams();openPlayerProfile(nickname,photo)}}
@@ -2484,7 +2630,7 @@ async function openTeamMatchHistory(t){
     players=snapshotRows('players').filter(p=>playerIds.has(String(p.id)));
   }else if(!isFutureSeason()){
     const {data:matchData,error}=await client.from('team_matches').select('*').or(`team_id.eq.${t.id},opponent_team_id.eq.${t.id}`).order('played_at',{ascending:false}).limit(200);
-    if(error){list.innerHTML=`<div class="help-empty">Не удалось загрузить историю боёв. Проверь SQL-настройки Supabase. Ошибка: ${esc(niceError(error))}</div>`;return}
+    if(error){list.innerHTML=`<div class="help-empty">Не удалось загрузить историю боёв. Проверь подключение Neon API. Ошибка: ${esc(niceError(error))}</div>`;return}
     matches=matchData||[];
     const matchIds=matches.map(m=>m.id);
     const {data:statsData,error:statsError}=await client.from('match_player_stats').select('id,match_id,team_id,player_id,kills,deaths,kd').in('match_id',matchIds);
@@ -2602,9 +2748,10 @@ async function editTeamMatch(team,match=null){
   };
 }
 function stopHelpPolling(){if(helpRefreshTimer){clearInterval(helpRefreshTimer);helpRefreshTimer=null}}
-function modal(content,wide=false){stopHelpPolling();activeHelpProfile=null;document.getElementById('modalRoot').innerHTML=`<div class="modalback" id="backdrop"><div class="modal${wide?' modal-wide':''}">${content}</div></div>`;document.getElementById('backdrop').addEventListener('click',e=>{if(e.target.id==='backdrop')closeModal()})}
+function modal(content,wide=false){stopHelpPolling();activeHelpProfile=null;document.getElementById('modalRoot').innerHTML=`<div class="modalback" id="backdrop"><div class="modal${wide?' modal-wide':''}">${content}</div></div>`;document.getElementById('backdrop').addEventListener('click',e=>{if(e.target.id==='backdrop')closeModal()});if(window.mvpApplyLanguage)window.mvpApplyLanguage()}
 function closeModal(){cleanupLiveCenter();cleanupTournamentCenter();stopHelpPolling();activeHelpProfile=null;document.getElementById('modalRoot').innerHTML=''}
-function niceError(error){return error?.message||'Неизвестная ошибка. Проверь настройки Supabase и подключение к интернету.'}
+function niceError(error){return error?.message||'Не удалось выполнить действие. Проверь соединение и попробуй ещё раз.'}
+function showAuthFeedback(message){const box=document.getElementById('authFeedback');if(!box)return;box.textContent=String(message||'Не удалось выполнить действие.');box.classList.remove('hidden');}
 async function refreshSignedInUser(user){
   currentUser=null; admin=false; moderator=false; userPermissions={};
   if(user){
@@ -2615,7 +2762,7 @@ async function refreshSignedInUser(user){
     const {data:profile,error}=await client.from('profiles').select('role,permissions').eq('id',user.id).maybeSingle();
     if(error){setStatus('Аккаунт вошёл, но не удалось прочитать роль профиля: '+niceError(error),'error')}
     admin=profile?.role==='admin';moderator=profile?.role==='moderator';userPermissions=profile?.permissions||{};
-    if(user.email && !profile && !error){setStatus('Профиль не найден. Проверь, что SQL-настройка Supabase была выполнена полностью.','error')}
+    if(user.email && !profile && !error){setStatus('Профиль не найден. Проверь, что SQL-настройка Neon была выполнена полностью.','error')}
   }
   render();
   await loadTeams();
@@ -2655,17 +2802,10 @@ async function loadTeamRankMovements(){
   if(!teams.length)return;
   try{
     const since=new Date(Date.now()-3*24*60*60*1000).toISOString();
-    const {data,error}=await client
-      .from('mvp_team_rank_history')
-      .select('team_id,movement_delta,changed_at')
-      .gte('changed_at',since)
-      .order('changed_at',{ascending:false});
-    if(error)throw error;
-    teamRankMovements=new Map((data||[])
-      .filter(row=>Number(row.movement_delta)!==0)
-      .map(row=>[String(row.team_id),Number(row.movement_delta)||0]));
+    const data=await mvpApiGet('/api/team-rank-history');
+    teamRankMovements=new Map((data||[]).filter(row=>Number(row.movement_delta)!==0).map(row=>[String(row.team_id),Number(row.movement_delta)||0]));
   }catch(error){
-    console.warn('Публичная история изменения мест недоступна. Выполни mvp_team_rank_history_3days.sql в Supabase.',error);
+    console.warn('Публичная история изменения мест недоступна. Проверь таблицу истории рейтинга в Neon.',error);
   }
 }
 async function loadTeams(){
@@ -2677,9 +2817,12 @@ async function loadTeams(){
     applyInitialTeamExpansion();render();return;
   }
   const previousTeams=teams.slice();
-  const {data,error}=await client.from('teams').select('*').order('points',{ascending:false}).order('id',{ascending:true});
-  if(error){teams=[];render();setStatus('Не удалось загрузить общую базу. Проверь, что SQL-скрипт из инструкции выполнен в Supabase SQL Editor. Ошибка: '+niceError(error),'error');return}
-  const loadedTeams=data||[];
+  let loadedTeams;
+  try{
+    loadedTeams=await mvpApiGet('/api/teams')||[];
+  }catch(error){
+    teams=[];render();setStatus('Не удалось загрузить команды из Neon API: '+niceError(error),'error');return;
+  }
   const locallyObservedMovement=calculateTeamRankMovement(previousTeams,loadedTeams);
   teams=loadedTeams;
   if(!teams.length && admin){const imported=await migrateLocalTeamsIfNeeded();if(imported){await loadRosterPlayerDirectory();await loadTeamRankMovements();applyInitialTeamExpansion();render();return}}
@@ -2697,14 +2840,29 @@ async function loadTeams(){
 async function signOut(){await client.auth.signOut();currentUser=null;admin=false;moderator=false;userPermissions={};closeModal();render();await loadTeams()}
 function authModal(mode='login'){
   if(currentUser){modal(`<h2>Профиль</h2><p><b>${esc(currentUser.username)}</b></p><p>${esc(currentUser.email||'')}</p><p>Роль: <b>${admin?'Администратор':moderator?'Модератор':'Игрок'}</b></p>${moderator?`<p class="notice">Разрешения: ${Object.keys(MOD_PERMISSION_LABELS).filter(k=>userPermissions[k]).map(k=>MOD_PERMISSION_LABELS[k]).join(' · ')||'нет выданных разрешений'}</p>`:admin?'<p class="notice">У тебя полный доступ к управлению проектом.</p>':'<p class="notice">Ты можешь просматривать общий рейтинг и пользоваться чатом помощи.</p>'}<div class="modalfoot"><button class="btn" id="profileClose">Закрыть</button><button class="btn primary" id="profileLogout">Выйти из аккаунта</button></div>`);document.getElementById('profileClose').onclick=closeModal;document.getElementById('profileLogout').onclick=signOut;return}
-  modal(`<h2>${mode==='register'?'Регистрация':'Вход в аккаунт'}</h2>${mode==='register'?'<div class="field"><label>Имя пользователя</label><input id="authName" maxlength="24" autocomplete="username" placeholder="Например, MVPplayer"></div>':''}<div class="field"><label>Email</label><input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required></div><div class="field"><label>Пароль${mode==='register'?' (минимум 8 символов)':''}</label><input id="authPass" type="password" autocomplete="${mode==='register'?'new-password':'current-password'}" minlength="8" required></div><div class="notice">${mode==='register'?'Новый аккаунт получает роль игрока. Чтобы твой аккаунт стал администратором, сначала зарегистрируйся, затем назначь роль через SQL Editor в Supabase.':'Введи email и пароль, использованные при регистрации Supabase.'}</div><div class="modalfoot"><button class="btn" id="switchAuth">${mode==='register'?'Уже есть аккаунт':'Регистрация'}</button><button class="btn primary" id="submitAuth">${mode==='register'?'Создать аккаунт':'Войти'}</button></div>`);
+  modal(`<h2>${mode==='register'?'Регистрация':'Вход в аккаунт'}</h2>${mode==='register'?'<div class="field"><label>Имя пользователя</label><input id="authName" maxlength="24" autocomplete="username" placeholder="Например, MVPplayer"></div>':''}<div class="field"><label>Email</label><input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required></div><div class="field"><label>Пароль${mode==='register'?' (минимум 10 символов)':''}</label><input id="authPass" type="password" autocomplete="${mode==='register'?'new-password':'current-password'}" minlength="10" required></div><div class="notice">${mode==='register'?'Новый аккаунт получает роль игрока. После подтверждения почты аккаунт активируется.':'Введи email и пароль от аккаунта MVP CS2 Ranking.'}</div><div id="authFeedback" class="auth-feedback hidden" role="alert" aria-live="polite"></div>${mode==='login'?'<div class="auth-extra"><button type="button" class="auth-link" id="forgotAuthPassword">Забыли пароль?</button><button type="button" class="auth-link" id="resendAuthVerification">Отправить письмо подтверждения</button></div>':''}<div class="modalfoot"><button class="btn" id="switchAuth">${mode==='register'?'Уже есть аккаунт':'Регистрация'}</button><button class="btn primary" id="submitAuth">${mode==='register'?'Создать аккаунт':'Войти'}</button></div>`);
+  document.querySelector('#modalRoot .modal').classList.add('auth-modal');
   document.getElementById('switchAuth').onclick=()=>authModal(mode==='register'?'login':'register');
+  if(mode==='login'){
+    document.getElementById('forgotAuthPassword').onclick=async()=>{
+      const email=document.getElementById('authEmail').value.trim().toLowerCase();
+      if(!email||!document.getElementById('authEmail').checkValidity())return showAuthFeedback('Сначала введи корректный email.');
+      const {data,error}=await client.auth.resetPasswordForEmail(email);
+      showAuthFeedback(error?niceError(error):(data?.message||'Если подтверждённый аккаунт существует, письмо для восстановления будет отправлено.'));
+    };
+    document.getElementById('resendAuthVerification').onclick=async()=>{
+      const email=document.getElementById('authEmail').value.trim().toLowerCase();
+      if(!email||!document.getElementById('authEmail').checkValidity())return showAuthFeedback('Сначала введи корректный email.');
+      const {data,error}=await client.auth.resendVerification(email);
+      showAuthFeedback(error?niceError(error):(data?.message||'Если аккаунт ожидает подтверждения, письмо будет отправлено.'));
+    };
+  }
   document.getElementById('submitAuth').onclick=async()=>{
     if(busy)return;const button=document.getElementById('submitAuth');
     const email=document.getElementById('authEmail').value.trim().toLowerCase(),password=document.getElementById('authPass').value;
     const username=mode==='register'?(document.getElementById('authName').value.trim()||email.split('@')[0]):email.split('@')[0];
-    if(!email||!document.getElementById('authEmail').checkValidity())return alert('Введи корректный email.');
-    if(password.length<8)return alert('Пароль должен содержать минимум 8 символов.');
+    if(!email||!document.getElementById('authEmail').checkValidity())return showAuthFeedback('Введи корректный email.');
+    if(password.length<10)return showAuthFeedback('Пароль должен содержать минимум 10 символов.');
     busy=true;button.disabled=true;button.textContent='Подожди…';
     try{
       if(mode==='register'){
@@ -2717,7 +2875,7 @@ function authModal(mode='login'){
         if(error)throw error;
         closeModal();await refreshSignedInUser(data.user);
       }
-    }catch(e){alert('Не удалось выполнить вход/регистрацию: '+niceError(e))}
+    }catch(e){const raw=String(e?.message||'');const message=/exceed_egress_quota|service for this project is restricted/i.test(raw)?'Вход и регистрация временно недоступны. Сервис авторизации сейчас ограничен. Мы работаем над переносом; попробуй позже.':niceError(e);showAuthFeedback(message)}
     finally{busy=false;const next=document.getElementById('submitAuth');if(next){next.disabled=false;next.textContent=mode==='register'?'Создать аккаунт':'Войти'}}
   };
 }
@@ -2744,22 +2902,16 @@ function youtubeEmbedUrl(raw){
 }
 function cleanupLiveCenter(){
   if(liveRefreshTimer){clearInterval(liveRefreshTimer);liveRefreshTimer=null;}
-  if(liveRealtimeChannel){client.removeChannel(liveRealtimeChannel);liveRealtimeChannel=null;}
   liveLoadBusy=false;
 }
 async function openLiveCenter(){
   cleanupLiveCenter();
   setMainNavActive('live');
-  modal(`<div class="page-head"><div><h2><span style="display:inline-block;background:#c62828;color:#fff;border-radius:4px;padding:3px 7px;font-size:11px;vertical-align:middle;margin-right:6px">LIVE</span>Матчи MVP CS2</h2><div class="page-intro">Счёт и K/D/A поступают с локального сервера во время игры.</div></div><button class="btn" id="closeLiveCenter">Закрыть</button></div><div id="liveMatchesContent"><div class="stream-empty">Подключаемся к live-данным…</div></div><div class="notice" style="margin-top:12px">Если матч не появляется, проверь, что сервер запущен, плагин MVPStats загружен и настроено подключение Supabase.</div>`,true);
+  modal(`<div class="page-head"><div><h2><span style="display:inline-block;background:#c62828;color:#fff;border-radius:4px;padding:3px 7px;font-size:11px;vertical-align:middle;margin-right:6px">LIVE</span>Матчи MVP CS2</h2><div class="page-intro">Счёт и K/D/A поступают с локального сервера во время игры.</div></div><button class="btn" id="closeLiveCenter">Закрыть</button></div><div id="liveMatchesContent"><div class="stream-empty">Подключаемся к live-данным…</div></div><div class="notice" style="margin-top:12px">Если матч не появляется, проверь, что сервер запущен, плагин MVPStats загружен и настроено подключение сервера статистики.</div>`,true);
   document.querySelector('#modalRoot .modal').classList.add('modal-page');
   document.getElementById('closeLiveCenter').onclick=()=>{closeModal();setMainNavActive('ranking')};
   await loadLiveMatchesIntoModal();
-  liveRealtimeChannel=client.channel('mvp-live-ranking-ui')
-    .on('postgres_changes',{event:'*',schema:'public',table:'mvp_live_matches'},()=>loadLiveMatchesIntoModal())
-    .on('postgres_changes',{event:'*',schema:'public',table:'mvp_live_players'},()=>loadLiveMatchesIntoModal())
-    .on('postgres_changes',{event:'*',schema:'public',table:'mvp_live_events'},()=>loadLiveMatchesIntoModal())
-    .subscribe();
-  // Fallback refresh in case a browser or network temporarily misses a Realtime message.
+  // Poll the Neon Worker API; no Neon Realtime subscription is required.
   liveRefreshTimer=setInterval(()=>loadLiveMatchesIntoModal(),20000);
 }
 async function loadLiveMatchesIntoModal(){
@@ -2767,16 +2919,9 @@ async function loadLiveMatchesIntoModal(){
   if(!host||liveLoadBusy)return;
   liveLoadBusy=true;
   try{
-    const {data:matches,error}=await client.from('mvp_live_matches').select('id,server_key,map_name,status,round_number,score_t,score_ct,started_at,updated_at,finished_at').in('status',['live','finished']).order('started_at',{ascending:false}).limit(12);
-    if(error)throw error;
-    if(!matches?.length){host.innerHTML='<div class="stream-empty">Сейчас нет активных или недавно завершённых матчей. Запусти свой сервер и начни игру — матч появится здесь автоматически.</div>';return;}
-    const ids=matches.map(m=>m.id);
-    const [{data:players,error:playersError},{data:events,error:eventsError}]=await Promise.all([
-      client.from('mvp_live_players').select('match_id,steam_id,player_name,team_num,kills,deaths,assists').in('match_id',ids).order('kills',{ascending:false}),
-      client.from('mvp_live_events').select('match_id,event_type,round_number,payload,created_at').in('match_id',ids).order('created_at',{ascending:false}).limit(60)
-    ]);
-    if(playersError)throw playersError;
-    if(eventsError)throw eventsError;
+    const liveData=await mvpApiGet('/api/live-matches');
+    const matches=liveData?.matches||[],players=liveData?.players||[],events=liveData?.events||[];
+    if(!matches.length){host.innerHTML='<div class="stream-empty">Сейчас нет активных или недавно завершённых матчей. Запусти свой сервер и начни игру — матч появится здесь автоматически.</div>';return;}
     const byMatch=new Map();(players||[]).forEach(p=>{const list=byMatch.get(String(p.match_id))||[];list.push(p);byMatch.set(String(p.match_id),list)});
     const eventByMatch=new Map();(events||[]).forEach(ev=>{const list=eventByMatch.get(String(ev.match_id))||[];list.push(ev);eventByMatch.set(String(ev.match_id),list)});
     const renderSide=(rows,teamNum,label)=>{
@@ -2795,7 +2940,7 @@ async function loadLiveMatchesIntoModal(){
       return `<article style="background:#fff;border:1px solid #dfe3e8;border-radius:8px;padding:12px;margin:0 0 12px;box-shadow:0 2px 8px rgba(0,0,0,.04)"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap"><strong>${esc(String(m.map_name||'CS2').replace(/^de_/,'').toUpperCase())}</strong><span style="font-size:11px;font-weight:800;color:${active?'#c62828':'#64707c'}">${active?'● LIVE':'ЗАВЕРШЁН'}</span></div><div style="font-size:11px;color:#6d7680;margin-top:3px">Сервер: ${esc(m.server_key)} · ${esc(started)}</div><div style="display:flex;justify-content:center;align-items:center;gap:16px;padding:14px 4px"><div style="text-align:center"><div style="font-size:11px;color:#69727d">T</div><strong style="font-size:30px;font-variant-numeric:tabular-nums">${Number(m.score_t)||0}</strong></div><span style="color:#8a929c">:</span><div style="text-align:center"><div style="font-size:11px;color:#69727d">CT</div><strong style="font-size:30px;font-variant-numeric:tabular-nums">${Number(m.score_ct)||0}</strong></div></div><div style="font-size:11px;color:#6d7680;text-align:center;margin-bottom:8px">Раунд ${Number(m.round_number)||0}</div>${renderSide(rows,2,'Террористы (T)')}${renderSide(rows,3,'Спецназ (CT)')}${recent?`<div style="border-top:1px solid #edf0f2;margin-top:10px;padding-top:7px">${recent}</div>`:''}</article>`;
     }).join('');
   }catch(e){
-    host.innerHTML=`<div class="stream-empty">Не удалось загрузить LIVE-матчи. Проверь выполнение файла <b>mvp_live_setup.sql</b> и политики чтения в Supabase.<br><small>${esc(niceError(e))}</small></div>`;
+    host.innerHTML=`<div class="stream-empty">Не удалось загрузить LIVE-матчи. Проверь выполнение файла <b>mvp_live_setup.sql</b> и политики чтения в Neon.<br><small>${esc(niceError(e))}</small></div>`;
   }finally{liveLoadBusy=false;}
 }
 
@@ -2820,7 +2965,6 @@ const TOURNAMENT_DESCENDANTS = {
 };
 function cleanupTournamentCenter(){
   if(tournamentRefreshTimer){clearInterval(tournamentRefreshTimer);tournamentRefreshTimer=null;}
-  if(tournamentRealtimeChannel){client.removeChannel(tournamentRealtimeChannel);tournamentRealtimeChannel=null;}
   tournamentLoadBusy=false;
   tournamentRefreshPending=false;
 }
@@ -2838,6 +2982,28 @@ function tournamentHasOpenEditor(host){
 function safeTournamentLogo(value){
   const raw=String(value||'').trim();
   try{const u=new URL(raw);return ['https:','http:'].includes(u.protocol)?u.href:'';}catch(_){return '';}
+}
+function compactTournamentTeam(team){
+  if(!team||typeof team!=='object')return null;
+  const id=String(team.id??'');
+  const current=teams.find(t=>String(t.id)===id)||null;
+  return {
+    id,
+    name:String(team.name||current?.name||''),
+    tag:String(team.tag||current?.tag||''),
+    // Store only a normal URL. Never duplicate inline/base64 image data in bracket_data.
+    logo:safeTournamentLogo(team.logo)||safeTournamentLogo(current?.logo)||''
+  };
+}
+function compactTournamentData(state){
+  const source=state&&typeof state==='object'?state:{};
+  return {
+    ...source,
+    version:Number(source.version)||2,
+    teams:(Array.isArray(source.teams)?source.teams:[]).map(compactTournamentTeam).filter(Boolean),
+    lower_teams:(Array.isArray(source.lower_teams)?source.lower_teams:[]).map(compactTournamentTeam).filter(Boolean),
+    scores:source.scores&&typeof source.scores==='object'?source.scores:{}
+  };
 }
 function tournamentTeamById(state,id){return (state?.teams||[]).find(t=>String(t.id)===String(id))||null;}
 function tournamentWinTarget(bestOf){return Math.floor(Number(bestOf||3)/2)+1;}
@@ -2884,7 +3050,9 @@ function resolveTournament(tournament){
   return {games:out,champion:gf.winner,bestOf:bo,seeds,lowerSeeds};
 }
 function tournamentTeamLine(team,score,isWinner){
-  const logo=safeTournamentLogo(team?.logo);
+  // Bracket data stores compact team IDs; resolve the current logo from the teams list.
+  const current=team?teams.find(t=>String(t.id)===String(team.id)):null;
+  const logo=safeTournamentLogo(current?.logo)||safeTournamentLogo(team?.logo);
   return `<div class="tourney-teamline ${isWinner?'winner':''}">${team?(logo?`<img class="tourney-team-logo" src="${esc(logo)}" alt="">`:`<span class="tourney-team-logo" aria-hidden="true"></span>`):`<span class="tourney-team-logo" aria-hidden="true"></span>`}<span class="tourney-team-name ${team?'':'tbd'}">${team?esc(team.name):'Ожидает команду'}</span><span class="tourney-team-score">${score===null?'—':score}</span></div>`;
 }
 function tournamentMatchCard(game,tournament){
@@ -2931,7 +3099,7 @@ function tournamentMarkup(tournament){
   const activeCount=Object.values(resolved.games).filter(g=>g.winner).length;
   const status=champion?'ТУРНИР ЗАВЕРШЁН':activeCount?'ТУРНИР ИДЁТ':'ОЖИДАЕТ СТАРТА';
   const statusText=champion?'Чемпион определён':activeCount?`Завершено матчей: ${activeCount} из 15`:'Матчи ещё не сыграны';
-  return `${can('manage_matches')?`<div class="tourney-adminbar"><span><b>Управление турниром</b><br><small>Можно изменить состав и формат или удалить текущую сетку.</small></span><div class="tourney-admin-actions"><button type="button" class="btn" id="tourneyEditBtn">✎ Редактировать</button><button type="button" class="btn danger" id="tourneyDeleteBtn">Удалить турнир</button><button type="button" class="btn" id="tourneyNewBtn">＋ Новый турнир</button></div></div>`:''}${can('manage_matches')?`<div id="tourneyCreateHost"></div>`:''}<section class="tourney-hero"><div class="tourney-hero-top"><div><div class="tourney-kicker">MVP CS2 · 8 + 8 TEAMS</div><h2 class="tourney-title">${esc(tournament.name)}</h2><div class="tourney-subtitle">${statusText} · Формат матчей BO${resolved.bestOf}</div></div><span class="tourney-status">${status}</span></div>${champion?`<div class="tourney-champion"><span class="cup">🏆</span><div><small>ЧЕМПИОН MVP CS2</small><strong>${esc(champion.name)}</strong></div></div>`:''}</section><section class="tourney-section"><div class="tourney-section-head"><strong>ВЕРХНЯЯ СЕТКА · 8 КОМАНД</strong><span>Отдельная ветка верхнего турнира</span></div><div class="tourney-rounds">${TOURNAMENT_ROUNDS.upper.map(r=>tournamentRoundHtml(r,tournament)).join('')}</div></section><section class="tourney-section"><div class="tourney-section-head"><strong>НИЖНЯЯ СЕТКА · 8 МЕСТ</strong><span>Добавь команды и разыграй отдельную сетку</span></div>${tournamentLowerSeedsMarkup(tournament)}<div class="tourney-rounds">${TOURNAMENT_ROUNDS.lower.map(r=>tournamentRoundHtml(r,tournament)).join('')}</div></section><section class="tourney-section"><div class="tourney-section-head"><strong>ГРАНД-ФИНАЛ</strong><span>Победители верхней и нижней сеток</span></div><div class="tourney-rounds" style="grid-auto-columns:minmax(245px,390px);justify-content:center"><div class="tourney-round"><div class="tourney-round-title">Финал · за чемпионство</div>${tournamentMatchCard(resolved.games.gf,tournament)}</div></div></section><div class="tourney-bracket-note"><b>Порядок турнира:</b> в верхней и нижней сетках по 8 выбранных команд играют отдельные ветки. Победители каждой ветки встречаются в гранд-финале. Счёт вводится за серию карт (BO1 / BO3 / BO5). Это формат с двумя параллельными сетками, а не классическое Double Elimination с переводом проигравших из верхней сетки.</div>${can('manage_matches')?`<div class="tourney-public-note">Изменение результата автоматически сбрасывает зависимые матчи. Составы верхней и нижней сеток сохраняются в общей базе Supabase.</div>`:''}`;
+  return `${can('manage_matches')?`<div class="tourney-adminbar"><span><b>Управление турниром</b><br><small>Можно изменить состав и формат или удалить текущую сетку.</small></span><div class="tourney-admin-actions"><button type="button" class="btn" id="tourneyEditBtn">✎ Редактировать</button><button type="button" class="btn danger" id="tourneyDeleteBtn">Удалить турнир</button><button type="button" class="btn" id="tourneyNewBtn">＋ Новый турнир</button></div></div>`:''}${can('manage_matches')?`<div id="tourneyCreateHost"></div>`:''}<section class="tourney-hero"><div class="tourney-hero-top"><div><div class="tourney-kicker">MVP CS2 · 8 + 8 TEAMS</div><h2 class="tourney-title">${esc(tournament.name)}</h2><div class="tourney-subtitle">${statusText} · Формат матчей BO${resolved.bestOf}</div></div><span class="tourney-status">${status}</span></div>${champion?`<div class="tourney-champion"><span class="cup">🏆</span><div><small>ЧЕМПИОН MVP CS2</small><strong>${esc(champion.name)}</strong></div></div>`:''}</section><section class="tourney-section"><div class="tourney-section-head"><strong>ВЕРХНЯЯ СЕТКА · 8 КОМАНД</strong><span>Отдельная ветка верхнего турнира</span></div><div class="tourney-rounds">${TOURNAMENT_ROUNDS.upper.map(r=>tournamentRoundHtml(r,tournament)).join('')}</div></section><section class="tourney-section"><div class="tourney-section-head"><strong>НИЖНЯЯ СЕТКА · 8 МЕСТ</strong><span>Добавь команды и разыграй отдельную сетку</span></div>${tournamentLowerSeedsMarkup(tournament)}<div class="tourney-rounds">${TOURNAMENT_ROUNDS.lower.map(r=>tournamentRoundHtml(r,tournament)).join('')}</div></section><section class="tourney-section"><div class="tourney-section-head"><strong>ГРАНД-ФИНАЛ</strong><span>Победители верхней и нижней сеток</span></div><div class="tourney-rounds" style="grid-auto-columns:minmax(245px,390px);justify-content:center"><div class="tourney-round"><div class="tourney-round-title">Финал · за чемпионство</div>${tournamentMatchCard(resolved.games.gf,tournament)}</div></div></section><div class="tourney-bracket-note"><b>Порядок турнира:</b> в верхней и нижней сетках по 8 выбранных команд играют отдельные ветки. Победители каждой ветки встречаются в гранд-финале. Счёт вводится за серию карт (BO1 / BO3 / BO5). Это формат с двумя параллельными сетками, а не классическое Double Elimination с переводом проигравших из верхней сетки.</div>${can('manage_matches')?`<div class="tourney-public-note">Изменение результата автоматически сбрасывает зависимые матчи. Составы верхней и нижней сеток сохраняются в базе Neon.</div>`:''}`;
 }
 
 async function loadTournamentIntoModal(force=false){
@@ -2944,13 +3112,13 @@ async function loadTournamentIntoModal(force=false){
   try{
     let data=null;
     if(isViewingHistoricalData())data=snapshotRows('tournaments').filter(row=>row.is_active).sort((a,b)=>new Date(b.updated_at||0)-new Date(a.updated_at||0))[0]||null;
-    else if(!isFutureSeason()){const {data:dbData,error}=await client.from('mvp_tournaments').select('id,name,best_of,status,is_active,bracket_data,updated_at').eq('is_active',true).order('updated_at',{ascending:false}).limit(1).maybeSingle();if(error)throw error;data=dbData;}
+    else if(!isFutureSeason()){const rows=await mvpApiGet('/api/tournaments')||[];data=rows.filter(row=>row.is_active).sort((a,b)=>new Date(b.updated_at||0)-new Date(a.updated_at||0))[0]||null;}
     activeTournament=data||null;
     host.innerHTML=tournamentMarkup(activeTournament);
     bindTournamentControls(host);
     tournamentRefreshPending=false;
   }catch(e){
-    host.innerHTML=`<div class="tourney-empty"><b>Не удалось загрузить турнир.</b><br>Проверь, что выполнил файл <b>mvp_tournaments_setup.sql</b> в Supabase SQL Editor.<br><small>${esc(niceError(e))}</small></div>${can('manage_matches')?tournamentCreateMarkup(true):''}`;
+    host.innerHTML=`<div class="tourney-empty"><b>Не удалось загрузить турнир.</b><br>Проверь, что таблицы турниров перенесены в Neon.<br><small>${esc(niceError(e))}</small></div>${can('manage_matches')?tournamentCreateMarkup(true):''}`;
     bindTournamentControls(host);
   }finally{tournamentLoadBusy=false;}
 }
@@ -2962,7 +3130,7 @@ async function openTournamentCenter(){
   document.getElementById('closeTournamentCenter').onclick=()=>{closeModal();setMainNavActive('ranking')};
   await loadTournamentIntoModal();
   if(!isSeasonReadOnly()){
-    tournamentRealtimeChannel=client.channel('mvp-tournament-ui').on('postgres_changes',{event:'*',schema:'public',table:'mvp_tournaments'},()=>loadTournamentIntoModal()).subscribe();
+    // Tournament updates are polled from the Neon-backed API.
     tournamentRefreshTimer=setInterval(()=>loadTournamentIntoModal(),30000);
   }
 }
@@ -3022,7 +3190,7 @@ async function saveTournamentEdits(event){
   const hadScores=Object.keys(oldData.scores||{}).length>0;
   if(lineupChanged&&hadScores&&!confirm('Изменяется состав, посев или формат BO. Все результаты матчей этой сетки будут сброшены. Продолжить?'))return;
   if(lineupChanged&&!hadScores&&!confirm('Сохранить новый состав, посев и формат турнира?'))return;
-  const nextData={...oldData,version:1,teams:picked.map(t=>({id:String(t.id),name:String(t.name||''),tag:String(t.tag||''),logo:String(t.logo||'')})),scores:lineupChanged?{}:{...(oldData.scores||{})}};
+  const nextData=compactTournamentData({...oldData,version:1,teams:picked.map(t=>({id:String(t.id),name:String(t.name||''),tag:String(t.tag||''),logo:String(t.logo||'')})),scores:lineupChanged?{}:{...(oldData.scores||{})}});
   const resolved=resolveTournament({...activeTournament,name,best_of:bestOf,bracket_data:nextData});
   const hasResults=Object.values(resolved.games).some(g=>g.winner);
   const status=resolved.champion?'completed':hasResults?'live':'registration';
@@ -3042,7 +3210,7 @@ async function deleteActiveTournament(){
   try{
     const {data,error}=await client.from('mvp_tournaments').delete().eq('id',id).select('id').maybeSingle();
     if(error)throw error;
-    if(!data)throw new Error('Турнир не удалён. Проверь право manage_matches и политику DELETE в Supabase.');
+    if(!data)throw new Error('Турнир не удалён. Проверь право manage_matches в Worker.');
     activeTournament=null;
     await loadTournamentIntoModal(true);
   }catch(e){alert('Не удалось удалить турнир: '+niceError(e));}
@@ -3060,7 +3228,7 @@ async function createTournamentFromForm(event){
   if(picked.length!==8)return alert('Не удалось найти все выбранные команды. Обнови страницу и повтори.');
   const submit=form.querySelector('button[type="submit"]');submit.disabled=true;submit.textContent='Создаём…';
   try{
-    const bracket_data={version:2,teams:picked.map(t=>({id:String(t.id),name:String(t.name||''),tag:String(t.tag||''),logo:String(t.logo||'')})),lower_teams:[],scores:{}};
+    const bracket_data=compactTournamentData({version:2,teams:picked.map(t=>({id:String(t.id),name:String(t.name||''),tag:String(t.tag||''),logo:String(t.logo||'')})),lower_teams:[],scores:{}});
     const {data:created,error:insertError}=await client.from('mvp_tournaments').insert({name,best_of:bestOf,status:'registration',is_active:false,bracket_data,created_by:currentUser.id}).select('id').single();
     if(insertError)throw insertError;
     const {error:archiveError}=await client.from('mvp_tournaments').update({is_active:false}).eq('is_active',true);
@@ -3072,6 +3240,7 @@ async function createTournamentFromForm(event){
 }
 async function persistTournamentData(nextState){
   if(!activeTournament?.id)throw new Error('Активный турнир не найден.');
+  nextState=compactTournamentData(nextState);
   const resolved=resolveTournament({...activeTournament,bracket_data:nextState});
   const completed=!!resolved.champion;
   const hasResults=Object.values(resolved.games).some(g=>g.winner);
@@ -3120,7 +3289,7 @@ async function openStreamsCenter(){
       if(!youtubeEmbedUrl(youtube_url))return alert('Вставь ссылку на видео или эфир YouTube, например https://www.youtube.com/live/VIDEO_ID.');
       const btn=e.currentTarget.querySelector('button[type="submit"]');btn.disabled=true;btn.textContent='Сохраняю…';
       const {error}=await client.from('cs2_streams').insert({title,youtube_url,created_by:currentUser.id});
-      if(error){alert('Не удалось добавить трансляцию. Проверь, что выполнил streams_setup.sql в Supabase. Ошибка: '+niceError(error));btn.disabled=false;btn.textContent='＋ Добавить эфир';return;}
+      if(error){alert('Не удалось добавить трансляцию. Проверь таблицу cs2_streams в Neon. Ошибка: '+niceError(error));btn.disabled=false;btn.textContent='＋ Добавить эфир';return;}
       await loadStreamsIntoModal();
       document.getElementById('streamTitle').value='';document.getElementById('streamUrl').value='';btn.disabled=false;btn.textContent='＋ Добавить эфир';
     });
@@ -3129,9 +3298,9 @@ async function openStreamsCenter(){
 }
 async function loadStreamsIntoModal(){
   const host=document.getElementById('streamContent');if(!host)return;
-  const {data,error}=await client.from('cs2_streams').select('id,title,youtube_url,created_at').order('created_at',{ascending:false}).limit(100);
-  if(error){host.className='stream-empty';host.innerHTML=`Не удалось загрузить трансляции. Администратору нужно выполнить SQL-файл <b>streams_setup.sql</b> в Supabase. Ошибка: ${esc(niceError(error))}`;return;}
-  if(!data?.length){host.className='stream-empty';host.textContent=admin?'Пока нет трансляций. Добавь первый YouTube-эфир выше.':'Пока нет добавленных трансляций. Загляни позже!';return;}
+  let data=[];
+  try{data=await mvpApiGet('/api/streams')||[];}catch(error){host.className='stream-empty';host.innerHTML=`Не удалось загрузить трансляции из Neon API: ${esc(niceError(error))}`;return;}
+  if(!data.length){host.className='stream-empty';host.textContent=admin?'Пока нет трансляций. Добавление эфиров будет доступно после переноса защищённых операций.':'Пока нет добавленных трансляций. Загляни позже!';return;}
   host.className='stream-grid';
   host.innerHTML=data.map(stream=>{
     const embed=youtubeEmbedUrl(stream.youtube_url);
@@ -3157,11 +3326,12 @@ async function openTopPlayersCenter(){
     let dbPlayers=[],stats=[];
     if(isViewingHistoricalData()){dbPlayers=snapshotRows('players');stats=snapshotRows('match_player_stats');}
     else if(!isFutureSeason()){
-      const [{data:playersData,error:playersError},{data:statsData,error:statsError}]=await Promise.all([
-        client.from('cs2_players').select('id,nickname,photo_url,role,is_banned,team_id,country_code').limit(1000),
-        client.from('match_player_stats').select('player_id,team_id,kills,deaths,kd,created_at').order('created_at',{ascending:false}).limit(5000)
+      const [playersData,statsData]=await Promise.all([
+        mvpApiGet('/api/players'),
+        mvpApiGet('/api/player-stats')
       ]);
-      if(playersError)throw playersError;if(statsError)throw statsError;dbPlayers=playersData||[];stats=statsData||[];
+      dbPlayers=playersData||[];
+      stats=(statsData||[]).map(row=>({player_id:row.player_id,kills:row.kills,deaths:row.deaths,kd:row.average,team_ids:row.team_ids,matches:row.matches}));
     }
     const dbByNick=new Map((dbPlayers||[]).map(p=>[String(p.nickname).toLowerCase(),p]));
     const members=new Map();
@@ -3184,13 +3354,12 @@ async function openTopPlayersCenter(){
     });
     const statMap=new Map();
     (stats||[]).forEach(st=>{
-      const key=String(st.player_id);let a=statMap.get(key);
-      if(!a){a={kds:[],kills:0,deaths:0,matches:0,teamIds:[]};statMap.set(key,a)}
-      a.kds.push(Number(st.kd)||0);a.kills+=Number(st.kills)||0;a.deaths+=Number(st.deaths)||0;a.matches++;if(st.team_id&&!a.teamIds.includes(String(st.team_id)))a.teamIds.push(String(st.team_id));
+      const key=String(st.player_id);
+      statMap.set(key,{average:Number(st.kd)||0,kills:Number(st.kills)||0,deaths:Number(st.deaths)||0,matches:Number(st.matches)||0,teamIds:Array.isArray(st.team_ids)?st.team_ids.map(String):[]});
     });
     const rows=[...members.values()].map(member=>{
       const aggregate=member.dbPlayer?statMap.get(String(member.dbPlayer.id)):null;
-      const average=aggregate?.matches?aggregate.kds.reduce((x,y)=>x+y,0)/aggregate.matches:0;
+      const average=aggregate?.average||0;
       const statsTeams=(aggregate?.teamIds||[]).map(id=>teams.find(t=>String(t.id)===id)).filter(Boolean);
       return {...member,teams:member.teams.length?member.teams:statsTeams,average,kills:aggregate?.kills||0,deaths:aggregate?.deaths||0,matches:aggregate?.matches||0};
     }).sort((a,b)=>b.average-a.average||b.kills-a.kills||a.nickname.localeCompare(b.nickname));
@@ -3219,7 +3388,7 @@ async function loadGlobalMatches(){
   const host=document.getElementById('globalMatchesList');if(!host)return;
   let data=[];
   if(isViewingHistoricalData())data=snapshotRows('team_matches');
-  else if(!isFutureSeason()){const {data:rows,error}=await client.from('team_matches').select('id,team_id,opponent_team_id,opponent_name,team_score,opponent_score,map_name,played_at,match_status,tournament_name').order('played_at',{ascending:true}).limit(300);if(error){host.className='stream-empty';host.innerHTML=`Не удалось загрузить матчи. Выполни новую SQL-миграцию для вкладки «Матчи». Ошибка: ${esc(niceError(error))}`;return;}data=rows||[];}
+  else if(!isFutureSeason()){try{data=await mvpApiGet('/api/matches')||[];}catch(error){host.className='stream-empty';host.innerHTML=`Не удалось загрузить матчи из Neon API: ${esc(niceError(error))}`;return;}}
   if(!data.length){host.className='stream-empty';host.textContent=isViewingHistoricalData()?`В статистике за ${formatDailyDate(selectedRankDate,false)} матчей нет.`:admin?'Матчей пока нет. Нажми «Создать матч», чтобы добавить первый.':'Пока нет запланированных или завершённых матчей.';return;}
   const teamMap=new Map(teams.map(t=>[String(t.id),t]));
   const sorted=[...data].sort((a,b)=>{const as=a.match_status==='scheduled'?0:1,bs=b.match_status==='scheduled'?0:1;return as-bs||(as===0?new Date(a.played_at)-new Date(b.played_at):new Date(b.played_at)-new Date(a.played_at))});
@@ -3311,7 +3480,23 @@ async function editTeam(t=null){
   let logo=old.logo||'';
   let playerPhotos=[...oldPlayerPhotos];
   document.getElementById('cancelTeam').onclick=closeModal;
-  document.getElementById('teamLogo').onchange=async ev=>{const f=ev.target.files[0];if(!f)return;if(f.size>2*1024*1024){alert('Файл логотипа должен быть меньше 2 МБ.');ev.target.value='';return}if(!['image/png','image/jpeg','image/webp'].includes(f.type)){alert('Выбери PNG, JPG или WEBP.');ev.target.value='';return}try{logo=await compressLogoImage(f,512);document.getElementById('logoPreview').innerHTML=`<img src="${logo}" alt="Лого">`}catch(err){alert('Не получилось обработать логотип: '+niceError(err))}};
+  document.getElementById('teamLogo').onchange=async ev=>{
+    const f=ev.target.files[0];if(!f)return;
+    if(f.size>2*1024*1024){alert('Файл логотипа должен быть меньше 2 МБ.');ev.target.value='';return}
+    if(!['image/png','image/jpeg','image/webp'].includes(f.type)){alert('Выбери PNG, JPG или WEBP.');ev.target.value='';return}
+    try{
+      const compressed=await compressLogoImage(f,512);
+      const blob=await (await fetch(compressed)).blob();
+      const safeName=String(f.name||'team-logo').replace(/[^a-zA-Z0-9._-]+/g,'-').slice(-70)||'team-logo';
+      const path=`team-logos/${Date.now()}-${safeName}.webp`;
+      const {error:uploadError}=await client.storage.from('mvp-site-assets').upload(path,blob,{upsert:false,contentType:blob.type||'image/webp'});
+      if(uploadError)throw uploadError;
+      const {data}=client.storage.from('mvp-site-assets').getPublicUrl(path);
+      if(!data?.publicUrl)throw new Error('Не удалось получить ссылку на логотип.');
+      logo=data.publicUrl;
+      document.getElementById('logoPreview').innerHTML=`<img src="${logo}" alt="Лого">`;
+    }catch(err){alert('Не получилось загрузить логотип: '+niceError(err));ev.target.value='';}
+  };
   for(let i=0;i<5;i++){
     document.getElementById('playerPhoto'+i).onchange=async ev=>{
       const file=ev.target.files[0];if(!file)return;
@@ -3344,7 +3529,7 @@ async function editTeam(t=null){
        // Keep the old teams array intact until loadTeams compares old and new rank positions.
        closeModal();await loadTeams();setStatus('Изменение сохранено в общей базе и будет видно другим посетителям.','success');
 
-    }catch(e){alert('Не удалось сохранить команду или состав. Проверь, что выполнил player_identity_moderation_migration.sql в Supabase. Ошибка: '+niceError(e))}
+    }catch(e){alert('Не удалось сохранить команду или состав. Проверь структуру таблицы teams и права Worker. Ошибка: '+niceError(e))}
     finally{busy=false;const saveBtn=document.getElementById('saveTeam');if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Сохранить'}}
   };
 }
@@ -3503,7 +3688,7 @@ function renderModerationPlayers(rows){
   host.querySelectorAll('[data-player-ban]').forEach(btn=>btn.onclick=async()=>{const next=btn.dataset.banned!=='1',reason=next?(prompt('Причина блокировки игрока:','Подозрение на использование читов')||''):' ';if(next&&!reason.trim())return;const {error}=await client.rpc('admin_set_player_ban',{p_player_id:Number(btn.dataset.playerBan),p_banned:next,p_reason:reason.trim()});if(error){alert('Не удалось изменить блокировку: '+niceError(error));return}await Promise.all([loadModerationPlayers(),loadTeams()])});
 }
 
-// Shared support chat, backed by Supabase RLS policies created by support_chat_setup.sql.
+// Shared support chat, backed by Neon RLS policies created by support_chat_setup.sql.
 function showHelpNotice(title, message, showLogin=true){
   modal(`<div class="help-header"><h2>${esc(title)}</h2><button class="btn help-back" id="helpNoticeClose">Закрыть</button></div><div class="help-empty">${esc(message)}</div>${showLogin?'<div class="modalfoot"><button class="btn" id="helpNoticeRegister">Регистрация</button><button class="btn primary" id="helpNoticeLogin">Войти</button></div>':''}`,true);
   document.querySelector('#modalRoot .modal').classList.add('modal-help');
@@ -3519,7 +3704,7 @@ async function loadSupportMessages(userId,scrollToBottom=false){
   const container=document.getElementById('helpMessages');if(!container)return;
   const nearBottom=container.scrollHeight-container.scrollTop-container.clientHeight<60;
   const {data,error}=await client.from('support_messages').select('id,user_id,sender_id,message,created_at').eq('user_id',userId).order('created_at',{ascending:true}).limit(500);
-  if(error){container.innerHTML=`<div class="help-empty">Не удалось загрузить чат. Сначала выполни SQL-файл <b>support_chat_setup.sql</b> в Supabase. Ошибка: ${esc(niceError(error))}</div>`;return}
+  if(error){container.innerHTML=`<div class="help-empty">Не удалось загрузить чат. Сначала проверь таблицу support_messages в Neon. Ошибка: ${esc(niceError(error))}</div>`;return}
   if(!data?.length){container.innerHTML='<div class="help-empty">Сообщений пока нет. Напиши администратору ниже.</div>';}
   else{
     container.innerHTML=data.map(m=>{
@@ -3556,7 +3741,7 @@ async function loadAdminInbox(){
     client.from('profiles').select('id,email,username,created_at').order('created_at',{ascending:false}).limit(200),
     client.from('support_messages').select('id,user_id,sender_id,message,created_at').order('created_at',{ascending:false}).limit(1000)
   ]);
-  if(profilesError||messagesError){inbox.innerHTML=`<div class="help-empty">Не удалось загрузить обращения. Проверь SQL-файл <b>support_chat_setup.sql</b> и права доступа Supabase.<br>${esc(niceError(profilesError||messagesError))}</div>`;return}
+  if(profilesError||messagesError){inbox.innerHTML=`<div class="help-empty">Не удалось загрузить обращения. Проверь таблицу support_messages и настройки авторизации Neon.<br>${esc(niceError(profilesError||messagesError))}</div>`;return}
   const latest=new Map();for(const m of (messages||[])){if(!latest.has(String(m.user_id)))latest.set(String(m.user_id),m)}
   if(!profiles?.length){inbox.innerHTML='<div class="help-empty">Пока нет зарегистрированных пользователей.</div>';return}
   inbox.innerHTML=profiles.filter(p=>String(p.id)!==String(currentUser?.id)).map(p=>{
@@ -3585,7 +3770,7 @@ function setupSupportComposer(targetUserId){
     const button=form.querySelector('button[type="submit"]');button.disabled=true;button.textContent='Отправляем…';
     const {error}=await client.from('support_messages').insert({user_id:targetUserId,sender_id:currentUser.id,message});
     button.disabled=false;button.textContent='Отправить';
-    if(error){alert('Сообщение не отправлено. Проверь, что выполнил support_chat_setup.sql в Supabase. Ошибка: '+niceError(error));return}
+    if(error){alert('Сообщение не отправлено. Проверь, что выполнил support_chat_setup.sql в Neon. Ошибка: '+niceError(error));return}
     input.value='';await loadSupportMessages(targetUserId,true);
   });
 }
@@ -3647,9 +3832,8 @@ async function loadNewsRail(){
   let rows=[];
   if(isViewingHistoricalData())rows=snapshotRows('site_news');
   else if(!isFutureSeason()){
-    const {data,error}=await client.from('mvp_site_news').select(fields).order('created_at',{ascending:false}).limit(60);
-    if(error){const msg='Выполни SQL-файл mvp_news_visuals_migration.sql в Supabase.';transfersHost.innerHTML=`<div class="news-rail-empty">${esc(msg)}<br>${esc(niceError(error))}</div>`;bansHost.innerHTML=`<div class="news-rail-empty">${esc(msg)}</div>`;return;}
-    rows=data||[];
+    try{rows=(await mvpApiGet('/api/site-news')||[]).slice(0,60);}
+    catch(error){const msg='Не удалось загрузить новости из Neon API.';transfersHost.innerHTML=`<div class="news-rail-empty">${esc(msg)}<br>${esc(niceError(error))}</div>`;bansHost.innerHTML=`<div class="news-rail-empty">${esc(msg)}</div>`;return;}
   }
   rows=rows.filter(row=>!row.created_at||new Date(row.created_at).getFullYear()===Number(selectedSeasonYear));
   if(isViewingPastDay())rows=rows.filter(row=>String(row.created_at||'').slice(0,10)===selectedRankDate);
@@ -3663,9 +3847,8 @@ async function openAllTransfers(){
   let rows=[];
   if(isViewingHistoricalData())rows=snapshotRows('site_news');
   else if(!isFutureSeason()){
-    const {data,error}=await client.from('mvp_site_news').select(fields).in('event_type',['player_released','player_transfer','player_rejoined','player_joined']).order('created_at',{ascending:false}).limit(500);
-    if(error){modal(`<h2>Все трансферы</h2><div class="help-empty">Не удалось загрузить новости. Проверь SQL-миграцию mvp_news_visuals_migration.sql.<br>${esc(niceError(error))}</div><div class="modalfoot"><button class="btn primary" id="closeAllTransfers">Закрыть</button></div>`,true);document.getElementById('closeAllTransfers').onclick=closeModal;return;}
-    rows=data||[];
+    try{rows=(await mvpApiGet('/api/site-news')||[]).filter(row=>['player_released','player_transfer','player_rejoined','player_joined'].includes(row.event_type)).slice(0,500);}
+    catch(error){modal(`<h2>Все трансферы</h2><div class="help-empty">Не удалось загрузить новости из Neon API.<br>${esc(niceError(error))}</div><div class="modalfoot"><button class="btn primary" id="closeAllTransfers">Закрыть</button></div>`,true);document.getElementById('closeAllTransfers').onclick=closeModal;return;}
   }
   rows=rows.filter(row=>['player_released','player_transfer','player_rejoined','player_joined'].includes(row.event_type)&&(!row.created_at||new Date(row.created_at).getFullYear()===Number(selectedSeasonYear)));
   if(isViewingPastDay())rows=rows.filter(row=>String(row.created_at||'').slice(0,10)===selectedRankDate);
@@ -3677,9 +3860,8 @@ async function openAllTransfers(){
 document.getElementById('allTransfersBtn')?.addEventListener('click',openAllTransfers);
 function startNewsRail(){
   if(newsPollTimer)clearInterval(newsPollTimer);
-  if(newsRealtimeChannel){client.removeChannel(newsRealtimeChannel);newsRealtimeChannel=null;}
+  // News is refreshed from the Neon API on a slow polling interval.
   loadNewsRail();
-  newsRealtimeChannel=client.channel('mvp-news-rail').on('postgres_changes',{event:'*',schema:'public',table:'mvp_site_news'},()=>{loadNewsRail();const host=document.getElementById('newsHubContent');if(host)loadNewsHubItems(newsCenterFilter);}).on('postgres_changes',{event:'*',schema:'public',table:'mvp_editorial_news'},()=>{const host=document.getElementById('newsHubContent');if(host)loadNewsHubItems(newsCenterFilter);}).subscribe();
   newsPollTimer=setInterval(()=>{loadNewsRail();const host=document.getElementById('newsHubContent');if(host)loadNewsHubItems(newsCenterFilter);},300000);
 }
 
@@ -3730,15 +3912,12 @@ async function loadNewsHubItems(filter=newsCenterFilter){
   let events=[],articles=[];
   if(isViewingHistoricalData()){events=snapshotRows('site_news');articles=snapshotRows('editorial_news').filter(row=>row.published);}
   else if(!isFutureSeason()){
-    const [{data:eventData,error:eventError},{data:articleData,error:articleError}]=await Promise.all([
-      client.from('mvp_site_news').select('*').order('created_at',{ascending:false}).limit(500),
-      client.from('mvp_editorial_news').select('*').eq('published',true).order('created_at',{ascending:false}).limit(300)
-    ]);
-    if(eventError||articleError){
-      const issues=[eventError?`Автоматические события: ${niceError(eventError)}`:'',articleError?`Публикации: ${niceError(articleError)}. Проверь SQL-миграцию mvp_editorial_news_setup.sql.`:''].filter(Boolean).join('<br>');
-      host.innerHTML=`<div class="news-hub-empty">Не удалось загрузить все новости.<br>${issues}</div>`;return;
+    try{
+      const [eventData,articleData]=await Promise.all([mvpApiGet('/api/site-news'),mvpApiGet('/api/editorial-news')]);
+      events=eventData||[];articles=articleData||[];
+    }catch(error){
+      host.innerHTML='<div class="news-hub-empty">Не удалось загрузить новости из Neon API.<br>'+esc(niceError(error))+'</div>';return;
     }
-    events=eventData||[];articles=articleData||[];
   }
   const transferTypes=['player_released','player_transfer','player_rejoined','player_joined'];
   const inSeason=row=>!row.created_at||new Date(row.created_at).getFullYear()===Number(selectedSeasonYear);
@@ -3811,10 +3990,10 @@ function openEditorialNewsArticle(row){
 document.getElementById('helpFab').addEventListener('click',openHelpCenter);
 
 async function init(){
-  if(!window.supabase?.createClient){setStatus('Не загрузилась библиотека Supabase. Проверь интернет-соединение и обнови страницу.','error');return}
+  if(!client?.auth?.getSession){setStatus('Не удалось инициализировать API Neon. Обнови страницу.','error');return}
   setStatus('Подключаем общую базу рейтинга…');
   const {data,error}=await client.auth.getSession();
-  if(error){setStatus('Ошибка авторизации Supabase: '+niceError(error),'error');return}
+  if(error){setStatus('Ошибка авторизации Neon: '+niceError(error),'error');return}
   await loadSeasonState();
   selectedRankDate=berlinTodayISO();
   await captureCompletedDailySnapshot();
@@ -4100,7 +4279,17 @@ body[data-theme="night"] .custom-trophy-card-copy strong{color:#edf1f5}
 body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"] .custom-trophy-award-preview small{color:#aab4c0}
 </style>
 
-
+<style id="mvp-auth-extra-styles">
+#modalRoot .modal.auth-modal .auth-extra{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:8px 0 2px}
+#modalRoot .modal.auth-modal .auth-link{border:0;background:transparent;color:#d8a432;text-decoration:underline;text-underline-offset:3px;font:inherit;font-size:12px;cursor:pointer;padding:4px 0}
+#modalRoot .modal.auth-modal .auth-link:hover{color:#f2c15d}
+</style>
+<style id="mvp-auth-modal-cleanup">
+#modalRoot .modal.auth-modal .modalfoot{background:transparent!important;border:0!important;box-shadow:none!important;padding:10px 0 0!important;margin-top:10px!important}
+#modalRoot .modal.auth-modal .auth-feedback{margin:12px 0 4px;padding:10px 12px;border:1px solid rgba(242,169,0,.42);border-radius:7px;background:rgba(242,169,0,.09);color:var(--modal-text,#f1f3f5);font-size:12px;line-height:1.45}
+#modalRoot .modal.auth-modal .auth-feedback.hidden{display:none!important}
+#modalRoot .modal.auth-modal .notice{color:#aeb8c4}
+</style>
 <style id="mvp-mobile-roster-five-across">
 /* Mobile roster: show all five players at once without horizontal scrolling. */
 @media (max-width:650px){
@@ -4146,7 +4335,6 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
   .roster-grid.roster-horizontal-scroll .roster-player-name{font-size:7px!important}
 }
 </style>
-
 <script id="mvp-language-system">
 (function(){
  const KEY='mvp_cs2_language_v1';
@@ -4166,7 +4354,28 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  'Нет данных':'No data','Пока нет данных.':'No data yet.','Обновить':'Refresh','Подтвердить':'Confirm','Отправить':'Send',
  'Сообщение':'Message','Имя':'Name','Описание':'Description','Ссылка':'Link','Загрузить':'Upload','Убрать':'Remove',
  'Сохранить кубок':'Save trophy','Очистить форму':'Clear form','Название кубка':'Trophy name',
- 'ФОН САЙТА':'SITE BACKGROUND','ЛОГОТИП САЙТА':'SITE LOGO','КОНСТРУКТОР КУБКОВ':'TROPHY BUILDER'
+ 'ФОН САЙТА':'SITE BACKGROUND','ЛОГОТИП САЙТА':'SITE LOGO','КОНСТРУКТОР КУБКОВ':'TROPHY BUILDER',
+ 'Рейтинг команд':'Team ranking',
+ 'Текущий сезон':'Current season',
+ 'рейтинг и статистика команд':'team rankings and statistics',
+ 'НУЖНА SQL-МИГРАЦИЯ':'SQL MIGRATION REQUIRED',
+ 'Пока нет команд в общей базе данных. Администратор может перенести сохранённые команды или добавить первую команду.':'There are no teams in the shared database yet. An administrator can migrate saved teams or add the first team.',
+ 'Общая база подключена. Команды появятся после их переноса администратором.':'Shared database connected. Teams will appear after an administrator migrates them.',
+ 'Суббота':'Saturday',
+ 'Воскресенье':'Sunday',
+ 'Понедельник':'Monday',
+ 'Вторник':'Tuesday',
+ 'Среда':'Wednesday',
+ 'Четверг':'Thursday',
+ 'Пятница':'Friday',
+ 'ТРАНСФЕРЫ':'TRANSFERS',
+ 'БЛОКИРОВКИ':'BANS',
+ 'SEASONS · ГОДЫ':'SEASONS · YEARS',
+ 'МЕСТО':'RANK',
+ 'КОМАНДА':'TEAM',
+ 'ИЗМЕНЕНИЕ':'CHANGE',
+ 'Не удалось загрузить новости из Neon API.':'Could not load news from Neon API.',
+ 'Трансферов за этот год пока нет.':'There are no transfers for this year yet.',
  },
  uk:{
  'Рейтинг':'Рейтинг','Турнир':'Турнір','Матчи':'Матчі','Трансляции':'Трансляції','Топ игроков':'Топ гравців','Новости':'Новини',
@@ -4183,7 +4392,28 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  'Нет данных':'Немає даних','Пока нет данных.':'Поки немає даних.','Обновить':'Оновити','Подтвердить':'Підтвердити','Отправить':'Надіслати',
  'Сообщение':'Повідомлення','Имя':'Ім’я','Описание':'Опис','Ссылка':'Посилання','Загрузить':'Завантажити','Убрать':'Прибрати',
  'Сохранить кубок':'Зберегти кубок','Очистить форму':'Очистити форму','Название кубка':'Назва кубка',
- 'ФОН САЙТА':'ТЛО САЙТУ','ЛОГОТИП САЙТА':'ЛОГОТИП САЙТУ','КОНСТРУКТОР КУБКОВ':'КОНСТРУКТОР КУБКІВ'
+ 'ФОН САЙТА':'ТЛО САЙТУ','ЛОГОТИП САЙТА':'ЛОГОТИП САЙТУ','КОНСТРУКТОР КУБКОВ':'КОНСТРУКТОР КУБКІВ',
+ 'Рейтинг команд':'Рейтинг команд',
+ 'Текущий сезон':'Поточний сезон',
+ 'рейтинг и статистика команд':'рейтинг і статистика команд',
+ 'НУЖНА SQL-МИГРАЦИЯ':'ПОТРІБНА SQL-МІГРАЦІЯ',
+ 'Пока нет команд в общей базе данных. Администратор может перенести сохранённые команды или добавить первую команду.':'У спільній базі даних поки немає команд. Адміністратор може перенести збережені команди або додати першу команду.',
+ 'Общая база подключена. Команды появятся после их переноса администратором.':'Спільну базу даних підключено. Команди з’являться після перенесення адміністратором.',
+ 'Суббота':'Субота',
+ 'Воскресенье':'Неділя',
+ 'Понедельник':'Понеділок',
+ 'Вторник':'Вівторок',
+ 'Среда':'Середа',
+ 'Четверг':'Четвер',
+ 'Пятница':'П’ятниця',
+ 'ТРАНСФЕРЫ':'ТРАНСФЕРИ',
+ 'БЛОКИРОВКИ':'БЛОКУВАННЯ',
+ 'SEASONS · ГОДЫ':'СЕЗОНИ · РОКИ',
+ 'МЕСТО':'МІСЦЕ',
+ 'КОМАНДА':'КОМАНДА',
+ 'ИЗМЕНЕНИЕ':'ЗМІНА',
+ 'Не удалось загрузить новости из Neon API.':'Не вдалося завантажити новини з Neon API.',
+ 'Трансферов за этот год пока нет.':'Цього року трансферів поки немає.',
  },
  de:{
  'Рейтинг':'Rangliste','Турнир':'Turnier','Матчи':'Spiele','Трансляции':'Streams','Топ игроков':'Top-Spieler','Новости':'News',
@@ -4200,63 +4430,229 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  'Нет данных':'Keine Daten','Пока нет данных.':'Noch keine Daten.','Обновить':'Aktualisieren','Подтвердить':'Bestätigen','Отправить':'Senden',
  'Сообщение':'Nachricht','Имя':'Name','Описание':'Beschreibung','Ссылка':'Link','Загрузить':'Hochladen','Убрать':'Entfernen',
  'Сохранить кубок':'Pokal speichern','Очистить форму':'Formular leeren','Название кубка':'Pokalname',
- 'ФОН САЙТА':'WEBSITE-HINTERGRUND','ЛОГОТИП САЙТА':'WEBSITE-LOGO','КОНСТРУКТОР КУБКОВ':'POKAL-EDITOR'
+ 'ФОН САЙТА':'WEBSITE-HINTERGRUND','ЛОГОТИП САЙТА':'WEBSITE-LOGO','КОНСТРУКТОР КУБКОВ':'POKAL-EDITOR',
+ 'Рейтинг команд':'Team-Rangliste',
+ 'Текущий сезон':'Aktuelle Saison',
+ 'рейтинг и статистика команд':'Team-Ranglisten und Statistiken',
+ 'НУЖНА SQL-МИГРАЦИЯ':'SQL-MIGRATION ERFORDERLICH',
+ 'Пока нет команд в общей базе данных. Администратор может перенести сохранённые команды или добавить первую команду.':'Es gibt noch keine Teams in der gemeinsamen Datenbank. Ein Administrator kann gespeicherte Teams migrieren oder das erste Team hinzufügen.',
+ 'Общая база подключена. Команды появятся после их переноса администратором.':'Gemeinsame Datenbank verbunden. Teams erscheinen, sobald ein Administrator sie migriert hat.',
+ 'Суббота':'Samstag',
+ 'Воскресенье':'Sonntag',
+ 'Понедельник':'Montag',
+ 'Вторник':'Dienstag',
+ 'Среда':'Mittwoch',
+ 'Четверг':'Donnerstag',
+ 'Пятница':'Freitag',
+ 'ТРАНСФЕРЫ':'TRANSFERS',
+ 'БЛОКИРОВКИ':'SPERREN',
+ 'SEASONS · ГОДЫ':'SAISONS · JAHRE',
+ 'МЕСТО':'PLATZ',
+ 'КОМАНДА':'TEAM',
+ 'ИЗМЕНЕНИЕ':'ÄNDERUNG',
+ 'Не удалось загрузить новости из Neon API.':'Nachrichten konnten nicht von der Neon API geladen werden.',
+ 'Трансферов за этот год пока нет.':'Für dieses Jahr gibt es noch keine Transfers.',
  }
  };
- let lang='en';
- try{const saved=localStorage.getItem(KEY);if(['en','ru','uk','de'].includes(saved))lang=saved;else localStorage.setItem(KEY,'en')}catch(_){}
- const original=new WeakMap();
- function translateNode(node){
-   if(node.nodeType!==Node.TEXT_NODE)return;
-   const raw=original.get(node)??node.nodeValue;
-   if(!original.has(node))original.set(node,raw);
-   const trimmed=raw.trim();if(!trimmed)return;
-   const dict=dictionaries[lang]||{};
-   let translated=trimmed;
-   const keys=Object.keys(dict).filter(k=>k.length>2).sort((a,b)=>b.length-a.length);
-   for(const key of keys){if(translated.includes(key))translated=translated.split(key).join(dict[key])}
-   if(translated!==trimmed)node.nodeValue=raw.replace(trimmed,translated);
-   else if(lang==='ru')node.nodeValue=raw;
+
+ // Full modal/navigation coverage. Source strings may be Russian OR English,
+ // because several older dialogs are authored directly in English.
+ const modalTranslations={
+ en:{
+ 'Все':'All','News сайта':'Site news','Трансферы':'Transfers','Блокировки':'Bans','Close':'Close',
+ 'News':'News','Top players':'Top players','Streams CS2':'CS2 Streams','Matches MVP CS2':'MVP CS2 Matches',
+ 'Tournamentная сетка MVP CS2':'MVP CS2 Tournament Bracket','Help':'Help','Log in':'Log in','Register':'Register',
+ 'Войти':'Log in','Забыли пароль?':'Forgot password?','Отправить письмо подтверждения':'Send confirmation email',
+ 'Email':'Email','Пароль':'Password','Введите email и пароль от аккаунта MVP CS2 Ranking':'Enter your MVP CS2 Ranking account email and password',
+ 'Расписание и результаты матчей команд.':'Team match schedule and results.',
+ 'YouTube-эфиры и записи, добавленные администрацией MVP CS2 Ranking.':'YouTube live streams and recordings added by MVP CS2 Ranking administrators.',
+ 'Игроки из составов команд · рейтинг по среднему K/D за записанные матчи.':'Players from team rosters · ranked by average K/D across recorded matches.',
+ 'Трансферы, блокировки, объявления и события киберспортивного сообщества.':'Transfers, bans, announcements and esports community events.',
+ 'Could not load news from Neon API.':'Could not load news from Neon API.',
+ 'Failed to fetch':'Failed to fetch','Could not load news from Neon API. Failed to fetch':'Could not load news from Neon API. Failed to fetch',
+ 'Не удалось загрузить матчи из Neon API: Failed to fetch':'Could not load matches from Neon API: Failed to fetch',
+ 'Не удалось загрузить трансляции из Neon API: Failed to fetch':'Could not load streams from Neon API: Failed to fetch',
+ 'Не удалось загрузить топ игроков. Убедись, что выполнена миграция match_history_players_setup.sql. Ошибка: Failed to fetch':'Could not load top players. Make sure match_history_players_setup.sql has been migrated. Error: Failed to fetch',
+ 'Не удалось загрузить турнир.':'Could not load tournament.',
+ 'Проверь, что таблицы турниров перенесены в Neon.':'Check that the tournament tables have been migrated to Neon.',
+ 'Чтобы написать сообщение администратору, войди в аккаунт или зарегистрируйся.':'To message the administrator, log in or register.',
+ 'Общая база подключена. Команды появятся после их переноса администратором.':'Shared database connected. Teams will appear after an administrator migrates them.',
+ 'Рейтинг команд':'Team ranking','Текущий сезон':'Current season',
+ },
+ ru:{
+ 'All':'Все','Site news':'Новости сайта','News сайта':'Новости сайта','Transfers':'Трансферы','Bans':'Блокировки','Close':'Закрыть',
+ 'News':'Новости','Top players':'Топ игроков','Streams CS2':'Трансляции CS2','Matches MVP CS2':'Матчи MVP CS2',
+ 'MVP CS2 Tournament Bracket':'Турнирная сетка MVP CS2','Tournamentная сетка MVP CS2':'Турнирная сетка MVP CS2',
+ 'Help':'Помощь','Log in':'Войти','Register':'Регистрация','Email':'Электронная почта','Password':'Пароль',
+ 'Forgot password?':'Забыли пароль?','Send confirmation email':'Отправить письмо подтверждения',
+ 'Enter your MVP CS2 Ranking account email and password':'Введите email и пароль от аккаунта MVP CS2 Ranking',
+ 'Team match schedule and results.':'Расписание и результаты матчей команд.',
+ 'YouTube live streams and recordings added by MVP CS2 Ranking administrators.':'YouTube-эфиры и записи, добавленные администрацией MVP CS2 Ranking.',
+ 'Players from team rosters · ranked by average K/D across recorded matches.':'Игроки из составов команд · рейтинг по среднему K/D за записанные матчи.',
+ 'Transfers, bans, announcements and esports community events.':'Трансферы, блокировки, объявления и события киберспортивного сообщества.',
+ 'Could not load news from Neon API.':'Не удалось загрузить новости из Neon API.',
+ 'Could not load matches from Neon API: Failed to fetch':'Не удалось загрузить матчи из Neon API: Failed to fetch',
+ 'Could not load streams from Neon API: Failed to fetch':'Не удалось загрузить трансляции из Neon API: Failed to fetch',
+ 'Could not load top players. Make sure match_history_players_setup.sql has been migrated. Error: Failed to fetch':'Не удалось загрузить топ игроков. Убедись, что выполнена миграция match_history_players_setup.sql. Ошибка: Failed to fetch',
+ 'Could not load tournament.':'Не удалось загрузить турнир.',
+ 'Check that the tournament tables have been migrated to Neon.':'Проверь, что таблицы турниров перенесены в Neon.',
+ 'To message the administrator, log in or register.':'Чтобы написать сообщение администратору, войди в аккаунт или зарегистрируйся.',
+ },
+ uk:{
+ 'All':'Усі','Site news':'Новини сайту','News сайта':'Новини сайту','Transfers':'Трансфери','Bans':'Блокування','Close':'Закрити',
+ 'News':'Новини','Top players':'Топ гравців','Streams CS2':'Трансляції CS2','Matches MVP CS2':'Матчі MVP CS2',
+ 'MVP CS2 Tournament Bracket':'Турнірна сітка MVP CS2','Tournamentная сетка MVP CS2':'Турнірна сітка MVP CS2',
+ 'Help':'Допомога','Log in':'Увійти','Register':'Реєстрація','Email':'Електронна пошта','Password':'Пароль',
+ 'Forgot password?':'Забули пароль?','Send confirmation email':'Надіслати лист підтвердження',
+ 'Enter your MVP CS2 Ranking account email and password':'Введи email і пароль від облікового запису MVP CS2 Ranking',
+ 'Team match schedule and results.':'Розклад і результати матчів команд.',
+ 'YouTube live streams and recordings added by MVP CS2 Ranking administrators.':'YouTube-трансляції та записи, додані адміністрацією MVP CS2 Ranking.',
+ 'Players from team rosters · ranked by average K/D across recorded matches.':'Гравці зі складів команд · рейтинг за середнім K/D у записаних матчах.',
+ 'Transfers, bans, announcements and esports community events.':'Трансфери, блокування, оголошення та події кіберспортивної спільноти.',
+ 'Could not load news from Neon API.':'Не вдалося завантажити новини з Neon API.',
+ 'Could not load matches from Neon API: Failed to fetch':'Не вдалося завантажити матчі з Neon API: Failed to fetch',
+ 'Could not load streams from Neon API: Failed to fetch':'Не вдалося завантажити трансляції з Neon API: Failed to fetch',
+ 'Could not load top players. Make sure match_history_players_setup.sql has been migrated. Error: Failed to fetch':'Не вдалося завантажити топ гравців. Переконайся, що виконано міграцію match_history_players_setup.sql. Помилка: Failed to fetch',
+ 'Could not load tournament.':'Не вдалося завантажити турнір.',
+ 'Check that the tournament tables have been migrated to Neon.':'Перевір, чи перенесено таблиці турнірів до Neon.',
+ 'To message the administrator, log in or register.':'Щоб написати адміністратору, увійди в обліковий запис або зареєструйся.',
+ },
+ de:{
+ 'All':'Alle','Site news':'Website-News','News сайта':'Website-News','Transfers':'Transfers','Bans':'Sperren','Close':'Schließen',
+ 'News':'Nachrichten','Top players':'Top-Spieler','Streams CS2':'CS2-Streams','Matches MVP CS2':'MVP-CS2-Spiele',
+ 'MVP CS2 Tournament Bracket':'MVP-CS2-Turnierbaum','Tournamentная сетка MVP CS2':'MVP-CS2-Turnierbaum',
+ 'Help':'Hilfe','Log in':'Anmelden','Register':'Registrieren','Email':'E-Mail','Password':'Passwort',
+ 'Forgot password?':'Passwort vergessen?','Send confirmation email':'Bestätigungs-E-Mail senden',
+ 'Enter your MVP CS2 Ranking account email and password':'Gib deine E-Mail-Adresse und dein Passwort für MVP CS2 Ranking ein',
+ 'Team match schedule and results.':'Spielplan und Ergebnisse der Team-Matches.',
+ 'YouTube live streams and recordings added by MVP CS2 Ranking administrators.':'YouTube-Livestreams und Aufzeichnungen, die von der MVP-CS2-Ranking-Administration hinzugefügt wurden.',
+ 'Players from team rosters · ranked by average K/D across recorded matches.':'Spieler aus Teamaufstellungen · Rangliste nach durchschnittlichem K/D in aufgezeichneten Matches.',
+ 'Transfers, bans, announcements and esports community events.':'Transfers, Sperren, Ankündigungen und Ereignisse der Esport-Community.',
+ 'Could not load news from Neon API.':'Nachrichten konnten nicht von der Neon API geladen werden.',
+ 'Could not load matches from Neon API: Failed to fetch':'Matches konnten nicht von der Neon API geladen werden: Failed to fetch',
+ 'Could not load streams from Neon API: Failed to fetch':'Streams konnten nicht von der Neon API geladen werden: Failed to fetch',
+ 'Could not load top players. Make sure match_history_players_setup.sql has been migrated. Error: Failed to fetch':'Top-Spieler konnten nicht geladen werden. Stelle sicher, dass match_history_players_setup.sql migriert wurde. Fehler: Failed to fetch',
+ 'Could not load tournament.':'Turnier konnte nicht geladen werden.',
+ 'Check that the tournament tables have been migrated to Neon.':'Prüfe, ob die Turniertabellen zu Neon migriert wurden.',
+ 'To message the administrator, log in or register.':'Um dem Administrator eine Nachricht zu senden, melde dich an oder registriere dich.',
  }
- function walk(root){
-   if(!root)return;
-   if(root.nodeType===Node.TEXT_NODE){translateNode(root);return}
-   if(root.nodeType!==Node.ELEMENT_NODE&&root.nodeType!==Node.DOCUMENT_NODE)return;
-   if(root.nodeType===Node.ELEMENT_NODE&&/^(SCRIPT|STYLE|TEXTAREA|INPUT|OPTION)$/.test(root.tagName))return;
-   root.childNodes.forEach(walk);
-   if(root.nodeType===Node.ELEMENT_NODE){
-     ['placeholder','title','aria-label'].forEach(attr=>{
-       const value=root.getAttribute(attr);if(!value)return;
-       const dict=dictionaries[lang]||{};
-       if(!root.dataset['langOrig'+attr])root.dataset['langOrig'+attr]=value;
-       const base=root.dataset['langOrig'+attr];
-       if(lang==='ru')root.setAttribute(attr,base);else if(dict[base])root.setAttribute(attr,dict[base]);
-     });
+ };
+ Object.keys(modalTranslations).forEach(code=>Object.assign(dictionaries[code],modalTranslations[code]));
+ // Extended interface coverage for dynamically rendered sections.
+ const extraTranslations={"en":{"Состав пока не указан.":"Roster not provided yet.","Состав не указан":"Roster not provided","Команда не указана":"No team specified","Все трансферы":"All transfers","Матчей пока нет.":"No matches yet.","История боёв пока пуста.":"Match history is empty.","Пока нет сообщений":"No messages yet","Пока нет зарегистрированных пользователей.":"No registered users yet.","Блокировок пока нет.":"No bans yet.","Трансферных новостей пока нет.":"No transfer news yet.","Добавить команду":"Add team","Добавить бой":"Add match","Создать матч":"Create match","Создать турнир":"Create tournament","Редактировать матч":"Edit match","Редактировать команду":"Edit team","Заблокировать":"Ban","Разблокировать":"Unban","Имя пользователя":"Username","Ник игрока":"Player nickname","Причина блокировки":"Ban reason","Ответ пользователю":"Reply to user","Чат с администратором":"Chat with administrator","Предыдущий день":"Previous day","Следующий день":"Next day","Верхняя":"Upper bracket","Нижняя":"Lower bracket","полуфинал":"semifinal","четвертьфинал":"quarterfinal","Гранд-финал":"Grand final","Чемпион определён":"Champion determined","Профиль игрока":"Player profile","Профиль":"Profile","Управление доступом":"Access management","Управление командами и очками":"Manage teams and points","Управление профилями игроков":"Manage player profiles","Управление трансляциями":"Manage streams","Выдать кубок":"Award trophy","Убрать награду":"Remove award","Забыли пароль?":"Forgot password?","Вход в аккаунт":"Log in","Регистрация":"Register","Состав команды. Прокручивайте по горизонтали":"Team roster. Scroll horizontally","Матч создан":"Match created","Матч завершён":"Match completed","Завершён":"Completed","Запланирован":"Scheduled","ОЖИДАЕТ РЕЗУЛЬТАТА":"AWAITING RESULT","ОЖИДАЕТ СТАРТА":"AWAITING START","Сохранить бой и статистику":"Save match and statistics","Пока нет добавленных трансляций. Загляни позже!":"No streams have been added yet. Check back later!","Пока нет запланированных или завершённых матчей.":"No scheduled or completed matches yet.","Пока нет трансляций.":"No streams yet.","Общая база подключена. Команды появятся после их переноса администратором.":"Shared database connected. Teams will appear after an administrator migrates them."},"uk":{"Состав пока не указан.":"Склад поки не вказано.","Состав не указан":"Склад не вказано","Команда не указана":"Команду не вказано","Все трансферы":"Усі трансфери","Матчей пока нет.":"Матчів поки немає.","История боёв пока пуста.":"Історія матчів поки порожня.","Пока нет сообщений":"Повідомлень поки немає","Пока нет зарегистрированных пользователей.":"Зареєстрованих користувачів поки немає.","Блокировок пока нет.":"Блокувань поки немає.","Трансферных новостей пока нет.":"Новин про трансфери поки немає.","Добавить команду":"Додати команду","Добавить бой":"Додати матч","Создать матч":"Створити матч","Создать турнир":"Створити турнір","Редактировать матч":"Редагувати матч","Редактировать команду":"Редагувати команду","Заблокировать":"Заблокувати","Разблокировать":"Розблокувати","Имя пользователя":"Ім’я користувача","Ник игрока":"Нік гравця","Причина блокировки":"Причина блокування","Ответ пользователю":"Відповідь користувачу","Чат с администратором":"Чат з адміністратором","Предыдущий день":"Попередній день","Следующий день":"Наступний день","Верхняя":"Верхня сітка","Нижняя":"Нижня сітка","полуфинал":"півфінал","четвертьфинал":"чвертьфінал","Гранд-финал":"Гранд-фінал","Чемпион определён":"Чемпіона визначено","Профиль игрока":"Профіль гравця","Профиль":"Профіль","Управление доступом":"Керування доступом","Управление командами и очками":"Керування командами та балами","Управление профилями игроков":"Керування профілями гравців","Управление трансляциями":"Керування трансляціями","Выдать кубок":"Видати кубок","Убрать награду":"Прибрати нагороду","Забыли пароль?":"Забули пароль?","Вход в аккаунт":"Вхід до акаунта","Регистрация":"Реєстрація","Состав команды. Прокручивайте по горизонтали":"Склад команди. Гортайте горизонтально","Матч создан":"Матч створено","Матч завершён":"Матч завершено","Завершён":"Завершено","Запланирован":"Заплановано","ОЖИДАЕТ РЕЗУЛЬТАТА":"ОЧІКУЄ РЕЗУЛЬТАТУ","ОЖИДАЕТ СТАРТА":"ОЧІКУЄ ПОЧАТКУ","Сохранить бой и статистику":"Зберегти матч і статистику","Пока нет добавленных трансляций. Загляни позже!":"Трансляцій поки немає. Завітай пізніше!","Пока нет запланированных или завершённых матчей.":"Запланованих або завершених матчів поки немає.","Пока нет трансляций.":"Трансляцій поки немає.","Общая база подключена. Команды появятся после их переноса администратором.":"Спільну базу даних підключено. Команди з’являться після перенесення адміністратором."},"de":{"Состав пока не указан.":"Aufstellung noch nicht angegeben.","Состав не указан":"Aufstellung nicht angegeben","Команда не указана":"Kein Team angegeben","Все трансферы":"Alle Transfers","Матчей пока нет.":"Noch keine Spiele.","История боёв пока пуста.":"Der Spielverlauf ist noch leer.","Пока нет сообщений":"Noch keine Nachrichten","Пока нет зарегистрированных пользователей.":"Noch keine registrierten Benutzer.","Блокировок пока нет.":"Noch keine Sperren.","Трансферных новостей пока нет.":"Noch keine Transfermeldungen.","Добавить команду":"Team hinzufügen","Добавить бой":"Match hinzufügen","Создать матч":"Match erstellen","Создать турнир":"Turnier erstellen","Редактировать матч":"Match bearbeiten","Редактировать команду":"Team bearbeiten","Заблокировать":"Sperren","Разблокировать":"Entsperren","Имя пользователя":"Benutzername","Ник игрока":"Spielername","Причина блокировки":"Sperrgrund","Ответ пользователю":"Antwort an Benutzer","Чат с администратором":"Chat mit Administrator","Предыдущий день":"Vorheriger Tag","Следующий день":"Nächster Tag","Верхняя":"Obere","Нижняя":"Untere","полуфинал":"Halbfinale","четвертьфинал":"Viertelfinale","Гранд-финал":"Großes Finale","Чемпион определён":"Champion steht fest","Профиль игрока":"Spielerprofil","Профиль":"Profil","Управление доступом":"Zugriffsverwaltung","Управление командами и очками":"Teams und Punkte verwalten","Управление профилями игроков":"Spielerprofile verwalten","Управление трансляциями":"Streams verwalten","Выдать кубок":"Pokal verleihen","Убрать награду":"Auszeichnung entfernen","Забыли пароль?":"Passwort vergessen?","Вход в аккаунт":"Anmelden","Регистрация":"Registrieren","Состав команды. Прокручивайте по горизонтали":"Teamaufstellung. Horizontal scrollen","Матч создан":"Match erstellt","Матч завершён":"Match abgeschlossen","Завершён":"Abgeschlossen","Запланирован":"Geplant","ОЖИДАЕТ РЕЗУЛЬТАТА":"ERGEBNIS AUSSTEHEND","ОЖИДАЕТ СТАРТА":"START AUSSTEHEND","Сохранить бой и статистику":"Match und Statistiken speichern","Пока нет добавленных трансляций. Загляни позже!":"Noch keine Streams hinzugefügt. Schau später wieder vorbei!","Пока нет запланированных или завершённых матчей.":"Noch keine geplanten oder abgeschlossenen Spiele.","Пока нет трансляций.":"Noch keine Streams.","Общая база подключена. Команды появятся после их переноса администратором.":"Gemeinsame Datenbank verbunden. Teams erscheinen, sobald ein Administrator sie migriert hat."}};
+ Object.keys(extraTranslations).forEach(code=>Object.assign(dictionaries[code],extraTranslations[code]));
+
+ let lang='en';
+ const LANGUAGES=['en','ru','uk','de'];
+ const STORAGE_KEY=KEY;
+ const originalText=new WeakMap();
+ const originalAttributes=new WeakMap();
+ const TRANSLATABLE_ATTRIBUTES=['placeholder','title','aria-label','alt'];
+ const SKIP_TAGS=/^(SCRIPT|STYLE)$/;
+
+ function readLanguage(){
+   try{
+     const stored=localStorage.getItem(STORAGE_KEY);
+     return LANGUAGES.includes(stored)?stored:'en';
+   }catch(error){return 'en'}
+ }
+ function translateString(source){
+   const dictionary=dictionaries[lang]||{};
+   let result=source;
+   const keys=Object.keys(dictionary).filter(key=>key.length>2).sort((a,b)=>b.length-a.length);
+   for(const key of keys){
+     if(result.includes(key))result=result.split(key).join(dictionary[key]);
+   }
+   return result;
+ }
+ function translateTextNode(node){
+   if(!node||node.nodeType!==Node.TEXT_NODE)return;
+   const parent=node.parentElement;
+   if(parent&&(SKIP_TAGS.test(parent.tagName)||parent.tagName==='TEXTAREA'))return;
+   let state=originalText.get(node);
+   if(!state||node.nodeValue!==state.rendered){
+     state={source:node.nodeValue,rendered:node.nodeValue};
+     originalText.set(node,state);
+   }
+   const translated=translateString(state.source);
+   if(node.nodeValue!==translated)node.nodeValue=translated;
+   state.rendered=translated;
+ }
+ function translateElement(element){
+   if(!element||element.nodeType!==Node.ELEMENT_NODE||SKIP_TAGS.test(element.tagName))return;
+   if(element.closest('[data-no-translate]'))return;
+   if(element.tagName!=='TEXTAREA')element.childNodes.forEach(child=>{
+     if(child.nodeType===Node.TEXT_NODE)translateTextNode(child);
+     else if(child.nodeType===Node.ELEMENT_NODE)translateElement(child);
+   });
+   let originals=originalAttributes.get(element);
+   if(!originals){originals={};originalAttributes.set(element,originals)}
+   TRANSLATABLE_ATTRIBUTES.forEach(attribute=>{
+     if(!element.hasAttribute(attribute))return;
+     const current=element.getAttribute(attribute);
+     let state=originals[attribute];
+     if(!state||current!==state.rendered){
+       state={source:current,rendered:current};
+       originals[attribute]=state;
+     }
+     const translated=translateString(state.source);
+     if(current!==translated)element.setAttribute(attribute,translated);
+     state.rendered=translated;
+   });
+ }
+ function syncSelector(){
+   const selector=document.getElementById('siteLanguageSelect');
+   if(selector&&selector.value!==lang)selector.value=lang;
+ }
+ function applyLanguage(){
+   document.documentElement.lang=lang;
+   if(document.body)translateElement(document.body);
+   syncSelector();
+   const settings=document.getElementById('settingsBtn');
+   const labels={en:'Settings',ru:'Настройки',uk:'Налаштування',de:'Einstellungen'};
+   if(settings){
+     settings.title=labels[lang];
+     settings.setAttribute('aria-label',labels[lang]);
    }
  }
- function apply(){
-   document.documentElement.lang=lang;
-   walk(document.body);
-   const select=document.getElementById('siteLanguageSelect');if(select)select.value=lang;
-   const labels={en:'Settings',ru:'Настройки',uk:'Налаштування',de:'Einstellungen'};
-   const btn=document.getElementById('settingsBtn');if(btn){btn.title=labels[lang];btn.setAttribute('aria-label',labels[lang])}
+ function setLanguage(next){
+   if(!LANGUAGES.includes(next))return;
+   lang=next;
+   try{localStorage.setItem(STORAGE_KEY,next)}catch(error){}
+   applyLanguage();
  }
- window.mvpSetLanguage=function(next){
-   if(!['en','ru','uk','de'].includes(next))return;
-   lang=next;try{localStorage.setItem(KEY,lang)}catch(_){}
-   apply();
- };
- document.addEventListener('change',e=>{if(e.target&&e.target.id==='siteLanguageSelect')window.mvpSetLanguage(e.target.value)});
- const observer=new MutationObserver(records=>records.forEach(record=>{
-   if(record.type==='childList')record.addedNodes.forEach(walk);
-   else if(record.type==='characterData')translateNode(record.target);
- }));
- observer.observe(document.body,{subtree:true,childList:true,characterData:true});
- apply();
- const oldModal=window.modal;
- if(typeof oldModal==='function')window.modal=function(content,wide){oldModal(content,wide);apply()};
-})();
+ window.mvpGetLanguage=()=>lang;
+ window.mvpSetLanguage=setLanguage;
+ window.mvpApplyLanguage=applyLanguage;
+
+ document.addEventListener('change',event=>{
+   if(event.target&&event.target.id==='siteLanguageSelect')setLanguage(event.target.value);
+ });
+ document.addEventListener('input',event=>{
+   if(event.target&&event.target.id==='siteLanguageSelect')setLanguage(event.target.value);
+ });
+
+ const observer=new MutationObserver(records=>{
+   for(const record of records){
+     if(record.type==='characterData')translateTextNode(record.target);
+     if(record.type==='attributes')translateElement(record.target);
+     if(record.type==='childList'){
+       record.addedNodes.forEach(node=>{
+         if(node.nodeType===Node.TEXT_NODE)translateTextNode(node);
+         else if(node.nodeType===Node.ELEMENT_NODE)translateElement(node);
+       });
+     }
+   }
+ });
+ function initializeLanguage(){
+   lang=readLanguage();
+   applyLanguage();
+   if(document.body)observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:TRANSLATABLE_ATTRIBUTES});
+ }
+ if(document.readyState==='loading'){
+   document.addEventListener('DOMContentLoaded',initializeLanguage,{once:true});
+ }else{
+   initializeLanguage();
+ }
 </script>
 </body></html>
-
-<!-- Trigger Cloudflare Pages production build from main -->
