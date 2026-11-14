@@ -4536,54 +4536,70 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
 
  let lang='en';
  try{const saved=localStorage.getItem(KEY);if(['en','ru','uk','de'].includes(saved))lang=saved;else localStorage.setItem(KEY,'en')}catch(_){}
- const original=new WeakMap();
- function translateNode(node){
-   if(node.nodeType!==Node.TEXT_NODE)return;
-   const raw=original.get(node)??node.nodeValue;
-   if(!original.has(node))original.set(node,raw);
-   const trimmed=raw.trim();if(!trimmed)return;
+ const originals=new WeakMap();
+ const attrs=['placeholder','title','aria-label','alt'];
+ function translateText(node){
+   if(!node||node.nodeType!==Node.TEXT_NODE)return;
+   if(!originals.has(node))originals.set(node,node.nodeValue);
+   const source=originals.get(node);
    const dict=dictionaries[lang]||{};
-   let translated=trimmed;
-   const keys=Object.keys(dict).filter(k=>k.length>2).sort((a,b)=>b.length-a.length);
-   for(const key of keys){if(translated.includes(key))translated=translated.split(key).join(dict[key])}
-   const nextValue=translated!==trimmed?raw.replace(trimmed,translated):raw;
-   if(node.nodeValue!==nextValue)node.nodeValue=nextValue;
+   let result=source;
+   const keys=Object.keys(dict).sort((a,b)=>b.length-a.length);
+   for(const key of keys){
+     if(key && result.includes(key))result=result.split(key).join(dict[key]);
+   }
+   if(node.nodeValue!==result)node.nodeValue=result;
  }
- function walk(root){
-   if(!root)return;
-   if(root.nodeType===Node.TEXT_NODE){translateNode(root);return}
-   if(root.nodeType!==Node.ELEMENT_NODE&&root.nodeType!==Node.DOCUMENT_NODE)return;
-   if(root.nodeType===Node.ELEMENT_NODE&&/^(SCRIPT|STYLE|TEXTAREA|INPUT|OPTION)$/.test(root.tagName))return;
-   root.childNodes.forEach(walk);
-   if(root.nodeType===Node.ELEMENT_NODE){
-     ['placeholder','title','aria-label'].forEach(attr=>{
-       const value=root.getAttribute(attr);if(!value)return;
-       const dict=dictionaries[lang]||{};
-       if(!root.dataset['langOrig'+attr])root.dataset['langOrig'+attr]=value;
-       const base=root.dataset['langOrig'+attr];
-       if(lang==='ru')root.setAttribute(attr,base);else if(dict[base])root.setAttribute(attr,dict[base]);
-     });
+ function translateElement(el){
+   if(!el||el.nodeType!==Node.ELEMENT_NODE)return;
+   if(/^(SCRIPT|STYLE)$/.test(el.tagName))return;
+   for(const child of el.childNodes){
+     if(child.nodeType===Node.TEXT_NODE)translateText(child);
+     else if(child.nodeType===Node.ELEMENT_NODE)translateElement(child);
+   }
+   const dict=dictionaries[lang]||{};
+   for(const attr of attrs){
+     if(!el.hasAttribute(attr))continue;
+     const store='mvpLangOriginal'+attr;
+     if(!el.dataset[store])el.dataset[store]=el.getAttribute(attr);
+     const source=el.dataset[store];
+     let result=source;
+     const keys=Object.keys(dict).sort((a,b)=>b.length-a.length);
+     for(const key of keys)if(key&&result.includes(key))result=result.split(key).join(dict[key]);
+     el.setAttribute(attr,result);
    }
  }
  function apply(){
    document.documentElement.lang=lang;
-   walk(document.body);
-   const select=document.getElementById('siteLanguageSelect');if(select)select.value=lang;
+   if(document.body)translateElement(document.body);
+   const select=document.getElementById('siteLanguageSelect');
+   if(select)select.value=lang;
    const labels={en:'Settings',ru:'Настройки',uk:'Налаштування',de:'Einstellungen'};
-   const btn=document.getElementById('settingsBtn');if(btn){btn.title=labels[lang];btn.setAttribute('aria-label',labels[lang])}
+   const btn=document.getElementById('settingsBtn');
+   if(btn){btn.title=labels[lang];btn.setAttribute('aria-label',labels[lang])}
  }
  window.mvpSetLanguage=function(next){
    if(!['en','ru','uk','de'].includes(next))return;
-   lang=next;try{localStorage.setItem(KEY,lang)}catch(_){}
+   lang=next;
+   try{localStorage.setItem(KEY,lang)}catch(_){}
    apply();
  };
- document.addEventListener('change',e=>{if(e.target&&e.target.id==='siteLanguageSelect')window.mvpSetLanguage(e.target.value)});
- const observer=new MutationObserver(records=>records.forEach(record=>{
-   if(record.type==='childList')record.addedNodes.forEach(walk);
-   else if(record.type==='characterData')translateNode(record.target);
- }));
- observer.observe(document.body,{subtree:true,childList:true,characterData:true});
- apply();
+ document.addEventListener('change',function(e){
+   if(e.target&&e.target.id==='siteLanguageSelect')window.mvpSetLanguage(e.target.value);
+ });
+ const observer=new MutationObserver(records=>{
+   for(const record of records){
+     if(record.type==='characterData')translateText(record.target);
+     record.addedNodes&&record.addedNodes.forEach(node=>{
+       if(node.nodeType===Node.TEXT_NODE)translateText(node);
+       else if(node.nodeType===Node.ELEMENT_NODE)translateElement(node);
+     });
+   }
+ });
+ function start(){
+   if(document.body){apply();observer.observe(document.body,{subtree:true,childList:true,characterData:true})}
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
  const oldModal=window.modal;
  if(typeof oldModal==='function')window.modal=function(content,wide){oldModal(content,wide);apply()};
 })();
