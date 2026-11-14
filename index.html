@@ -4539,7 +4539,7 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  const STORAGE_KEY=KEY;
  const originalText=new WeakMap();
  const originalAttributes=new WeakMap();
- const TRANSLATABLE_ATTRIBUTES=['placeholder','title','aria-label','alt','value'];
+ const TRANSLATABLE_ATTRIBUTES=['placeholder','title','aria-label','alt'];
  const SKIP_TAGS=/^(SCRIPT|STYLE)$/;
 
  function readLanguage(){
@@ -4560,7 +4560,7 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  function translateTextNode(node){
    if(!node||node.nodeType!==Node.TEXT_NODE)return;
    const parent=node.parentElement;
-   if(parent&&SKIP_TAGS.test(parent.tagName))return;
+   if(parent&&(SKIP_TAGS.test(parent.tagName)||parent.tagName==='TEXTAREA'))return;
    let state=originalText.get(node);
    if(!state||node.nodeValue!==state.rendered){
      state={source:node.nodeValue,rendered:node.nodeValue};
@@ -4573,7 +4573,7 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  function translateElement(element){
    if(!element||element.nodeType!==Node.ELEMENT_NODE||SKIP_TAGS.test(element.tagName))return;
    if(element.closest('[data-no-translate]'))return;
-   element.childNodes.forEach(child=>{
+   if(element.tagName!=='TEXTAREA')element.childNodes.forEach(child=>{
      if(child.nodeType===Node.TEXT_NODE)translateTextNode(child);
      else if(child.nodeType===Node.ELEMENT_NODE)translateElement(child);
    });
