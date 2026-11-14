@@ -1865,8 +1865,8 @@ body[data-theme="night"] .season-admin-card{background:#2d2b24;border-color:#806
   }
 }
 </style>
-<style id="mvp-cs2-wallpaper-and-clear-panels">
-/* Project wallpaper: keep the scene visible in both appearance modes. */
+<style id="mvp-cs2-wallpaper-and-single-transparent-panel">
+/* CS2 wallpaper stays behind the site in both appearance modes. */
 body[data-theme="night"]{
   --mvp-bg-overlay:rgba(5,9,15,.14)!important;
   background-color:#070d16!important;
@@ -1886,53 +1886,15 @@ body[data-theme="day"]{
   background-attachment:fixed!important;
 }
 
-/* Remove solid white/charcoal fills from the main ranking surfaces.
-   Borders remain subtle so the layout stays easy to scan. */
-body[data-theme] .panel,
-body[data-theme] .tablehead,
-body[data-theme] #teams>.team-card,
-body[data-theme] #teams>.team-card.tier-1,
-body[data-theme] #teams>.team-card.tier-2,
-body[data-theme] #teams>.team-card.tier-3,
-body[data-theme] #teams>.team-card>.team-main,
-body[data-theme] #teams>.team-card>.team-main:hover,
-body[data-theme] #teams>.team-card>.team-main:focus-visible,
-body[data-theme] #teams>.team-card>.team-main[aria-expanded="true"],
-body[data-theme] #teams>.team-card>.roster-expanded,
-body[data-theme] .roster-player,
-body[data-theme] .tier-divider,
-body[data-theme] .mvp-season-rail .season-rail-section,
-body[data-theme] .mvp-season-rail .season-rail-head,
-body[data-theme] .mvp-season-rail .season-rail-note,
-body[data-theme] .mvp-season-rail .season-year-button,
-body[data-theme] .mvp-news-rail .news-rail-section,
-body[data-theme] .mvp-news-rail .news-rail-head,
-body[data-theme] .mvp-news-rail .news-rail-list,
-body[data-theme] .mvp-news-rail .news-rail-item{
+/* Only the large central ranking panel is transparent.
+   Team cards, roster cards and side panels keep their normal theme colors. */
+body[data-theme] .panel{
   background:transparent!important;
   background-color:transparent!important;
-  background-image:none!important;
   backdrop-filter:none!important;
   -webkit-backdrop-filter:none!important;
   box-shadow:none!important;
-}
-body[data-theme] .panel,
-body[data-theme] .mvp-season-rail .season-rail-section,
-body[data-theme] .mvp-news-rail .news-rail-section{
   border-color:rgba(176,194,214,.34)!important;
-}
-body[data-theme] .team-card,
-body[data-theme] .team-card .team-main,
-body[data-theme] .roster-expanded,
-body[data-theme] .roster-player,
-body[data-theme] .news-rail-section,
-body[data-theme] .season-rail-section{
-  border-color:rgba(176,194,214,.24)!important;
-}
-body[data-theme] .team-main:hover,
-body[data-theme] .team-main:focus-visible,
-body[data-theme] .team-main[aria-expanded="true"]{
-  background:transparent!important;
 }
 @media(max-width:650px){
   body[data-theme="night"],body[data-theme="day"]{
