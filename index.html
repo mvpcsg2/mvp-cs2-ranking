@@ -4535,43 +4535,49 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  Object.keys(extraTranslations).forEach(code=>Object.assign(dictionaries[code],extraTranslations[code]));
 
  let lang='en';
- try{const saved=localStorage.getItem(KEY);if(['en','ru','uk','de'].includes(saved))lang=saved;else localStorage.setItem(KEY,'en')}catch(_){}
- const originals=new WeakMap();
+ const validLanguages=['en','ru','uk','de'];
+ const textOriginals=new WeakMap();
+ const attributeOriginals=new WeakMap();
+ function readSavedLanguage(){
+   try{
+     const saved=localStorage.getItem(KEY);
+     return validLanguages.includes(saved)?saved:'en';
+   }catch(_){return 'en'}
+ }
+ lang=readSavedLanguage();
+ window.__MVP_CS2_LANGUAGE__=lang;
  const attrs=['placeholder','title','aria-label','alt'];
- function translateText(node){
-   if(!node||node.nodeType!==Node.TEXT_NODE)return;
-   if(!originals.has(node))originals.set(node,node.nodeValue);
-   const source=originals.get(node);
-   const dict=dictionaries[lang]||{};
+ function translateValue(source,dict){
    let result=source;
    const keys=Object.keys(dict).sort((a,b)=>b.length-a.length);
-   for(const key of keys){
-     if(key && result.includes(key))result=result.split(key).join(dict[key]);
-   }
+   for(const key of keys)if(key&&result.includes(key))result=result.split(key).join(dict[key]);
+   return result;
+ }
+ function translateText(node){
+   if(!node||node.nodeType!==Node.TEXT_NODE)return;
+   if(!textOriginals.has(node))textOriginals.set(node,node.nodeValue);
+   const source=textOriginals.get(node);
+   const result=translateValue(source,dictionaries[lang]||{});
    if(node.nodeValue!==result)node.nodeValue=result;
  }
  function translateElement(el){
-   if(!el||el.nodeType!==Node.ELEMENT_NODE)return;
-   if(/^(SCRIPT|STYLE)$/.test(el.tagName))return;
+   if(!el||el.nodeType!==Node.ELEMENT_NODE||/^(SCRIPT|STYLE)$/.test(el.tagName))return;
    for(const child of el.childNodes){
      if(child.nodeType===Node.TEXT_NODE)translateText(child);
      else if(child.nodeType===Node.ELEMENT_NODE)translateElement(child);
    }
+   let originals=attributeOriginals.get(el);
+   if(!originals){originals={};attributeOriginals.set(el,originals)}
    const dict=dictionaries[lang]||{};
    for(const attr of attrs){
      if(!el.hasAttribute(attr))continue;
-     const store='mvpLangOriginal'+attr;
-     if(!el.dataset[store])el.dataset[store]=el.getAttribute(attr);
-     const source=el.dataset[store];
-     let result=source;
-     const keys=Object.keys(dict).sort((a,b)=>b.length-a.length);
-     for(const key of keys)if(key&&result.includes(key))result=result.split(key).join(dict[key]);
-     el.setAttribute(attr,result);
+     if(!(attr in originals))originals[attr]=el.getAttribute(attr);
+     el.setAttribute(attr,translateValue(originals[attr],dict));
    }
  }
  function syncLanguageSelect(){
    const select=document.getElementById('siteLanguageSelect');
-   if(select)select.value=lang;
+   if(select&&select.value!==lang)select.value=lang;
  }
  function apply(){
    document.documentElement.lang=lang;
@@ -4583,26 +4589,30 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  }
  window.mvpGetLanguage=function(){return lang};
  window.mvpSetLanguage=function(next){
-   if(!['en','ru','uk','de'].includes(next))return;
+   if(!validLanguages.includes(next))return;
    lang=next;
-   try{localStorage.setItem(KEY,lang)}catch(_){}
+   window.__MVP_CS2_LANGUAGE__=next;
+   try{localStorage.setItem(KEY,next)}catch(_){}
    apply();
-   syncLanguageSelect();
  };
  document.addEventListener('change',function(e){
+   if(e.target&&e.target.id==='siteLanguageSelect')window.mvpSetLanguage(e.target.value);
+ });
+ document.addEventListener('input',function(e){
    if(e.target&&e.target.id==='siteLanguageSelect')window.mvpSetLanguage(e.target.value);
  });
  const observer=new MutationObserver(records=>{
    for(const record of records){
      if(record.type==='characterData')translateText(record.target);
-     record.addedNodes&&record.addedNodes.forEach(node=>{
+     if(record.addedNodes)record.addedNodes.forEach(node=>{
        if(node.nodeType===Node.TEXT_NODE)translateText(node);
        else if(node.nodeType===Node.ELEMENT_NODE)translateElement(node);
      });
-     syncLanguageSelect();
    }
  });
  function start(){
+   lang=readSavedLanguage();
+   window.__MVP_CS2_LANGUAGE__=lang;
    if(document.body){apply();observer.observe(document.body,{subtree:true,childList:true,characterData:true})}
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
