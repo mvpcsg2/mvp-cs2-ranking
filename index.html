@@ -4211,12 +4211,10 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
    if(!original.has(node))original.set(node,raw);
    const trimmed=raw.trim();if(!trimmed)return;
    const dict=dictionaries[lang]||{};
-   let translated=dict[trimmed];
-   if(!translated){
-     const keys=Object.keys(dict).filter(k=>k.length>4).sort((a,b)=>b.length-a.length);
-     for(const key of keys){if(trimmed===key){translated=dict[key];break}}
-   }
-   if(translated!==undefined)node.nodeValue=raw.replace(trimmed,translated);
+   let translated=trimmed;
+   const keys=Object.keys(dict).filter(k=>k.length>2).sort((a,b)=>b.length-a.length);
+   for(const key of keys){if(translated.includes(key))translated=translated.split(key).join(dict[key])}
+   if(translated!==trimmed)node.nodeValue=raw.replace(trimmed,translated);
    else if(lang==='ru')node.nodeValue=raw;
  }
  function walk(root){
