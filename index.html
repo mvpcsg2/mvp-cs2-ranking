@@ -1680,7 +1680,7 @@ body[data-theme="night"] .season-admin-card{background:#2d2b24;border-color:#806
 <div id="adminBar" class="adminbar hidden"><strong id="staffBarText">Admin mode enabled.</strong><div class="adminbar-actions"><button class="btn hidden" id="manageUsersBtn" type="button">Access Management</button><button class="btn hidden" id="manageBansBtn" type="button">Блокировки</button><button class="btn" id="logoutBtn">Выйти</button></div></div>
 <div id="dbStatus" class="hidden" style="margin:0 0 14px;padding:10px 13px;border:1px solid #dfe3e8;border-radius:6px;font-size:13px"></div>
 <div class="ranking-with-news">
-<aside class="mvp-season-rail" aria-label="Season Archive"><section class="season-rail-section"><div class="season-rail-head"><span>SEASONS · YEARS</span></div><div id="seasonYearsList" class="season-rail-list"><button class="season-year-button active" type="button"><strong>${new Date().getFullYear()}</strong><small>CURRENT</small></button><button class="season-year-button future" type="button"><strong>${new Date().getFullYear()+1}</strong><small>COMING SOON</small></button></div><div id="seasonRailNote" class="season-rail-note">Выбери год статистики.</div></section></aside>
+<aside class="mvp-season-rail" aria-label="Season Archive"><section class="season-rail-section"><div class="season-rail-head"><span>SEASONS · YEARS</span></div><div id="seasonYearsList" class="season-rail-list"><button class="season-year-button active" type="button"><strong>${new Date().getFullYear()}</strong><small>CURRENT</small></button><button class="season-year-button future" type="button"><strong>${new Date().getFullYear()+1}</strong><small>COMING SOON</small></button></div><div id="seasonRailNote" class="season-rail-note">Select год статистики.</div></section></aside>
 <section class="panel"><div id="dailyDateNav" class="daily-date-nav" aria-label="Select ranking date"></div><div class="tablehead"><div>Rank</div><div>Team · MVP POINTS</div><div style="text-align:right">Change</div></div><div id="teams"></div></section>
 <aside class="mvp-news-rail" aria-label="Transfers and bans news">
   <section class="news-rail-section"><div class="news-rail-head"><span>TRANSFERS</span></div><div id="transferNews" class="news-rail-list"><div class="news-rail-empty">Loading transfers…</div></div><div class="news-rail-footer"><button id="allTransfersBtn" type="button">Все трансферы</button></div></section>
@@ -2332,7 +2332,7 @@ function openTeamProfile(t){
   if(!t)return;
   const rank=[...teams].sort((a,b)=>Number(b.points)-Number(a.points)||Number(a.id)-Number(b.id)).findIndex(x=>String(x.id)===String(t.id))+1;
   const roster=getRoster(t),playerPhotos=getPlayerPhotos(t),wins=Math.max(0,Number(t.tournament_wins)||0);
-  modal(`<div class="profile-hero"><div class="profile-logo">${t.logo?`<img src="${esc(t.logo)}" alt="Логотип ${esc(t.name)}">`:esc(t.tag||t.name.slice(0,4).toUpperCase())}</div><div><div class="profile-team-name">${esc(t.name)}</div><div class="profile-team-tag">${esc(t.tag||'Team CS2')}</div></div></div><div class="profile-stats"><div class="profile-stat"><small>МЕСТО В РЕЙТИНГЕ</small><strong>#${rank}</strong></div><div class="profile-stat"><small>MVP POINTS</small><strong>${Number(t.points).toLocaleString('ru-RU')}</strong></div></div><div class="team-profile-tournament"><span aria-hidden="true">🏆</span><span>Tournament wins</span><strong>${wins}</strong></div><div class="roster-heading">Состав команды · нажми на игрока для профиля</div>${roster.length?`<ol class="profile-roster">${roster.map((player,n)=>{const meta=getRosterPlayerMeta(player,playerPhotos[n]);const photo=meta.photo_url||playerPhotos[n]||'';return `<li>${photo?`<img src="${esc(photo)}" alt="Photo of ${esc(player)}" style="width:68px;height:68px;flex:0 0 68px;border-radius:7px;object-fit:cover;background:transparent">`:`<span class="roster-number" style="position:static;flex:0 0 27px">${n+1}</span>`}<div class="roster-player-name-line">${countryFlagMarkup(meta.country_code,'roster-player-country-flag')}<button class="player-profile-link" data-player-profile-name="${esc(player)}" data-player-profile-photo="${esc(photo)}" type="button">${esc(player)}</button></div></li>`}).join('')}</ol>`:'<div class="help-empty">Roster not specified yet.</div>'}<div class="profile-actions"><button class="btn primary" id="openTeamMatchHistory">Match history</button><button class="btn" id="closeTeamProfile">Close профиль</button></div>`);
+  modal(`<div class="profile-hero"><div class="profile-logo">${t.logo?`<img src="${esc(t.logo)}" alt="Logoтип ${esc(t.name)}">`:esc(t.tag||t.name.slice(0,4).toUpperCase())}</div><div><div class="profile-team-name">${esc(t.name)}</div><div class="profile-team-tag">${esc(t.tag||'Team CS2')}</div></div></div><div class="profile-stats"><div class="profile-stat"><small>МЕСТО В РЕЙТИНГЕ</small><strong>#${rank}</strong></div><div class="profile-stat"><small>MVP POINTS</small><strong>${Number(t.points).toLocaleString('ru-RU')}</strong></div></div><div class="team-profile-tournament"><span aria-hidden="true">🏆</span><span>Tournament wins</span><strong>${wins}</strong></div><div class="roster-heading">Состав команды · нажми на игрока для профиля</div>${roster.length?`<ol class="profile-roster">${roster.map((player,n)=>{const meta=getRosterPlayerMeta(player,playerPhotos[n]);const photo=meta.photo_url||playerPhotos[n]||'';return `<li>${photo?`<img src="${esc(photo)}" alt="Photo of ${esc(player)}" style="width:68px;height:68px;flex:0 0 68px;border-radius:7px;object-fit:cover;background:transparent">`:`<span class="roster-number" style="position:static;flex:0 0 27px">${n+1}</span>`}<div class="roster-player-name-line">${countryFlagMarkup(meta.country_code,'roster-player-country-flag')}<button class="player-profile-link" data-player-profile-name="${esc(player)}" data-player-profile-photo="${esc(photo)}" type="button">${esc(player)}</button></div></li>`}).join('')}</ol>`:'<div class="help-empty">Roster not specified yet.</div>'}<div class="profile-actions"><button class="btn primary" id="openTeamMatchHistory">Match history</button><button class="btn" id="closeTeamProfile">Close профиль</button></div>`);
   document.getElementById('closeTeamProfile').onclick=closeModal;
   document.getElementById('openTeamMatchHistory').onclick=()=>openTeamMatchHistory(t);
   wirePlayerProfileLinks();
@@ -2649,9 +2649,9 @@ async function openTeamMatchHistory(t){
     const rightName=isHome?(away?.name||m.opponent_name||'Opponent'):(home?.name||m.opponent_name||'Opponent');
     const leftScore=isHome?m.team_score:m.opponent_score,rightScore=isHome?m.opponent_score:m.team_score;
     const sideRows=(statRows||[]).filter(st=>String(st.match_id)===String(m.id)&&String(st.team_id||m.team_id)===String(t.id));
-    const statsTable=sideRows.length?`<table class="match-stats"><thead><tr><th>Игрок</th><th>K</th><th>D</th><th>K/D</th></tr></thead><tbody>${sideRows.map(st=>{const pl=pmap.get(String(st.player_id));return `<tr><td><button type="button" class="player-profile-link" data-player-profile-name="${esc(pl?.nickname||'Игрок')}" data-player-profile-photo="${esc(pl?.photo_url||'')}">${esc(pl?.nickname||'Игрок')}</button></td><td>${Number(st.kills)}</td><td>${Number(st.deaths)}</td><td><strong>${formatKD(st.kd)}</strong></td></tr>`}).join('')}</tbody></table>`:'<div class="notice">Статистика игроков этой команды ещё не внесена.</div>';
+    const statsTable=sideRows.length?`<table class="match-stats"><thead><tr><th>Player</th><th>K</th><th>D</th><th>K/D</th></tr></thead><tbody>${sideRows.map(st=>{const pl=pmap.get(String(st.player_id));return `<tr><td><button type="button" class="player-profile-link" data-player-profile-name="${esc(pl?.nickname||'Player')}" data-player-profile-photo="${esc(pl?.photo_url||'')}">${esc(pl?.nickname||'Player')}</button></td><td>${Number(st.kills)}</td><td>${Number(st.deaths)}</td><td><strong>${formatKD(st.kd)}</strong></td></tr>`}).join('')}</tbody></table>`:'<div class="notice">Статистика игроков этой команды ещё не внесена.</div>';
     const isScheduled=m.match_status==='scheduled';
-    return `<article class="match-card"><div class="match-card-head"><div><div class="match-opponent">${esc(leftName)} vs ${esc(rightName)}</div><div class="match-meta">${isScheduled?'Scheduled: ':''}${esc(fmtDate(m.played_at))}${m.map_name?' · '+esc(m.map_name):''}</div></div><div class="match-score">${isScheduled?'VS':`${Number(leftScore)}<span class="score-dash">:</span>${Number(rightScore)}`}</div></div><div class="match-card-body">${isScheduled?'<div class="notice">Матч ещё не завершён.</div>':statsTable}</div>${can('manage_matches')?`<div class="match-card-actions"><button class="btn" type="button" data-edit-match="${m.id}">Edit матч и статистику</button><button class="btn" type="button" data-delete-match="${m.id}">Delete</button></div>`:''}</article>`;
+    return `<article class="match-card"><div class="match-card-head"><div><div class="match-opponent">${esc(leftName)} vs ${esc(rightName)}</div><div class="match-meta">${isScheduled?'Scheduled: ':''}${esc(fmtDate(m.played_at))}${m.map_name?' · '+esc(m.map_name):''}</div></div><div class="match-score">${isScheduled?'VS':`${Number(leftScore)}<span class="score-dash">:</span>${Number(rightScore)}`}</div></div><div class="match-card-body">${isScheduled?'<div class="notice">Матч ещё не завершён.</div>':statsTable}</div>${can('manage_matches')?`<div class="match-card-actions"><button class="btn" type="button" data-edit-match="${m.id}">Edit match и статистику</button><button class="btn" type="button" data-delete-match="${m.id}">Delete</button></div>`:''}</article>`;
   }).join('');
   wirePlayerProfileLinks();
   if(can('manage_matches')){list.querySelectorAll('[data-edit-match]').forEach(btn=>btn.onclick=()=>{const m=matches.find(x=>String(x.id)===btn.dataset.editMatch);const home=teams.find(x=>String(x.id)===String(m?.team_id))||t;editTeamMatch(home,m)});list.querySelectorAll('[data-delete-match]').forEach(btn=>btn.onclick=async()=>{if(!confirm('Delete этот бой и статистику его игроков?'))return;const {error}=await client.from('team_matches').delete().eq('id',btn.dataset.deleteMatch);if(error){alert('Не удалось удалить бой: '+niceError(error));return}await openTeamMatchHistory(t)})}
@@ -2755,7 +2755,7 @@ function showAuthFeedback(message){const box=document.getElementById('authFeedba
 async function refreshSignedInUser(user){
   currentUser=null; admin=false; moderator=false; userPermissions={};
   if(user){
-    const username=user.user_metadata?.username||String(user.email||'Игрок').split('@')[0];
+    const username=user.user_metadata?.username||String(user.email||'Player').split('@')[0];
     currentUser={id:user.id,email:user.email,username};
     const {data:banned,error:banError}=await client.rpc('is_current_user_banned');
     if(!banError&&banned===true){await client.auth.signOut();currentUser=null;setStatus('This email is banned from MVP CS2 Ranking. Account access is blocked.','error');render();await loadTeams();return}
@@ -2839,7 +2839,7 @@ async function loadTeams(){
 }
 async function signOut(){await client.auth.signOut();currentUser=null;admin=false;moderator=false;userPermissions={};closeModal();render();await loadTeams()}
 function authModal(mode='login'){
-  if(currentUser){modal(`<h2>Profile</h2><p><b>${esc(currentUser.username)}</b></p><p>${esc(currentUser.email||'')}</p><p>Роль: <b>${admin?'Администратор':moderator?'Модератор':'Игрок'}</b></p>${moderator?`<p class="notice">Разрешения: ${Object.keys(MOD_PERMISSION_LABELS).filter(k=>userPermissions[k]).map(k=>MOD_PERMISSION_LABELS[k]).join(' · ')||'нет выданных разрешений'}</p>`:admin?'<p class="notice">У тебя полный доступ к управлению проектом.</p>':'<p class="notice">Ты можешь просматривать общий рейтинг и пользоваться чатом помощи.</p>'}<div class="modalfoot"><button class="btn" id="profileClose">Close</button><button class="btn primary" id="profileLogout">Выйти из аккаунта</button></div>`);document.getElementById('profileClose').onclick=closeModal;document.getElementById('profileLogout').onclick=signOut;return}
+  if(currentUser){modal(`<h2>Profile</h2><p><b>${esc(currentUser.username)}</b></p><p>${esc(currentUser.email||'')}</p><p>Роль: <b>${admin?'Администратор':moderator?'Модератор':'Player'}</b></p>${moderator?`<p class="notice">Разрешения: ${Object.keys(MOD_PERMISSION_LABELS).filter(k=>userPermissions[k]).map(k=>MOD_PERMISSION_LABELS[k]).join(' · ')||'нет выданных разрешений'}</p>`:admin?'<p class="notice">У тебя полный доступ к управлению проектом.</p>':'<p class="notice">Ты можешь просматривать общий рейтинг и пользоваться чатом помощи.</p>'}<div class="modalfoot"><button class="btn" id="profileClose">Close</button><button class="btn primary" id="profileLogout">Выйти из аккаунта</button></div>`);document.getElementById('profileClose').onclick=closeModal;document.getElementById('profileLogout').onclick=signOut;return}
   modal(`<h2>${mode==='register'?'Sign up':'Log in'}</h2>${mode==='register'?'<div class="field"><label>Username</label><input id="authName" maxlength="24" autocomplete="username" placeholder="For example, MVPplayer"></div>':''}<div class="field"><label>Email</label><input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required></div><div class="field"><label>Пароль${mode==='register'?' (минимум 10 символов)':''}</label><input id="authPass" type="password" autocomplete="${mode==='register'?'new-password':'current-password'}" minlength="10" required></div><div class="notice">${mode==='register'?'Новый аккаунт получает роль игрока. После подтверждения почты аккаунт активируется.':'Введи email и пароль от аккаунта MVP CS2 Ranking.'}</div><div id="authFeedback" class="auth-feedback hidden" role="alert" aria-live="polite"></div>${mode==='login'?'<div class="auth-extra"><button type="button" class="auth-link" id="forgotAuthPassword">Забыли пароль?</button><button type="button" class="auth-link" id="resendAuthVerification">Отправить письмо подтверждения</button></div>':''}<div class="modalfoot"><button class="btn" id="switchAuth">${mode==='register'?'Уже есть аккаунт':'Sign up'}</button><button class="btn primary" id="submitAuth">${mode==='register'?'Create account':'Log in'}</button></div>`);
   document.querySelector('#modalRoot .modal').classList.add('auth-modal');
   document.getElementById('switchAuth').onclick=()=>authModal(mode==='register'?'login':'register');
@@ -2907,7 +2907,7 @@ function cleanupLiveCenter(){
 async function openLiveCenter(){
   cleanupLiveCenter();
   setMainNavActive('live');
-  modal(`<div class="page-head"><div><h2><span style="display:inline-block;background:#c62828;color:#fff;border-radius:4px;padding:3px 7px;font-size:11px;vertical-align:middle;margin-right:6px">LIVE</span>Матчи MVP CS2</h2><div class="page-intro">Счёт и K/D/A поступают с локального сервера во время игры.</div></div><button class="btn" id="closeLiveCenter">Close</button></div><div id="liveMatchesContent"><div class="stream-empty">Подключаемся к live-данным…</div></div><div class="notice" style="margin-top:12px">Если матч не появляется, проверь, что сервер запущен, плагин MVPStats загружен и настроено подключение сервера статистики.</div>`,true);
+  modal(`<div class="page-head"><div><h2><span style="display:inline-block;background:#c62828;color:#fff;border-radius:4px;padding:3px 7px;font-size:11px;vertical-align:middle;margin-right:6px">LIVE</span>MVP CS2 Matches</h2><div class="page-intro">Scores and K/D/A are received from the local server during gameplay.</div></div><button class="btn" id="closeLiveCenter">Close</button></div><div id="liveMatchesContent"><div class="stream-empty">Подключаемся к live-данным…</div></div><div class="notice" style="margin-top:12px">Если матч не появляется, проверь, что сервер запущен, плагин MVPStats загружен и настроено подключение сервера статистики.</div>`,true);
   document.querySelector('#modalRoot .modal').classList.add('modal-page');
   document.getElementById('closeLiveCenter').onclick=()=>{closeModal();setMainNavActive('ranking')};
   await loadLiveMatchesIntoModal();
@@ -2921,39 +2921,39 @@ async function loadLiveMatchesIntoModal(){
   try{
     const liveData=await mvpApiGet('/api/live-matches');
     const matches=liveData?.matches||[],players=liveData?.players||[],events=liveData?.events||[];
-    if(!matches.length){host.innerHTML='<div class="stream-empty">Сейчас нет активных или недавно завершённых матчей. Запусти свой сервер и начни игру — матч появится здесь автоматически.</div>';return;}
+    if(!matches.length){host.innerHTML='<div class="stream-empty">There are no active or recently completed matches. Start your server and begin playing — the match will appear here automatically.</div>';return;}
     const byMatch=new Map();(players||[]).forEach(p=>{const list=byMatch.get(String(p.match_id))||[];list.push(p);byMatch.set(String(p.match_id),list)});
     const eventByMatch=new Map();(events||[]).forEach(ev=>{const list=eventByMatch.get(String(ev.match_id))||[];list.push(ev);eventByMatch.set(String(ev.match_id),list)});
     const renderSide=(rows,teamNum,label)=>{
       const side=rows.filter(p=>Number(p.team_num)===teamNum);
-      if(!side.length)return `<div class="notice">${label}: игроки ещё не зарегистрированы.</div>`;
-      return `<h3 style="font-size:13px;margin:10px 0 5px">${label}</h3><div style="overflow-x:auto"><table class="match-stats"><thead><tr><th>Игрок</th><th>K</th><th>D</th><th>A</th><th>K/D</th></tr></thead><tbody>${side.map(p=>{const k=Number(p.kills)||0,d=Number(p.deaths)||0,a=Number(p.assists)||0,kd=(d>0?k/d:k).toFixed(2);return `<tr><td>${esc(p.player_name||'Player')}</td><td>${k}</td><td>${d}</td><td>${a}</td><td><strong>${kd}</strong></td></tr>`}).join('')}</tbody></table></div>`;
+      if(!side.length)return `<div class="notice">${label}: players have not connected yet.</div>`;
+      return `<h3 style="font-size:13px;margin:10px 0 5px">${label}</h3><div style="overflow-x:auto"><table class="match-stats"><thead><tr><th>Player</th><th>K</th><th>D</th><th>A</th><th>K/D</th></tr></thead><tbody>${side.map(p=>{const k=Number(p.kills)||0,d=Number(p.deaths)||0,a=Number(p.assists)||0,kd=(d>0?k/d:k).toFixed(2);return `<tr><td>${esc(p.player_name||'Player')}</td><td>${k}</td><td>${d}</td><td>${a}</td><td><strong>${kd}</strong></td></tr>`}).join('')}</tbody></table></div>`;
     };
     host.innerHTML=matches.map(m=>{
       const rows=byMatch.get(String(m.id))||[];
       const recent=(eventByMatch.get(String(m.id))||[]).slice(0,6).map(ev=>{
-        const names={match_start:'Матч создан',player_connect:'Player подключился',round_start:'Начался раунд',round_end:'Раунд завершён',player_death:'Обновлена статистика',match_end:'Матч завершён'};
-        return `<span style="display:inline-block;border:1px solid #e1e5e9;border-radius:4px;padding:3px 6px;margin:2px;font-size:10px;color:#626b75">${esc(names[ev.event_type]||ev.event_type)}${Number(ev.round_number)>0?' · раунд '+Number(ev.round_number):''}</span>`;
+        const names={match_start:'Match created',player_connect:'Player connected',round_start:'Round started',round_end:'Round ended',player_death:'Statistics updated',match_end:'Match finished'};
+        return `<span style="display:inline-block;border:1px solid #e1e5e9;border-radius:4px;padding:3px 6px;margin:2px;font-size:10px;color:#626b75">${esc(names[ev.event_type]||ev.event_type)}${Number(ev.round_number)>0?' · round '+Number(ev.round_number):''}</span>`;
       }).join('');
       const started=m.started_at?new Date(m.started_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
       const active=m.status==='live';
-      return `<article style="background:#fff;border:1px solid #dfe3e8;border-radius:8px;padding:12px;margin:0 0 12px;box-shadow:0 2px 8px rgba(0,0,0,.04)"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap"><strong>${esc(String(m.map_name||'CS2').replace(/^de_/,'').toUpperCase())}</strong><span style="font-size:11px;font-weight:800;color:${active?'#c62828':'#64707c'}">${active?'● LIVE':'ЗАВЕРШЁН'}</span></div><div style="font-size:11px;color:#6d7680;margin-top:3px">Сервер: ${esc(m.server_key)} · ${esc(started)}</div><div style="display:flex;justify-content:center;align-items:center;gap:16px;padding:14px 4px"><div style="text-align:center"><div style="font-size:11px;color:#69727d">T</div><strong style="font-size:30px;font-variant-numeric:tabular-nums">${Number(m.score_t)||0}</strong></div><span style="color:#8a929c">:</span><div style="text-align:center"><div style="font-size:11px;color:#69727d">CT</div><strong style="font-size:30px;font-variant-numeric:tabular-nums">${Number(m.score_ct)||0}</strong></div></div><div style="font-size:11px;color:#6d7680;text-align:center;margin-bottom:8px">Раунд ${Number(m.round_number)||0}</div>${renderSide(rows,2,'Террористы (T)')}${renderSide(rows,3,'Спецназ (CT)')}${recent?`<div style="border-top:1px solid #edf0f2;margin-top:10px;padding-top:7px">${recent}</div>`:''}</article>`;
+      return `<article style="background:#fff;border:1px solid #dfe3e8;border-radius:8px;padding:12px;margin:0 0 12px;box-shadow:0 2px 8px rgba(0,0,0,.04)"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap"><strong>${esc(String(m.map_name||'CS2').replace(/^de_/,'').toUpperCase())}</strong><span style="font-size:11px;font-weight:800;color:${active?'#c62828':'#64707c'}">${active?'● LIVE':'COMPLETED'}</span></div><div style="font-size:11px;color:#6d7680;margin-top:3px">Сервер: ${esc(m.server_key)} · ${esc(started)}</div><div style="display:flex;justify-content:center;align-items:center;gap:16px;padding:14px 4px"><div style="text-align:center"><div style="font-size:11px;color:#69727d">T</div><strong style="font-size:30px;font-variant-numeric:tabular-nums">${Number(m.score_t)||0}</strong></div><span style="color:#8a929c">:</span><div style="text-align:center"><div style="font-size:11px;color:#69727d">CT</div><strong style="font-size:30px;font-variant-numeric:tabular-nums">${Number(m.score_ct)||0}</strong></div></div><div style="font-size:11px;color:#6d7680;text-align:center;margin-bottom:8px">Раунд ${Number(m.round_number)||0}</div>${renderSide(rows,2,'Террористы (T)')}${renderSide(rows,3,'Спецназ (CT)')}${recent?`<div style="border-top:1px solid #edf0f2;margin-top:10px;padding-top:7px">${recent}</div>`:''}</article>`;
     }).join('');
   }catch(e){
-    host.innerHTML=`<div class="stream-empty">Не удалось загрузить LIVE-матчи. Проверь выполнение файла <b>mvp_live_setup.sql</b> и политики чтения в Neon.<br><small>${esc(niceError(e))}</small></div>`;
+    host.innerHTML=`<div class="stream-empty">Failed to load LIVE matches. Check that the file <b>mvp_live_setup.sql</b> и политики чтения в Neon.<br><small>${esc(niceError(e))}</small></div>`;
   }finally{liveLoadBusy=false;}
 }
 
 const TOURNAMENT_ROUNDS = {
   upper: [
-    {title:'Четвертьфиналы · верхняя', keys:['u1','u2','u3','u4'], labels:['Матч 1','Матч 2','Матч 3','Матч 4']},
-    {title:'Полуфиналы · верхняя', keys:['u5','u6'], labels:['Матч 5','Матч 6']},
-    {title:'Финал · верхняя', keys:['u7'], labels:['Матч 7']}
+    {title:'Upper bracket · quarterfinals', keys:['u1','u2','u3','u4'], labels:['Матч 1','Матч 2','Матч 3','Матч 4']},
+    {title:'Upper bracket · semifinals', keys:['u5','u6'], labels:['Матч 5','Матч 6']},
+    {title:'Upper bracket · final', keys:['u7'], labels:['Матч 7']}
   ],
   lower: [
-    {title:'Четвертьфиналы · нижняя', keys:['lb1','lb2','lb3','lb4'], labels:['Матч 1','Матч 2','Матч 3','Матч 4']},
-    {title:'Полуфиналы · нижняя', keys:['lb5','lb6'], labels:['Матч 5','Матч 6']},
-    {title:'Финал · нижняя', keys:['lb7'], labels:['Матч 7']}
+    {title:'Lower bracket · quarterfinals', keys:['lb1','lb2','lb3','lb4'], labels:['Матч 1','Матч 2','Матч 3','Матч 4']},
+    {title:'Lower bracket · semifinals', keys:['lb5','lb6'], labels:['Матч 5','Матч 6']},
+    {title:'Lower bracket · final', keys:['lb7'], labels:['Матч 7']}
   ]
 };
 const TOURNAMENT_DESCENDANTS = {
@@ -3030,23 +3030,23 @@ function resolveTournament(tournament){
     out[key]={key,label,a,b,score,winner,loser,stale,raw:raw||null};
     return out[key];
   }
-  const u1=game('u1','Верхняя · четвертьфинал 1',seed(1),seed(8));
-  const u2=game('u2','Верхняя · четвертьфинал 2',seed(4),seed(5));
-  const u3=game('u3','Верхняя · четвертьфинал 3',seed(2),seed(7));
-  const u4=game('u4','Верхняя · четвертьфинал 4',seed(3),seed(6));
-  const u5=game('u5','Верхняя · полуфинал 1',u1.winner,u2.winner);
-  const u6=game('u6','Верхняя · полуфинал 2',u3.winner,u4.winner);
-  const u7=game('u7','Финал верхней сетки',u5.winner,u6.winner);
+  const u1=game('u1','Upper · quarterfinal 1',seed(1),seed(8));
+  const u2=game('u2','Upper · quarterfinal 2',seed(4),seed(5));
+  const u3=game('u3','Upper · quarterfinal 3',seed(2),seed(7));
+  const u4=game('u4','Upper · quarterfinal 4',seed(3),seed(6));
+  const u5=game('u5','Upper · semifinal 1',u1.winner,u2.winner);
+  const u6=game('u6','Upper · semifinal 2',u3.winner,u4.winner);
+  const u7=game('u7','Upper bracket final',u5.winner,u6.winner);
   // Нижняя сетка имеет собственные 8 ручных мест. Её победитель встречается
   // с победителем верхней сетки в гранд-финале.
-  const lb1=game('lb1','Нижняя · четвертьфинал 1',lowerSeed(1),lowerSeed(8));
-  const lb2=game('lb2','Нижняя · четвертьфинал 2',lowerSeed(4),lowerSeed(5));
-  const lb3=game('lb3','Нижняя · четвертьфинал 3',lowerSeed(2),lowerSeed(7));
-  const lb4=game('lb4','Нижняя · четвертьфинал 4',lowerSeed(3),lowerSeed(6));
-  const lb5=game('lb5','Нижняя · полуфинал 1',lb1.winner,lb2.winner);
-  const lb6=game('lb6','Нижняя · полуфинал 2',lb3.winner,lb4.winner);
-  const lb7=game('lb7','Финал нижней сетки',lb5.winner,lb6.winner);
-  const gf=game('gf','Гранд-финал',u7.winner,lb7.winner);
+  const lb1=game('lb1','Lower · quarterfinal 1',lowerSeed(1),lowerSeed(8));
+  const lb2=game('lb2','Lower · quarterfinal 2',lowerSeed(4),lowerSeed(5));
+  const lb3=game('lb3','Lower · quarterfinal 3',lowerSeed(2),lowerSeed(7));
+  const lb4=game('lb4','Lower · quarterfinal 4',lowerSeed(3),lowerSeed(6));
+  const lb5=game('lb5','Lower · semifinal 1',lb1.winner,lb2.winner);
+  const lb6=game('lb6','Lower · semifinal 2',lb3.winner,lb4.winner);
+  const lb7=game('lb7','Lower bracket final',lb5.winner,lb6.winner);
+  const gf=game('gf','Grand final',u7.winner,lb7.winner);
   return {games:out,champion:gf.winner,bestOf:bo,seeds,lowerSeeds};
 }
 function tournamentTeamLine(team,score,isWinner){
@@ -3059,47 +3059,47 @@ function tournamentMatchCard(game,tournament){
   const manager=can('manage_matches');
   const played=!!game.winner;
   const target=tournamentWinTarget(tournament.best_of);
-  const adminForm=manager&&game.a&&game.b?`<details class="tourney-match-admin"><summary>${played?'Изменить счёт':'Внести счёт'}</summary><form class="tourney-score-form" data-tourney-score="${game.key}"><label>${esc(game.a.name)}<input name="scoreA" type="number" min="0" max="${target}" step="1" value="${game.score?game.score.a:''}" required></label><span class="tourney-score-sep">:</span><label>${esc(game.b.name)}<input name="scoreB" type="number" min="0" max="${target}" step="1" value="${game.score?game.score.b:''}" required></label><div class="tourney-score-actions"><button type="submit">Сохранить</button>${game.raw?`<button type="button" data-tourney-clear="${game.key}">Сбросить</button>`:''}</div></form></details>`:'';
-  const hint=game.stale?'<div class="tourney-match-hint">Состав участников изменился. Введите результат заново.</div>':(!game.a||!game.b?'<div class="tourney-match-hint">Ожидает результатов предыдущего этапа.</div>':(!played?'<div class="tourney-match-hint">Введите счёт серии, чтобы продвинуть победителя.</div>':''));
-  return `<article class="tourney-match"><div class="tourney-match-top"><span>${esc(game.label)}</span><span class="${played?'played':''}">${played?'ЗАВЕРШЁН':game.a&&game.b?'ОЖИДАЕТ РЕЗУЛЬТАТА':'ОЖИДАНИЕ'}</span></div>${tournamentTeamLine(game.a,game.score?game.score.a:null,!!(game.winner&&String(game.winner.id)===String(game.a?.id)))}${tournamentTeamLine(game.b,game.score?game.score.b:null,!!(game.winner&&String(game.winner.id)===String(game.b?.id)))}${hint}${adminForm}</article>`;
+  const adminForm=manager&&game.a&&game.b?`<details class="tourney-match-admin"><summary>${played?'Edit score':'Enter score'}</summary><form class="tourney-score-form" data-tourney-score="${game.key}"><label>${esc(game.a.name)}<input name="scoreA" type="number" min="0" max="${target}" step="1" value="${game.score?game.score.a:''}" required></label><span class="tourney-score-sep">:</span><label>${esc(game.b.name)}<input name="scoreB" type="number" min="0" max="${target}" step="1" value="${game.score?game.score.b:''}" required></label><div class="tourney-score-actions"><button type="submit">Save</button>${game.raw?`<button type="button" data-tourney-clear="${game.key}">Сбросить</button>`:''}</div></form></details>`:'';
+  const hint=game.stale?'<div class="tourney-match-hint">The participant lineup has changed. Enter the result again.</div>':(!game.a||!game.b?'<div class="tourney-match-hint">Waiting for the previous stage results.</div>':(!played?'<div class="tourney-match-hint">Enter the series score to advance the winner.</div>':''));
+  return `<article class="tourney-match"><div class="tourney-match-top"><span>${esc(game.label)}</span><span class="${played?'played':''}">${played?'COMPLETED':game.a&&game.b?'AWAITING RESULT':'WAITING'}</span></div>${tournamentTeamLine(game.a,game.score?game.score.a:null,!!(game.winner&&String(game.winner.id)===String(game.a?.id)))}${tournamentTeamLine(game.b,game.score?game.score.b:null,!!(game.winner&&String(game.winner.id)===String(game.b?.id)))}${hint}${adminForm}</article>`;
 }
 function tournamentRoundHtml(round,tournament){
   return `<div class="tourney-round"><div class="tourney-round-title">${esc(round.title)}</div>${round.keys.map((key,i)=>tournamentMatchCard(tournament._resolved.games[key],tournament)).join('')}</div>`;
 }
 function tournamentTeamOptions(selectedId=''){
-  return `<option value="">Выбрать team</option>`+teams.map(t=>`<option value="${esc(t.id)}" ${String(t.id)===String(selectedId)?'selected':''}>${esc(t.name)}</option>`).join('');
+  return `<option value="">Select team</option>`+teams.map(t=>`<option value="${esc(t.id)}" ${String(t.id)===String(selectedId)?'selected':''}>${esc(t.name)}</option>`).join('');
 }
 function tournamentLowerSeedsMarkup(tournament){
   const saved=Array.isArray(tournament?.bracket_data?.lower_teams)?tournament.bracket_data.lower_teams:[];
   if(can('manage_matches')){
     const fields=Array.from({length:8},(_,i)=>{
       const id=saved[i]?.id??'';
-      const missing=id&&!teams.some(t=>String(t.id)===String(id))?`<option value="${esc(id)}" selected>${esc(saved[i]?.name||'Team вне рейтинга')} (нет в рейтинге)</option>`:'';
-      return `<div class="field"><label for="tourneyLowerSeed${i+1}">Место ${i+1}</label><select id="tourneyLowerSeed${i+1}" required>${missing}${tournamentTeamOptions(id)}</select></div>`;
+      const missing=id&&!teams.some(t=>String(t.id)===String(id))?`<option value="${esc(id)}" selected>${esc(saved[i]?.name||'Team outside ranking')} (not ranked)</option>`:'';
+      return `<div class="field"><label for="tourneyLowerSeed${i+1}">Seed ${i+1}</label><select id="tourneyLowerSeed${i+1}" required>${missing}${tournamentTeamOptions(id)}</select></div>`;
     }).join('');
-    return `<details class="tourney-create tourney-lower-seeds-details"><summary>＋ Добавить или изменить команды нижней сетки · 8 мест</summary><form id="tourneyLowerSeedsForm" class="tourney-lower-seeds"><div class="tourney-lower-seeds-head"><div><b>Участники нижней сетки · 8 мест</b><small>Выбери восемь команд. Пары и переходы победителей будут рассчитаны автоматически.</small></div><button class="btn primary" type="submit">Сохранить команды нижней сетки</button></div><div class="tourney-create-grid">${fields}</div><div class="tourney-public-note">Нижняя сетка заполняется отдельно от верхней. Команды внутри нижней сетки не должны повторяться. При замене состава результаты нижней сетки и гранд-финала будут сброшены.</div></form></details>`;
+    return `<details class="tourney-create tourney-lower-seeds-details"><summary>＋ Add or edit lower-bracket teams · 8 slots</summary><form id="tourneyLowerSeedsForm" class="tourney-lower-seeds"><div class="tourney-lower-seeds-head"><div><b>Lower-bracket participants · 8 slots</b><small>Select восемь команд. Пары и переходы победителей будут рассчитаны автоматически.</small></div><button class="btn primary" type="submit">Save lower-bracket teams</button></div><div class="tourney-create-grid">${fields}</div><div class="tourney-public-note">Нижняя сетка заполняется отдельно от верхней. Команды внутри нижней сетки не должны повторяться. При замене состава результаты нижней сетки и гранд-финала будут сброшены.</div></form></details>`;
   }
-  return `<div class="tourney-lower-seeds-view"><b>Участники нижней сетки</b><div class="tourney-lower-seeds-list">${Array.from({length:8},(_,i)=>`<span><i>${i+1}.</i> ${esc(saved[i]?.name||'Место свободно')}</span>`).join('')}</div></div>`;
+  return `<div class="tourney-lower-seeds-view"><b>Lower-bracket participants</b><div class="tourney-lower-seeds-list">${Array.from({length:8},(_,i)=>`<span><i>${i+1}.</i> ${esc(saved[i]?.name||'Empty slot')}</span>`).join('')}</div></div>`;
 }
 function tournamentCreateMarkup(open=false){
   const available=teams.length>=8;
   const opts=tournamentTeamOptions();
-  return `<details class="tourney-create" ${open?'open':''}><summary>＋ Создать новый турнир (8 команд)</summary><form id="tourneyCreateForm"><div class="field" style="margin-top:12px"><label for="tourneyName">Tournament name</label><input id="tourneyName" maxlength="100" placeholder="MVP CS2 2026" value="MVP CS2 2026" required></div><div class="field"><label for="tourneyBestOf">Формат матчей</label><select id="tourneyBestOf"><option value="1">BO1 — до 1 победы</option><option value="3" selected>BO3 — до 2 побед</option><option value="5">BO5 — до 3 побед</option></select></div><div class="tourney-create-grid">${Array.from({length:8},(_,i)=>`<div class="field"><label for="tourneySeed${i+1}">Посев ${i+1}</label><select id="tourneySeed${i+1}" required>${opts}</select></div>`).join('')}</div><button class="btn primary" type="submit" ${available?'':'disabled'}>Создать сетку на 8 команд</button><div class="tourney-public-note">${available?'Выбери восемь разных команд из общего рейтинга. Предыдущий активный турнир будет сохранён в архиве.':'Для создания сетки необходимо минимум 8 команд в рейтинге.'}</div></form></details>`;
+  return `<details class="tourney-create" ${open?'open':''}><summary>＋ Create new tournament (8 teams)</summary><form id="tourneyCreateForm"><div class="field" style="margin-top:12px"><label for="tourneyName">Tournament name</label><input id="tourneyName" maxlength="100" placeholder="MVP CS2 2026" value="MVP CS2 2026" required></div><div class="field"><label for="tourneyBestOf">Формат матчей</label><select id="tourneyBestOf"><option value="1">BO1 — до 1 победы</option><option value="3" selected>BO3 — до 2 побед</option><option value="5">BO5 — до 3 побед</option></select></div><div class="tourney-create-grid">${Array.from({length:8},(_,i)=>`<div class="field"><label for="tourneySeed${i+1}">Посев ${i+1}</label><select id="tourneySeed${i+1}" required>${opts}</select></div>`).join('')}</div><button class="btn primary" type="submit" ${available?'':'disabled'}>Create 8-team bracket</button><div class="tourney-public-note">${available?'Select восемь разных команд из общего рейтинга. Предыдущий активный турнир будет сохранён в архиве.':'Для создания сетки необходимо минимум 8 команд в рейтинге.'}</div></form></details>`;
 }
 function tournamentEditMarkup(tournament,open=false){
   const current=tournament?.bracket_data||{};
   const selected=Array.isArray(current.teams)?current.teams:[];
   const available=teams.length>=8;
-  return `<details class="tourney-create" id="tourneyEditDetails" ${open?'open':''}><summary>✎ Edit созданную сетку</summary><form id="tourneyEditForm"><div class="field" style="margin-top:12px"><label for="tourneyEditName">Tournament name</label><input id="tourneyEditName" maxlength="100" value="${esc(tournament?.name||'')}" required></div><div class="field"><label for="tourneyEditBestOf">Формат матчей</label><select id="tourneyEditBestOf"><option value="1" ${Number(tournament?.best_of)===1?'selected':''}>BO1 — до 1 победы</option><option value="3" ${Number(tournament?.best_of)===3?'selected':''}>BO3 — до 2 побед</option><option value="5" ${Number(tournament?.best_of)===5?'selected':''}>BO5 — до 3 побед</option></select></div><div class="tourney-public-note">Изменение названия не сбрасывает результаты. Если изменить состав, порядок посева или BO, результаты матчей будут очищены, чтобы не оставить неверную сетку.</div><div class="tourney-create-grid">${Array.from({length:8},(_,i)=>{const id=selected[i]?.id??'';const hasOption=teams.some(t=>String(t.id)===String(id));const missing=id&&!hasOption?`<option value="${esc(id)}" selected>${esc(selected[i]?.name||'Team вне рейтинга')} (нет в рейтинге)</option>`:'';return `<div class="field"><label for="tourneyEditSeed${i+1}">Посев ${i+1}</label><select id="tourneyEditSeed${i+1}" required>${missing}${tournamentTeamOptions(id)}</select></div>`}).join('')}</div><div class="tourney-score-actions" style="margin-top:10px"><button class="btn primary" type="submit" ${available?'':'disabled'}>Save changes</button><button class="btn" type="button" id="cancelTourneyEdit">Cancel</button></div><div class="tourney-public-note">В сетке должны быть выбраны 8 разных команд.</div></form></details>`;
+  return `<details class="tourney-create" id="tourneyEditDetails" ${open?'open':''}><summary>✎ Edit tournament bracket</summary><form id="tourneyEditForm"><div class="field" style="margin-top:12px"><label for="tourneyEditName">Tournament name</label><input id="tourneyEditName" maxlength="100" value="${esc(tournament?.name||'')}" required></div><div class="field"><label for="tourneyEditBestOf">Формат матчей</label><select id="tourneyEditBestOf"><option value="1" ${Number(tournament?.best_of)===1?'selected':''}>BO1 — до 1 победы</option><option value="3" ${Number(tournament?.best_of)===3?'selected':''}>BO3 — до 2 побед</option><option value="5" ${Number(tournament?.best_of)===5?'selected':''}>BO5 — до 3 побед</option></select></div><div class="tourney-public-note">Изменение названия не сбрасывает результаты. Если изменить состав, порядок посева или BO, результаты матчей будут очищены, чтобы не оставить неверную сетку.</div><div class="tourney-create-grid">${Array.from({length:8},(_,i)=>{const id=selected[i]?.id??'';const hasOption=teams.some(t=>String(t.id)===String(id));const missing=id&&!hasOption?`<option value="${esc(id)}" selected>${esc(selected[i]?.name||'Team outside ranking')} (not ranked)</option>`:'';return `<div class="field"><label for="tourneyEditSeed${i+1}">Посев ${i+1}</label><select id="tourneyEditSeed${i+1}" required>${missing}${tournamentTeamOptions(id)}</select></div>`}).join('')}</div><div class="tourney-score-actions" style="margin-top:10px"><button class="btn primary" type="submit" ${available?'':'disabled'}>Save changes</button><button class="btn" type="button" id="cancelTourneyEdit">Cancel</button></div><div class="tourney-public-note">В сетке должны быть выбраны 8 разных команд.</div></form></details>`;
 }
 function tournamentMarkup(tournament){
-  if(!tournament){return `${can('manage_matches')?tournamentCreateMarkup(true):''}<div class="tourney-empty"><b>Активный турнир пока не создан.</b><br><span>Организатор может создать верхнюю сетку на 8 команд, а затем отдельно добавить до 8 команд в нижнюю сетку.</span></div>`;}
+  if(!tournament){return `${can('manage_matches')?tournamentCreateMarkup(true):''}<div class="tourney-empty"><b>No active tournament has been created yet.</b><br><span>The organizer can create an 8-team upper bracket and then add up to 8 teams to the lower bracket separately.</span></div>`;}
   const resolved=resolveTournament(tournament);tournament._resolved=resolved;
   const champion=resolved.champion;
   const activeCount=Object.values(resolved.games).filter(g=>g.winner).length;
-  const status=champion?'ТУРНИР ЗАВЕРШЁН':activeCount?'ТУРНИР ИДЁТ':'ОЖИДАЕТ СТАРТА';
-  const statusText=champion?'Чемпион определён':activeCount?`Завершено матчей: ${activeCount} из 15`:'Матчи ещё не сыграны';
-  return `${can('manage_matches')?`<div class="tourney-adminbar"><span><b>Управление турниром</b><br><small>Можно изменить состав и формат или удалить текущую сетку.</small></span><div class="tourney-admin-actions"><button type="button" class="btn" id="tourneyEditBtn">✎ Edit</button><button type="button" class="btn danger" id="tourneyDeleteBtn">Delete турнир</button><button type="button" class="btn" id="tourneyNewBtn">＋ Новый турнир</button></div></div>`:''}${can('manage_matches')?`<div id="tourneyCreateHost"></div>`:''}<section class="tourney-hero"><div class="tourney-hero-top"><div><div class="tourney-kicker">MVP CS2 · 8 + 8 TEAMS</div><h2 class="tourney-title">${esc(tournament.name)}</h2><div class="tourney-subtitle">${statusText} · Формат матчей BO${resolved.bestOf}</div></div><span class="tourney-status">${status}</span></div>${champion?`<div class="tourney-champion"><span class="cup">🏆</span><div><small>ЧЕМПИОН MVP CS2</small><strong>${esc(champion.name)}</strong></div></div>`:''}</section><section class="tourney-section"><div class="tourney-section-head"><strong>ВЕРХНЯЯ СЕТКА · 8 КОМАНД</strong><span>Отдельная ветка верхнего турнира</span></div><div class="tourney-rounds">${TOURNAMENT_ROUNDS.upper.map(r=>tournamentRoundHtml(r,tournament)).join('')}</div></section><section class="tourney-section"><div class="tourney-section-head"><strong>НИЖНЯЯ СЕТКА · 8 МЕСТ</strong><span>Добавь команды и разыграй отдельную сетку</span></div>${tournamentLowerSeedsMarkup(tournament)}<div class="tourney-rounds">${TOURNAMENT_ROUNDS.lower.map(r=>tournamentRoundHtml(r,tournament)).join('')}</div></section><section class="tourney-section"><div class="tourney-section-head"><strong>ГРАНД-ФИНАЛ</strong><span>Победители верхней и нижней сеток</span></div><div class="tourney-rounds" style="grid-auto-columns:minmax(245px,390px);justify-content:center"><div class="tourney-round"><div class="tourney-round-title">Финал · за чемпионство</div>${tournamentMatchCard(resolved.games.gf,tournament)}</div></div></section><div class="tourney-bracket-note"><b>Порядок турнира:</b> в верхней и нижней сетках по 8 выбранных команд играют отдельные ветки. Победители каждой ветки встречаются в гранд-финале. Счёт вводится за серию карт (BO1 / BO3 / BO5). Это формат с двумя параллельными сетками, а не классическое Double Elimination с переводом проигравших из верхней сетки.</div>${can('manage_matches')?`<div class="tourney-public-note">Изменение результата автоматически сбрасывает зависимые матчи. Составы верхней и нижней сеток сохраняются в базе Neon.</div>`:''}`;
+  const status=champion?'ТУРНИР COMPLETED':activeCount?'TOURNAMENT IN PROGRESS':'NOT STARTED';
+  const statusText=champion?'Champion decided':activeCount?`Matches completed: ${activeCount} of 15`:'No matches played yet';
+  return `${can('manage_matches')?`<div class="tourney-adminbar"><span><b>Tournament management</b><br><small>You can change the lineup and format or delete the current bracket.</small></span><div class="tourney-admin-actions"><button type="button" class="btn" id="tourneyEditBtn">✎ Edit</button><button type="button" class="btn danger" id="tourneyDeleteBtn">Delete турнир</button><button type="button" class="btn" id="tourneyNewBtn">＋ Новый турнир</button></div></div>`:''}${can('manage_matches')?`<div id="tourneyCreateHost"></div>`:''}<section class="tourney-hero"><div class="tourney-hero-top"><div><div class="tourney-kicker">MVP CS2 · 8 + 8 TEAMS</div><h2 class="tourney-title">${esc(tournament.name)}</h2><div class="tourney-subtitle">${statusText} · Формат матчей BO${resolved.bestOf}</div></div><span class="tourney-status">${status}</span></div>${champion?`<div class="tourney-champion"><span class="cup">🏆</span><div><small>ЧЕМПИОН MVP CS2</small><strong>${esc(champion.name)}</strong></div></div>`:''}</section><section class="tourney-section"><div class="tourney-section-head"><strong>ВЕРХНЯЯ СЕТКА · 8 КОМАНД</strong><span>Отдельная ветка верхнего турнира</span></div><div class="tourney-rounds">${TOURNAMENT_ROUNDS.upper.map(r=>tournamentRoundHtml(r,tournament)).join('')}</div></section><section class="tourney-section"><div class="tourney-section-head"><strong>НИЖНЯЯ СЕТКА · 8 МЕСТ</strong><span>Добавь команды и разыграй отдельную сетку</span></div>${tournamentLowerSeedsMarkup(tournament)}<div class="tourney-rounds">${TOURNAMENT_ROUNDS.lower.map(r=>tournamentRoundHtml(r,tournament)).join('')}</div></section><section class="tourney-section"><div class="tourney-section-head"><strong>ГРАНД-ФИНАЛ</strong><span>Победители верхней и нижней сеток</span></div><div class="tourney-rounds" style="grid-auto-columns:minmax(245px,390px);justify-content:center"><div class="tourney-round"><div class="tourney-round-title">Финал · за чемпионство</div>${tournamentMatchCard(resolved.games.gf,tournament)}</div></div></section><div class="tourney-bracket-note"><b>Порядок турнира:</b> в верхней и нижней сетках по 8 выбранных команд играют отдельные ветки. Победители каждой ветки встречаются в гранд-финале. Счёт вводится за серию карт (BO1 / BO3 / BO5). Это формат с двумя параллельными сетками, а не классическое Double Elimination с переводом проигравших из верхней сетки.</div>${can('manage_matches')?`<div class="tourney-public-note">Изменение результата автоматически сбрасывает зависимые матчи. Составы верхней и нижней сеток сохраняются в базе Neon.</div>`:''}`;
 }
 
 async function loadTournamentIntoModal(force=false){
@@ -3118,14 +3118,14 @@ async function loadTournamentIntoModal(force=false){
     bindTournamentControls(host);
     tournamentRefreshPending=false;
   }catch(e){
-    host.innerHTML=`<div class="tourney-empty"><b>Не удалось загрузить турнир.</b><br>Проверь, что таблицы турниров перенесены в Neon.<br><small>${esc(niceError(e))}</small></div>${can('manage_matches')?tournamentCreateMarkup(true):''}`;
+    host.innerHTML=`<div class="tourney-empty"><b>Failed to load tournament.</b><br>Проверь, что таблицы турниров перенесены в Neon.<br><small>${esc(niceError(e))}</small></div>${can('manage_matches')?tournamentCreateMarkup(true):''}`;
     bindTournamentControls(host);
   }finally{tournamentLoadBusy=false;}
 }
 async function openTournamentCenter(){
   cleanupLiveCenter();cleanupTournamentCenter();
   setMainNavActive('tournament');
-  modal(`<div class="page-head"><div><h2>Tournamentная сетка MVP CS2</h2><div class="tourney-page-intro">Настраиваемые верхняя и нижняя сетки по 8 команд · отдельное управление составами · общий гранд-финал.</div></div><button class="btn" id="closeTournamentCenter">Close</button></div><div id="tournamentContent"><div class="tourney-empty">Загружаем турнир…</div></div>`,true);
+  modal(`<div class="page-head"><div><h2>Tournamentная сетка MVP CS2</h2><div class="tourney-page-intro">Custom 8-team upper and lower brackets · separate lineup management · shared grand final.</div></div><button class="btn" id="closeTournamentCenter">Close</button></div><div id="tournamentContent"><div class="tourney-empty">Загружаем турнир…</div></div>`,true);
   document.querySelector('#modalRoot .modal').classList.add('modal-page');
   document.getElementById('closeTournamentCenter').onclick=()=>{closeModal();setMainNavActive('ranking')};
   await loadTournamentIntoModal();
@@ -3153,23 +3153,23 @@ async function saveTournamentLowerSeeds(event){
   if(!can('manage_matches')||!currentUser||!activeTournament?.id)return;
   const form=event.currentTarget;
   const ids=Array.from({length:8},(_,i)=>document.getElementById(`tourneyLowerSeed${i+1}`)?.value||'');
-  if(ids.some(x=>!x))return alert('Заполни все 8 мест нижней сетки.');
-  if(new Set(ids).size!==8)return alert('В нижней сетке каждая команда должна быть выбрана только один раз.');
+  if(ids.some(x=>!x))return alert('Fill all 8 lower-bracket slots.');
+  if(new Set(ids).size!==8)return alert('Each team can only be selected once in the lower bracket.');
   const picked=ids.map(id=>teams.find(t=>String(t.id)===String(id))).filter(Boolean);
-  if(picked.length!==8)return alert('Одна из команд не найдена в рейтинге. Обнови страницу и выбери её заново.');
+  if(picked.length!==8)return alert('One of the teams was not found in the ranking. Refresh the page and select it again.');
   const current=activeTournament.bracket_data||{};
   const old=Array.isArray(current.lower_teams)?current.lower_teams:[];
   const changed=ids.some((id,i)=>String(id)!==String(old[i]?.id??''));
-  if(!changed)return alert('Состав нижней сетки не изменился.');
+  if(!changed)return alert('The lower-bracket lineup has not changed.');
   const scores={...(current.scores||{})};
   const lowerKeys=['lb1','lb2','lb3','lb4','lb5','lb6','lb7','gf'];
   const hadResults=lowerKeys.some(key=>scores[key]);
-  if(hadResults&&!confirm('При изменении состава нижней сетки результаты её матчей и гранд-финала будут сброшены. Продолжить?'))return;
+  if(hadResults&&!confirm('Changing the lower-bracket lineup will reset its match results and the grand final. Continue?'))return;
   const nextScores={...scores};lowerKeys.forEach(key=>delete nextScores[key]);
   const next={...current,lower_teams:picked.map(t=>({id:String(t.id),name:String(t.name||''),tag:String(t.tag||''),logo:String(t.logo||'')})),scores:nextScores};
-  const submit=form.querySelector('button[type="submit"]');if(submit){submit.disabled=true;submit.textContent='Сохраняем…';}
+  const submit=form.querySelector('button[type="submit"]');if(submit){submit.disabled=true;submit.textContent='Saving…';}
   try{await persistTournamentData(next);await loadTournamentIntoModal(true);}
-  catch(e){alert('Не удалось сохранить команды нижней сетки: '+niceError(e));if(submit){submit.disabled=false;submit.textContent='Сохранить команды нижней сетки';}}
+  catch(e){alert('Failed to save lower-bracket teams: '+niceError(e));if(submit){submit.disabled=false;submit.textContent='Save lower-bracket teams';}}
 }
 
 async function saveTournamentEdits(event){
@@ -3180,40 +3180,40 @@ async function saveTournamentEdits(event){
   const bestOf=Number(document.getElementById('tourneyEditBestOf').value);
   const ids=Array.from({length:8},(_,i)=>document.getElementById(`tourneyEditSeed${i+1}`).value);
   if(!name)return alert('Enter a tournament name.');
-  if(![1,3,5].includes(bestOf))return alert('Выбери BO1, BO3 или BO5.');
-  if(ids.some(x=>!x)||new Set(ids).size!==8)return alert('Выбери 8 разных команд.');
+  if(![1,3,5].includes(bestOf))return alert('Select BO1, BO3 или BO5.');
+  if(ids.some(x=>!x)||new Set(ids).size!==8)return alert('Select 8 разных команд.');
   const picked=ids.map(id=>teams.find(t=>String(t.id)===String(id))).filter(Boolean);
-  if(picked.length!==8)return alert('Одна из команд больше недоступна в рейтинге. Выбери её заново.');
+  if(picked.length!==8)return alert('Одна из команд больше недоступна в рейтинге. Select её заново.');
   const oldData=activeTournament.bracket_data||{};
   const oldTeams=Array.isArray(oldData.teams)?oldData.teams:[];
   const lineupChanged=bestOf!==Number(activeTournament.best_of)||ids.some((id,i)=>String(oldTeams[i]?.id??'')!==String(id));
   const hadScores=Object.keys(oldData.scores||{}).length>0;
-  if(lineupChanged&&hadScores&&!confirm('Изменяется состав, посев или формат BO. Все результаты матчей этой сетки будут сброшены. Продолжить?'))return;
-  if(lineupChanged&&!hadScores&&!confirm('Сохранить новый состав, посев и формат турнира?'))return;
+  if(lineupChanged&&hadScores&&!confirm('The lineup, seeding, or BO format is changing. All match results in this bracket will be reset. Continue?'))return;
+  if(lineupChanged&&!hadScores&&!confirm('Save the new lineup, seeding, and tournament format?'))return;
   const nextData=compactTournamentData({...oldData,version:1,teams:picked.map(t=>({id:String(t.id),name:String(t.name||''),tag:String(t.tag||''),logo:String(t.logo||'')})),scores:lineupChanged?{}:{...(oldData.scores||{})}});
   const resolved=resolveTournament({...activeTournament,name,best_of:bestOf,bracket_data:nextData});
   const hasResults=Object.values(resolved.games).some(g=>g.winner);
   const status=resolved.champion?'completed':hasResults?'live':'registration';
   const submit=form.querySelector('button[type="submit"]');
-  if(submit){submit.disabled=true;submit.textContent='Сохраняем…';}
+  if(submit){submit.disabled=true;submit.textContent='Saving…';}
   try{
     const {error}=await client.from('mvp_tournaments').update({name,best_of:bestOf,status,bracket_data:nextData,updated_at:new Date().toISOString()}).eq('id',activeTournament.id);
     if(error)throw error;
     await loadTournamentIntoModal(true);
-  }catch(e){alert('Не удалось изменить турнир: '+niceError(e));if(submit){submit.disabled=false;submit.textContent='Save changes';}}
+  }catch(e){alert('Failed to update tournament: '+niceError(e));if(submit){submit.disabled=false;submit.textContent='Save changes';}}
 }
 async function deleteActiveTournament(){
   if(!can('manage_matches')||!activeTournament?.id)return;
   const id=activeTournament.id;
-  const name=activeTournament.name||'этот турнир';
-  if(!confirm(`Delete турнир «${name}»? Его сетка и результаты будут удалены без возможности восстановления.`))return;
+  const name=activeTournament.name||'this tournament';
+  if(!confirm(`Delete tournament “${name}”? Its bracket and results will be permanently deleted.`))return;
   try{
     const {data,error}=await client.from('mvp_tournaments').delete().eq('id',id).select('id').maybeSingle();
     if(error)throw error;
-    if(!data)throw new Error('Tournament не удалён. Проверь право manage_matches в Worker.');
+    if(!data)throw new Error('Tournament was not deleted. Check the manage_matches permission in the Worker.');
     activeTournament=null;
     await loadTournamentIntoModal(true);
-  }catch(e){alert('Не удалось удалить турнир: '+niceError(e));}
+  }catch(e){alert('Failed to delete tournament: '+niceError(e));}
 }
 async function createTournamentFromForm(event){
   event.preventDefault();if(!can('manage_matches')||!currentUser)return;
@@ -3222,11 +3222,11 @@ async function createTournamentFromForm(event){
   const bestOf=Number(document.getElementById('tourneyBestOf').value);
   const ids=Array.from({length:8},(_,i)=>document.getElementById(`tourneySeed${i+1}`).value);
   if(!name)return alert('Enter a tournament name.');
-  if(![1,3,5].includes(bestOf))return alert('Выбери BO1, BO3 или BO5.');
-  if(ids.some(x=>!x)||new Set(ids).size!==8)return alert('Выбери 8 разных команд.');
+  if(![1,3,5].includes(bestOf))return alert('Select BO1, BO3 или BO5.');
+  if(ids.some(x=>!x)||new Set(ids).size!==8)return alert('Select 8 разных команд.');
   const picked=ids.map(id=>teams.find(t=>String(t.id)===String(id))).filter(Boolean);
-  if(picked.length!==8)return alert('Не удалось найти все выбранные команды. Обнови страницу и повтори.');
-  const submit=form.querySelector('button[type="submit"]');submit.disabled=true;submit.textContent='Создаём…';
+  if(picked.length!==8)return alert('Could not find all selected teams. Refresh the page and try again.');
+  const submit=form.querySelector('button[type="submit"]');submit.disabled=true;submit.textContent='Creating…';
   try{
     const bracket_data=compactTournamentData({version:2,teams:picked.map(t=>({id:String(t.id),name:String(t.name||''),tag:String(t.tag||''),logo:String(t.logo||'')})),lower_teams:[],scores:{}});
     const {data:created,error:insertError}=await client.from('mvp_tournaments').insert({name,best_of:bestOf,status:'registration',is_active:false,bracket_data,created_by:currentUser.id}).select('id').single();
@@ -3236,10 +3236,10 @@ async function createTournamentFromForm(event){
     const {error:activateError}=await client.from('mvp_tournaments').update({is_active:true,status:'registration'}).eq('id',created.id);
     if(activateError)throw activateError;
     await loadTournamentIntoModal(true);
-  }catch(e){alert('Не удалось создать турнир: '+niceError(e)+'\nПроверь SQL-файл и право manage_matches.');submit.disabled=false;submit.textContent='Создать сетку на 8 команд';}
+  }catch(e){alert('Failed to create tournament: '+niceError(e)+'\nПроверь SQL-файл и право manage_matches.');submit.disabled=false;submit.textContent='Create 8-team bracket';}
 }
 async function persistTournamentData(nextState){
-  if(!activeTournament?.id)throw new Error('Активный турнир не найден.');
+  if(!activeTournament?.id)throw new Error('Active tournament not found.');
   nextState=compactTournamentData(nextState);
   const resolved=resolveTournament({...activeTournament,bracket_data:nextState});
   const completed=!!resolved.champion;
@@ -3259,39 +3259,39 @@ async function saveTournamentScore(event){
   const a=Number(form.elements.scoreA.value),b=Number(form.elements.scoreB.value),target=tournamentWinTarget(activeTournament?.best_of);
   if(!Number.isInteger(a)||!Number.isInteger(b)||a<0||b<0||a===b||Math.max(a,b)!==target||Math.min(a,b)>=target){alert(`Для BO${activeTournament.best_of} введи итог серии: одна команда должна набрать ${target}, вторая — меньше. Например, ${target}:0 или ${target}:${target-1}.`);return;}
   const match=before;
-  if(!match?.a||!match?.b){alert('Обе команды ещё не определены.');return;}
+  if(!match?.a||!match?.b){alert('Both teams have not been determined yet.');return;}
   const newWinner=a>b?match.a:match.b;
   scores[key]={a,b,team_a_id:String(match.a.id),team_b_id:String(match.b.id),saved_at:new Date().toISOString()};
   if(String(before.winner?.id||'')!==String(newWinner.id))clearDownstreamScores(scores,key);
   const next={...current,scores};
-  const submit=form.querySelector('button[type="submit"]');submit.disabled=true;submit.textContent='Сохраняем…';
+  const submit=form.querySelector('button[type="submit"]');submit.disabled=true;submit.textContent='Saving…';
   try{await persistTournamentData(next);await loadTournamentIntoModal(true);}
-  catch(e){alert('Не удалось сохранить счёт: '+niceError(e));submit.disabled=false;submit.textContent='Сохранить';}
+  catch(e){alert('Failed to save score: '+niceError(e));submit.disabled=false;submit.textContent='Save';}
 }
 async function clearTournamentScore(key){
   if(!can('manage_matches')||!activeTournament)return;
-  if(!confirm('Сбросить счёт этого матча и результаты всех последующих матчей, зависящих от него?'))return;
+  if(!confirm('Reset this match score and all subsequent match results that depend on it?'))return;
   const current=activeTournament.bracket_data||{},scores={...(current.scores||{})};delete scores[key];clearDownstreamScores(scores,key);
   try{await persistTournamentData({...current,scores});await loadTournamentIntoModal(true);}
-  catch(e){alert('Не удалось сбросить результат: '+niceError(e));}
+  catch(e){alert('Failed to reset result: '+niceError(e));}
 }
 
 async function openStreamsCenter(){
   cleanupLiveCenter();
   setMainNavActive('streams');
-  modal(`<div class="page-head"><div><h2>Трансляции CS2</h2><div class="page-intro">YouTube-эфиры и записи, добавленные администрацией MVP CS2 Ranking.</div></div><button class="btn" id="closeStreams">Close</button></div>${can('manage_streams')?`<form id="streamAddForm" class="stream-admin-form"><div class="field"><label>Название трансляции</label><input id="streamTitle" maxlength="100" placeholder="Например, MVP CS2 — турнирный эфир" required></div><div class="field"><label>Ссылка YouTube (видео или эфир)</label><input id="streamUrl" type="url" maxlength="500" placeholder="https://www.youtube.com/live/VIDEO_ID" required></div><button class="btn primary" type="submit">＋ Добавить эфир</button></form>`:''}<div id="streamContent" class="stream-grid"><div class="stream-empty">Загружаем трансляции…</div></div>`,true);
+  modal(`<div class="page-head"><div><h2>CS2 Streams</h2><div class="page-intro">YouTube live streams and recordings added by the MVP CS2 Ranking administrators.</div></div><button class="btn" id="closeStreams">Close</button></div>${can('manage_streams')?`<form id="streamAddForm" class="stream-admin-form"><div class="field"><label>Название трансляции</label><input id="streamTitle" maxlength="100" placeholder="Например, MVP CS2 — турнирный эфир" required></div><div class="field"><label>Ссылка YouTube (видео или эфир)</label><input id="streamUrl" type="url" maxlength="500" placeholder="https://www.youtube.com/live/VIDEO_ID" required></div><button class="btn primary" type="submit">＋ Add stream</button></form>`:''}<div id="streamContent" class="stream-grid"><div class="stream-empty">Загружаем трансляции…</div></div>`,true);
   document.querySelector('#modalRoot .modal').classList.add('modal-page');
   document.getElementById('closeStreams').onclick=()=>{closeModal();setMainNavActive('ranking')};
   if(can('manage_streams')){
     document.getElementById('streamAddForm').addEventListener('submit',async e=>{
       e.preventDefault();const title=document.getElementById('streamTitle').value.trim(),youtube_url=document.getElementById('streamUrl').value.trim();
-      if(!title)return alert('Введи название трансляции.');
-      if(!youtubeEmbedUrl(youtube_url))return alert('Вставь ссылку на видео или эфир YouTube, например https://www.youtube.com/live/VIDEO_ID.');
+      if(!title)return alert('Enter a stream title.');
+      if(!youtubeEmbedUrl(youtube_url))return alert('Paste a link to a YouTube video or live stream, for example https://www.youtube.com/live/VIDEO_ID.');
       const btn=e.currentTarget.querySelector('button[type="submit"]');btn.disabled=true;btn.textContent='Saving…';
       const {error}=await client.from('cs2_streams').insert({title,youtube_url,created_by:currentUser.id});
-      if(error){alert('Не удалось добавить трансляцию. Проверь таблицу cs2_streams в Neon. Ошибка: '+niceError(error));btn.disabled=false;btn.textContent='＋ Добавить эфир';return;}
+      if(error){alert('Failed to add stream. Check the cs2_streams table in Neon. Error: '+niceError(error));btn.disabled=false;btn.textContent='＋ Add stream';return;}
       await loadStreamsIntoModal();
-      document.getElementById('streamTitle').value='';document.getElementById('streamUrl').value='';btn.disabled=false;btn.textContent='＋ Добавить эфир';
+      document.getElementById('streamTitle').value='';document.getElementById('streamUrl').value='';btn.disabled=false;btn.textContent='＋ Add stream';
     });
   }
   await loadStreamsIntoModal();
@@ -3299,26 +3299,26 @@ async function openStreamsCenter(){
 async function loadStreamsIntoModal(){
   const host=document.getElementById('streamContent');if(!host)return;
   let data=[];
-  try{data=await mvpApiGet('/api/streams')||[];}catch(error){host.className='stream-empty';host.innerHTML=`Не удалось загрузить трансляции из Neon API: ${esc(niceError(error))}`;return;}
-  if(!data.length){host.className='stream-empty';host.textContent=admin?'Пока нет трансляций. Добавление эфиров будет доступно после переноса защищённых операций.':'Пока нет добавленных трансляций. Загляни позже!';return;}
+  try{data=await mvpApiGet('/api/streams')||[];}catch(error){host.className='stream-empty';host.innerHTML=`Failed to load streams from the Neon API: ${esc(niceError(error))}`;return;}
+  if(!data.length){host.className='stream-empty';host.textContent=admin?'There are no streams yet. Adding streams will be available after the protected operations are migrated.':'No streams have been added yet. Check back later!';return;}
   host.className='stream-grid';
   host.innerHTML=data.map(stream=>{
     const embed=youtubeEmbedUrl(stream.youtube_url);
     if(!embed)return '';
-    const date=stream.created_at?new Date(stream.created_at).toLocaleDateString('ru-RU'):'Ютуб';
+    const date=stream.created_at?new Date(stream.created_at).toLocaleDateString('ru-RU'):'YouTube';
     return `<article class="stream-card"><div class="stream-embed"><iframe src="${embed}" title="${esc(stream.title)}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div><div class="stream-card-info"><div><div class="stream-title">${esc(stream.title)}</div><div class="stream-date">Добавлено: ${esc(date)}</div><a href="${esc(stream.youtube_url)}" target="_blank" rel="noopener noreferrer" style="font-size:11px;color:#8a6200">Открыть на YouTube</a></div>${can('manage_streams')?`<button class="btn" type="button" data-delete-stream="${stream.id}" title="Delete эфир">Delete</button>`:''}</div></article>`;
-  }).join('')||'<div class="stream-empty">Не удалось найти подходящие ссылки на YouTube.</div>';
+  }).join('')||'<div class="stream-empty">No suitable YouTube links were found.</div>';
   if(can('manage_streams'))host.querySelectorAll('[data-delete-stream]').forEach(btn=>btn.onclick=async()=>{
-    if(!confirm('Delete эту трансляцию из списка?'))return;
+    if(!confirm('Remove this stream from the list?'))return;
     const {error}=await client.from('cs2_streams').delete().eq('id',btn.dataset.deleteStream);
-    if(error){alert('Не удалось удалить трансляцию: '+niceError(error));return;}
+    if(error){alert('Failed to delete stream: '+niceError(error));return;}
     await loadStreamsIntoModal();
   });
 }
 async function openTopPlayersCenter(){
   cleanupLiveCenter();
   setMainNavActive('players');
-  modal(`<div class="page-head"><div><h2>Топ игроков</h2><div class="page-intro">Игроки из составов команд · рейтинг по среднему K/D за записанные матчи.</div></div><button class="btn" id="closeTopPlayers">Close</button></div><div id="topPlayerContent" class="top-player-list" dir="ltr"><div class="stream-empty">Собираем статистику игроков…</div></div>`,true);
+  modal(`<div class="page-head"><div><h2>Top Players</h2><div class="page-intro">Playerи из составов команд · рейтинг по среднему K/D за записанные матчи.</div></div><button class="btn" id="closeTopPlayers">Close</button></div><div id="topPlayerContent" class="top-player-list" dir="ltr"><div class="stream-empty">Собираем статистику игроков…</div></div>`,true);
   document.querySelector('#modalRoot .modal').classList.add('modal-page');
   document.getElementById('closeTopPlayers').onclick=()=>{closeModal();setMainNavActive('ranking')};
   const host=document.getElementById('topPlayerContent');
@@ -3363,7 +3363,7 @@ async function openTopPlayersCenter(){
       const statsTeams=(aggregate?.teamIds||[]).map(id=>teams.find(t=>String(t.id)===id)).filter(Boolean);
       return {...member,teams:member.teams.length?member.teams:statsTeams,average,kills:aggregate?.kills||0,deaths:aggregate?.deaths||0,matches:aggregate?.matches||0};
     }).sort((a,b)=>b.average-a.average||b.kills-a.kills||a.nickname.localeCompare(b.nickname));
-    if(!rows.length){host.className='stream-empty';host.textContent='В составах команд пока нет игроков. Добавь ники через админку.';return;}
+    if(!rows.length){host.className='stream-empty';host.textContent='There are no players in team rosters yet. Add nicknames through the admin panel.';return;}
     host.innerHTML=rows.slice(0,100).map((player,index)=>{
       const avatar=player.photo?`<img src="${esc(player.photo)}" alt="${esc(player.nickname)}" loading="lazy">`:esc(playerInitials(player.nickname));
       const team=player.teams[0];
@@ -3373,12 +3373,12 @@ async function openTopPlayersCenter(){
       return `<div class="top-player-row" dir="ltr"><div class="top-player-rank">#${index+1}</div><div class="top-player-avatar">${avatar}</div><div style="min-width:0"><div class="top-player-name-line">${playerFlag}<button type="button" class="top-player-nick" data-player-profile-name="${esc(player.nickname)}" data-player-profile-photo="${esc(player.photo||'')}">${esc(player.nickname)}</button></div>${roleTag}<div class="top-player-team">${teamBadge}</div></div><div class="top-player-metric"><strong>${formatKD(player.average)}</strong><small>AVG K/D</small></div><div class="top-player-metric"><strong>${player.kills}</strong><small>KILLS</small></div><div class="top-player-metric matches-metric"><strong>${player.matches}</strong><small>МАТЧИ</small></div></div>`;
     }).join('');
     wirePlayerProfileLinks();
-  }catch(err){host.className='stream-empty';host.innerHTML=`Не удалось загрузить топ игроков. Убедись, что выполнена миграция <b>match_history_players_setup.sql</b>. Ошибка: ${esc(niceError(err))}`;}
+  }catch(err){host.className='stream-empty';host.innerHTML=`Failed to load top players. Make sure the migration has been run <b>match_history_players_setup.sql</b>. Ошибка: ${esc(niceError(err))}`;}
 }
 async function openMatchesCenter(){
   cleanupLiveCenter();
   setMainNavActive('matches');
-  modal(`<div class="page-head"><div><h2>Матчи MVP CS2</h2><div class="page-intro">Расписание и результаты матчей команд.</div></div><button class="btn" id="closeMatches">Close</button></div>${can('manage_matches')?'<div class="matches-admin-tools"><button class="btn primary" id="createGlobalMatch">＋ Создать матч</button></div>':''}<div id="globalMatchesList" class="match-list"><div class="stream-empty">Загружаем матчи…</div></div>`,true);
+  modal(`<div class="page-head"><div><h2>MVP CS2 Matches</h2><div class="page-intro">Team match schedule and results.</div></div><button class="btn" id="closeMatches">Close</button></div>${can('manage_matches')?'<div class="matches-admin-tools"><button class="btn primary" id="createGlobalMatch">＋ Create match</button></div>':''}<div id="globalMatchesList" class="match-list"><div class="stream-empty">Загружаем матчи…</div></div>`,true);
   document.querySelector('#modalRoot .modal').classList.add('modal-page');
   document.getElementById('closeMatches').onclick=()=>{closeModal();setMainNavActive('ranking')};
   if(can('manage_matches')&&document.getElementById('createGlobalMatch'))document.getElementById('createGlobalMatch').onclick=()=>editGlobalMatch(null);
@@ -3388,8 +3388,8 @@ async function loadGlobalMatches(){
   const host=document.getElementById('globalMatchesList');if(!host)return;
   let data=[];
   if(isViewingHistoricalData())data=snapshotRows('team_matches');
-  else if(!isFutureSeason()){try{data=await mvpApiGet('/api/matches')||[];}catch(error){host.className='stream-empty';host.innerHTML=`Не удалось загрузить матчи из Neon API: ${esc(niceError(error))}`;return;}}
-  if(!data.length){host.className='stream-empty';host.textContent=isViewingHistoricalData()?`В статистике за ${formatDailyDate(selectedRankDate,false)} матчей нет.`:admin?'Матчей пока нет. Нажми «Создать матч», чтобы добавить первый.':'Пока нет запланированных или завершённых матчей.';return;}
+  else if(!isFutureSeason()){try{data=await mvpApiGet('/api/matches')||[];}catch(error){host.className='stream-empty';host.innerHTML=`Failed to load matches from the Neon API: ${esc(niceError(error))}`;return;}}
+  if(!data.length){host.className='stream-empty';host.textContent=isViewingHistoricalData()?`There are no matches in the statistics for ${formatDailyDate(selectedRankDate,false)}.`:admin?'There are no matches yet. Click “Create match” to add the first one.':'Пока нет запланированных или завершённых матчей.';return;}
   const teamMap=new Map(teams.map(t=>[String(t.id),t]));
   const sorted=[...data].sort((a,b)=>{const as=a.match_status==='scheduled'?0:1,bs=b.match_status==='scheduled'?0:1;return as-bs||(as===0?new Date(a.played_at)-new Date(b.played_at):new Date(b.played_at)-new Date(a.played_at))});
   host.className='match-list';
@@ -3398,7 +3398,7 @@ async function loadGlobalMatches(){
     const homeName=home?.name||'Team';const awayName=away?.name||m.opponent_name||'Opponent';
     const badge=t=>t?.logo?`<img src="${esc(t.logo)}" alt="">`:`<span style="width:34px;height:34px;display:grid;place-items:center;border:1px solid #e3e7eb;border-radius:6px;font-size:10px">${esc(t?.tag||t?.name?.slice(0,3)||'CS2')}</span>`;
     const scheduled=m.match_status==='scheduled';
-    const when=m.played_at?new Date(m.played_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'Время не указано';
+    const when=m.played_at?new Date(m.played_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'Time not specified';
     return `<article class="global-match-card"><div class="global-match-head"><div class="global-match-team">${badge(home)}<span class="global-match-team-name">${esc(homeName)}</span></div><div class="global-match-vs">${scheduled?'VS':`<span class="global-match-score">${Number(m.team_score)} : ${Number(m.opponent_score)}</span>`}</div><div class="global-match-team">${badge(away)}<span class="global-match-team-name">${esc(awayName)}</span></div></div><div class="global-match-info"><span class="global-match-status">${scheduled?'Запланирован':'Завершён'}</span><span>${esc(when)}${m.map_name?' · '+esc(m.map_name):''}${m.tournament_name?' · '+esc(m.tournament_name):''}</span></div>${can('manage_matches')?`<div class="global-match-actions"><button class="btn" type="button" data-edit-global-match="${m.id}">Edit</button>${!scheduled?`<button class="btn" type="button" data-edit-match-stats="${m.id}">Статистика игроков</button>`:''}<button class="btn" type="button" data-delete-global-match="${m.id}">Delete</button></div>`:''}</article>`;
   }).join('');
   if(can('manage_matches')){host.querySelectorAll('[data-edit-global-match]').forEach(b=>b.onclick=()=>editGlobalMatch(data.find(m=>String(m.id)===b.dataset.editGlobalMatch)));host.querySelectorAll('[data-edit-match-stats]').forEach(b=>b.onclick=()=>{const m=data.find(x=>String(x.id)===b.dataset.editMatchStats);const home=teams.find(t=>String(t.id)===String(m?.team_id));if(home)editTeamMatch(home,m)});host.querySelectorAll('[data-delete-global-match]').forEach(b=>b.onclick=async()=>{if(!confirm('Delete этот матч и связанную статистику?'))return;const {error}=await client.from('team_matches').delete().eq('id',b.dataset.deleteGlobalMatch);if(error){alert('Не удалось удалить матч: '+niceError(error));return}await loadGlobalMatches()})}
@@ -3406,25 +3406,25 @@ async function loadGlobalMatches(){
 function localDateTimeValue(value){const d=value?new Date(value):new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)}
 async function editGlobalMatch(match=null){
   if(!can('manage_matches'))return;
-  if(teams.length<2)return alert('Для создания матча сначала добавь минимум две команды.');
+  if(teams.length<2)return alert('Add at least two teams before creating a match.');
   const options=teams.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join('');
   const primary=String(match?.team_id||teams[0].id),secondary=String(match?.opponent_team_id||teams.find(t=>String(t.id)!==primary)?.id||teams[1].id);
-  modal(`<h2>${match?'Edit матч':'Создать матч'}</h2><div class="global-match-form"><div class="field"><label>Первая команда</label><select id="globalMatchTeam1">${options}</select></div><div class="field"><label>Вторая команда</label><select id="globalMatchTeam2">${options}</select></div><div class="field full"><label>Tournament name (необязательно)</label><input id="globalMatchTournament" maxlength="100" value="${esc(match?.tournament_name||'')}" placeholder="MVP CS2 Cup"></div><div class="field"><label>Карта</label><input id="globalMatchMap" maxlength="50" value="${esc(match?.map_name||'')}" placeholder="Mirage"></div><div class="field"><label>Date and time матча</label><input id="globalMatchTime" type="datetime-local" value="${localDateTimeValue(match?.played_at)}"></div><div class="field"><label>Статус</label><select id="globalMatchStatus"><option value="scheduled" ${match?.match_status==='scheduled'?'selected':''}>Запланирован</option><option value="completed" ${match?.match_status!=='scheduled'?'selected':''}>Завершён</option></select></div><div class="field"><label>Счёт первой команды</label><input id="globalMatchScore1" type="number" min="0" max="99" value="${Number(match?.team_score)||0}"></div><div class="field"><label>Счёт второй команды</label><input id="globalMatchScore2" type="number" min="0" max="99" value="${Number(match?.opponent_score)||0}"></div></div><div class="notice match-points-note">Когда статус матча установлен как «Завершён», победитель получит <b>+30 MVP Points</b>, проигравший потеряет <b>15 MVP Points</b>. При изменении результата очки пересчитаются автоматически.</div><div class="modalfoot"><button class="btn" id="cancelGlobalMatch">Cancel</button><button class="btn primary" id="saveGlobalMatch">Сохранить матч</button></div>`,true);
+  modal(`<h2>${match?'Edit match':'Create match'}</h2><div class="global-match-form"><div class="field"><label>First team</label><select id="globalMatchTeam1">${options}</select></div><div class="field"><label>Second team</label><select id="globalMatchTeam2">${options}</select></div><div class="field full"><label>Tournament name (необязательно)</label><input id="globalMatchTournament" maxlength="100" value="${esc(match?.tournament_name||'')}" placeholder="MVP CS2 Cup"></div><div class="field"><label>Карта</label><input id="globalMatchMap" maxlength="50" value="${esc(match?.map_name||'')}" placeholder="Mirage"></div><div class="field"><label>Date and time матча</label><input id="globalMatchTime" type="datetime-local" value="${localDateTimeValue(match?.played_at)}"></div><div class="field"><label>Статус</label><select id="globalMatchStatus"><option value="scheduled" ${match?.match_status==='scheduled'?'selected':''}>Запланирован</option><option value="completed" ${match?.match_status!=='scheduled'?'selected':''}>Завершён</option></select></div><div class="field"><label>Счёт первой команды</label><input id="globalMatchScore1" type="number" min="0" max="99" value="${Number(match?.team_score)||0}"></div><div class="field"><label>Счёт второй команды</label><input id="globalMatchScore2" type="number" min="0" max="99" value="${Number(match?.opponent_score)||0}"></div></div><div class="notice match-points-note">Когда статус матча установлен как «Завершён», победитель получит <b>+30 MVP Points</b>, проигравший потеряет <b>15 MVP Points</b>. При изменении результата очки пересчитаются автоматически.</div><div class="modalfoot"><button class="btn" id="cancelGlobalMatch">Cancel</button><button class="btn primary" id="saveGlobalMatch">Save match</button></div>`,true);
   document.getElementById('globalMatchTeam1').value=primary;document.getElementById('globalMatchTeam2').value=secondary;
   document.getElementById('cancelGlobalMatch').onclick=loadMatchesAndReopen;
   async function loadMatchesAndReopen(){await openMatchesCenter()}
   document.getElementById('saveGlobalMatch').onclick=async()=>{
     const team_id=Number(document.getElementById('globalMatchTeam1').value),opponent_team_id=Number(document.getElementById('globalMatchTeam2').value);
     const team1=teams.find(t=>Number(t.id)===team_id),team2=teams.find(t=>Number(t.id)===opponent_team_id);
-    if(!team1||!team2||team_id===opponent_team_id)return alert('Выбери две разные команды.');
-    const played=document.getElementById('globalMatchTime').value;if(!played)return alert('Укажи дату и время матча.');
+    if(!team1||!team2||team_id===opponent_team_id)return alert('Select две разные команды.');
+    const played=document.getElementById('globalMatchTime').value;if(!played)return alert('Enter the match date and time.');
     const team_score=Number(document.getElementById('globalMatchScore1').value),opponent_score=Number(document.getElementById('globalMatchScore2').value);
-    if(!Number.isInteger(team_score)||team_score<0||team_score>99||!Number.isInteger(opponent_score)||opponent_score<0||opponent_score>99)return alert('Проверь счёт матча.');
+    if(!Number.isInteger(team_score)||team_score<0||team_score>99||!Number.isInteger(opponent_score)||opponent_score<0||opponent_score>99)return alert('Check the match score.');
     const match_status=document.getElementById('globalMatchStatus').value;
     const payload={team_id,opponent_team_id,opponent_name:team2.name,team_score,opponent_score,map_name:document.getElementById('globalMatchMap').value.trim(),played_at:new Date(played).toISOString(),match_status,tournament_name:document.getElementById('globalMatchTournament').value.trim()};
     const btn=document.getElementById('saveGlobalMatch');btn.disabled=true;btn.textContent='Saving…';
     const result=match?await client.from('team_matches').update(payload).eq('id',match.id):await client.from('team_matches').insert({...payload,created_by:currentUser.id});
-    if(result.error){alert('Не удалось сохранить матч. Проверь SQL-миграцию. Ошибка: '+niceError(result.error));btn.disabled=false;btn.textContent='Сохранить матч';return;}
+    if(result.error){alert('Failed to save match. Check the SQL migration. Error: '+niceError(result.error));btn.disabled=false;btn.textContent='Save match';return;}
     await openMatchesCenter();
   };
 }
@@ -3455,7 +3455,7 @@ document.getElementById('teams').addEventListener('click',async e=>{
     if(actionButton.dataset.act==='edit')return editTeam(t);
     if(actionButton.dataset.act==='delete'&&confirm('Delete team «'+t.name+'»?')){
       const {error}=await client.from('teams').delete().eq('id',t.id);
-      if(error){alert('Не удалось удалить team: '+niceError(error));return}
+      if(error){alert('Failed to delete team: '+niceError(error));return}
       if(String(expandedTeamId)===String(t.id))expandedTeamId=null;
       await loadTeams();
     }
@@ -3474,16 +3474,16 @@ async function editTeam(t=null){
   const old=t||{name:'',tag:'',points:500,players:'',logo:'',player_photos:[],tournament_wins:0,is_banned:false,ban_reason:''};
   const oldRoster=getRoster(old),oldPlayerPhotos=getPlayerPhotos(old);
   let knownPlayers=[];if(oldRoster.length){const {data,error}=await client.from('cs2_players').select('id,nickname').in('nickname',oldRoster);if(!error)knownPlayers=data||[]}
-  const idInfo=oldRoster.map(n=>{const p=knownPlayers.find(x=>x.nickname.toLowerCase()===n.toLowerCase());return `<span class="player-id-chip">${esc(n)} · ID ${p?'#'+p.id:'будет создан'}</span>`}).join('');
-  const playerPhotoRows=Array.from({length:5},(_,i)=>`<div class="player-photo-edit"><label for="playerPhoto${i}">Фото игрока ${i+1}</label><div class="player-photo-preview" id="playerPhotoPreview${i}">${oldPlayerPhotos[i]?`<img src="${esc(oldPlayerPhotos[i])}" alt="Фото игрока ${i+1}">`:esc(playerInitials(oldRoster[i]))}</div><input id="playerPhoto${i}" type="file" accept="image/png,image/jpeg,image/webp"><button class="btn remove-player-photo" type="button" data-remove-player-photo="${i}">Убрать фото</button></div>`).join('');
-  modal(`<h2>${t?'Edit team':'Добавить team'}</h2><div class="field"><label>Название команды *</label><input id="teamName" maxlength="70" value="${esc(old.name)}" placeholder="Например, MVP Academy"></div><div class="formrow"><div class="field"><label>Тег команды</label><input id="teamTag" maxlength="12" value="${esc(old.tag)}" placeholder="MVP"></div><div class="field"><label>MVP Points</label><input id="teamPoints" type="number" min="0" max="1000000" value="${Number(old.points)}"></div></div><div class="field"><label>Tournament wins</label><input id="teamTournamentWins" type="number" min="0" max="9999" value="${Number(old.tournament_wins)||0}"></div><div class="field"><label>Игроки состава (через запятую, максимум 5)</label><textarea id="teamPlayers" maxlength="300" placeholder="Игрок1, Игрок2, Игрок3, Игрок4, Игрок5">${esc(old.players)}</textarea><div class="notice">Чтобы оформить переход: сначала удали игрока из старой команды и сохрани её, затем добавь его в новую team и сохрани. Новость об исключении автоматически превратится в новость о трансфере.</div><div class="player-id-list">${idInfo||'Постоянные ID появятся после первого сохранения игроков. Переименовывай через профиль игрока — K/D и матчи сохранятся.'}</div></div><div class="field"><label>Фотографии игроков</label><div class="notice">Загрузи фото для каждого игрока. Изображения автоматически уменьшаются и сохраняются в общей базе, так что их увидят все посетители. Разрешены PNG, JPG и WEBP; исходный файл до 4 МБ.</div><div class="player-photo-editor">${playerPhotoRows}</div></div>${can('manage_bans')?`<div class="field ban-team-field"><label><input type="checkbox" id="teamIsBanned" ${old.is_banned?'checked':''}> Заблокировать team и скрыть её из публичного рейтинга</label><input id="teamBanReason" maxlength=200 value="${esc(old.ban_reason||'')}" placeholder="Причина блокировки"></div>`:''}<div class="field"><label>Логотип команды (PNG, JPG, WEBP)</label><input id="teamLogo" type="file" accept="image/png,image/jpeg,image/webp"><div class="notice">Логотип сохранится в общей базе для всех посетителей. Файл — до 2 МБ.</div><div id="logoPreview" class="logo" style="margin-top:6px">${old.logo?`<img src="${esc(old.logo)}" alt="Лого">`:'Лого'}</div><button class="btn" type="button" id="removeLogo" style="margin-top:8px">Убрать логотип</button></div><div class="modalfoot"><button class="btn" id="cancelTeam">Cancel</button><button class="btn primary" id="saveTeam">Сохранить</button></div>`,true);
+  const idInfo=oldRoster.map(n=>{const p=knownPlayers.find(x=>x.nickname.toLowerCase()===n.toLowerCase());return `<span class="player-id-chip">${esc(n)} · ID ${p?'#'+p.id:'will be created'}</span>`}).join('');
+  const playerPhotoRows=Array.from({length:5},(_,i)=>`<div class="player-photo-edit"><label for="playerPhoto${i}">Player photo ${i+1}</label><div class="player-photo-preview" id="playerPhotoPreview${i}">${oldPlayerPhotos[i]?`<img src="${esc(oldPlayerPhotos[i])}" alt="Player photo ${i+1}">`:esc(playerInitials(oldRoster[i]))}</div><input id="playerPhoto${i}" type="file" accept="image/png,image/jpeg,image/webp"><button class="btn remove-player-photo" type="button" data-remove-player-photo="${i}">Убрать фото</button></div>`).join('');
+  modal(`<h2>${t?'Edit team':'Add team'}</h2><div class="field"><label>Team name *</label><input id="teamName" maxlength="70" value="${esc(old.name)}" placeholder="Например, MVP Academy"></div><div class="formrow"><div class="field"><label>Team tag</label><input id="teamTag" maxlength="12" value="${esc(old.tag)}" placeholder="MVP"></div><div class="field"><label>MVP Points</label><input id="teamPoints" type="number" min="0" max="1000000" value="${Number(old.points)}"></div></div><div class="field"><label>Tournament wins</label><input id="teamTournamentWins" type="number" min="0" max="9999" value="${Number(old.tournament_wins)||0}"></div><div class="field"><label>Playerи состава (через запятую, максимум 5)</label><textarea id="teamPlayers" maxlength="300" placeholder="Player1, Player2, Player3, Player4, Player5">${esc(old.players)}</textarea><div class="notice">Чтобы оформить переход: сначала удали игрока из старой команды и сохрани её, затем добавь его в новую team и сохрани. Новость об исключении автоматически превратится в новость о трансфере.</div><div class="player-id-list">${idInfo||'Постоянные ID появятся после первого сохранения игроков. Переименовывай через профиль игрока — K/D и матчи сохранятся.'}</div></div><div class="field"><label>Фотографии игроков</label><div class="notice">Загрузи фото для каждого игрока. Изображения автоматически уменьшаются и сохраняются в общей базе, так что их увидят все посетители. Разрешены PNG, JPG и WEBP; исходный файл до 4 МБ.</div><div class="player-photo-editor">${playerPhotoRows}</div></div>${can('manage_bans')?`<div class="field ban-team-field"><label><input type="checkbox" id="teamIsBanned" ${old.is_banned?'checked':''}> Заблокировать team и скрыть её из публичного рейтинга</label><input id="teamBanReason" maxlength=200 value="${esc(old.ban_reason||'')}" placeholder="Причина блокировки"></div>`:''}<div class="field"><label>Logoтип команды (PNG, JPG, WEBP)</label><input id="teamLogo" type="file" accept="image/png,image/jpeg,image/webp"><div class="notice">Logoтип сохранится в общей базе для всех посетителей. Файл — до 2 МБ.</div><div id="logoPreview" class="logo" style="margin-top:6px">${old.logo?`<img src="${esc(old.logo)}" alt="Logo">`:'Logo'}</div><button class="btn" type="button" id="removeLogo" style="margin-top:8px">Убрать логотип</button></div><div class="modalfoot"><button class="btn" id="cancelTeam">Cancel</button><button class="btn primary" id="saveTeam">Save</button></div>`,true);
   let logo=old.logo||'';
   let playerPhotos=[...oldPlayerPhotos];
   document.getElementById('cancelTeam').onclick=closeModal;
   document.getElementById('teamLogo').onchange=async ev=>{
     const f=ev.target.files[0];if(!f)return;
-    if(f.size>2*1024*1024){alert('Файл логотипа должен быть меньше 2 МБ.');ev.target.value='';return}
-    if(!['image/png','image/jpeg','image/webp'].includes(f.type)){alert('Выбери PNG, JPG или WEBP.');ev.target.value='';return}
+    if(f.size>2*1024*1024){alert('Logo file must be smaller than 2 MB.');ev.target.value='';return}
+    if(!['image/png','image/jpeg','image/webp'].includes(f.type)){alert('Select PNG, JPG или WEBP.');ev.target.value='';return}
     try{
       const compressed=await compressLogoImage(f,512);
       const blob=await (await fetch(compressed)).blob();
@@ -3492,45 +3492,45 @@ async function editTeam(t=null){
       const {error:uploadError}=await client.storage.from('mvp-site-assets').upload(path,blob,{upsert:false,contentType:blob.type||'image/webp'});
       if(uploadError)throw uploadError;
       const {data}=client.storage.from('mvp-site-assets').getPublicUrl(path);
-      if(!data?.publicUrl)throw new Error('Не удалось получить ссылку на логотип.');
+      if(!data?.publicUrl)throw new Error('Failed to obtain the logo URL.');
       logo=data.publicUrl;
-      document.getElementById('logoPreview').innerHTML=`<img src="${logo}" alt="Лого">`;
-    }catch(err){alert('Не получилось загрузить логотип: '+niceError(err));ev.target.value='';}
+      document.getElementById('logoPreview').innerHTML=`<img src="${logo}" alt="Logo">`;
+    }catch(err){alert('Failed to upload logo: '+niceError(err));ev.target.value='';}
   };
   for(let i=0;i<5;i++){
     document.getElementById('playerPhoto'+i).onchange=async ev=>{
       const file=ev.target.files[0];if(!file)return;
-      if(file.size>4*1024*1024){alert('Исходное фото должно быть меньше 4 МБ.');ev.target.value='';return}
-      if(!['image/png','image/jpeg','image/webp'].includes(file.type)){alert('Выбери фото PNG, JPG или WEBP.');ev.target.value='';return}
-      const preview=document.getElementById('playerPhotoPreview'+i);preview.textContent='Обработка…';
-      try{playerPhotos[i]=await compressImage(file,320,0.76);preview.innerHTML=`<img src="${playerPhotos[i]}" alt="Фото игрока ${i+1}">`}
-      catch(err){preview.textContent=playerInitials(oldRoster[i]);alert('Не удалось обработать фото: '+niceError(err))}
+      if(file.size>4*1024*1024){alert('Original photo must be smaller than 4 MB.');ev.target.value='';return}
+      if(!['image/png','image/jpeg','image/webp'].includes(file.type)){alert('Select фото PNG, JPG или WEBP.');ev.target.value='';return}
+      const preview=document.getElementById('playerPhotoPreview'+i);preview.textContent='Processing…';
+      try{playerPhotos[i]=await compressImage(file,320,0.76);preview.innerHTML=`<img src="${playerPhotos[i]}" alt="Player photo ${i+1}">`}
+      catch(err){preview.textContent=playerInitials(oldRoster[i]);alert('Failed to process photo: '+niceError(err))}
     };
   }
   document.querySelectorAll('[data-remove-player-photo]').forEach(btn=>btn.onclick=()=>{const i=Number(btn.dataset.removePlayerPhoto);playerPhotos[i]='';document.getElementById('playerPhoto'+i).value='';document.getElementById('playerPhotoPreview'+i).textContent=playerInitials(getRoster({players:document.getElementById('teamPlayers').value})[i])});
   document.getElementById('teamPlayers').addEventListener('input',()=>{const names=getRoster({players:document.getElementById('teamPlayers').value});for(let i=0;i<5;i++){const preview=document.getElementById('playerPhotoPreview'+i);if(!playerPhotos[i])preview.textContent=playerInitials(names[i]);}});
-  document.getElementById('removeLogo').onclick=()=>{logo='';document.getElementById('logoPreview').textContent='Лого';document.getElementById('teamLogo').value=''};
+  document.getElementById('removeLogo').onclick=()=>{logo='';document.getElementById('logoPreview').textContent='Logo';document.getElementById('teamLogo').value=''};
   document.getElementById('saveTeam').onclick=async()=>{
     if(busy)return;
     const name=document.getElementById('teamName').value.trim(),points=Number(document.getElementById('teamPoints').value);
-    if(!name)return alert('Введи название команды.');
-    if(!Number.isFinite(points)||points<0||points>1000000)return alert('Укажи корректное число очков.');
-    const tournament_wins=Number(document.getElementById('teamTournamentWins').value);if(!Number.isInteger(tournament_wins)||tournament_wins<0||tournament_wins>9999)return alert('Укажи корректное количество побед в турнирах.');
+    if(!name)return alert('Enter a team name.');
+    if(!Number.isFinite(points)||points<0||points>1000000)return alert('Enter a valid number of points.');
+    const tournament_wins=Number(document.getElementById('teamTournamentWins').value);if(!Number.isInteger(tournament_wins)||tournament_wins<0||tournament_wins>9999)return alert('Enter a valid number of tournament wins.');
     const rawRoster=document.getElementById('teamPlayers').value.trim(),newRoster=getRoster({players:rawRoster});
-     if(newRoster.length>5)return alert('В команде может быть максимум 5 игроков.');
-     const seenRoster=new Set();for(const nick of newRoster){const key=nick.toLowerCase();if(seenRoster.has(key))return alert(`Ник «${nick}» указан дважды в этой команде.`);seenRoster.add(key);const other=teams.find(x=>String(x.id)!==String(t?.id||'')&&getRoster(x).some(n=>n.toLowerCase()===key));if(other)return alert(`Ошибка: игрок «${nick}» уже состоит в команде «${other.name}». Один игрок не может находиться в двух командах одновременно.`)}
+     if(newRoster.length>5)return alert('A team can have a maximum of 5 players.');
+     const seenRoster=new Set();for(const nick of newRoster){const key=nick.toLowerCase();if(seenRoster.has(key))return alert(`Nickname “${nick}” is listed twice on this team.`);seenRoster.add(key);const other=teams.find(x=>String(x.id)!==String(t?.id||'')&&getRoster(x).some(n=>n.toLowerCase()===key));if(other)return alert(`Ошибка: игрок «${nick}» уже состоит в команде «${other.name}». Один игрок не может находиться в двух командах одновременно.`)}
      const is_banned=can('manage_bans')?Boolean(document.getElementById('teamIsBanned')?.checked):Boolean(old.is_banned);
      const ban_reason=can('manage_bans')?(is_banned?(document.getElementById('teamBanReason')?.value.trim()||old.ban_reason||'Suspected cheating'):''):String(old.ban_reason||'');
      const payload={p_team_id:t?Number(t.id):null,p_name:name,p_tag:document.getElementById('teamTag').value.trim()||name.slice(0,4).toUpperCase(),p_points:Math.floor(points),p_players:rawRoster,p_logo:logo,p_player_photos:playerPhotos,p_tournament_wins:tournament_wins,p_is_banned:is_banned,p_ban_reason:ban_reason};
     const btn=document.getElementById('saveTeam');busy=true;btn.disabled=true;btn.textContent='Saving…';
     try{
       const {data,error}=await client.rpc('admin_save_team',payload);if(error)throw error;
-      const saved=Array.isArray(data)?data[0]:data;if(!saved)throw new Error('Сохранённая команда не вернулась из базы.');
+      const saved=Array.isArray(data)?data[0]:data;if(!saved)throw new Error('The saved team was not returned by the database.');
        // Keep the old teams array intact until loadTeams compares old and new rank positions.
-       closeModal();await loadTeams();setStatus('Изменение сохранено в общей базе и будет видно другим посетителям.','success');
+       closeModal();await loadTeams();setStatus('Changes saved to the shared database and will be visible to other visitors.','success');
 
-    }catch(e){alert('Не удалось сохранить team или состав. Проверь структуру таблицы teams и права Worker. Ошибка: '+niceError(e))}
-    finally{busy=false;const saveBtn=document.getElementById('saveTeam');if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Сохранить'}}
+    }catch(e){alert('Failed to save team or roster. Check the teams table structure and Worker permissions. Error: '+niceError(e))}
+    finally{busy=false;const saveBtn=document.getElementById('saveTeam');if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Save'}}
   };
 }
 // Удаляет только почти белую область, связанную с краями изображения.
@@ -3569,16 +3569,16 @@ function canvasToTransparentImage(canvas,quality=0.88){
 function compressLogoImage(file,maxSide=512){
   return new Promise((resolve,reject)=>{
     const reader=new FileReader();
-    reader.onerror=()=>reject(new Error('Не удалось прочитать логотип.'));
+    reader.onerror=()=>reject(new Error('Failed to read logo.'));
     reader.onload=()=>{
       const image=new Image();
-      image.onerror=()=>reject(new Error('Файл не является корректным изображением.'));
+      image.onerror=()=>reject(new Error('The file is not a valid image.'));
       image.onload=()=>{
         const scale=Math.min(1,maxSide/Math.max(image.naturalWidth,image.naturalHeight));
         const width=Math.max(1,Math.round(image.naturalWidth*scale));
         const height=Math.max(1,Math.round(image.naturalHeight*scale));
         const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
-        const ctx=canvas.getContext('2d',{willReadFrequently:true});if(!ctx)return reject(new Error('Браузер не поддерживает обработку изображений.'));
+        const ctx=canvas.getContext('2d',{willReadFrequently:true});if(!ctx)return reject(new Error('Your browser does not support image processing.'));
         ctx.clearRect(0,0,width,height);ctx.drawImage(image,0,0,width,height);
         try{removeEdgeWhiteBackground(ctx,width,height);resolve(canvasToTransparentImage(canvas,0.9))}catch(e){reject(e)}
       };
@@ -3590,13 +3590,13 @@ function compressLogoImage(file,maxSide=512){
 function compressImage(file,maxSide=320,quality=0.88){
   return new Promise((resolve,reject)=>{
     const reader=new FileReader();
-    reader.onerror=()=>reject(new Error('Не удалось прочитать файл.'));
+    reader.onerror=()=>reject(new Error('Failed to read file.'));
     reader.onload=()=>{
-      const image=new Image();image.onerror=()=>reject(new Error('Файл не является корректным изображением.'));
+      const image=new Image();image.onerror=()=>reject(new Error('The file is not a valid image.'));
       image.onload=()=>{
         const side=Math.min(maxSide,Math.max(1,Math.min(image.naturalWidth,image.naturalHeight)));
         const canvas=document.createElement('canvas');canvas.width=side;canvas.height=side;
-        const ctx=canvas.getContext('2d',{willReadFrequently:true});if(!ctx)return reject(new Error('Браузер не поддерживает обработку изображений.'));
+        const ctx=canvas.getContext('2d',{willReadFrequently:true});if(!ctx)return reject(new Error('Your browser does not support image processing.'));
         const crop=Math.min(image.naturalWidth,image.naturalHeight),sx=(image.naturalWidth-crop)/2,sy=(image.naturalHeight-crop)/2;
         ctx.clearRect(0,0,side,side);ctx.drawImage(image,sx,sy,crop,crop,0,0,side,side);
         try{removeEdgeWhiteBackground(ctx,side,side);resolve(canvasToTransparentImage(canvas,quality))}catch(e){reject(e)}
@@ -3649,7 +3649,7 @@ async function loadModerationAccounts(){
   if(!data?.length){host.textContent='Зарегистрированных аккаунтов пока нет.';return}
   host.innerHTML=data.map(u=>{
     const perms=Object.entries(MOD_PERMISSION_LABELS).map(([key,label])=>`<label class="permission-check"><input type="checkbox" data-account-permission="${key}" data-user-id="${u.user_id}" ${(u.permissions||{})[key]?'checked':''}> ${esc(label)}</label>`).join('');
-    return `<article class="moderation-card"><div class="moderation-card-head"><div><b>${esc(u.username||u.email||u.user_id)}</b><small>${esc(u.email||'Email не указан')} · ID ${esc(u.user_id)}</small></div><span class="moderation-role">${u.role==='admin'?'Администратор':u.role==='moderator'?'Модератор':'Игрок'}</span></div><div class="field"><label>Роль</label><select data-account-role="${u.user_id}" ${u.role==='admin'?'disabled':''}><option value="player" ${u.role==='player'?'selected':''}>Игрок</option><option value="moderator" ${u.role==='moderator'?'selected':''}>Модератор</option></select></div>${u.role!=='admin'?`<div class="moderator-permissions">${perms}</div>`:''}<div class="moderation-actions">${u.role!=='admin'?`<button class="btn" type="button" data-save-access="${u.user_id}">Сохранить права</button>`:''}${u.email?`<button class="btn" type="button" data-account-ban="${esc(u.email)}" data-banned="${u.is_banned?'1':'0'}">${u.is_banned?'Разблокировать email':'Заблокировать email'}</button>`:''}${u.is_banned?`<small class="ban-reason">Заблокирован: ${esc(u.ban_reason||'Причина не указана')}</small>`:''}</div></article>`;
+    return `<article class="moderation-card"><div class="moderation-card-head"><div><b>${esc(u.username||u.email||u.user_id)}</b><small>${esc(u.email||'Email не указан')} · ID ${esc(u.user_id)}</small></div><span class="moderation-role">${u.role==='admin'?'Администратор':u.role==='moderator'?'Модератор':'Player'}</span></div><div class="field"><label>Роль</label><select data-account-role="${u.user_id}" ${u.role==='admin'?'disabled':''}><option value="player" ${u.role==='player'?'selected':''}>Player</option><option value="moderator" ${u.role==='moderator'?'selected':''}>Модератор</option></select></div>${u.role!=='admin'?`<div class="moderator-permissions">${perms}</div>`:''}<div class="moderation-actions">${u.role!=='admin'?`<button class="btn" type="button" data-save-access="${u.user_id}">Save права</button>`:''}${u.email?`<button class="btn" type="button" data-account-ban="${esc(u.email)}" data-banned="${u.is_banned?'1':'0'}">${u.is_banned?'Разблокировать email':'Заблокировать email'}</button>`:''}${u.is_banned?`<small class="ban-reason">Заблокирован: ${esc(u.ban_reason||'Причина не указана')}</small>`:''}</div></article>`;
   }).join('');
   host.querySelectorAll('[data-save-access]').forEach(btn=>btn.onclick=async()=>{
     const id=btn.dataset.saveAccess,role=host.querySelector(`[data-account-role="${id}"]`)?.value||'player',permissions={};
@@ -3684,7 +3684,7 @@ function renderModerationPlayers(rows){
   const host=document.getElementById('moderationPlayers');if(!host)return;
   const q=(document.getElementById('moderationPlayerSearch')?.value||'').trim().toLowerCase();
   const filtered=rows.filter(p=>!q||String(p.nickname).toLowerCase().includes(q)||String(p.id).includes(q));
-  host.innerHTML=filtered.slice(0,100).map(p=>{const team=teams.find(t=>String(t.id)===String(p.team_id));return `<div class="moderation-inline-row"><span><b>${esc(p.nickname)}</b><small>ID #${p.id}${team?' · '+esc(team.name):''}${p.is_banned?' · Заблокирован':''}</small></span><button class="btn" type="button" data-player-ban="${p.id}" data-banned="${p.is_banned?'1':'0'}">${p.is_banned?'Разблокировать':'Заблокировать'}</button></div>`}).join('')||'Игроки не найдены.';
+  host.innerHTML=filtered.slice(0,100).map(p=>{const team=teams.find(t=>String(t.id)===String(p.team_id));return `<div class="moderation-inline-row"><span><b>${esc(p.nickname)}</b><small>ID #${p.id}${team?' · '+esc(team.name):''}${p.is_banned?' · Заблокирован':''}</small></span><button class="btn" type="button" data-player-ban="${p.id}" data-banned="${p.is_banned?'1':'0'}">${p.is_banned?'Разблокировать':'Заблокировать'}</button></div>`}).join('')||'Playerи не найдены.';
   host.querySelectorAll('[data-player-ban]').forEach(btn=>btn.onclick=async()=>{const next=btn.dataset.banned!=='1',reason=next?(prompt('Player ban reason:','Suspected cheating')||''):' ';if(next&&!reason.trim())return;const {error}=await client.rpc('admin_set_player_ban',{p_player_id:Number(btn.dataset.playerBan),p_banned:next,p_reason:reason.trim()});if(error){alert('Failed to update ban status: '+niceError(error));return}await Promise.all([loadModerationPlayers(),loadTeams()])});
 }
 
@@ -3709,7 +3709,7 @@ async function loadSupportMessages(userId,scrollToBottom=false){
   else{
     container.innerHTML=data.map(m=>{
       const mine=String(m.sender_id)===String(currentUser.id);
-      const sender=String(m.sender_id)===String(m.user_id)?'Игрок':'Администратор';
+      const sender=String(m.sender_id)===String(m.user_id)?'Player':'Администратор';
       const date=m.created_at?new Date(m.created_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
       return `<div class="help-message ${mine?'mine':''}">${esc(m.message)}<span class="help-message-meta">${sender}${date?' · '+esc(date):''}</span></div>`
     }).join('');
@@ -3730,7 +3730,7 @@ function openPlayerSupport(){
 }
 async function openAdminInbox(){
   if(!can('manage_support')){showHelpNotice('Помощь','Для просмотра обращений необходимы права поддержки.',false);return}
-  modal(`<div class="help-header"><div><h2>Обращения игроков</h2><div class="notice">Выбери пользователя, чтобы открыть переписку.</div></div><button class="btn help-back" id="helpInboxClose">Close</button></div><div id="helpInbox" class="help-inbox"><div class="help-empty">Загружаем список пользователей…</div></div>`,true);
+  modal(`<div class="help-header"><div><h2>Обращения игроков</h2><div class="notice">Select пользователя, чтобы открыть переписку.</div></div><button class="btn help-back" id="helpInboxClose">Close</button></div><div id="helpInbox" class="help-inbox"><div class="help-empty">Загружаем список пользователей…</div></div>`,true);
   document.querySelector('#modalRoot .modal').classList.add('modal-help');
   document.getElementById('helpInboxClose').onclick=closeModal;
   await loadAdminInbox();
@@ -3785,14 +3785,14 @@ function newsSafeImage(value){
   try{const u=new URL(raw);return ['https:','http:'].includes(u.protocol)?u.href:'';}catch(_){return '';}
 }
 function newsPlayerChip(row){
-  const name=String(row.player_name||'Игрок'),photo=newsSafeImage(row.player_photo_url);
+  const name=String(row.player_name||'Player'),photo=newsSafeImage(row.player_photo_url);
   const pic=photo?`<img src="${esc(photo)}" alt="${esc(name)}" loading="lazy">`:`<span class="news-player-fallback">${esc(playerInitials(name))}</span>`;
   return `<button type="button" class="news-player-chip" data-news-player="${esc(name)}" data-news-photo="${esc(photo)}" title="Открыть профиль ${esc(name)}">${pic}<span>${esc(name)}</span></button>`;
 }
 function newsTeamChip(id,name,logo){
   const teamName=String(name||'Team'),image=newsSafeImage(logo);
   if(!id && (!name || String(name).toUpperCase()==='NOTEAM'))return `<span class="news-no-team-chip" title="Player без команды"><img src="${NOTEAM_LOGO_URL}" alt="NOTEAM"><span>NOTEAM</span></span>`;
-  const pic=image?`<img src="${esc(image)}" alt="Логотип ${esc(teamName)}" loading="lazy">`:`<span class="news-team-fallback">${esc(teamName.slice(0,4).toUpperCase())}</span>`;
+  const pic=image?`<img src="${esc(image)}" alt="Logoтип ${esc(teamName)}" loading="lazy">`:`<span class="news-team-fallback">${esc(teamName.slice(0,4).toUpperCase())}</span>`;
   return `<button type="button" class="news-team-chip news-clickable-badge" data-news-team-id="${esc(id||'')}" data-news-team-name="${esc(teamName)}" data-news-team-logo="${esc(image)}" title="Открыть профиль ${esc(teamName)}">${pic}<span>${esc(teamName)}</span></button>`;
 }
 function transferHeadline(row){
@@ -3821,7 +3821,7 @@ function wireNewsActions(host){
     const id=btn.dataset.newsTeamId||'',name=btn.dataset.newsTeamName||'Team',logo=btn.dataset.newsTeamLogo||'';
     const team=teams.find(t=>String(t.id)===String(id));
     if(team){openTeamProfile(team);return;}
-    modal(`<div class="profile-hero"><div class="profile-logo">${logo?`<img src="${esc(logo)}" alt="Логотип ${esc(name)}">`:esc(name.slice(0,4).toUpperCase())}</div><div><div class="profile-team-name">${esc(name)}</div><div class="profile-team-tag">Архивная запись команды</div></div></div><div class="notice">Team удалена из текущего рейтинга. Её логотип и история события сохранены в новостной ленте.</div><div class="profile-actions"><button class="btn" id="closeArchivedNewsTeam">Close</button></div>`);
+    modal(`<div class="profile-hero"><div class="profile-logo">${logo?`<img src="${esc(logo)}" alt="Logoтип ${esc(name)}">`:esc(name.slice(0,4).toUpperCase())}</div><div><div class="profile-team-name">${esc(name)}</div><div class="profile-team-tag">Архивная запись команды</div></div></div><div class="notice">Team удалена из текущего рейтинга. Её логотип и история события сохранены в новостной ленте.</div><div class="profile-actions"><button class="btn" id="closeArchivedNewsTeam">Close</button></div>`);
     document.getElementById('closeArchivedNewsTeam').onclick=closeModal;
   };});
 }
@@ -4340,14 +4340,14 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  const KEY='mvp_cs2_language_v1';
  const dictionaries={
  en:{
- 'Рейтинг':'Ranking','Tournament':'Tournament','Матчи':'Matches','Трансляции':'Streams','Топ игроков':'Top players','Новости':'News',
+ 'Рейтинг':'Ranking','Tournament':'Tournament','Матчи':'Matches','Трансляции':'Streams','Top Players':'Top players','Новости':'News',
  'Settings':'Settings','Log in / Sign up':'Login / Register','Выйти':'Log out','Public view':'Public view','Помощь':'Help',
  'ОФОРМЛЕНИЕ':'APPEARANCE','Choose a theme and customize the website's appearance.':'Choose the site appearance and customize its look.',
  'Close':'Close','Light theme':'Light theme','Dark gray panels':'Dark gray panels','DAY · Light':'DAY · Light','NIGHT · Dark':'NIGHT · Dark',
  'The theme selection is saved on this device. The logo and background are saved in the shared database and visible to all visitors.':'Your theme choice is saved on this device. The logo and background are saved centrally and visible to all visitors.',
  'LANGUAGE':'LANGUAGE','The interface language is saved on this device.':'Your language choice is saved on this device.',
- 'Состав команды':'Team roster','Состав команды ·':'Team roster ·','Team profile':'Team profile','Игроков':'players',
- 'Место':'Rank','Team':'Team','Очки':'Points','Сохранить':'Save','Cancel':'Cancel','Delete':'Delete','Изменить':'Edit',
+ 'Состав команды':'Team roster','Состав команды ·':'Team roster ·','Team profile':'Team profile','Playerов':'players',
+ 'Место':'Rank','Team':'Team','Очки':'Points','Save':'Save','Cancel':'Cancel','Delete':'Delete','Изменить':'Edit',
  'Добавить':'Add','Поиск':'Search','Loading…':'Loading…','Save changes':'Save changes','Назад':'Back','Далее':'Next',
  'Текущий день':'Current day','Сегодня':'Today','Вчера':'Yesterday','Кубки':'Trophies','Статистика':'Statistics',
  'Участники':'Participants','Результаты':'Results','Дата':'Date','Время':'Time','Сезон':'Season','Архив':'Archive',
@@ -4378,14 +4378,14 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  'Трансферов за этот год пока нет.':'There are no transfers for this year yet.',
  },
  uk:{
- 'Рейтинг':'Рейтинг','Tournament':'Турнір','Матчи':'Матчі','Трансляции':'Трансляції','Топ игроков':'Топ гравців','Новости':'Новини',
+ 'Рейтинг':'Рейтинг','Tournament':'Турнір','Матчи':'Матчі','Трансляции':'Трансляції','Top Players':'Топ гравців','Новости':'Новини',
  'Settings':'Налаштування','Log in / Sign up':'Увійти / реєстрація','Выйти':'Вийти','Public view':'Публічний перегляд','Помощь':'Допомога',
  'ОФОРМЛЕНИЕ':'ОФОРМЛЕННЯ','Choose a theme and customize the website's appearance.':'Обери оформлення сайту та налаштуй його вигляд.',
  'Close':'Закрити','Light theme':'Світла тема','Dark gray panels':'Темно-сірі панелі','DAY · Light':'DAY · Денна','NIGHT · Dark':'NIGHT · Нічна',
- 'The theme selection is saved on this device. The logo and background are saved in the shared database and visible to all visitors.':'Вибір теми зберігається на цьому пристрої. Логотип і тло сайту зберігаються в спільній базі та видимі всім відвідувачам.',
+ 'The theme selection is saved on this device. The logo and background are saved in the shared database and visible to all visitors.':'Вибір теми зберігається на цьому пристрої. Logoтип і тло сайту зберігаються в спільній базі та видимі всім відвідувачам.',
  'LANGUAGE':'МОВА / LANGUAGE','The interface language is saved on this device.':'Мову інтерфейсу збережено на цьому пристрої.',
- 'Состав команды':'Склад команди','Состав команды ·':'Склад команди ·','Team profile':'Профіль команди','Игроков':'гравців',
- 'Место':'Місце','Team':'Team','Очки':'Бали','Сохранить':'Зберегти','Cancel':'Скасувати','Delete':'Видалити','Изменить':'Змінити',
+ 'Состав команды':'Склад команди','Состав команды ·':'Склад команди ·','Team profile':'Профіль команди','Playerов':'гравців',
+ 'Место':'Місце','Team':'Team','Очки':'Бали','Save':'Зберегти','Cancel':'Скасувати','Delete':'Видалити','Изменить':'Змінити',
  'Добавить':'Додати','Поиск':'Пошук','Loading…':'Завантаження…','Save changes':'Зберегти зміни','Назад':'Назад','Далее':'Далі',
  'Текущий день':'Поточний день','Сегодня':'Сьогодні','Вчера':'Учора','Кубки':'Кубки','Статистика':'Статистика',
  'Участники':'Учасники','Результаты':'Результати','Дата':'Дата','Время':'Час','Сезон':'Сезон','Архив':'Архів',
@@ -4416,14 +4416,14 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  'Трансферов за этот год пока нет.':'Цього року трансферів поки немає.',
  },
  de:{
- 'Рейтинг':'Rangliste','Tournament':'Turnier','Матчи':'Spiele','Трансляции':'Streams','Топ игроков':'Top-Spieler','Новости':'News',
+ 'Рейтинг':'Rangliste','Tournament':'Turnier','Матчи':'Spiele','Трансляции':'Streams','Top Players':'Top-Spieler','Новости':'News',
  'Settings':'Einstellungen','Log in / Sign up':'Anmelden / Registrieren','Выйти':'Abmelden','Public view':'Öffentliche Ansicht','Помощь':'Hilfe',
  'ОФОРМЛЕНИЕ':'DARSTELLUNG','Choose a theme and customize the website's appearance.':'Wähle das Erscheinungsbild der Website.',
  'Close':'Schließen','Light theme':'Helles Design','Dark gray panels':'Dunkelgraue Felder','DAY · Light':'DAY · Hell','NIGHT · Dark':'NIGHT · Dunkel',
  'The theme selection is saved on this device. The logo and background are saved in the shared database and visible to all visitors.':'Die Designauswahl wird auf diesem Gerät gespeichert. Logo und Hintergrund sind für alle Besucher sichtbar.',
  'LANGUAGE':'SPRACHE / LANGUAGE','The interface language is saved on this device.':'Die Sprachauswahl wird auf diesem Gerät gespeichert.',
- 'Состав команды':'Teamaufstellung','Состав команды ·':'Teamaufstellung ·','Team profile':'Teamprofil','Игроков':'Spieler',
- 'Место':'Platz','Team':'Team','Очки':'Punkte','Сохранить':'Speichern','Cancel':'Abbrechen','Delete':'Löschen','Изменить':'Bearbeiten',
+ 'Состав команды':'Teamaufstellung','Состав команды ·':'Teamaufstellung ·','Team profile':'Teamprofil','Playerов':'Spieler',
+ 'Место':'Platz','Team':'Team','Очки':'Punkte','Save':'Speichern','Cancel':'Abbrechen','Delete':'Löschen','Изменить':'Bearbeiten',
  'Добавить':'Hinzufügen','Поиск':'Suche','Loading…':'Wird geladen…','Save changes':'Änderungen speichern','Назад':'Zurück','Далее':'Weiter',
  'Текущий день':'Aktueller Tag','Сегодня':'Heute','Вчера':'Gestern','Кубки':'Pokale','Статистика':'Statistik',
  'Участники':'Teilnehmer','Результаты':'Ergebnisse','Дата':'Datum','Время':'Uhrzeit','Сезон':'Saison','Архив':'Archiv',
@@ -4464,16 +4464,16 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  'Tournamentная сетка MVP CS2':'MVP CS2 Tournament Bracket','Help':'Help','Log in':'Log in','Register':'Register',
  'Log in':'Log in','Забыли пароль?':'Forgot password?','Отправить письмо подтверждения':'Send confirmation email',
  'Email':'Email','Пароль':'Password','Введите email и пароль от аккаунта MVP CS2 Ranking':'Enter your MVP CS2 Ranking account email and password',
- 'Расписание и результаты матчей команд.':'Team match schedule and results.',
- 'YouTube-эфиры и записи, добавленные администрацией MVP CS2 Ranking.':'YouTube live streams and recordings added by MVP CS2 Ranking administrators.',
- 'Игроки из составов команд · рейтинг по среднему K/D за записанные матчи.':'Players from team rosters · ranked by average K/D across recorded matches.',
+ 'Team match schedule and results.':'Team match schedule and results.',
+ 'YouTube live streams and recordings added by the MVP CS2 Ranking administrators.':'YouTube live streams and recordings added by MVP CS2 Ranking administrators.',
+ 'Playerи из составов команд · рейтинг по среднему K/D за записанные матчи.':'Players from team rosters · ranked by average K/D across recorded matches.',
  'Трансферы, блокировки, объявления и события киберспортивного сообщества.':'Transfers, bans, announcements and esports community events.',
  'Could not load news from Neon API.':'Could not load news from Neon API.',
  'Failed to fetch':'Failed to fetch','Could not load news from Neon API. Failed to fetch':'Could not load news from Neon API. Failed to fetch',
- 'Не удалось загрузить матчи из Neon API: Failed to fetch':'Could not load matches from Neon API: Failed to fetch',
- 'Не удалось загрузить трансляции из Neon API: Failed to fetch':'Could not load streams from Neon API: Failed to fetch',
- 'Не удалось загрузить топ игроков. Убедись, что выполнена миграция match_history_players_setup.sql. Ошибка: Failed to fetch':'Could not load top players. Make sure match_history_players_setup.sql has been migrated. Error: Failed to fetch',
- 'Не удалось загрузить турнир.':'Could not load tournament.',
+ 'Failed to load matches from the Neon API: Failed to fetch':'Could not load matches from Neon API: Failed to fetch',
+ 'Failed to load streams from the Neon API: Failed to fetch':'Could not load streams from Neon API: Failed to fetch',
+ 'Failed to load top players. Make sure the migration has been run match_history_players_setup.sql. Ошибка: Failed to fetch':'Could not load top players. Make sure match_history_players_setup.sql has been migrated. Error: Failed to fetch',
+ 'Failed to load tournament.':'Could not load tournament.',
  'Проверь, что таблицы турниров перенесены в Neon.':'Check that the tournament tables have been migrated to Neon.',
  'Чтобы написать сообщение администратору, войди в аккаунт или зарегистрируйся.':'To message the administrator, log in or register.',
  'Общая база подключена. Команды появятся после их переноса администратором.':'Shared database connected. Teams will appear after an administrator migrates them.',
@@ -4481,20 +4481,20 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  },
  ru:{
  'All':'Все','Site news':'Новости сайта','News сайта':'Новости сайта','Transfers':'Трансферы','Bans':'Блокировки','Close':'Close',
- 'News':'Новости','Top players':'Топ игроков','Streams CS2':'Трансляции CS2','Matches MVP CS2':'Матчи MVP CS2',
+ 'News':'Новости','Top players':'Top Players','Streams CS2':'CS2 Streams','Matches MVP CS2':'MVP CS2 Matches',
  'MVP CS2 Tournament Bracket':'Tournamentная сетка MVP CS2','Tournamentная сетка MVP CS2':'Tournamentная сетка MVP CS2',
  'Help':'Помощь','Log in':'Log in','Register':'Sign up','Email':'Электронная почта','Password':'Пароль',
  'Forgot password?':'Забыли пароль?','Send confirmation email':'Отправить письмо подтверждения',
  'Enter your MVP CS2 Ranking account email and password':'Введите email и пароль от аккаунта MVP CS2 Ranking',
- 'Team match schedule and results.':'Расписание и результаты матчей команд.',
- 'YouTube live streams and recordings added by MVP CS2 Ranking administrators.':'YouTube-эфиры и записи, добавленные администрацией MVP CS2 Ranking.',
- 'Players from team rosters · ranked by average K/D across recorded matches.':'Игроки из составов команд · рейтинг по среднему K/D за записанные матчи.',
+ 'Team match schedule and results.':'Team match schedule and results.',
+ 'YouTube live streams and recordings added by MVP CS2 Ranking administrators.':'YouTube live streams and recordings added by the MVP CS2 Ranking administrators.',
+ 'Players from team rosters · ranked by average K/D across recorded matches.':'Playerи из составов команд · рейтинг по среднему K/D за записанные матчи.',
  'Transfers, bans, announcements and esports community events.':'Трансферы, блокировки, объявления и события киберспортивного сообщества.',
  'Could not load news from Neon API.':'Не удалось загрузить новости из Neon API.',
- 'Could not load matches from Neon API: Failed to fetch':'Не удалось загрузить матчи из Neon API: Failed to fetch',
- 'Could not load streams from Neon API: Failed to fetch':'Не удалось загрузить трансляции из Neon API: Failed to fetch',
- 'Could not load top players. Make sure match_history_players_setup.sql has been migrated. Error: Failed to fetch':'Не удалось загрузить топ игроков. Убедись, что выполнена миграция match_history_players_setup.sql. Ошибка: Failed to fetch',
- 'Could not load tournament.':'Не удалось загрузить турнир.',
+ 'Could not load matches from Neon API: Failed to fetch':'Failed to load matches from the Neon API: Failed to fetch',
+ 'Could not load streams from Neon API: Failed to fetch':'Failed to load streams from the Neon API: Failed to fetch',
+ 'Could not load top players. Make sure match_history_players_setup.sql has been migrated. Error: Failed to fetch':'Failed to load top players. Make sure the migration has been run match_history_players_setup.sql. Ошибка: Failed to fetch',
+ 'Could not load tournament.':'Failed to load tournament.',
  'Check that the tournament tables have been migrated to Neon.':'Проверь, что таблицы турниров перенесены в Neon.',
  'To message the administrator, log in or register.':'Чтобы написать сообщение администратору, войди в аккаунт или зарегистрируйся.',
  },
@@ -4539,7 +4539,7 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  };
  Object.keys(modalTranslations).forEach(code=>Object.assign(dictionaries[code],modalTranslations[code]));
  // Extended interface coverage for dynamically rendered sections.
- const extraTranslations={"en":{"Roster not specified yet.":"Roster not provided yet.","Roster not specified":"Roster not provided","No team specified":"No team specified","Все трансферы":"All transfers","Матчей пока нет.":"No matches yet.","Match history пока пуста.":"Match history is empty.","Пока нет сообщений":"No messages yet","Пока нет зарегистрированных пользователей.":"No registered users yet.","Блокировок пока нет.":"No bans yet.","Трансферных новостей пока нет.":"No transfer news yet.","Добавить team":"Add team","Add match":"Add match","Создать матч":"Create match","Создать турнир":"Create tournament","Edit матч":"Edit match","Edit team":"Edit team","Заблокировать":"Ban","Разблокировать":"Unban","Username":"Username","Player nickname":"Player nickname","Причина блокировки":"Ban reason","Ответ пользователю":"Reply to user","Чат с администратором":"Chat with administrator","Previous day":"Previous day","Next day":"Next day","Верхняя":"Upper bracket","Нижняя":"Lower bracket","полуфинал":"semifinal","четвертьфинал":"quarterfinal","Гранд-финал":"Grand final","Чемпион определён":"Champion determined","Player profile":"Player profile","Profile":"Profile","Access Management":"Access management","Manage teams and points":"Manage teams and points","Manage player profiles":"Manage player profiles","Manage streams":"Manage streams","Выдать кубок":"Award trophy","Remove award":"Remove award","Забыли пароль?":"Forgot password?","Log in":"Log in","Sign up":"Register","Team roster. Scroll horizontally":"Team roster. Scroll horizontally","Матч создан":"Match created","Матч завершён":"Match completed","Завершён":"Completed","Запланирован":"Scheduled","ОЖИДАЕТ РЕЗУЛЬТАТА":"AWAITING RESULT","ОЖИДАЕТ СТАРТА":"AWAITING START","Save match and statistics":"Save match and statistics","Пока нет добавленных трансляций. Загляни позже!":"No streams have been added yet. Check back later!","Пока нет запланированных или завершённых матчей.":"No scheduled or completed matches yet.","Пока нет трансляций.":"No streams yet.","Общая база подключена. Команды появятся после их переноса администратором.":"Shared database connected. Teams will appear after an administrator migrates them."},"uk":{"Roster not specified yet.":"Склад поки не вказано.","Roster not specified":"Склад не вказано","No team specified":"Команду не вказано","Все трансферы":"Усі трансфери","Матчей пока нет.":"Матчів поки немає.","Match history пока пуста.":"Історія матчів поки порожня.","Пока нет сообщений":"Повідомлень поки немає","Пока нет зарегистрированных пользователей.":"Зареєстрованих користувачів поки немає.","Блокировок пока нет.":"Блокувань поки немає.","Трансферных новостей пока нет.":"Новин про трансфери поки немає.","Добавить team":"Додати team","Add match":"Додати матч","Создать матч":"Створити матч","Создать турнир":"Створити турнір","Edit матч":"Редагувати матч","Edit team":"Редагувати team","Заблокировать":"Заблокувати","Разблокировать":"Розблокувати","Username":"Ім’я користувача","Player nickname":"Нік гравця","Причина блокировки":"Причина блокування","Ответ пользователю":"Відповідь користувачу","Чат с администратором":"Чат з адміністратором","Previous day":"Попередній день","Next day":"Наступний день","Верхняя":"Верхня сітка","Нижняя":"Нижня сітка","полуфинал":"півфінал","четвертьфинал":"чвертьфінал","Гранд-финал":"Гранд-фінал","Чемпион определён":"Чемпіона визначено","Player profile":"Профіль гравця","Profile":"Профіль","Access Management":"Керування доступом","Manage teams and points":"Керування командами та балами","Manage player profiles":"Керування профілями гравців","Manage streams":"Керування трансляціями","Выдать кубок":"Видати кубок","Remove award":"Прибрати нагороду","Забыли пароль?":"Забули пароль?","Log in":"Вхід до акаунта","Sign up":"Реєстрація","Team roster. Scroll horizontally":"Склад команди. Гортайте горизонтально","Матч создан":"Матч створено","Матч завершён":"Матч завершено","Завершён":"Завершено","Запланирован":"Заплановано","ОЖИДАЕТ РЕЗУЛЬТАТА":"ОЧІКУЄ РЕЗУЛЬТАТУ","ОЖИДАЕТ СТАРТА":"ОЧІКУЄ ПОЧАТКУ","Save match and statistics":"Зберегти матч і статистику","Пока нет добавленных трансляций. Загляни позже!":"Трансляцій поки немає. Завітай пізніше!","Пока нет запланированных или завершённых матчей.":"Запланованих або завершених матчів поки немає.","Пока нет трансляций.":"Трансляцій поки немає.","Общая база подключена. Команды появятся после их переноса администратором.":"Спільну базу даних підключено. Команди з’являться після перенесення адміністратором."},"de":{"Roster not specified yet.":"Aufstellung noch nicht angegeben.","Roster not specified":"Aufstellung nicht angegeben","No team specified":"Kein Team angegeben","Все трансферы":"Alle Transfers","Матчей пока нет.":"Noch keine Spiele.","Match history пока пуста.":"Der Spielverlauf ist noch leer.","Пока нет сообщений":"Noch keine Nachrichten","Пока нет зарегистрированных пользователей.":"Noch keine registrierten Benutzer.","Блокировок пока нет.":"Noch keine Sperren.","Трансферных новостей пока нет.":"Noch keine Transfermeldungen.","Добавить team":"Team hinzufügen","Add match":"Match hinzufügen","Создать матч":"Match erstellen","Создать турнир":"Turnier erstellen","Edit матч":"Match bearbeiten","Edit team":"Team bearbeiten","Заблокировать":"Sperren","Разблокировать":"Entsperren","Username":"Benutzername","Player nickname":"Spielername","Причина блокировки":"Sperrgrund","Ответ пользователю":"Antwort an Benutzer","Чат с администратором":"Chat mit Administrator","Previous day":"Vorheriger Tag","Next day":"Nächster Tag","Верхняя":"Obere","Нижняя":"Untere","полуфинал":"Halbfinale","четвертьфинал":"Viertelfinale","Гранд-финал":"Großes Finale","Чемпион определён":"Champion steht fest","Player profile":"Spielerprofil","Profile":"Profil","Access Management":"Zugriffsverwaltung","Manage teams and points":"Teams und Punkte verwalten","Manage player profiles":"Spielerprofile verwalten","Manage streams":"Streams verwalten","Выдать кубок":"Pokal verleihen","Remove award":"Auszeichnung entfernen","Забыли пароль?":"Passwort vergessen?","Log in":"Anmelden","Sign up":"Registrieren","Team roster. Scroll horizontally":"Teamaufstellung. Horizontal scrollen","Матч создан":"Match erstellt","Матч завершён":"Match abgeschlossen","Завершён":"Abgeschlossen","Запланирован":"Geplant","ОЖИДАЕТ РЕЗУЛЬТАТА":"ERGEBNIS AUSSTEHEND","ОЖИДАЕТ СТАРТА":"START AUSSTEHEND","Save match and statistics":"Match und Statistiken speichern","Пока нет добавленных трансляций. Загляни позже!":"Noch keine Streams hinzugefügt. Schau später wieder vorbei!","Пока нет запланированных или завершённых матчей.":"Noch keine geplanten oder abgeschlossenen Spiele.","Пока нет трансляций.":"Noch keine Streams.","Общая база подключена. Команды появятся после их переноса администратором.":"Gemeinsame Datenbank verbunden. Teams erscheinen, sobald ein Administrator sie migriert hat."}};
+ const extraTranslations={"en":{"Roster not specified yet.":"Roster not provided yet.","Roster not specified":"Roster not provided","No team specified":"No team specified","Все трансферы":"All transfers","Матчей пока нет.":"No matches yet.","Match history пока пуста.":"Match history is empty.","Пока нет сообщений":"No messages yet","Пока нет зарегистрированных пользователей.":"No registered users yet.","Блокировок пока нет.":"No bans yet.","Трансферных новостей пока нет.":"No transfer news yet.","Add team":"Add team","Add match":"Add match","Create match":"Create match","Создать турнир":"Create tournament","Edit match":"Edit match","Edit team":"Edit team","Заблокировать":"Ban","Разблокировать":"Unban","Username":"Username","Player nickname":"Player nickname","Причина блокировки":"Ban reason","Ответ пользователю":"Reply to user","Чат с администратором":"Chat with administrator","Previous day":"Previous day","Next day":"Next day","Верхняя":"Upper bracket","Нижняя":"Lower bracket","полуфинал":"semifinal","четвертьфинал":"quarterfinal","Grand final":"Grand final","Champion decided":"Champion determined","Player profile":"Player profile","Profile":"Profile","Access Management":"Access management","Manage teams and points":"Manage teams and points","Manage player profiles":"Manage player profiles","Manage streams":"Manage streams","Выдать кубок":"Award trophy","Remove award":"Remove award","Забыли пароль?":"Forgot password?","Log in":"Log in","Sign up":"Register","Team roster. Scroll horizontally":"Team roster. Scroll horizontally","Match created":"Match created","Match finished":"Match completed","Завершён":"Completed","Запланирован":"Scheduled","AWAITING RESULT":"AWAITING RESULT","NOT STARTED":"AWAITING START","Save match and statistics":"Save match and statistics","No streams have been added yet. Check back later!":"No streams have been added yet. Check back later!","Пока нет запланированных или завершённых матчей.":"No scheduled or completed matches yet.","Пока нет трансляций.":"No streams yet.","Общая база подключена. Команды появятся после их переноса администратором.":"Shared database connected. Teams will appear after an administrator migrates them."},"uk":{"Roster not specified yet.":"Склад поки не вказано.","Roster not specified":"Склад не вказано","No team specified":"Команду не вказано","Все трансферы":"Усі трансфери","Матчей пока нет.":"Матчів поки немає.","Match history пока пуста.":"Історія матчів поки порожня.","Пока нет сообщений":"Повідомлень поки немає","Пока нет зарегистрированных пользователей.":"Зареєстрованих користувачів поки немає.","Блокировок пока нет.":"Блокувань поки немає.","Трансферных новостей пока нет.":"Новин про трансфери поки немає.","Add team":"Додати team","Add match":"Додати матч","Create match":"Створити матч","Создать турнир":"Створити турнір","Edit match":"Редагувати матч","Edit team":"Редагувати team","Заблокировать":"Заблокувати","Разблокировать":"Розблокувати","Username":"Ім’я користувача","Player nickname":"Нік гравця","Причина блокировки":"Причина блокування","Ответ пользователю":"Відповідь користувачу","Чат с администратором":"Чат з адміністратором","Previous day":"Попередній день","Next day":"Наступний день","Верхняя":"Верхня сітка","Нижняя":"Нижня сітка","полуфинал":"півфінал","четвертьфинал":"чвертьфінал","Grand final":"Гранд-фінал","Champion decided":"Чемпіона визначено","Player profile":"Профіль гравця","Profile":"Профіль","Access Management":"Керування доступом","Manage teams and points":"Керування командами та балами","Manage player profiles":"Керування профілями гравців","Manage streams":"Керування трансляціями","Выдать кубок":"Видати кубок","Remove award":"Прибрати нагороду","Забыли пароль?":"Забули пароль?","Log in":"Вхід до акаунта","Sign up":"Реєстрація","Team roster. Scroll horizontally":"Склад команди. Гортайте горизонтально","Match created":"Матч створено","Match finished":"Матч завершено","Завершён":"Завершено","Запланирован":"Заплановано","AWAITING RESULT":"ОЧІКУЄ РЕЗУЛЬТАТУ","NOT STARTED":"ОЧІКУЄ ПОЧАТКУ","Save match and statistics":"Зберегти матч і статистику","No streams have been added yet. Check back later!":"Трансляцій поки немає. Завітай пізніше!","Пока нет запланированных или завершённых матчей.":"Запланованих або завершених матчів поки немає.","Пока нет трансляций.":"Трансляцій поки немає.","Общая база подключена. Команды появятся после их переноса администратором.":"Спільну базу даних підключено. Команди з’являться після перенесення адміністратором."},"de":{"Roster not specified yet.":"Aufstellung noch nicht angegeben.","Roster not specified":"Aufstellung nicht angegeben","No team specified":"Kein Team angegeben","Все трансферы":"Alle Transfers","Матчей пока нет.":"Noch keine Spiele.","Match history пока пуста.":"Der Spielverlauf ist noch leer.","Пока нет сообщений":"Noch keine Nachrichten","Пока нет зарегистрированных пользователей.":"Noch keine registrierten Benutzer.","Блокировок пока нет.":"Noch keine Sperren.","Трансферных новостей пока нет.":"Noch keine Transfermeldungen.","Add team":"Team hinzufügen","Add match":"Match hinzufügen","Create match":"Match erstellen","Создать турнир":"Turnier erstellen","Edit match":"Match bearbeiten","Edit team":"Team bearbeiten","Заблокировать":"Sperren","Разблокировать":"Entsperren","Username":"Benutzername","Player nickname":"Spielername","Причина блокировки":"Sperrgrund","Ответ пользователю":"Antwort an Benutzer","Чат с администратором":"Chat mit Administrator","Previous day":"Vorheriger Tag","Next day":"Nächster Tag","Верхняя":"Obere","Нижняя":"Untere","полуфинал":"Halbfinale","четвертьфинал":"Viertelfinale","Grand final":"Großes Finale","Champion decided":"Champion steht fest","Player profile":"Spielerprofil","Profile":"Profil","Access Management":"Zugriffsverwaltung","Manage teams and points":"Teams und Punkte verwalten","Manage player profiles":"Spielerprofile verwalten","Manage streams":"Streams verwalten","Выдать кубок":"Pokal verleihen","Remove award":"Auszeichnung entfernen","Забыли пароль?":"Passwort vergessen?","Log in":"Anmelden","Sign up":"Registrieren","Team roster. Scroll horizontally":"Teamaufstellung. Horizontal scrollen","Match created":"Match erstellt","Match finished":"Match abgeschlossen","Завершён":"Abgeschlossen","Запланирован":"Geplant","AWAITING RESULT":"ERGEBNIS AUSSTEHEND","NOT STARTED":"START AUSSTEHEND","Save match and statistics":"Match und Statistiken speichern","No streams have been added yet. Check back later!":"Noch keine Streams hinzugefügt. Schau später wieder vorbei!","Пока нет запланированных или завершённых матчей.":"Noch keine geplanten oder abgeschlossenen Spiele.","Пока нет трансляций.":"Noch keine Streams.","Общая база подключена. Команды появятся после их переноса администратором.":"Gemeinsame Datenbank verbunden. Teams erscheinen, sobald ein Administrator sie migriert hat."}};
  Object.keys(extraTranslations).forEach(code=>Object.assign(dictionaries[code],extraTranslations[code]));
 
  let lang='en';
