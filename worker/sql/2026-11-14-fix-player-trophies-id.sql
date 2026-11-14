@@ -137,4 +137,72 @@ BEGIN
 END
 $migration$;
 
+
+
+-- Match statistics are inserted without an explicit id by the match editor.
+-- Restore automatic ID generation so per-player match rows can be saved.
+LOCK TABLE public.match_player_stats IN ACCESS EXCLUSIVE MODE;
+
+DO $migration$
+DECLARE
+  v_data_type text;
+  v_identity text;
+  v_default text;
+  v_sequence regclass;
+BEGIN
+  SELECT data_type, is_identity, column_default
+    INTO v_data_type, v_identity, v_default
+  FROM information_schema.columns
+  WHERE table_schema = 'public'
+    AND table_name = 'match_player_stats'
+    AND column_name = 'id';
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'public.match_player_stats.id does not exist';
+  END IF;
+
+  IF v_identity = 'YES' OR v_default IS NOT NULL THEN
+    RAISE NOTICE 'match_player_stats.id already has automatic generation; no change needed';
+    RETURN;
+  END IF;
+
+  IF v_data_type IN ('smallint', 'integer', 'bigint') THEN
+    v_sequence := pg_get_serial_sequence('public.match_player_stats', 'id')::regclass;
+
+    IF v_sequence IS NULL THEN
+      CREATE SEQUENCE IF NOT EXISTS public.match_player_stats_id_seq;
+      v_sequence := 'public.match_player_stats_id_seq'::regclass;
+    END IF;
+
+    EXECUTE format(
+      'ALTER SEQUENCE %s OWNED BY public.match_player_stats.id',
+      v_sequence
+    );
+
+    PERFORM setval(
+      v_sequence,
+      GREATEST(
+        COALESCE((SELECT MAX(id)::bigint FROM public.match_player_stats), 0) + 1,
+        1
+      ),
+      false
+    );
+
+    EXECUTE format(
+      'ALTER TABLE public.match_player_stats ALTER COLUMN id SET DEFAULT nextval(%L::regclass)',
+      v_sequence::text
+    );
+
+  ELSIF v_data_type = 'uuid' THEN
+    ALTER TABLE public.match_player_stats
+      ALTER COLUMN id SET DEFAULT gen_random_uuid();
+
+  ELSE
+    RAISE EXCEPTION
+      'Unsupported match_player_stats.id type: %. Set an appropriate ID default manually.',
+      v_data_type;
+  END IF;
+END
+$migration$;
+
 COMMIT;
