@@ -2097,7 +2097,7 @@ async function openSettingsCenter(){
    <div class="notice">Фон появится за панелями сайта. Для удобной читаемости NIGHT автоматически затемняет изображение, DAY слегка осветляет его. Если убрать фон, останется базовый цвет темы.</div>
  </div>`:'<div class="notice">Управление логотипом и фоном доступно администраторам и модераторам с разрешением «Изменение настроек сайта».</div>';
  modal(`<div class="page-head"><div><h2>Настройки</h2><div class="page-intro">Выбери оформление сайта и настрой его внешний вид.</div></div><button class="btn" id="closeSettings">Закрыть</button></div>
- <div class="roster-heading">ОФОРМЛЕНИЕ</div><div class="theme-choice-row">
+ <div class="language-setting" style="display:block!important;visibility:visible!important;margin:0 0 18px"><label for="siteLanguageSelect" style="display:block;font-size:12px;font-weight:800;margin:0 0 7px">ЯЗЫК / LANGUAGE</label><select id="siteLanguageSelect" class="btn" style="width:100%;text-align:left"><option value="en">🇬🇧 English</option><option value="ru">🇷🇺 Русский</option><option value="uk">🇺🇦 Українська</option><option value="de">🇩🇪 Deutsch</option></select><div class="notice">Язык интерфейса сохраняется на этом устройстве.</div></div><div class="roster-heading">ОФОРМЛЕНИЕ</div><div class="theme-choice-row">
  <button class="theme-choice ${current==='day'?'active':''}" data-theme-choice="day" type="button"><div class="theme-preview"></div><strong>DAY · Дневная</strong><span>Светлая тема</span></button>
  <button class="theme-choice ${current==='night'?'active':''}" data-theme-choice="night" type="button"><div class="theme-preview night"></div><strong>NIGHT · Ночная</strong><span>Тёмно-серые панели</span></button>
  </div><div class="notice">Выбор темы сохраняется на этом устройстве. Логотип и фон сайта сохраняются в общей базе и видны всем посетителям.</div>${siteAdmin}${trophyAdmin}${seasonAdmin}`,false);
@@ -2263,7 +2263,7 @@ function render(){
       <div class="teaminfo"><div class="logo">${t.logo?`<img src="${esc(t.logo)}" alt="Лого команды">`:esc(t.tag||t.name.slice(0,3).toUpperCase())}</div><div class="team-details"><div class="team-name-points"><div class="name">${esc(t.name)}${t.is_banned&&(can('manage_teams')||can('manage_bans'))?' <span class="team-ban-tag">БАН</span>':''}</div><div class="points"><strong>${Number(t.points).toLocaleString('ru-RU')}</strong><small>MVP POINTS</small></div></div><div class="players">${esc(t.players||'Состав не указан')}</div></div></div>
       <div class="team-right-tools"><div class="team-rank-change">${movementMarkup}</div><div class="actions ${can('manage_teams')?'':'hidden'}" ${can('manage_teams')?'':'hidden'} style="${can('manage_teams')?'':'display:none!important'}"><button class="tiny" title="Отнять 100" data-act="minus" data-id="${esc(t.id)}">−</button><button class="tiny" title="Добавить 100" data-act="plus" data-id="${esc(t.id)}">+</button><button class="tiny" title="Редактировать" data-act="edit" data-id="${esc(t.id)}">✎</button><button class="tiny" title="Удалить" data-act="delete" data-id="${esc(t.id)}">×</button></div></div>
     </div>
-    ${isExpanded?`<div class="roster-expanded" id="roster-${esc(t.id)}"><div class="roster-heading">Состав команды · ${roster.length} ${roster.length===1?'игрок':roster.length>=2&&roster.length<=4?'игрока':'игроков'}</div>${roster.length?`<div class="roster-grid">${roster.map((player,n)=>rosterCardMarkup(player,n,playerPhotos[n])).join('')}</div>`:'<div class="empty" style="padding:14px">Состав пока не указан.</div>'}<div class="roster-footer"><button class="btn team-profile-btn" data-profile-id="${esc(t.id)}">Профиль команды</button></div></div>`:''}`;
+    ${isExpanded?`<div class="roster-expanded" id="roster-${esc(t.id)}"><div class="roster-heading">Состав команды · ${roster.length} ${roster.length===1?'игрок':roster.length>=2&&roster.length<=4?'игрока':'игроков'}</div>${roster.length?`<div class="roster-swipe-hint" aria-hidden="true">Проведите пальцем влево или вправо, чтобы посмотреть всех игроков <span>↔</span></div><div class="roster-grid roster-horizontal-scroll" tabindex="0" role="region" aria-label="Состав команды. Прокручивайте по горизонтали">${roster.map((player,n)=>rosterCardMarkup(player,n,playerPhotos[n])).join('')}</div>`:'<div class="empty" style="padding:14px">Состав пока не указан.</div>'}<div class="roster-footer"><button class="btn team-profile-btn" data-profile-id="${esc(t.id)}">Профиль команды</button></div></div>`:''}`;
     host.appendChild(card);
     // Attach the expand/collapse handler directly to each team's header.
     // Clicks on admin action buttons must not toggle the roster.
@@ -4281,4 +4281,159 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
 #modalRoot .modal.auth-modal .auth-feedback.hidden{display:none!important}
 #modalRoot .modal.auth-modal .notice{color:#aeb8c4}
 </style>
+<style id="mvp-mobile-roster-five-across">
+/* Mobile roster: show all five players at once without horizontal scrolling. */
+@media (max-width:650px){
+  .roster-expanded{min-width:0!important;overflow-x:hidden!important;padding:10px 7px 12px!important}
+  .roster-swipe-hint{display:none!important}
+  .roster-grid.roster-horizontal-scroll{
+    display:grid!important;
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    grid-auto-flow:row!important;
+    grid-auto-columns:auto!important;
+    gap:4px!important;
+    width:100%!important;max-width:100%!important;
+    overflow-x:hidden!important;overflow-y:visible!important;
+    padding:2px 0!important;
+    scroll-snap-type:none!important;
+    touch-action:pan-y!important;
+  }
+  .roster-grid.roster-horizontal-scroll>.roster-player{
+    width:auto!important;min-width:0!important;max-width:100%!important;
+    padding:5px 2px!important;gap:5px!important;
+    scroll-snap-align:none!important;
+  }
+  .roster-grid.roster-horizontal-scroll .roster-player-photo{
+    width:100%!important;max-width:none!important;height:auto!important;
+    aspect-ratio:1/1!important;flex:0 0 auto!important;
+  }
+  .roster-grid.roster-horizontal-scroll .roster-player-name,
+  .roster-grid.roster-horizontal-scroll .roster-player-name-line{
+    max-width:100%!important;min-width:0!important;
+    font-size:clamp(7px,2.35vw,10px)!important;
+    line-height:1.15!important;overflow-wrap:anywhere!important;
+    white-space:normal!important;
+  }
+  .roster-grid.roster-horizontal-scroll .roster-number{
+    left:2px!important;top:2px!important;
+    width:16px!important;height:16px!important;font-size:8px!important;
+  }
+  .roster-footer{margin-top:8px!important}
+}
+@media(max-width:360px){
+  .roster-grid.roster-horizontal-scroll{gap:3px!important}
+  .roster-grid.roster-horizontal-scroll>.roster-player{padding:4px 1px!important}
+  .roster-grid.roster-horizontal-scroll .roster-player-name{font-size:7px!important}
+}
+</style>
+<script id="mvp-language-system">
+(function(){
+ const KEY='mvp_cs2_language_v1';
+ const dictionaries={
+ en:{
+ 'Рейтинг':'Ranking','Турнир':'Tournament','Матчи':'Matches','Трансляции':'Streams','Топ игроков':'Top players','Новости':'News',
+ 'Настройки':'Settings','Войти / регистрация':'Login / Register','Выйти':'Log out','Публичный просмотр':'Public view','Помощь':'Help',
+ 'ОФОРМЛЕНИЕ':'APPEARANCE','Выбери оформление сайта и настрой его внешний вид.':'Choose the site appearance and customize its look.',
+ 'Закрыть':'Close','Светлая тема':'Light theme','Тёмно-серые панели':'Dark gray panels','DAY · Дневная':'DAY · Light','NIGHT · Ночная':'NIGHT · Dark',
+ 'Выбор темы сохраняется на этом устройстве. Логотип и фон сайта сохраняются в общей базе и видны всем посетителям.':'Your theme choice is saved on this device. The logo and background are saved centrally and visible to all visitors.',
+ 'ЯЗЫК / LANGUAGE':'LANGUAGE','Язык интерфейса сохраняется на этом устройстве.':'Your language choice is saved on this device.',
+ 'Состав команды':'Team roster','Состав команды ·':'Team roster ·','Профиль команды':'Team profile','Игроков':'players',
+ 'Место':'Rank','Команда':'Team','Очки':'Points','Сохранить':'Save','Отмена':'Cancel','Удалить':'Delete','Изменить':'Edit',
+ 'Добавить':'Add','Поиск':'Search','Загрузка…':'Loading…','Сохранить изменения':'Save changes','Назад':'Back','Далее':'Next',
+ 'Текущий день':'Current day','Сегодня':'Today','Вчера':'Yesterday','Кубки':'Trophies','Статистика':'Statistics',
+ 'Участники':'Participants','Результаты':'Results','Дата':'Date','Время':'Time','Сезон':'Season','Архив':'Archive',
+ 'Нет данных':'No data','Пока нет данных.':'No data yet.','Обновить':'Refresh','Подтвердить':'Confirm','Отправить':'Send',
+ 'Сообщение':'Message','Имя':'Name','Описание':'Description','Ссылка':'Link','Загрузить':'Upload','Убрать':'Remove',
+ 'Сохранить кубок':'Save trophy','Очистить форму':'Clear form','Название кубка':'Trophy name',
+ 'ФОН САЙТА':'SITE BACKGROUND','ЛОГОТИП САЙТА':'SITE LOGO','КОНСТРУКТОР КУБКОВ':'TROPHY BUILDER'
+ },
+ uk:{
+ 'Рейтинг':'Рейтинг','Турнир':'Турнір','Матчи':'Матчі','Трансляции':'Трансляції','Топ игроков':'Топ гравців','Новости':'Новини',
+ 'Настройки':'Налаштування','Войти / регистрация':'Увійти / реєстрація','Выйти':'Вийти','Публичный просмотр':'Публічний перегляд','Помощь':'Допомога',
+ 'ОФОРМЛЕНИЕ':'ОФОРМЛЕННЯ','Выбери оформление сайта и настрой его внешний вид.':'Обери оформлення сайту та налаштуй його вигляд.',
+ 'Закрыть':'Закрити','Светлая тема':'Світла тема','Тёмно-серые панели':'Темно-сірі панелі','DAY · Дневная':'DAY · Денна','NIGHT · Ночная':'NIGHT · Нічна',
+ 'Выбор темы сохраняется на этом устройстве. Логотип и фон сайта сохраняются в общей базе и видны всем посетителям.':'Вибір теми зберігається на цьому пристрої. Логотип і тло сайту зберігаються в спільній базі та видимі всім відвідувачам.',
+ 'ЯЗЫК / LANGUAGE':'МОВА / LANGUAGE','Язык интерфейса сохраняется на этом устройстве.':'Мову інтерфейсу збережено на цьому пристрої.',
+ 'Состав команды':'Склад команди','Состав команды ·':'Склад команди ·','Профиль команды':'Профіль команди','Игроков':'гравців',
+ 'Место':'Місце','Команда':'Команда','Очки':'Бали','Сохранить':'Зберегти','Отмена':'Скасувати','Удалить':'Видалити','Изменить':'Змінити',
+ 'Добавить':'Додати','Поиск':'Пошук','Загрузка…':'Завантаження…','Сохранить изменения':'Зберегти зміни','Назад':'Назад','Далее':'Далі',
+ 'Текущий день':'Поточний день','Сегодня':'Сьогодні','Вчера':'Учора','Кубки':'Кубки','Статистика':'Статистика',
+ 'Участники':'Учасники','Результаты':'Результати','Дата':'Дата','Время':'Час','Сезон':'Сезон','Архив':'Архів',
+ 'Нет данных':'Немає даних','Пока нет данных.':'Поки немає даних.','Обновить':'Оновити','Подтвердить':'Підтвердити','Отправить':'Надіслати',
+ 'Сообщение':'Повідомлення','Имя':'Ім’я','Описание':'Опис','Ссылка':'Посилання','Загрузить':'Завантажити','Убрать':'Прибрати',
+ 'Сохранить кубок':'Зберегти кубок','Очистить форму':'Очистити форму','Название кубка':'Назва кубка',
+ 'ФОН САЙТА':'ТЛО САЙТУ','ЛОГОТИП САЙТА':'ЛОГОТИП САЙТУ','КОНСТРУКТОР КУБКОВ':'КОНСТРУКТОР КУБКІВ'
+ },
+ de:{
+ 'Рейтинг':'Rangliste','Турнир':'Turnier','Матчи':'Spiele','Трансляции':'Streams','Топ игроков':'Top-Spieler','Новости':'News',
+ 'Настройки':'Einstellungen','Войти / регистрация':'Anmelden / Registrieren','Выйти':'Abmelden','Публичный просмотр':'Öffentliche Ansicht','Помощь':'Hilfe',
+ 'ОФОРМЛЕНИЕ':'DARSTELLUNG','Выбери оформление сайта и настрой его внешний вид.':'Wähle das Erscheinungsbild der Website.',
+ 'Закрыть':'Schließen','Светлая тема':'Helles Design','Тёмно-серые панели':'Dunkelgraue Felder','DAY · Дневная':'DAY · Hell','NIGHT · Ночная':'NIGHT · Dunkel',
+ 'Выбор темы сохраняется на этом устройстве. Логотип и фон сайта сохраняются в общей базе и видны всем посетителям.':'Die Designauswahl wird auf diesem Gerät gespeichert. Logo und Hintergrund sind für alle Besucher sichtbar.',
+ 'ЯЗЫК / LANGUAGE':'SPRACHE / LANGUAGE','Язык интерфейса сохраняется на этом устройстве.':'Die Sprachauswahl wird auf diesem Gerät gespeichert.',
+ 'Состав команды':'Teamaufstellung','Состав команды ·':'Teamaufstellung ·','Профиль команды':'Teamprofil','Игроков':'Spieler',
+ 'Место':'Platz','Команда':'Team','Очки':'Punkte','Сохранить':'Speichern','Отмена':'Abbrechen','Удалить':'Löschen','Изменить':'Bearbeiten',
+ 'Добавить':'Hinzufügen','Поиск':'Suche','Загрузка…':'Wird geladen…','Сохранить изменения':'Änderungen speichern','Назад':'Zurück','Далее':'Weiter',
+ 'Текущий день':'Aktueller Tag','Сегодня':'Heute','Вчера':'Gestern','Кубки':'Pokale','Статистика':'Statistik',
+ 'Участники':'Teilnehmer','Результаты':'Ergebnisse','Дата':'Datum','Время':'Uhrzeit','Сезон':'Saison','Архив':'Archiv',
+ 'Нет данных':'Keine Daten','Пока нет данных.':'Noch keine Daten.','Обновить':'Aktualisieren','Подтвердить':'Bestätigen','Отправить':'Senden',
+ 'Сообщение':'Nachricht','Имя':'Name','Описание':'Beschreibung','Ссылка':'Link','Загрузить':'Hochladen','Убрать':'Entfernen',
+ 'Сохранить кубок':'Pokal speichern','Очистить форму':'Formular leeren','Название кубка':'Pokalname',
+ 'ФОН САЙТА':'WEBSITE-HINTERGRUND','ЛОГОТИП САЙТА':'WEBSITE-LOGO','КОНСТРУКТОР КУБКОВ':'POKAL-EDITOR'
+ }
+ };
+ let lang='en';
+ try{const saved=localStorage.getItem(KEY);if(['en','ru','uk','de'].includes(saved))lang=saved;else localStorage.setItem(KEY,'en')}catch(_){}
+ const original=new WeakMap();
+ function translateNode(node){
+   if(node.nodeType!==Node.TEXT_NODE)return;
+   const raw=original.get(node)??node.nodeValue;
+   if(!original.has(node))original.set(node,raw);
+   const trimmed=raw.trim();if(!trimmed)return;
+   const dict=dictionaries[lang]||{};
+   let translated=trimmed;
+   const keys=Object.keys(dict).filter(k=>k.length>2).sort((a,b)=>b.length-a.length);
+   for(const key of keys){if(translated.includes(key))translated=translated.split(key).join(dict[key])}
+   const nextValue=translated!==trimmed?raw.replace(trimmed,translated):(lang==='ru'?raw:node.nodeValue);
+   if(node.nodeValue!==nextValue)node.nodeValue=nextValue;
+ }
+ function walk(root){
+   if(!root)return;
+   if(root.nodeType===Node.TEXT_NODE){translateNode(root);return}
+   if(root.nodeType!==Node.ELEMENT_NODE&&root.nodeType!==Node.DOCUMENT_NODE)return;
+   if(root.nodeType===Node.ELEMENT_NODE&&/^(SCRIPT|STYLE|TEXTAREA|INPUT|OPTION)$/.test(root.tagName))return;
+   root.childNodes.forEach(walk);
+   if(root.nodeType===Node.ELEMENT_NODE){
+     ['placeholder','title','aria-label'].forEach(attr=>{
+       const value=root.getAttribute(attr);if(!value)return;
+       const dict=dictionaries[lang]||{};
+       if(!root.dataset['langOrig'+attr])root.dataset['langOrig'+attr]=value;
+       const base=root.dataset['langOrig'+attr];
+       if(lang==='ru')root.setAttribute(attr,base);else if(dict[base])root.setAttribute(attr,dict[base]);
+     });
+   }
+ }
+ function apply(){
+   document.documentElement.lang=lang;
+   walk(document.body);
+   const select=document.getElementById('siteLanguageSelect');if(select)select.value=lang;
+   const labels={en:'Settings',ru:'Настройки',uk:'Налаштування',de:'Einstellungen'};
+   const btn=document.getElementById('settingsBtn');if(btn){btn.title=labels[lang];btn.setAttribute('aria-label',labels[lang])}
+ }
+ window.mvpSetLanguage=function(next){
+   if(!['en','ru','uk','de'].includes(next))return;
+   lang=next;try{localStorage.setItem(KEY,lang)}catch(_){}
+   apply();
+ };
+ document.addEventListener('change',e=>{if(e.target&&e.target.id==='siteLanguageSelect')window.mvpSetLanguage(e.target.value)});
+ const observer=new MutationObserver(records=>records.forEach(record=>{
+   if(record.type==='childList')record.addedNodes.forEach(walk);
+   else if(record.type==='characterData')translateNode(record.target);
+ }));
+ observer.observe(document.body,{subtree:true,childList:true,characterData:true});
+ apply();
+ const oldModal=window.modal;
+ if(typeof oldModal==='function')window.modal=function(content,wide){oldModal(content,wide);apply()};
+})();
+</script>
 </body></html>
