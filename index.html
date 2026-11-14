@@ -1665,7 +1665,7 @@ body[data-theme="night"] .season-admin-card{background:#2d2b24;border-color:#806
     <button class="nav-btn" type="button" data-main-nav="players">Top Players</button>
     <button class="nav-btn" type="button" data-main-nav="news">News</button>
   </nav>
-  <div class="topright"><nav class="social-links" aria-label="Social media"><a class="social-btn" href="https://t.me/csgmajor" target="_blank" rel="noopener noreferrer" aria-label="Telegram" title="Telegram"><img src="https://i.ibb.co/35mw6gdG/2026-10-29-215633-removebg-preview.png" alt="Telegram"></a><a class="social-btn" href="https://www.tiktok.com/@csgmajor" target="_blank" rel="noopener noreferrer" aria-label="TikTok" title="TikTok"><img src="https://i.ibb.co/RkTsf5W3/tiktok-791102.jpg" alt="TikTok"></a><a class="social-btn" href="https://www.youtube.com/@mvpcsg" target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube"><img src="https://i.imgur.com/SBqivqB.png" alt="YouTube"></a></nav><button class="social-btn settings-trigger" id="settingsBtn" type="button" title="Настройки" aria-label="Настройки">⚙</button><span id="adminState" style="font-size:12px;color:#777">Публичный просмотр</span><button class="btn" id="loginBtn">Войти / регистрация</button></div>
+  <div class="topright"><nav class="social-links" aria-label="Social media"><a class="social-btn" href="https://t.me/csgmajor" target="_blank" rel="noopener noreferrer" aria-label="Telegram" title="Telegram"><img src="https://i.ibb.co/35mw6gdG/2026-10-29-215633-removebg-preview.png" alt="Telegram"></a><a class="social-btn" href="https://www.tiktok.com/@csgmajor" target="_blank" rel="noopener noreferrer" aria-label="TikTok" title="TikTok"><img src="https://i.ibb.co/RkTsf5W3/tiktok-791102.jpg" alt="TikTok"></a><a class="social-btn" href="https://www.youtube.com/@mvpcsg" target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube"><img src="https://i.imgur.com/SBqivqB.png" alt="YouTube"></a></nav><button class="social-btn settings-trigger" id="settingsBtn" type="button" title="Настройки" aria-label="Настройки">⚙</button><span id="adminState" style="font-size:12px;color:#777">Public view</span><button class="btn" id="loginBtn">Log in / Sign up</button></div>
 </header>
 <div class="site-brand-bar" role="banner">
   <div class="site-brand-inner">
@@ -1680,7 +1680,7 @@ body[data-theme="night"] .season-admin-card{background:#2d2b24;border-color:#806
 <div id="adminBar" class="adminbar hidden"><strong id="staffBarText">Admin mode enabled.</strong><div class="adminbar-actions"><button class="btn hidden" id="manageUsersBtn" type="button">Access Management</button><button class="btn hidden" id="manageBansBtn" type="button">Блокировки</button><button class="btn" id="logoutBtn">Выйти</button></div></div>
 <div id="dbStatus" class="hidden" style="margin:0 0 14px;padding:10px 13px;border:1px solid #dfe3e8;border-radius:6px;font-size:13px"></div>
 <div class="ranking-with-news">
-<aside class="mvp-season-rail" aria-label="Season Archive"><section class="season-rail-section"><div class="season-rail-head"><span>SEASONS · ГОДЫ</span></div><div id="seasonYearsList" class="season-rail-list"><button class="season-year-button active" type="button"><strong>${new Date().getFullYear()}</strong><small>ТЕКУЩИЙ</small></button><button class="season-year-button future" type="button"><strong>${new Date().getFullYear()+1}</strong><small>СКОРО</small></button></div><div id="seasonRailNote" class="season-rail-note">Выбери год статистики.</div></section></aside>
+<aside class="mvp-season-rail" aria-label="Season Archive"><section class="season-rail-section"><div class="season-rail-head"><span>SEASONS · ГОДЫ</span></div><div id="seasonYearsList" class="season-rail-list"><button class="season-year-button active" type="button"><strong>${new Date().getFullYear()}</strong><small>CURRENT</small></button><button class="season-year-button future" type="button"><strong>${new Date().getFullYear()+1}</strong><small>COMING SOON</small></button></div><div id="seasonRailNote" class="season-rail-note">Выбери год статистики.</div></section></aside>
 <section class="panel"><div id="dailyDateNav" class="daily-date-nav" aria-label="Select ranking date"></div><div class="tablehead"><div>Rank</div><div>Команда · MVP POINTS</div><div style="text-align:right">Change</div></div><div id="teams"></div></section>
 <aside class="mvp-news-rail" aria-label="Transfers and bans news">
   <section class="news-rail-section"><div class="news-rail-head"><span>TRANSFERS</span></div><div id="transferNews" class="news-rail-list"><div class="news-rail-empty">Loading transfers…</div></div><div class="news-rail-footer"><button id="allTransfersBtn" type="button">Все трансферы</button></div></section>
@@ -1714,7 +1714,7 @@ async function mvpApiRequest(path, options={}){
   const response = await fetch(MVP_API_URL+path,{...options,headers});
   const type=response.headers.get('content-type')||'';
   const payload=type.includes('application/json')?await response.json():{ok:response.ok,data:await response.text()};
-  if(!response.ok||payload?.ok===false)throw new Error(payload?.error||'Ошибка сервера ('+response.status+').');
+  if(!response.ok||payload?.ok===false)throw new Error(payload?.error||'Server error ('+response.status+').');
   return payload;
 }
 async function mvpApiGet(path){
@@ -1788,7 +1788,7 @@ function createMvpApiClient(){
       or(expression){
         const parsed=String(expression||'').split(',').map(part=>{
           const bits=part.split('.');
-          if(bits.length<3)throw new Error('Неподдерживаемое OR-условие.');
+          if(bits.length<3)throw new Error('Unsupported OR condition.');
           const raw=bits.slice(2).join('.');const value=/^-?\d+(?:\.\d+)?$/.test(raw)?Number(raw):raw==='true'?true:raw==='false'?false:raw;return {column:bits[0],op:bits[1],value};
         });
         state.orFilters.push(...parsed);return this;
@@ -1804,13 +1804,13 @@ function createMvpApiClient(){
             const result=await mvpApiRequest('/api/data/query',{method:'POST',body:JSON.stringify(body)});
             let data=result.data;
             if(state.single==='single'){
-              if(!Array.isArray(data)||data.length!==1)return {data:null,error:{message:'Ожидалась ровно одна запись.'}};
+              if(!Array.isArray(data)||data.length!==1)return {data:null,error:{message:'Expected exactly one record.'}};
               data=data[0];
             }else if(state.single==='maybe'){
               data=Array.isArray(data)?(data[0]||null):data;
             }
             return {data,error:null};
-          }catch(error){return {data:null,error:{message:error?.message||'Ошибка запроса к Neon.'}};}
+          }catch(error){return {data:null,error:{message:error?.message||'Neon request error.'}};}
         };
         return execute().then(resolve,reject);
       }
@@ -1823,7 +1823,7 @@ function createMvpApiClient(){
     from,
     async rpc(name,args={}){
       try{const result=await mvpApiRequest('/api/data/rpc',{method:'POST',body:JSON.stringify({name,args})});return {data:result.data,error:null};}
-      catch(error){return {data:null,error:{message:error?.message||'Ошибка операции Neon.'}};}
+      catch(error){return {data:null,error:{message:error?.message||'Neon operation error.'}};}
     },
     storage:{
       from(bucket){
@@ -1832,7 +1832,7 @@ function createMvpApiClient(){
             try{
               const response=await mvpApiRequest('/api/storage/upload?path='+encodeURIComponent(path),{method:'POST',headers:{'content-type':options.contentType||file.type||'application/octet-stream'},body:file});
               return {data:response.data,error:null};
-            }catch(error){return {data:null,error:{message:error?.message||'Не удалось загрузить файл.'}};}
+            }catch(error){return {data:null,error:{message:error?.message||'Failed to upload file.'}};}
           },
           getPublicUrl(path){
             const publicUrl=MVP_API_URL+'/assets/'+String(path).split('/').map(encodeURIComponent).join('/');
@@ -1847,7 +1847,7 @@ function createMvpApiClient(){
           const route=name==='sync-faceit-player'?'/api/faceit/sync':'/api/functions/'+encodeURIComponent(name);
           const result=await mvpApiRequest(route,{method:'POST',body:JSON.stringify(options.body||{})});
           return {data:result.data??result,error:null};
-        }catch(error){return {data:null,error:{message:error?.message||'Функция временно недоступна.'}};}
+        }catch(error){return {data:null,error:{message:error?.message||'Function is temporarily unavailable.'}};}
       }
     }
   };
@@ -1883,9 +1883,9 @@ function renderDailyDateNavigator(){
   const previous=shiftISODate(selectedRankDate,-1),next=shiftISODate(selectedRankDate,1);
   const canPrev=dailyArchiveReady&&!isFutureSeason()&&previous>=minDate&&previous.slice(0,4)===String(selectedSeasonYear)&&selectedRankDate>minDate;
   const canNext=dailyArchiveReady&&!isFutureSeason()&&next<=maxDate&&next.slice(0,4)===String(selectedSeasonYear);
-  const status=isFutureSeason()?'БУДУЩИЙ СЕЗОН':selectedRankDate===today&&Number(selectedSeasonYear)===Number(activeSeasonYear)?'ТЕКУЩИЙ ДЕНЬ':dailyArchiveDates.includes(selectedRankDate)?'АРХИВ ДНЯ':isViewingArchivedSeason()?'ГОДОВОЙ АРХИВ':'ИСТОРИЯ ДНЯ';
+  const status=isFutureSeason()?'FUTURE SEASON':selectedRankDate===today&&Number(selectedSeasonYear)===Number(activeSeasonYear)?'CURRENT DAY':dailyArchiveDates.includes(selectedRankDate)?'DAILY ARCHIVE':isViewingArchivedSeason()?'YEARLY ARCHIVE':'DAILY HISTORY';
   const currentSelected=selectedRankDate===today&&Number(selectedSeasonYear)===Number(activeSeasonYear);
-  host.innerHTML=`<div class="daily-date-controls"><button class="daily-date-arrow" id="rankDatePrev" type="button" aria-label="Предыдущий день" ${canPrev?'':'disabled'}>‹</button><div class="daily-date-title"><strong>${esc(formatDailyDate(selectedRankDate))}</strong><small>${status}${!dailyArchiveReady?' · НУЖНА SQL-МИГРАЦИЯ':''}</small></div><button class="daily-date-arrow" id="rankDateNext" type="button" aria-label="Следующий день" ${canNext?'':'disabled'}>›</button></div><button class="daily-date-today" id="rankDateToday" type="button" ${currentSelected||isFutureSeason()||Number(selectedSeasonYear)!==Number(activeSeasonYear)?'disabled':''}>Сегодня</button>`;
+  host.innerHTML=`<div class="daily-date-controls"><button class="daily-date-arrow" id="rankDatePrev" type="button" aria-label="Previous day" ${canPrev?'':'disabled'}>‹</button><div class="daily-date-title"><strong>${esc(formatDailyDate(selectedRankDate))}</strong><small>${status}${!dailyArchiveReady?' · SQL MIGRATION REQUIRED':''}</small></div><button class="daily-date-arrow" id="rankDateNext" type="button" aria-label="Next day" ${canNext?'':'disabled'}>›</button></div><button class="daily-date-today" id="rankDateToday" type="button" ${currentSelected||isFutureSeason()||Number(selectedSeasonYear)!==Number(activeSeasonYear)?'disabled':''}>Today</button>`;
   document.getElementById('rankDatePrev')?.addEventListener('click',()=>selectRankDate(previous));
   document.getElementById('rankDateNext')?.addEventListener('click',()=>selectRankDate(next));
   document.getElementById('rankDateToday')?.addEventListener('click',()=>selectRankDate(today));
@@ -1897,7 +1897,7 @@ async function selectRankDate(date){
   renderDailyDateNavigator();
   if(date<berlinTodayISO()){
     try{const row=await mvpApiGet('/api/daily-archive?date='+encodeURIComponent(date));dailySnapshot=row?.snapshot||null;}
-    catch(error){alert(`Не удалось открыть статистику за ${formatDailyDate(date)}: ${niceError(error)}`);dailySnapshot=null;}
+    catch(error){alert(`Failed to open statistics for ${formatDailyDate(date)}: ${niceError(error)}`);dailySnapshot=null;}
   }
   await loadTeams();await loadNewsRail();
 }
@@ -1908,10 +1908,10 @@ let helpRefreshTimer = null, activeHelpProfile = null;
 let liveRealtimeChannel = null, liveRefreshTimer = null, liveLoadBusy = false;
 let activeTournament = null, tournamentRealtimeChannel = null, tournamentRefreshTimer = null, tournamentLoadBusy = false;
 function can(permission){const allowed=admin || (moderator && userPermissions?.[permission] === true);return permission==='manage_site_settings'?allowed:(!isSeasonReadOnly()&&allowed)}
-const MOD_PERMISSION_LABELS={manage_teams:'Управление командами и очками',manage_matches:'Создание и редактирование матчей',manage_players:'Управление профилями игроков',manage_trophies:'Выдача и удаление кубков',manage_streams:'Управление трансляциями',manage_support:'Ответы в чате помощи',manage_bans:'Блокировка игроков и команд',manage_news:'Публикация и редактирование новостей',manage_site_settings:'Изменение логотипа сайта'};
+const MOD_PERMISSION_LABELS={manage_teams:'Manage teams and points',manage_matches:'Create and edit matches',manage_players:'Manage player profiles',manage_trophies:'Award and remove trophies',manage_streams:'Manage streams',manage_support:'Reply in help chat',manage_bans:'Ban players and teams',manage_news:'Publish and edit news',manage_site_settings:'Change website logo'};
 const THEME_STORAGE_KEY='mvp_cs2_theme_mode_v2';
 function getThemeMode(){try{const saved=localStorage.getItem(THEME_STORAGE_KEY);return saved==='day'?'day':'night'}catch(_){return 'night'}}
-function applyThemeMode(mode){const theme=mode==='night'?'night':'day';document.body.dataset.theme=theme;try{localStorage.setItem(THEME_STORAGE_KEY,theme)}catch(_){}const btn=document.getElementById('settingsBtn');if(btn)btn.setAttribute('aria-label',theme==='night'?'Настройки · Ночная тема':'Настройки · Дневная тема');document.querySelectorAll('[data-theme-choice]').forEach(b=>b.classList.toggle('active',b.dataset.themeChoice===theme));}
+function applyThemeMode(mode){const theme=mode==='night'?'night':'day';document.body.dataset.theme=theme;try{localStorage.setItem(THEME_STORAGE_KEY,theme)}catch(_){}const btn=document.getElementById('settingsBtn');if(btn)btn.setAttribute('aria-label',theme==='night'?'Settings · Dark theme':'Settings · Light theme');document.querySelectorAll('[data-theme-choice]').forEach(b=>b.classList.toggle('active',b.dataset.themeChoice===theme));}
 let currentSiteLogoUrl='', currentSiteBackgroundUrl='';
 function renderSiteBrand(){
   const host=document.getElementById('siteBrandLogo');
@@ -1944,7 +1944,7 @@ async function loadSiteBrand(){
     currentSiteBackgroundUrl=String(rows.find(x=>x.setting_key==='site_background_url')?.setting_value||'').trim();
     renderSiteBrand();applySiteBackground(currentSiteBackgroundUrl);
   }catch(error){
-    console.warn('Настройки бренда Neon API пока не загружены.',error);
+    console.warn('Neon API brand settings have not loaded yet.',error);
     renderSiteBrand();applySiteBackground('');
   }
 }
@@ -1959,7 +1959,7 @@ async function loadSeasonState(){
     seasonArchiveYears=new Set((archives||[]).map(row=>Number(row.season_year)).filter(Number.isInteger));
     seasonFeatureReady=true;
   }catch(error){
-    console.warn('Годовые архивы пока не подключены. Выполни mvp_year_archive_migration.sql в Neon.',error);
+    console.warn('Yearly archives are not connected yet. Run mvp_year_archive_migration.sql in Neon.',error);
   }
   renderSeasonRail();
 }
@@ -1970,15 +1970,15 @@ function renderSeasonRail(){
   host.innerHTML=sorted.map(year=>{
     const archived=seasonArchiveYears.has(year)&&year<activeSeasonYear;
     const future=year>activeSeasonYear;
-    const status=archived?'АРХИВ':future?'СКОРО':'ТЕКУЩИЙ';
+    const status=archived?'ARCHIVE':future?'COMING SOON':'CURRENT';
     const active=Number(selectedSeasonYear)===year;
     return `<button class="season-year-button ${active?'active':''} ${archived?'archived':''} ${future?'future':''}" type="button" data-season-year="${year}" aria-pressed="${active}"><strong>${year}</strong><small>${status}</small></button>`;
   }).join('');
   host.querySelectorAll('[data-season-year]').forEach(button=>button.addEventListener('click',()=>selectSeasonYear(Number(button.dataset.seasonYear))));
   const note=document.getElementById('seasonRailNote');
-  if(note)note.textContent=isViewingPastDay()?`Статистика за ${formatDailyDate(selectedRankDate,false)}. Просмотр без редактирования.`:isViewingArchivedSeason()?`Архив ${selectedSeasonYear}. Просмотр без редактирования.`:isFutureSeason()?`Сезон ${selectedSeasonYear} ещё не начался.`:`Активный сезон ${activeSeasonYear}.`;
+  if(note)note.textContent=isViewingPastDay()?`Statistics for ${formatDailyDate(selectedRankDate,false)}. Read-only view.`:isViewingArchivedSeason()?`${selectedSeasonYear} archive. Read-only view.`:isFutureSeason()?`The ${selectedSeasonYear} season has not started yet.`:`Active season: ${activeSeasonYear}.`;
   const sub=document.querySelector('.heading .sub');
-  if(sub)sub.textContent=isViewingPastDay()?`Статистика за ${formatDailyDate(selectedRankDate,false)} · архив только для просмотра`:isViewingArchivedSeason()?`Архив сезона ${selectedSeasonYear} · только просмотр`:isFutureSeason()?`Сезон ${selectedSeasonYear} ещё не начался`:`Текущий сезон ${activeSeasonYear} · рейтинг и статистика команд`;
+  if(sub)sub.textContent=isViewingPastDay()?`Statistics for ${formatDailyDate(selectedRankDate,false)} · read-only archive`:isViewingArchivedSeason()?`${selectedSeasonYear} season archive · read-only`:isFutureSeason()?`Сезон ${selectedSeasonYear} ещё не начался`:`Current season ${activeSeasonYear} · team rankings and statistics`;
 }
 async function selectSeasonYear(year){
   if(seasonSwitchBusy)return;
@@ -1987,52 +1987,52 @@ async function selectSeasonYear(year){
   selectedSeasonYear=year;seasonSnapshot=null;dailySnapshot=null;expandedTeamId=null;initialTeamExpansionDone=false;teamRankMovements=new Map();
   const yearDates=dailyArchiveDates.filter(date=>date.startsWith(`${year}-`));
   selectedRankDate=year===activeSeasonYear?berlinTodayISO():(yearDates.at(-1)||`${year}-12-31`);
-  const host=document.getElementById('teams');if(host)host.innerHTML='<div class="empty">Загружаем сезон…</div>';
+  const host=document.getElementById('teams');if(host)host.innerHTML='<div class="empty">Loading season…</div>';
   renderSeasonRail();renderDailyDateNavigator();
   try{
     if(year>activeSeasonYear){teams=[];rosterPlayerDirectory=new Map();render();return;}
     if(year===activeSeasonYear){await loadTeams();return;}
     const archive=await mvpApiGet('/api/season-archive?year='+encodeURIComponent(year));
-    if(!archive?.snapshot)throw new Error(`Архив ${year} года не найден.`);
+    if(!archive?.snapshot)throw new Error(`The archive for ${year} was not found.`);
     seasonSnapshot=archive.snapshot;
     if(yearDates.length){const dayRow=await mvpApiGet('/api/daily-archive?date='+encodeURIComponent(selectedRankDate));dailySnapshot=dayRow?.snapshot||null;}
     await loadTeams();
   }catch(error){
     seasonSnapshot=null;dailySnapshot=null;selectedSeasonYear=activeSeasonYear;selectedRankDate=berlinTodayISO();await loadTeams();
-    alert(`Не удалось открыть сезон ${year}: ${niceError(error)}`);
+    alert(`Failed to open season ${year}: ${niceError(error)}`);
   }finally{seasonSwitchBusy=false;renderSeasonRail();renderDailyDateNavigator();await loadNewsRail();}
 }
 async function saveSiteLogoUrl(url){
-  if(!can('manage_site_settings'))throw new Error('Нет разрешения на изменение логотипа сайта.');
+  if(!can('manage_site_settings'))throw new Error('You do not have permission to change the website logo.');
   const value=String(url||'').trim();
   if(value){
-    let parsed;try{parsed=new URL(value)}catch(_){throw new Error('Укажи корректную полную ссылку на изображение.')}
-    if(!['https:','http:'].includes(parsed.protocol))throw new Error('Разрешены только HTTP- и HTTPS-ссылки.');
+    let parsed;try{parsed=new URL(value)}catch(_){throw new Error('Enter a valid full image URL.')}
+    if(!['https:','http:'].includes(parsed.protocol))throw new Error('Only HTTP and HTTPS URLs are allowed.');
   }
   const {error}=await client.from('mvp_site_settings').upsert({setting_key:'site_logo_url',setting_value:value,updated_at:new Date().toISOString(),updated_by:currentUser?.id||null},{onConflict:'setting_key'});
   if(error)throw error;
   currentSiteLogoUrl=value;renderSiteBrand();
 }
 async function uploadSiteLogo(file){
-  if(!can('manage_site_settings'))throw new Error('Нет разрешения на изменение логотипа сайта.');
-  if(!file)throw new Error('Сначала выбери изображение.');
-  if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type))throw new Error('Поддерживаются PNG, JPG, WebP и GIF.');
-  if(file.size>8*1024*1024)throw new Error('Размер логотипа не должен превышать 8 МБ.');
+  if(!can('manage_site_settings'))throw new Error('You do not have permission to change the website logo.');
+  if(!file)throw new Error('Select an image first.');
+  if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type))throw new Error('PNG, JPG, WebP, and GIF are supported.');
+  if(file.size>8*1024*1024)throw new Error('The logo file must not exceed 8 MB.');
   const safeName=String(file.name||'logo').replace(/[^a-zA-Z0-9._-]+/g,'-').slice(-80)||'logo';
   const path=`site-logo/${Date.now()}-${safeName}`;
   const {error:uploadError}=await client.storage.from('mvp-site-assets').upload(path,file,{upsert:true,cacheControl:'3600',contentType:file.type});
   if(uploadError)throw uploadError;
   const {data}=client.storage.from('mvp-site-assets').getPublicUrl(path);
-  if(!data?.publicUrl)throw new Error('Не удалось получить публичную ссылку на логотип.');
+  if(!data?.publicUrl)throw new Error('Failed to obtain the public logo URL.');
   await saveSiteLogoUrl(data.publicUrl);
   return data.publicUrl;
 }
 async function saveSiteBackgroundUrl(url){
-  if(!can('manage_site_settings'))throw new Error('Нет разрешения на изменение фона сайта.');
+  if(!can('manage_site_settings'))throw new Error('You do not have permission to change the website background.');
   const value=String(url||'').trim();
   if(value){
-    let parsed;try{parsed=new URL(value)}catch(_){throw new Error('Укажи корректную полную ссылку на изображение фона.')}
-    if(parsed.protocol!=='https:')throw new Error('Для фона разрешены только HTTPS-ссылки.');
+    let parsed;try{parsed=new URL(value)}catch(_){throw new Error('Enter a valid full background image URL.')}
+    if(parsed.protocol!=='https:')throw new Error('Only HTTPS URLs are allowed for backgrounds.');
     if(!/\.(png|jpe?g|webp|gif)(?:$|[?#])/i.test(parsed.pathname+parsed.search)){
       // CDN links without extensions are allowed, but the URL must still be HTTPS.
     }
@@ -2042,34 +2042,34 @@ async function saveSiteBackgroundUrl(url){
   currentSiteBackgroundUrl=value;applySiteBackground(value);
 }
 async function uploadSiteBackground(file){
-  if(!can('manage_site_settings'))throw new Error('Нет разрешения на изменение фона сайта.');
-  if(!file)throw new Error('Сначала выбери изображение фона.');
-  if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type))throw new Error('Поддерживаются PNG, JPG, WebP и GIF.');
-  if(file.size>8*1024*1024)throw new Error('Размер фона не должен превышать 8 МБ.');
+  if(!can('manage_site_settings'))throw new Error('You do not have permission to change the website background.');
+  if(!file)throw new Error('Select a background image first.');
+  if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type))throw new Error('PNG, JPG, WebP, and GIF are supported.');
+  if(file.size>8*1024*1024)throw new Error('The background file must not exceed 8 MB.');
   const safeName=String(file.name||'background').replace(/[^a-zA-Z0-9._-]+/g,'-').slice(-80)||'background';
   const path=`site-background/${Date.now()}-${safeName}`;
   const {error:uploadError}=await client.storage.from('mvp-site-assets').upload(path,file,{upsert:true,cacheControl:'3600',contentType:file.type});
   if(uploadError)throw uploadError;
   const {data}=client.storage.from('mvp-site-assets').getPublicUrl(path);
-  if(!data?.publicUrl)throw new Error('Не удалось получить публичную ссылку на фон.');
+  if(!data?.publicUrl)throw new Error('Failed to obtain the public background URL.');
   await saveSiteBackgroundUrl(data.publicUrl);
   return data.publicUrl;
 }
 async function uploadCustomTrophyImage(file){
-  if(!can('manage_trophies'))throw new Error('Нет разрешения на управление кубками.');
-  if(!file)throw new Error('Сначала выбери изображение кубка.');
-  if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type))throw new Error('Поддерживаются PNG, JPG, WebP и GIF.');
-  if(file.size>8*1024*1024)throw new Error('Размер изображения не должен превышать 8 МБ.');
+  if(!can('manage_trophies'))throw new Error('You do not have permission to manage trophies.');
+  if(!file)throw new Error('Select a trophy image first.');
+  if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type))throw new Error('PNG, JPG, WebP, and GIF are supported.');
+  if(file.size>8*1024*1024)throw new Error('The image file must not exceed 8 MB.');
   const safeName=String(file.name||'trophy').replace(/[^a-zA-Z0-9._-]+/g,'-').slice(-80)||'trophy';
   const path=`player-trophies/${Date.now()}-${safeName}`;
   const {error}=await client.storage.from('mvp-site-assets').upload(path,file,{cacheControl:'3600',contentType:file.type,upsert:false});
   if(error)throw error;
   const {data}=client.storage.from('mvp-site-assets').getPublicUrl(path);
-  if(!data?.publicUrl)throw new Error('Не удалось получить публичную ссылку на изображение кубка.');
+  if(!data?.publicUrl)throw new Error('Failed to obtain the public trophy image URL.');
   return data.publicUrl;
 }
 function trophyCatalogCardMarkup(t){
-  return `<article class="custom-trophy-card"><img src="${esc(t.image_url)}" alt="${esc(t.name)}" loading="lazy"><div class="custom-trophy-card-copy"><strong>${esc(t.name)}</strong>${t.description?`<small>${esc(t.description)}</small>`:''}</div><div class="custom-trophy-card-actions"><button class="btn" type="button" data-edit-trophy-template="${t.id}">Изменить</button><button class="btn danger" type="button" data-delete-trophy-template="${t.id}">Удалить</button></div></article>`;
+  return `<article class="custom-trophy-card"><img src="${esc(t.image_url)}" alt="${esc(t.name)}" loading="lazy"><div class="custom-trophy-card-copy"><strong>${esc(t.name)}</strong>${t.description?`<small>${esc(t.description)}</small>`:''}</div><div class="custom-trophy-card-actions"><button class="btn" type="button" data-edit-trophy-template="${t.id}">Изменить</button><button class="btn danger" type="button" data-delete-trophy-template="${t.id}">Delete</button></div></article>`;
 }
 
 async function openSettingsCenter(){
@@ -2078,23 +2078,23 @@ async function openSettingsCenter(){
  if(can('manage_trophies')){
    try{trophyCatalogRows=await mvpApiGet('/api/trophy-catalog')||[];}catch(error){trophyCatalogLoadError=niceError(error);}
  }
- const trophyAdmin=can('manage_trophies')?`<section class="site-logo-admin trophy-catalog-admin"><div class="roster-heading">КОНСТРУКТОР КУБКОВ</div><p class="page-intro">Создавай собственные награды с названием и изображением. Затем выдавай их игрокам из профиля.</p>${trophyCatalogLoadError?`<div class="notice">Не удалось загрузить список кубков: ${esc(trophyCatalogLoadError)}. Проверь SQL-миграцию mvp_custom_trophy_catalog.sql.</div>`:''}<input type="hidden" id="customTrophyId"><div class="field"><label for="customTrophyName">Название кубка</label><input id="customTrophyName" maxlength="100" placeholder="Например, MVP Champions Cup"></div><div class="field"><label for="customTrophyDescription">Описание (необязательно)</label><input id="customTrophyDescription" maxlength="240" placeholder="Победитель весеннего турнира"></div><div class="field"><label for="customTrophyImageUrl">Ссылка на фото (необязательно)</label><input id="customTrophyImageUrl" type="url" maxlength="2048" placeholder="https://..."></div><div class="field"><label for="customTrophyImageFile">Или загрузить фото кубка с компьютера</label><input id="customTrophyImageFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div><div class="custom-trophy-form-preview" id="customTrophyPreview"></div><div class="site-logo-admin-actions"><button class="btn primary" id="saveCustomTrophy" type="button">Сохранить кубок</button><button class="btn" id="resetCustomTrophy" type="button">Очистить форму</button></div><div class="notice">Поддерживаются PNG, JPG, WebP и GIF до 8 МБ. Выданные игрокам кубки сохраняют копию названия и изображения, даже если шаблон позже изменить или удалить.</div><div class="custom-trophy-catalog-list" id="customTrophyCatalogList">${trophyCatalogRows.length?trophyCatalogRows.map(trophyCatalogCardMarkup).join(''):'<div class="player-trophies-empty">Пока нет собственных кубков. Создай первый выше.</div>'}</div></section>`:'';
- const seasonAdmin=admin&&!isSeasonReadOnly()?`<section class="season-admin-card"><div class="roster-heading">АРХИВ И ГОДОВОЙ ВАЙП</div><p>Активный сезон: <b>${activeSeasonYear}</b>. Перед запуском ${activeSeasonYear+1} сайт сохранит архив ${activeSeasonYear}, затем обнулит очки и турнирные победы, архивирует матчи, статистику K/D, награды и турнирную сетку. Составы команд и профили игроков останутся.</p><div class="notice">Архив будет доступен всем посетителям в левой панели. Прошлые сезоны доступны только для просмотра.</div>${seasonFeatureReady?`<button class="btn danger" id="wipeAndAdvanceSeason" type="button">Сохранить ${activeSeasonYear} и начать ${activeSeasonYear+1}</button>`:`<div class="notice">Для годовых архивов сначала выполни SQL-файл mvp_year_archive_migration.sql в Neon.</div>`}</section>`:'';
+ const trophyAdmin=can('manage_trophies')?`<section class="site-logo-admin trophy-catalog-admin"><div class="roster-heading"TROPHY BUILDER</div><p class="page-intro">Create custom awards with a name and image, then award them to players from their profiles.</p>${trophyCatalogLoadError?`<div class="notice">Не удалось загрузить список кубков: ${esc(trophyCatalogLoadError)}. Проверь SQL-миграцию mvp_custom_trophy_catalog.sql.</div>`:''}<input type="hidden" id="customTrophyId"><div class="field"><label for="customTrophyName">Название кубка</label><input id="customTrophyName" maxlength="100" placeholder="For example, MVP Champions Cup"></div><div class="field"><label for="customTrophyDescription">Description (optional)</label><input id="customTrophyDescription" maxlength="240" placeholder="Spring tournament winner"></div><div class="field"><label for="customTrophyImageUrl">Image URL (optional)</label><input id="customTrophyImageUrl" type="url" maxlength="2048" placeholder="https://..."></div><div class="field"><label for="customTrophyImageFile">Or upload a trophy image from your computer</label><input id="customTrophyImageFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div><div class="custom-trophy-form-preview" id="customTrophyPreview"></div><div class="site-logo-admin-actions"><button class="btn primary" id="saveCustomTrophy" type="button">Save trophy</button><button class="btn" id="resetCustomTrophy" type="button">Clear form</button></div><div class="notice">PNG, JPG, WebP, and GIF up to 8 MB are supported. Awarded trophies keep a copy of their name and image even if the template is later changed or deleted.</div><div class="custom-trophy-catalog-list" id="customTrophyCatalogList">${trophyCatalogRows.length?trophyCatalogRows.map(trophyCatalogCardMarkup).join(''):'<div class="player-trophies-empty">There are no custom trophies yet. Create the first one above.</div>'}</div></section>`:'';
+ const seasonAdmin=admin&&!isSeasonReadOnly()?`<section class="season-admin-card"><div class="roster-heading">ARCHIVE И ГОДОВОЙ ВАЙП</div><p>Активный сезон: <b>${activeSeasonYear}</b>. Перед запуском ${activeSeasonYear+1} сайт сохранит архив ${activeSeasonYear}, затем обнулит очки и турнирные победы, архивирует матчи, статистику K/D, награды и турнирную сетку. Составы команд и профили игроков останутся.</p><div class="notice">Архив будет доступен всем посетителям в левой панели. Прошлые сезоны доступны только для просмотра.</div>${seasonFeatureReady?`<button class="btn danger" id="wipeAndAdvanceSeason" type="button">Сохранить ${activeSeasonYear} и начать ${activeSeasonYear+1}</button>`:`<div class="notice">Для годовых архивов сначала выполни SQL-файл mvp_year_archive_migration.sql в Neon.</div>`}</section>`:'';
  const siteAdmin=can('manage_site_settings')?`
  <div class="site-logo-admin">
    <div class="roster-heading">ЛОГОТИП САЙТА</div>
-   <div class="site-logo-admin-preview" id="siteLogoAdminPreview">${currentSiteLogoUrl?`<img src="${esc(currentSiteLogoUrl)}" alt="Текущий логотип">`:'<span class="site-brand-monogram">MVP</span>'}</div>
-   <div class="field"><label for="siteLogoUrlInput">Ссылка на логотип (необязательно)</label><input id="siteLogoUrlInput" type="url" placeholder="https://..." value="${esc(currentSiteLogoUrl)}"></div>
-   <div class="field"><label for="siteLogoFileInput">Или загрузить логотип с компьютера</label><input id="siteLogoFileInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
-   <div class="site-logo-admin-actions"><button class="btn" id="saveSiteLogoUrlBtn" type="button">Сохранить ссылку</button><button class="btn primary" id="uploadSiteLogoBtn" type="button">Загрузить логотип</button><button class="btn" id="removeSiteLogoBtn" type="button">Убрать логотип</button></div>
+   <div class="site-logo-admin-preview" id="siteLogoAdminPreview">${currentSiteLogoUrl?`<img src="${esc(currentSiteLogoUrl)}" alt="Current logo">`:'<span class="site-brand-monogram">MVP</span>'}</div>
+   <div class="field"><label for="siteLogoUrlInput"Logo URL (optional)</label><input id="siteLogoUrlInput" type="url" placeholder="https://..." value="${esc(currentSiteLogoUrl)}"></div>
+   <div class="field"><label for="siteLogoFileInput"Or upload a logo from your computer</label><input id="siteLogoFileInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
+   <div class="site-logo-admin-actions"><button class="btn" id="saveSiteLogoUrlBtn" type="button">Save URL</button><button class="btn primary" id="uploadSiteLogoBtn" type="button">Upload logo</button><button class="btn" id="removeSiteLogoBtn" type="button">Убрать логотип</button></div>
    <div class="notice">Логотип отображается рядом с названием сайта. Его видят все посетители.</div>
  </div>
  <div class="site-logo-admin site-background-admin">
    <div class="roster-heading">ФОН САЙТА</div>
    <div class="site-background-preview" id="siteBackgroundAdminPreview" style="${currentSiteBackgroundUrl?`background-image:linear-gradient(rgba(8,12,18,.35),rgba(8,12,18,.35)),url('${esc(currentSiteBackgroundUrl)}')`:''}"></div>
-   <div class="field"><label for="siteBackgroundUrlInput">Ссылка на изображение фона</label><input id="siteBackgroundUrlInput" type="url" placeholder="https://..." value="${esc(currentSiteBackgroundUrl)}"></div>
-   <div class="field"><label for="siteBackgroundFileInput">Или загрузить фон с компьютера</label><input id="siteBackgroundFileInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
-   <div class="site-logo-admin-actions"><button class="btn" id="saveSiteBackgroundUrlBtn" type="button">Сохранить ссылку</button><button class="btn primary" id="uploadSiteBackgroundBtn" type="button">Загрузить фон</button><button class="btn" id="removeSiteBackgroundBtn" type="button">Убрать фон</button></div>
+   <div class="field"><label for="siteBackgroundUrlInput"Background image URL</label><input id="siteBackgroundUrlInput" type="url" placeholder="https://..." value="${esc(currentSiteBackgroundUrl)}"></div>
+   <div class="field"><label for="siteBackgroundFileInput"Or upload a background from your computer</label><input id="siteBackgroundFileInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
+   <div class="site-logo-admin-actions"><button class="btn" id="saveSiteBackgroundUrlBtn" type="button">Save URL</button><button class="btn primary" id="uploadSiteBackgroundBtn" type="button">Upload background</button><button class="btn" id="removeSiteBackgroundBtn" type="button">Убрать фон</button></div>
    <div class="notice">Фон появится за панелями сайта. Для удобной читаемости NIGHT автоматически затемняет изображение, DAY слегка осветляет его. Если убрать фон, останется базовый цвет темы.</div>
  </div>`:'<div class="notice">Управление логотипом и фоном доступно администраторам и модераторам с разрешением «Изменение настроек сайта».</div>';
  modal(`<div class="page-head"><div><h2>Настройки</h2><div class="page-intro">Выбери оформление сайта и настрой его внешний вид.</div></div><button class="btn" id="closeSettings">Закрыть</button></div>
@@ -2113,17 +2113,17 @@ async function openSettingsCenter(){
  }
  if(can('manage_trophies')&&document.getElementById('saveCustomTrophy')){
    const idInput=document.getElementById('customTrophyId'),nameInput=document.getElementById('customTrophyName'),descInput=document.getElementById('customTrophyDescription'),urlInput=document.getElementById('customTrophyImageUrl'),fileInput=document.getElementById('customTrophyImageFile'),preview=document.getElementById('customTrophyPreview');
-   const showPreview=(url)=>{preview.innerHTML=url?`<img src="${esc(url)}" alt="Предпросмотр кубка" onerror="this.style.display='none'">`:''};
+   const showPreview=(url)=>{preview.innerHTML=url?`<img src="${esc(url)}" alt="Trophy preview" onerror="this.style.display='none'">`:''};
    urlInput.addEventListener('input',()=>showPreview(urlInput.value.trim()));
    fileInput.addEventListener('change',()=>{const file=fileInput.files?.[0];if(file){const localUrl=URL.createObjectURL(file);showPreview(localUrl)}});
    document.getElementById('resetCustomTrophy').onclick=()=>{idInput.value='';nameInput.value='';descInput.value='';urlInput.value='';fileInput.value='';showPreview('');document.getElementById('saveCustomTrophy').textContent='Сохранить кубок'};
    document.getElementById('saveCustomTrophy').onclick=async()=>{
      const id=idInput.value.trim(),name=nameInput.value.trim(),description=descInput.value.trim(),url=urlInput.value.trim(),file=fileInput.files?.[0];
-     if(!name)return alert('Укажи название кубка.');
-     if(name.length>100||description.length>240)return alert('Проверь длину названия или описания.');
-     if(!file&&!url)return alert('Добавь ссылку на фото или загрузи изображение кубка.');
-     if(url){try{const parsed=new URL(url);if(parsed.protocol!=='https:')throw new Error()}catch(_){return alert('Ссылка на изображение должна быть корректной HTTPS-ссылкой.')}}
-     const btn=document.getElementById('saveCustomTrophy');btn.disabled=true;btn.textContent='Сохраняю…';
+     if(!name)return alert('Enter a trophy name.');
+     if(name.length>100||description.length>240)return alert('Check the name or description length.');
+     if(!file&&!url)return alert('Add an image URL or upload a trophy image.');
+     if(url){try{const parsed=new URL(url);if(parsed.protocol!=='https:')throw new Error()}catch(_){return alert('The image URL must be a valid HTTPS URL.')}}
+     const btn=document.getElementById('saveCustomTrophy');btn.disabled=true;btn.textContent='Saving…';
      try{
        const image_url=file?await uploadCustomTrophyImage(file):url;
        const payload={name,description,image_url,updated_at:new Date().toISOString()};
@@ -2131,44 +2131,44 @@ async function openSettingsCenter(){
        if(id)result=await client.from('mvp_trophy_catalog').update(payload).eq('id',Number(id));
        else result=await client.from('mvp_trophy_catalog').insert({...payload,created_by:currentUser.id});
        if(result.error)throw result.error;
-       alert(id?'Кубок обновлён.':'Кубок создан.');await openSettingsCenter();
-     }catch(err){alert('Не удалось сохранить кубок: '+niceError(err));btn.disabled=false;btn.textContent='Сохранить кубок'}
+       alert(id?'Trophy updated.':'Trophy created.');await openSettingsCenter();
+     }catch(err){alert('Failed to save trophy: '+niceError(err));btn.disabled=false;btn.textContent='Сохранить кубок'}
    };
    document.querySelectorAll('[data-edit-trophy-template]').forEach(btn=>btn.onclick=()=>{
      const row=trophyCatalogRows.find(x=>String(x.id)===btn.dataset.editTrophyTemplate);if(!row)return;
      idInput.value=row.id;nameInput.value=row.name||'';descInput.value=row.description||'';urlInput.value=row.image_url||'';fileInput.value='';showPreview(row.image_url||'');nameInput.scrollIntoView({behavior:'smooth',block:'center'});
-     document.getElementById('saveCustomTrophy').textContent='Сохранить изменения';
+     document.getElementById('saveCustomTrophy').textContent='Save changes';
    });
    document.querySelectorAll('[data-delete-trophy-template]').forEach(btn=>btn.onclick=async()=>{
-     const row=trophyCatalogRows.find(x=>String(x.id)===btn.dataset.deleteTrophyTemplate);if(!row||!confirm(`Удалить шаблон «${row.name}»? Уже выданные игрокам кубки останутся.`))return;
-     btn.disabled=true;const {error}=await client.from('mvp_trophy_catalog').delete().eq('id',row.id);if(error){alert('Не удалось удалить шаблон: '+niceError(error));btn.disabled=false;return}await openSettingsCenter();
+     const row=trophyCatalogRows.find(x=>String(x.id)===btn.dataset.deleteTrophyTemplate);if(!row||!confirm(`Delete шаблон «${row.name}»? Уже выданные игрокам кубки останутся.`))return;
+     btn.disabled=true;const {error}=await client.from('mvp_trophy_catalog').delete().eq('id',row.id);if(error){alert('Failed to delete template: '+niceError(error));btn.disabled=false;return}await openSettingsCenter();
    });
  }
  const wipeBtn=document.getElementById('wipeAndAdvanceSeason');
  if(wipeBtn&&admin)wipeBtn.onclick=async()=>{
-   if(!seasonFeatureReady)return alert('Сначала выполни SQL-файл годовых архивов в Neon.');
-   const typed=prompt(`Для подтверждения архива и вайпа введи текущий год: ${activeSeasonYear}`);if(typed!==String(activeSeasonYear))return;
+   if(!seasonFeatureReady)return alert('Run the yearly archives SQL file in Neon first.');
+   const typed=prompt(`To confirm the archive and reset, enter the current year: ${activeSeasonYear}`);if(typed!==String(activeSeasonYear))return;
    if(!confirm(`Сохранить архив ${activeSeasonYear} и начать ${activeSeasonYear+1}?\n\nОчки и турнирные победы обнулятся. Матчи, K/D и награды сохранятся в архиве, затем будут очищены из активного сезона. Составы и профили останутся.`))return;
-   wipeBtn.disabled=true;wipeBtn.textContent='Сохраняем архив…';
-   try{const {data,error}=await client.rpc('mvp_wipe_and_advance_season',{p_next_year:activeSeasonYear+1});if(error)throw error;closeModal();await loadSeasonState();selectedSeasonYear=activeSeasonYear;selectedRankDate=berlinTodayISO();dailySnapshot=null;seasonSnapshot=null;await loadTeams();alert(`Архив ${data?.archived_year||activeSeasonYear-1} сохранён. Активный сезон: ${activeSeasonYear}.`);}
-   catch(error){alert('Не удалось выполнить годовой вайп: '+niceError(error));wipeBtn.disabled=false;wipeBtn.textContent=`Сохранить ${activeSeasonYear} и начать ${activeSeasonYear+1}`;}
+   wipeBtn.disabled=true;wipeBtn.textContent='Saving archive…';
+   try{const {data,error}=await client.rpc('mvp_wipe_and_advance_season',{p_next_year:activeSeasonYear+1});if(error)throw error;closeModal();await loadSeasonState();selectedSeasonYear=activeSeasonYear;selectedRankDate=berlinTodayISO();dailySnapshot=null;seasonSnapshot=null;await loadTeams();alert(`Archive ${data?.archived_year||activeSeasonYear-1} saved. Active season: ${activeSeasonYear}.`);}
+   catch(error){alert('Failed to perform the yearly reset: '+niceError(error));wipeBtn.disabled=false;wipeBtn.textContent=`Сохранить ${activeSeasonYear} и начать ${activeSeasonYear+1}`;}
  };
  document.querySelectorAll('[data-theme-choice]').forEach(b=>b.onclick=()=>applyThemeMode(b.dataset.themeChoice));
  if(can('manage_site_settings')){
    const logoPreview=document.getElementById('siteLogoAdminPreview');
    const logoUrlInput=document.getElementById('siteLogoUrlInput');
    const logoFileInput=document.getElementById('siteLogoFileInput');
-   if(logoUrlInput&&logoPreview)logoUrlInput.addEventListener('input',()=>{const val=logoUrlInput.value.trim();logoPreview.innerHTML=val?`<img src="${esc(val)}" alt="Предпросмотр логотипа" onerror="this.style.display='none'">`:'<span class="site-brand-monogram">MVP</span>'});
-   document.getElementById('saveSiteLogoUrlBtn').onclick=async()=>{const b=document.getElementById('saveSiteLogoUrlBtn');b.disabled=true;try{await saveSiteLogoUrl(logoUrlInput.value);alert('Логотип сайта сохранён.')}catch(e){alert('Не удалось сохранить логотип: '+niceError(e))}finally{b.disabled=false}};
-   document.getElementById('uploadSiteLogoBtn').onclick=async()=>{const b=document.getElementById('uploadSiteLogoBtn');b.disabled=true;try{await uploadSiteLogo(logoFileInput.files?.[0]);alert('Логотип загружен и опубликован.')}catch(e){alert('Не удалось загрузить логотип: '+niceError(e))}finally{b.disabled=false}};
-   document.getElementById('removeSiteLogoBtn').onclick=async()=>{if(!confirm('Убрать логотип сайта?'))return;try{await saveSiteLogoUrl('');logoUrlInput.value='';logoPreview.innerHTML='<span class="site-brand-monogram">MVP</span>';alert('Логотип убран.')}catch(e){alert('Не удалось убрать логотип: '+niceError(e))}};
+   if(logoUrlInput&&logoPreview)logoUrlInput.addEventListener('input',()=>{const val=logoUrlInput.value.trim();logoPreview.innerHTML=val?`<img src="${esc(val)}" alt="Logo preview" onerror="this.style.display='none'">`:'<span class="site-brand-monogram">MVP</span>'});
+   document.getElementById('saveSiteLogoUrlBtn').onclick=async()=>{const b=document.getElementById('saveSiteLogoUrlBtn');b.disabled=true;try{await saveSiteLogoUrl(logoUrlInput.value);alert('Website logo saved.')}catch(e){alert('Failed to save logo: '+niceError(e))}finally{b.disabled=false}};
+   document.getElementById('uploadSiteLogoBtn').onclick=async()=>{const b=document.getElementById('uploadSiteLogoBtn');b.disabled=true;try{await uploadSiteLogo(logoFileInput.files?.[0]);alert('Logo uploaded and published.')}catch(e){alert('Failed to upload logo: '+niceError(e))}finally{b.disabled=false}};
+   document.getElementById('removeSiteLogoBtn').onclick=async()=>{if(!confirm('Remove the website logo?'))return;try{await saveSiteLogoUrl('');logoUrlInput.value='';logoPreview.innerHTML='<span class="site-brand-monogram">MVP</span>';alert('Logo removed.')}catch(e){alert('Failed to remove logo: '+niceError(e))}};
    const bgPreview=document.getElementById('siteBackgroundAdminPreview');
    const bgUrlInput=document.getElementById('siteBackgroundUrlInput');
    const bgFileInput=document.getElementById('siteBackgroundFileInput');
    if(bgUrlInput&&bgPreview)bgUrlInput.addEventListener('input',()=>{const val=bgUrlInput.value.trim();bgPreview.style.backgroundImage=val?`linear-gradient(rgba(8,12,18,.35),rgba(8,12,18,.35)),url("${val.replace(/\"/g,'%22')}")`:'none'});
-   document.getElementById('saveSiteBackgroundUrlBtn').onclick=async()=>{const b=document.getElementById('saveSiteBackgroundUrlBtn');b.disabled=true;try{await saveSiteBackgroundUrl(bgUrlInput.value);alert('Фон сайта сохранён.')}catch(e){alert('Не удалось сохранить фон: '+niceError(e))}finally{b.disabled=false}};
-   document.getElementById('uploadSiteBackgroundBtn').onclick=async()=>{const b=document.getElementById('uploadSiteBackgroundBtn');b.disabled=true;try{await uploadSiteBackground(bgFileInput.files?.[0]);alert('Фон загружен и опубликован.')}catch(e){alert('Не удалось загрузить фон: '+niceError(e))}finally{b.disabled=false}};
-   document.getElementById('removeSiteBackgroundBtn').onclick=async()=>{if(!confirm('Убрать фоновое изображение сайта?'))return;try{await saveSiteBackgroundUrl('');bgUrlInput.value='';bgPreview.style.backgroundImage='none';alert('Фон убран.')}catch(e){alert('Не удалось убрать фон: '+niceError(e))}};
+   document.getElementById('saveSiteBackgroundUrlBtn').onclick=async()=>{const b=document.getElementById('saveSiteBackgroundUrlBtn');b.disabled=true;try{await saveSiteBackgroundUrl(bgUrlInput.value);alert('Website background saved.')}catch(e){alert('Failed to save background: '+niceError(e))}finally{b.disabled=false}};
+   document.getElementById('uploadSiteBackgroundBtn').onclick=async()=>{const b=document.getElementById('uploadSiteBackgroundBtn');b.disabled=true;try{await uploadSiteBackground(bgFileInput.files?.[0]);alert('Background uploaded and published.')}catch(e){alert('Failed to upload background: '+niceError(e))}finally{b.disabled=false}};
+   document.getElementById('removeSiteBackgroundBtn').onclick=async()=>{if(!confirm('Remove the website background image?'))return;try{await saveSiteBackgroundUrl('');bgUrlInput.value='';bgPreview.style.backgroundImage='none';alert('Background removed.')}catch(e){alert('Failed to remove background: '+niceError(e))}};
  }
 }
 
@@ -2192,7 +2192,7 @@ function getPlayerPhotos(t){
   return Array.isArray(photos)?Array.from({length:5},(_,i)=>String(photos[i]||'')):Array(5).fill('');
 }
 function playerInitials(name){
-  if(!name||name==='Игрок не указан')return 'CS2';
+  if(!name||name==='Player not specified')return 'CS2';
   const parts=String(name).trim().split(/\s+/);return (parts.length>1?parts[0][0]+parts[1][0]:parts[0].slice(0,3)).toUpperCase();
 }
 function countryFlagMarkup(countryCode,className='country-flag'){
@@ -2210,8 +2210,8 @@ function getRosterPlayerMeta(nickname, fallbackPhoto=''){
 function rosterCardMarkup(player,index,photo){
   const meta=getRosterPlayerMeta(player,photo);
   const finalPhoto=meta.photo_url||photo||'';
-  const pic=finalPhoto?`<img src="${esc(finalPhoto)}" alt="Фото ${esc(player)}" loading="lazy">`:`<span>${esc(playerInitials(player))}</span>`;
-  const disabled=player==='Игрок не указан'?'disabled':'';
+  const pic=finalPhoto?`<img src="${esc(finalPhoto)}" alt="Photo of ${esc(player)}" loading="lazy">`:`<span>${esc(playerInitials(player))}</span>`;
+  const disabled=player==='Player not specified'?'disabled':'';
   const flag=countryFlagMarkup(meta.country_code,'roster-player-country-flag');
   return `<div class="roster-player"><span class="roster-number">${index+1}</span><div class="roster-player-photo">${pic}</div><div class="roster-player-name-line">${flag}<button class="roster-player-name player-profile-link" data-player-profile-name="${esc(player)}" data-player-profile-photo="${esc(finalPhoto)}" ${disabled} type="button">${esc(player)}</button></div></div>`;
 }
@@ -2224,7 +2224,7 @@ async function loadRosterPlayerDirectory(){
     rosterPlayerDirectory=new Map((data||[]).map(row=>[String(row.nickname||'').trim().toLowerCase(),row]));
   }catch(error){
     // The ranking remains usable even if the player directory cannot be read; team photos remain as fallback.
-    console.warn('Не удалось загрузить флаги и портреты игроков из профилей:',error);
+    console.warn('Failed to load player flags and portraits from profiles:',error);
   }
 }
 function applyInitialTeamExpansion(){
@@ -2242,11 +2242,11 @@ function render(){
   const readOnlySeason=isSeasonReadOnly();
   document.getElementById('adminBar').classList.toggle('hidden',!(admin||moderator)||readOnlySeason);
   document.getElementById('addBtn').classList.toggle('hidden',!can('manage_teams'));
-  document.getElementById('adminState').textContent=isViewingPastDay()?`Архив дня ${formatDailyDate(selectedRankDate,false)} · только просмотр`:isViewingArchivedSeason()?`Архив ${selectedSeasonYear} · только просмотр`:isFutureSeason()?`Сезон ${selectedSeasonYear} ещё не начался`:currentUser?(currentUser.username+(admin?' · Администратор':moderator?' · Модератор':' · Игрок')):'Публичный просмотр';
-  const staffText=document.getElementById('staffBarText');if(staffText)staffText.textContent=admin?'Панель администратора — полный доступ к проекту.':'Режим модератора — доступны только выданные разрешения.';
+  document.getElementById('adminState').textContent=isViewingPastDay()?`Daily archive ${formatDailyDate(selectedRankDate,false)} · read-only`:isViewingArchivedSeason()?`${selectedSeasonYear} archive · read-only`:isFutureSeason()?`Сезон ${selectedSeasonYear} ещё не начался`:currentUser?(currentUser.username+(admin?' · Administrator':moderator?' · Moderator':' · Player')):'Public view';
+  const staffText=document.getElementById('staffBarText');if(staffText)staffText.textContent=admin?'Administrator panel — full access to the project.':'Moderator mode — only granted permissions are available.';
   const manageUsersBtn=document.getElementById('manageUsersBtn');if(manageUsersBtn)manageUsersBtn.classList.toggle('hidden',!admin);
   const manageBansBtn=document.getElementById('manageBansBtn');if(manageBansBtn)manageBansBtn.classList.toggle('hidden',admin||!can('manage_bans'));
-  document.getElementById('loginBtn').textContent=currentUser?'Профиль / выход':'Войти / регистрация';
+  document.getElementById('loginBtn').textContent=currentUser?'Profile / Log out':'Log in / Sign up';
   document.getElementById('logoutBtn').classList.toggle('hidden',!currentUser);
   if(isFutureSeason()){host.innerHTML=`<div class="season-empty-state"><strong>Сезон ${selectedSeasonYear} ещё не начался</strong><span>Этот год пока пустой. Он станет активным после завершения сезона ${activeSeasonYear} и годового вайпа в настройках администратора.</span></div>`;return;}
   if(!teams.length){host.innerHTML=isViewingPastDay()&&!dailySnapshot&&!isViewingArchivedSeason()?`<div class="season-empty-state"><strong>Снимок за ${esc(formatDailyDate(selectedRankDate,false))} не найден</strong><span>Ежедневная история начинается с установки SQL-миграции. Более ранние дни восстановить задним числом нельзя.</span></div>`:isViewingArchivedSeason()?`<div class="season-empty-state"><strong>Архив ${selectedSeasonYear} года пуст</strong><span>Для этого года пока нет сохранённого рейтинга.</span></div>`:'<div class="empty">Пока нет команд в общей базе данных. Администратор может перенести сохранённые команды или добавить первую команду.</div>';return}
@@ -2254,7 +2254,7 @@ function render(){
     // Tier labels appear before ranks 1, 9 and 17.
     if(i===0 || i===8 || i===16){
       const tierNumber = i===0 ? 1 : i===8 ? 2 : 3;
-      const title = tierNumber===1 ? 'TOP 8 КОМАНД' : tierNumber===2 ? 'МЕСТА 9–16' : 'ОСТАЛЬНЫЕ КОМАНДЫ';
+      const title = tierNumber===1 ? 'TOP 8 TEAMS' : tierNumber===2 ? 'RANKS 9–16' : 'OTHER TEAMS';
       const divider=document.createElement('div');
       divider.className=`tier-divider tier-divider-${tierNumber}`;
       divider.innerHTML=`<span class="tier-divider-badge">TIER ${tierNumber}</span><span class="tier-divider-label">${title}</span>`;
@@ -2267,12 +2267,12 @@ function render(){
     const movement=Number(teamRankMovements.get(String(t.id))||0);
     const movementMarkup=movement>0?`<span class="rank-movement up" title="Команда поднялась на ${movement} ${movement===1?'позицию':'позиции'}">▲ ${movement}</span>`:movement<0?`<span class="rank-movement down" title="Команда опустилась на ${Math.abs(movement)} ${Math.abs(movement)===1?'позицию':'позиции'}">▼ ${Math.abs(movement)}</span>`:'';
     const card=document.createElement('div'); card.className=`team-card tier-${tierClass}`;
-    card.innerHTML=`<div class="team-main" data-expand-id="${esc(t.id)}" role="button" tabindex="0" aria-expanded="${isExpanded}" aria-label="${isExpanded?'Свернуть':'Раскрыть'} команду ${esc(t.name)}">
+    card.innerHTML=`<div class="team-main" data-expand-id="${esc(t.id)}" role="button" tabindex="0" aria-expanded="${isExpanded}" aria-label="${isExpanded?'Collapse':'Expand'} команду ${esc(t.name)}">
       <div class="rank">#${i+1}</div>
-      <div class="teaminfo"><div class="logo">${t.logo?`<img src="${esc(t.logo)}" alt="Лого команды">`:esc(t.tag||t.name.slice(0,3).toUpperCase())}</div><div class="team-details"><div class="team-name-points"><div class="name">${esc(t.name)}${t.is_banned&&(can('manage_teams')||can('manage_bans'))?' <span class="team-ban-tag">БАН</span>':''}</div><div class="points"><strong>${Number(t.points).toLocaleString('ru-RU')}</strong><small>MVP POINTS</small></div></div><div class="players">${esc(t.players||'Состав не указан')}</div></div></div>
-      <div class="team-right-tools"><div class="team-rank-change">${movementMarkup}</div><div class="actions ${can('manage_teams')?'':'hidden'}" ${can('manage_teams')?'':'hidden'} style="${can('manage_teams')?'':'display:none!important'}"><button class="tiny" title="Отнять 100" data-act="minus" data-id="${esc(t.id)}">−</button><button class="tiny" title="Добавить 100" data-act="plus" data-id="${esc(t.id)}">+</button><button class="tiny" title="Редактировать" data-act="edit" data-id="${esc(t.id)}">✎</button><button class="tiny" title="Удалить" data-act="delete" data-id="${esc(t.id)}">×</button></div></div>
+      <div class="teaminfo"><div class="logo">${t.logo?`<img src="${esc(t.logo)}" alt="Team logo">`:esc(t.tag||t.name.slice(0,3).toUpperCase())}</div><div class="team-details"><div class="team-name-points"><div class="name">${esc(t.name)}${t.is_banned&&(can('manage_teams')||can('manage_bans'))?' <span class="team-ban-tag">БАН</span>':''}</div><div class="points"><strong>${Number(t.points).toLocaleString('ru-RU')}</strong><small>MVP POINTS</small></div></div><div class="players">${esc(t.players||'Roster not specified')}</div></div></div>
+      <div class="team-right-tools"><div class="team-rank-change">${movementMarkup}</div><div class="actions ${can('manage_teams')?'':'hidden'}" ${can('manage_teams')?'':'hidden'} style="${can('manage_teams')?'':'display:none!important'}"><button class="tiny" title="Subtract 100" data-act="minus" data-id="${esc(t.id)}">−</button><button class="tiny" title="Add 100" data-act="plus" data-id="${esc(t.id)}">+</button><button class="tiny" title="Edit" data-act="edit" data-id="${esc(t.id)}">✎</button><button class="tiny" title="Delete" data-act="delete" data-id="${esc(t.id)}">×</button></div></div>
     </div>
-    ${isExpanded?`<div class="roster-expanded" id="roster-${esc(t.id)}"><div class="roster-heading">Состав команды · ${roster.length} ${roster.length===1?'игрок':roster.length>=2&&roster.length<=4?'игрока':'игроков'}</div>${roster.length?`<div class="roster-swipe-hint" aria-hidden="true">Проведите пальцем влево или вправо, чтобы посмотреть всех игроков <span>↔</span></div><div class="roster-grid roster-horizontal-scroll" tabindex="0" role="region" aria-label="Состав команды. Прокручивайте по горизонтали">${roster.map((player,n)=>rosterCardMarkup(player,n,playerPhotos[n])).join('')}</div>`:'<div class="empty" style="padding:14px">Состав пока не указан.</div>'}<div class="roster-footer"><button class="btn team-profile-btn" data-profile-id="${esc(t.id)}">Профиль команды</button></div></div>`:''}`;
+    ${isExpanded?`<div class="roster-expanded" id="roster-${esc(t.id)}"><div class="roster-heading">Состав команды · ${roster.length} ${roster.length===1?'игрок':roster.length>=2&&roster.length<=4?'игрока':'игроков'}</div>${roster.length?`<div class="roster-swipe-hint" aria-hidden="true">Проведите пальцем влево или вправо, чтобы посмотреть всех игроков <span>↔</span></div><div class="roster-grid roster-horizontal-scroll" tabindex="0" role="region" aria-label="Team roster. Scroll horizontally">${roster.map((player,n)=>rosterCardMarkup(player,n,playerPhotos[n])).join('')}</div>`:'<div class="empty" style="padding:14px">Roster not specified yet.</div>'}<div class="roster-footer"><button class="btn team-profile-btn" data-profile-id="${esc(t.id)}" >Team profile</button></div></div>`:''}`;
     host.appendChild(card);
     // Attach the expand/collapse handler directly to each team's header.
     // Clicks on admin action buttons must not toggle the roster.
@@ -2293,7 +2293,7 @@ function toggleTeam(id){
     const header = findHeader(teamId);
     if (!header) return;
     header.setAttribute('aria-expanded', 'false');
-    header.setAttribute('aria-label', `Раскрыть команду ${header.getAttribute('aria-label')?.replace(/^(Раскрыть|Свернуть) команду /, '') || ''}`);
+    header.setAttribute('aria-label', `Expand команду ${header.getAttribute('aria-label')?.replace(/^(Expand|Collapse) команду /, '') || ''}`);
     const card = header.closest('.team-card');
     const rosterPanel = card && Array.from(card.children).find(child => child.classList.contains('roster-expanded'));
     if (rosterPanel) rosterPanel.remove();
@@ -2319,20 +2319,20 @@ function toggleTeam(id){
 
   expandedTeamId = nextId;
   header.setAttribute('aria-expanded', 'true');
-  header.setAttribute('aria-label', `Свернуть команду ${team.name || ''}`);
+  header.setAttribute('aria-label', `Collapse команду ${team.name || ''}`);
   const roster = getRoster(team);
   const playerPhotos = getPlayerPhotos(team);
   const panel = document.createElement('div');
   panel.className = 'roster-expanded';
   panel.id = `roster-${String(team.id).replace(/[^a-zA-Z0-9_-]/g, '')}`;
-  panel.innerHTML = `<div class="roster-heading">Состав команды · ${roster.length} ${roster.length===1?'игрок':roster.length>=2&&roster.length<=4?'игрока':'игроков'}</div>${roster.length?`<div class="roster-swipe-hint" aria-hidden="true">Проведите пальцем влево или вправо, чтобы посмотреть всех игроков <span>↔</span></div><div class="roster-grid roster-horizontal-scroll" tabindex="0" role="region" aria-label="Состав команды. Прокручивайте по горизонтали">${roster.map((player,n)=>rosterCardMarkup(player,n,playerPhotos[n])).join('')}</div>`:'<div class="empty" style="padding:14px">Состав пока не указан.</div>'}<div class="roster-footer"><button class="btn team-profile-btn" data-profile-id="${esc(team.id)}">Профиль команды</button></div>`;
+  panel.innerHTML = `<div class="roster-heading">Состав команды · ${roster.length} ${roster.length===1?'игрок':roster.length>=2&&roster.length<=4?'игрока':'игроков'}</div>${roster.length?`<div class="roster-swipe-hint" aria-hidden="true">Проведите пальцем влево или вправо, чтобы посмотреть всех игроков <span>↔</span></div><div class="roster-grid roster-horizontal-scroll" tabindex="0" role="region" aria-label="Team roster. Scroll horizontally">${roster.map((player,n)=>rosterCardMarkup(player,n,playerPhotos[n])).join('')}</div>`:'<div class="empty" style="padding:14px">Roster not specified yet.</div>'}<div class="roster-footer"><button class="btn team-profile-btn" data-profile-id="${esc(team.id)}" >Team profile</button></div>`;
   header.insertAdjacentElement('afterend', panel);
 }
 function openTeamProfile(t){
   if(!t)return;
   const rank=[...teams].sort((a,b)=>Number(b.points)-Number(a.points)||Number(a.id)-Number(b.id)).findIndex(x=>String(x.id)===String(t.id))+1;
   const roster=getRoster(t),playerPhotos=getPlayerPhotos(t),wins=Math.max(0,Number(t.tournament_wins)||0);
-  modal(`<div class="profile-hero"><div class="profile-logo">${t.logo?`<img src="${esc(t.logo)}" alt="Логотип ${esc(t.name)}">`:esc(t.tag||t.name.slice(0,4).toUpperCase())}</div><div><div class="profile-team-name">${esc(t.name)}</div><div class="profile-team-tag">${esc(t.tag||'Команда CS2')}</div></div></div><div class="profile-stats"><div class="profile-stat"><small>МЕСТО В РЕЙТИНГЕ</small><strong>#${rank}</strong></div><div class="profile-stat"><small>MVP POINTS</small><strong>${Number(t.points).toLocaleString('ru-RU')}</strong></div></div><div class="team-profile-tournament"><span aria-hidden="true">🏆</span><span>Победы в турнирах</span><strong>${wins}</strong></div><div class="roster-heading">Состав команды · нажми на игрока для профиля</div>${roster.length?`<ol class="profile-roster">${roster.map((player,n)=>{const meta=getRosterPlayerMeta(player,playerPhotos[n]);const photo=meta.photo_url||playerPhotos[n]||'';return `<li>${photo?`<img src="${esc(photo)}" alt="Фото ${esc(player)}" style="width:68px;height:68px;flex:0 0 68px;border-radius:7px;object-fit:cover;background:transparent">`:`<span class="roster-number" style="position:static;flex:0 0 27px">${n+1}</span>`}<div class="roster-player-name-line">${countryFlagMarkup(meta.country_code,'roster-player-country-flag')}<button class="player-profile-link" data-player-profile-name="${esc(player)}" data-player-profile-photo="${esc(photo)}" type="button">${esc(player)}</button></div></li>`}).join('')}</ol>`:'<div class="help-empty">Состав пока не указан.</div>'}<div class="profile-actions"><button class="btn primary" id="openTeamMatchHistory">История боёв</button><button class="btn" id="closeTeamProfile">Закрыть профиль</button></div>`);
+  modal(`<div class="profile-hero"><div class="profile-logo">${t.logo?`<img src="${esc(t.logo)}" alt="Логотип ${esc(t.name)}">`:esc(t.tag||t.name.slice(0,4).toUpperCase())}</div><div><div class="profile-team-name">${esc(t.name)}</div><div class="profile-team-tag">${esc(t.tag||'Команда CS2')}</div></div></div><div class="profile-stats"><div class="profile-stat"><small>МЕСТО В РЕЙТИНГЕ</small><strong>#${rank}</strong></div><div class="profile-stat"><small>MVP POINTS</small><strong>${Number(t.points).toLocaleString('ru-RU')}</strong></div></div><div class="team-profile-tournament"><span aria-hidden="true">🏆</span><span>Tournament wins</span><strong>${wins}</strong></div><div class="roster-heading">Состав команды · нажми на игрока для профиля</div>${roster.length?`<ol class="profile-roster">${roster.map((player,n)=>{const meta=getRosterPlayerMeta(player,playerPhotos[n]);const photo=meta.photo_url||playerPhotos[n]||'';return `<li>${photo?`<img src="${esc(photo)}" alt="Photo of ${esc(player)}" style="width:68px;height:68px;flex:0 0 68px;border-radius:7px;object-fit:cover;background:transparent">`:`<span class="roster-number" style="position:static;flex:0 0 27px">${n+1}</span>`}<div class="roster-player-name-line">${countryFlagMarkup(meta.country_code,'roster-player-country-flag')}<button class="player-profile-link" data-player-profile-name="${esc(player)}" data-player-profile-photo="${esc(photo)}" type="button">${esc(player)}</button></div></li>`}).join('')}</ol>`:'<div class="help-empty">Roster not specified yet.</div>'}<div class="profile-actions"><button class="btn primary" id="openTeamMatchHistory">История боёв</button><button class="btn" id="closeTeamProfile">Закрыть профиль</button></div>`);
   document.getElementById('closeTeamProfile').onclick=closeModal;
   document.getElementById('openTeamMatchHistory').onclick=()=>openTeamMatchHistory(t);
   wirePlayerProfileLinks();
@@ -2426,7 +2426,7 @@ async function getPlayerTopPosition(playerId){
  }catch(_){return null}
 }
 async function openPlayerProfile(nickname,fallbackPhoto=''){
-  nickname=String(nickname||'').trim();if(!nickname||nickname==='Игрок не указан')return;
+  nickname=String(nickname||'').trim();if(!nickname||nickname==='Player not specified')return;
   const fallback=fallbackPhoto||defaultPlayerPhoto(nickname);
   modal(`<h2>Профиль игрока</h2><div class="help-empty">Загружаем статистику игрока…</div>`,true);
   try{
@@ -2468,7 +2468,7 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
     const roleLine='';
     const trophyHtml=trophies.length?`<div class="player-trophies">${trophies.map(t=>{const place=Number(t.place),trophyName=t.custom_trophy_name||`${place} место`,label=[trophyName,t.tournament_name&&t.tournament_name!==trophyName?t.tournament_name:'',t.custom_trophy_description||''].filter(Boolean).join(' · ');const image=t.custom_trophy_image_url||TROPHY_IMAGES[place]||'';return `<div class="player-trophy" tabindex="0" role="img" data-tooltip="${esc(label)}" aria-label="${esc(label)}" title="${esc(label)}"><img src="${esc(image)}" alt="${esc(trophyName)}">${can('manage_trophies')?`<button class="btn player-trophy-remove" type="button" data-delete-trophy="${t.id}" aria-label="Убрать награду">×</button>`:''}</div>`}).join('')}</div>`:'<div class="player-trophies-empty">Пока нет турнирных наград.</div>';
     const prizeTotal=prizeRows.reduce((sum,row)=>sum+Math.max(0,Number(row.amount)||0),0);
-    const prizeMoneyHtml=`<section class="player-prize-money"><div class="player-prize-total"><div><small>ПРИЗОВЫЕ ЗА ВЫБРАННЫЙ СЕЗОН</small><strong>${formatPrizeMoney(prizeTotal)}</strong></div>${admin&&!isSeasonReadOnly()?'<button class="btn primary" id="addPlayerPrizeMoney" type="button">＋ Добавить призовые</button>':''}</div>${prizeRows.length?`<div class="player-prize-records">${prizeRows.map(row=>`<div class="player-prize-record"><div class="player-prize-record-info"><strong>${esc(row.tournament_name||'Турнир')}</strong><small>${esc(fmtDate(row.awarded_at))}${row.team_id?` · ${esc(teams.find(t=>String(t.id)===String(row.team_id))?.name||'Команда')}`:''}</small></div><b>${formatPrizeMoney(row.amount)}</b>${admin&&!isSeasonReadOnly()?`<button class="btn player-prize-remove" type="button" data-delete-prize-money="${row.id}" aria-label="Удалить запись о призовых">×</button>`:''}</div>`).join('')}</div>`:'<div class="player-prize-empty">Пока нет записей о призовых за турниры.</div>'}</section>`;
+    const prizeMoneyHtml=`<section class="player-prize-money"><div class="player-prize-total"><div><small>ПРИЗОВЫЕ ЗА ВЫБРАННЫЙ СЕЗОН</small><strong>${formatPrizeMoney(prizeTotal)}</strong></div>${admin&&!isSeasonReadOnly()?'<button class="btn primary" id="addPlayerPrizeMoney" type="button">＋ Добавить призовые</button>':''}</div>${prizeRows.length?`<div class="player-prize-records">${prizeRows.map(row=>`<div class="player-prize-record"><div class="player-prize-record-info"><strong>${esc(row.tournament_name||'Турнир')}</strong><small>${esc(fmtDate(row.awarded_at))}${row.team_id?` · ${esc(teams.find(t=>String(t.id)===String(row.team_id))?.name||'Команда')}`:''}</small></div><b>${formatPrizeMoney(row.amount)}</b>${admin&&!isSeasonReadOnly()?`<button class="btn player-prize-remove" type="button" data-delete-prize-money="${row.id}" aria-label="Delete запись о призовых">×</button>`:''}</div>`).join('')}</div>`:'<div class="player-prize-empty">Пока нет записей о призовых за турниры.</div>'}</section>`;
     const historyHtml=history.length?history.slice(0,30).map(x=>{const isHome=String(x.team_id||x.match.team_id)===String(x.match.team_id);const own=teams.find(t=>String(t.id)===String(x.team_id||x.match.team_id));const opp=teams.find(t=>String(t.id)===String(isHome?x.match.opponent_team_id:x.match.team_id));const leftScore=isHome?x.match.team_score:x.match.opponent_score,rightScore=isHome?x.match.opponent_score:x.match.team_score;return `<div class="match-card"><div class="match-card-head"><div><div class="match-opponent">${esc(own?.name||'Команда')} vs ${esc(opp?.name||x.match.opponent_name||'Соперник')}</div><div class="match-meta">${esc(fmtDate(x.match.played_at))}${x.match.map_name?' · '+esc(x.match.map_name):''}</div></div><div class="match-score">${Number(leftScore)}<span class="score-dash">:</span>${Number(rightScore)}</div></div><div class="match-card-body"><strong>K/D за матч: ${formatKD(x.kd)}</strong><span class="match-meta"> · ${Number(x.kills)} убийств / ${Number(x.deaths)} смертей</span></div></div>`}).join(''):'<div class="help-empty">Матчей пока нет. После записи боёв здесь появится история игрока.</div>';
     const roleEditor=can('manage_players')?`<div class="player-role-editor"><label for="playerRoleSelect">Игровая роль</label><div class="player-role-edit-row"><select id="playerRoleSelect">${playerRoleOptions(role)}</select><button class="btn primary" id="savePlayerRole" type="button">Сохранить роль</button></div></div>`:'';
     const legacyFaceitUrl=player?.faceit_nickname?`https://www.faceit.com/en/players/${encodeURIComponent(player.faceit_nickname)}`:'';
@@ -2530,7 +2530,7 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
     if(can('manage_players')&&document.getElementById('savePlayerRole')){
       document.getElementById('savePlayerRole').onclick=async()=>{
         const newRole=document.getElementById('playerRoleSelect').value;
-        const saveBtn=document.getElementById('savePlayerRole');saveBtn.disabled=true;saveBtn.textContent='Сохраняю…';
+        const saveBtn=document.getElementById('savePlayerRole');saveBtn.disabled=true;saveBtn.textContent='Saving…';
         try{
           let result;
           if(player){result=await client.from('cs2_players').update({role:newRole}).eq('id',player.id)}
@@ -2541,7 +2541,7 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
       };
     }
     if(can('manage_players')&&document.getElementById('savePlayerNickname')){document.getElementById('savePlayerNickname').onclick=async()=>{const newNick=document.getElementById('renamePlayerNick').value.trim();if(!newNick)return alert('Введи новый ник.');if(newNick.toLowerCase()===nickname.toLowerCase())return alert('Ник не изменился.');const btn=document.getElementById('savePlayerNickname');btn.disabled=true;const {error}=await client.rpc('admin_rename_player',{p_player_id:player.id,p_new_nickname:newNick});if(error){alert('Не удалось изменить ник: '+niceError(error));btn.disabled=false;return}await loadTeams();openPlayerProfile(newNick,photo)}}
-    if(can('manage_players')&&document.getElementById('savePlayerExternalLinks')){document.getElementById('savePlayerExternalLinks').onclick=async()=>{const faceit_profile_url=document.getElementById('playerFaceitUrl').value.trim(),steam_id64=document.getElementById('playerSteamId').value.trim(),country_code=document.getElementById('playerCountryCode').value.trim().toUpperCase();if(faceit_profile_url&&!safeFaceitProfileUrl(faceit_profile_url)){alert('Укажи полную HTTPS-ссылку на профиль FACEIT, например https://www.faceit.com/ru/players/username');return}if(steam_id64&&!/^\d{17}$/.test(steam_id64)){alert('SteamID64 должен состоять ровно из 17 цифр.');return}if(country_code&&!/^[A-Z]{2}$/.test(country_code)){alert('Код страны должен содержать две латинские буквы, например DE, RU, PL или UA.');return}const btn=document.getElementById('savePlayerExternalLinks');btn.disabled=true;btn.textContent='Сохраняю…';const {error}=await client.from('cs2_players').update({faceit_profile_url,steam_id64,country_code}).eq('id',player.id);if(error){alert('Не удалось сохранить ссылки или флаг. Сначала выполни новую SQL-миграцию mvp_player_country_rank_migration.sql. Ошибка: '+niceError(error));btn.disabled=false;btn.textContent='Сохранить ссылки и флаг';return}await openPlayerProfile(nickname,photo)}}
+    if(can('manage_players')&&document.getElementById('savePlayerExternalLinks')){document.getElementById('savePlayerExternalLinks').onclick=async()=>{const faceit_profile_url=document.getElementById('playerFaceitUrl').value.trim(),steam_id64=document.getElementById('playerSteamId').value.trim(),country_code=document.getElementById('playerCountryCode').value.trim().toUpperCase();if(faceit_profile_url&&!safeFaceitProfileUrl(faceit_profile_url)){alert('Укажи полную HTTPS-ссылку на профиль FACEIT, например https://www.faceit.com/ru/players/username');return}if(steam_id64&&!/^\d{17}$/.test(steam_id64)){alert('SteamID64 должен состоять ровно из 17 цифр.');return}if(country_code&&!/^[A-Z]{2}$/.test(country_code)){alert('Код страны должен содержать две латинские буквы, например DE, RU, PL или UA.');return}const btn=document.getElementById('savePlayerExternalLinks');btn.disabled=true;btn.textContent='Saving…';const {error}=await client.from('cs2_players').update({faceit_profile_url,steam_id64,country_code}).eq('id',player.id);if(error){alert('Не удалось сохранить ссылки или флаг. Сначала выполни новую SQL-миграцию mvp_player_country_rank_migration.sql. Ошибка: '+niceError(error));btn.disabled=false;btn.textContent='Сохранить ссылки и флаг';return}await openPlayerProfile(nickname,photo)}}
     if(can('manage_players')&&document.getElementById('syncFaceitElo')){document.getElementById('syncFaceitElo').onclick=async()=>{
       if(!safeFaceitProfileUrl(player?.faceit_profile_url||faceitUrl))return alert('Сначала сохрани ссылку FACEIT в профиле.');
       const btn=document.getElementById('syncFaceitElo');btn.disabled=true;btn.textContent='Получаю Elo…';
@@ -2551,7 +2551,7 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
     }}
     if(can('manage_bans')&&document.getElementById('togglePlayerBan')){document.getElementById('togglePlayerBan').onclick=async()=>{const next=!player.is_banned;const reason=next?(prompt('Причина блокировки игрока:','Подозрение на использование читов')||''):'';if(next&&!reason)return;const {error}=await client.rpc('admin_set_player_ban',{p_player_id:player.id,p_banned:next,p_reason:reason});if(error){alert('Не удалось изменить блокировку: '+niceError(error));return}await loadTeams();openPlayerProfile(nickname,photo)}}
     document.querySelectorAll('[data-delete-trophy]').forEach(btn=>btn.onclick=async()=>{if(!can('manage_trophies')||!confirm('Убрать эту награду?'))return;const {error}=await client.from('player_trophies').delete().eq('id',btn.dataset.deleteTrophy);if(error){alert('Не удалось удалить награду: '+niceError(error));return}openPlayerProfile(nickname,photo)});
-    document.querySelectorAll('[data-delete-prize-money]').forEach(btn=>btn.onclick=async()=>{if(!admin||isSeasonReadOnly()||!confirm('Удалить эту запись о призовых?'))return;btn.disabled=true;const {error}=await client.from('player_prize_money').delete().eq('id',btn.dataset.deletePrizeMoney);if(error){alert('Не удалось удалить запись о призовых: '+niceError(error));btn.disabled=false;return}await openPlayerProfile(nickname,photo)});
+    document.querySelectorAll('[data-delete-prize-money]').forEach(btn=>btn.onclick=async()=>{if(!admin||isSeasonReadOnly()||!confirm('Delete эту запись о призовых?'))return;btn.disabled=true;const {error}=await client.from('player_prize_money').delete().eq('id',btn.dataset.deletePrizeMoney);if(error){alert('Не удалось удалить запись о призовых: '+niceError(error));btn.disabled=false;return}await openPlayerProfile(nickname,photo)});
   }catch(err){modal(`<h2>Профиль игрока</h2><div class="help-empty">Не удалось загрузить профиль, статистику или награды. Проверь SQL-миграции игрока и матчей. Ошибка: ${esc(niceError(err))}</div><div class="modalfoot"><button class="btn primary" id="closePlayerProfile">Закрыть</button></div>`,true);document.getElementById('closePlayerProfile').onclick=closeModal;}
 }
 async function openAwardTrophy(nickname,photo,teamId){
@@ -2572,7 +2572,7 @@ async function openAwardTrophy(nickname,photo,teamId){
     const place=custom?1:Number(typeValue.split(':')[1]);
     const tournament_name=eventName||(custom?.name||'').trim();
     if(!tournament_name)return alert('Укажи название турнира или выбери собственный кубок.');
-    const saveBtn=document.getElementById('saveAward');saveBtn.disabled=true;saveBtn.textContent='Сохраняю…';
+    const saveBtn=document.getElementById('saveAward');saveBtn.disabled=true;saveBtn.textContent='Saving…';
     try{
       let playerRow;const {data:found,error:findError}=await client.from('cs2_players').select('id,photo_url').eq('nickname',nickname).maybeSingle();if(findError)throw findError;
       if(found)playerRow=found;else{const {data:created,error:createError}=await client.from('cs2_players').insert({nickname,photo_url:photo||''}).select('id,photo_url').single();if(createError)throw createError;playerRow=created}
@@ -2603,7 +2603,7 @@ async function openAwardPrizeMoney(nickname,photo,teamId){
     if(!Number.isFinite(amount)||amount<=0||amount>999999999)return alert('Укажи корректную сумму больше 0.');
     if(!dateValue||!/^\d{4}-\d{2}-\d{2}$/.test(dateValue))return alert('Укажи дату получения призовых.');
     const awardedDate=new Date(`${dateValue}T12:00:00`);if(Number.isNaN(awardedDate.getTime()))return alert('Некорректная дата.');
-    const saveBtn=document.getElementById('savePrizeMoney');saveBtn.disabled=true;saveBtn.textContent='Сохраняю…';
+    const saveBtn=document.getElementById('savePrizeMoney');saveBtn.disabled=true;saveBtn.textContent='Saving…';
     try{
       let playerRow;const {data:found,error:findError}=await client.from('cs2_players').select('id,photo_url').eq('nickname',nickname).maybeSingle();if(findError)throw findError;
       if(found)playerRow=found;else{const {data:created,error:createError}=await client.from('cs2_players').insert({nickname,photo_url:photo||''}).select('id,photo_url').single();if(createError)throw createError;playerRow=created;}
@@ -2616,7 +2616,7 @@ async function openAwardPrizeMoney(nickname,photo,teamId){
 
 async function openTeamMatchHistory(t){
   if(!t)return;
-  modal(`<div class="help-header"><div><h2>История боёв</h2><div class="notice">${esc(t.name)}</div></div><button class="btn" id="backTeamProfile">Профиль команды</button></div>${can('manage_matches')?'<div style="margin-bottom:12px"><button class="btn primary" id="addTeamMatch">＋ Добавить бой</button></div>':''}<div id="teamMatchList" class="match-list"><div class="help-empty">Загружаем матчи…</div></div><div class="modalfoot"><button class="btn" id="closeMatchHistory">Закрыть</button></div>`,true);
+  modal(`<div class="help-header"><div><h2>История боёв</h2><div class="notice">${esc(t.name)}</div></div><button class="btn" id="backTeamProfile" >Team profile</button></div>${can('manage_matches')?'<div style="margin-bottom:12px"><button class="btn primary" id="addTeamMatch">＋ Добавить бой</button></div>':''}<div id="teamMatchList" class="match-list"><div class="help-empty">Загружаем матчи…</div></div><div class="modalfoot"><button class="btn" id="closeMatchHistory">Закрыть</button></div>`,true);
   document.getElementById('backTeamProfile').onclick=()=>openTeamProfile(t);
   document.getElementById('closeMatchHistory').onclick=closeModal;
   if(can('manage_matches')&&document.getElementById('addTeamMatch'))document.getElementById('addTeamMatch').onclick=()=>editTeamMatch(t,null);
@@ -2651,10 +2651,10 @@ async function openTeamMatchHistory(t){
     const sideRows=(statRows||[]).filter(st=>String(st.match_id)===String(m.id)&&String(st.team_id||m.team_id)===String(t.id));
     const statsTable=sideRows.length?`<table class="match-stats"><thead><tr><th>Игрок</th><th>K</th><th>D</th><th>K/D</th></tr></thead><tbody>${sideRows.map(st=>{const pl=pmap.get(String(st.player_id));return `<tr><td><button type="button" class="player-profile-link" data-player-profile-name="${esc(pl?.nickname||'Игрок')}" data-player-profile-photo="${esc(pl?.photo_url||'')}">${esc(pl?.nickname||'Игрок')}</button></td><td>${Number(st.kills)}</td><td>${Number(st.deaths)}</td><td><strong>${formatKD(st.kd)}</strong></td></tr>`}).join('')}</tbody></table>`:'<div class="notice">Статистика игроков этой команды ещё не внесена.</div>';
     const isScheduled=m.match_status==='scheduled';
-    return `<article class="match-card"><div class="match-card-head"><div><div class="match-opponent">${esc(leftName)} vs ${esc(rightName)}</div><div class="match-meta">${isScheduled?'Запланирован: ':''}${esc(fmtDate(m.played_at))}${m.map_name?' · '+esc(m.map_name):''}</div></div><div class="match-score">${isScheduled?'VS':`${Number(leftScore)}<span class="score-dash">:</span>${Number(rightScore)}`}</div></div><div class="match-card-body">${isScheduled?'<div class="notice">Матч ещё не завершён.</div>':statsTable}</div>${can('manage_matches')?`<div class="match-card-actions"><button class="btn" type="button" data-edit-match="${m.id}">Редактировать матч и статистику</button><button class="btn" type="button" data-delete-match="${m.id}">Удалить</button></div>`:''}</article>`;
+    return `<article class="match-card"><div class="match-card-head"><div><div class="match-opponent">${esc(leftName)} vs ${esc(rightName)}</div><div class="match-meta">${isScheduled?'Запланирован: ':''}${esc(fmtDate(m.played_at))}${m.map_name?' · '+esc(m.map_name):''}</div></div><div class="match-score">${isScheduled?'VS':`${Number(leftScore)}<span class="score-dash">:</span>${Number(rightScore)}`}</div></div><div class="match-card-body">${isScheduled?'<div class="notice">Матч ещё не завершён.</div>':statsTable}</div>${can('manage_matches')?`<div class="match-card-actions"><button class="btn" type="button" data-edit-match="${m.id}">Edit матч и статистику</button><button class="btn" type="button" data-delete-match="${m.id}">Delete</button></div>`:''}</article>`;
   }).join('');
   wirePlayerProfileLinks();
-  if(can('manage_matches')){list.querySelectorAll('[data-edit-match]').forEach(btn=>btn.onclick=()=>{const m=matches.find(x=>String(x.id)===btn.dataset.editMatch);const home=teams.find(x=>String(x.id)===String(m?.team_id))||t;editTeamMatch(home,m)});list.querySelectorAll('[data-delete-match]').forEach(btn=>btn.onclick=async()=>{if(!confirm('Удалить этот бой и статистику его игроков?'))return;const {error}=await client.from('team_matches').delete().eq('id',btn.dataset.deleteMatch);if(error){alert('Не удалось удалить бой: '+niceError(error));return}await openTeamMatchHistory(t)})}
+  if(can('manage_matches')){list.querySelectorAll('[data-edit-match]').forEach(btn=>btn.onclick=()=>{const m=matches.find(x=>String(x.id)===btn.dataset.editMatch);const home=teams.find(x=>String(x.id)===String(m?.team_id))||t;editTeamMatch(home,m)});list.querySelectorAll('[data-delete-match]').forEach(btn=>btn.onclick=async()=>{if(!confirm('Delete этот бой и статистику его игроков?'))return;const {error}=await client.from('team_matches').delete().eq('id',btn.dataset.deleteMatch);if(error){alert('Не удалось удалить бой: '+niceError(error));return}await openTeamMatchHistory(t)})}
 }
 async function editTeamMatch(team,match=null){
   if(!can('manage_matches'))return;
@@ -2683,7 +2683,7 @@ async function editTeamMatch(team,match=null){
   const dateVal=match?.played_at?(()=>{const d=new Date(match.played_at);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)})():(()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)})();
   const awayTeam=teams.find(x=>String(x.id)===selectedOpponentId)||opponentTeams[0];
   const oldHome=makeRows('home',team),oldAway=makeRows('away',awayTeam);
-  modal(`<h2>${match?'Редактировать бой':'Добавить бой'} · статистика двух команд</h2>
+  modal(`<h2>${match?'Edit бой':'Добавить бой'} · статистика двух команд</h2>
     <div class="field"><label>Команда-соперник *</label><select id="matchOpponentTeam" required>${opponentOptions}</select></div>
     <div class="notice match-points-note">После сохранения завершённого боя победитель получит <b>+30 MVP Points</b>, проигравшая команда потеряет <b>15 MVP Points</b>. При ничьей очки не меняются.</div>
     <div class="match-score-inputs"><div class="field"><label>${esc(team.name)} — раунды</label><input id="matchOurScore" type="number" min="0" max="99" value="${match?.team_score??13}" required></div><div class="field"><label>Соперник — раунды</label><input id="matchOpponentScore" type="number" min="0" max="99" value="${match?.opponent_score??11}" required></div></div>
@@ -2724,7 +2724,7 @@ async function editTeamMatch(team,match=null){
     if(!rowsToSave.some(x=>String(x.team_id)===String(team.id)))return alert('Укажи хотя бы одного игрока первой команды.');
     if(!rowsToSave.some(x=>String(x.team_id)===String(opponentTeam.id)))return alert('Укажи хотя бы одного игрока команды-соперника.');
     const seen=new Set();for(const row of rowsToSave){const key=row.nickname.toLowerCase();if(seen.has(key))return alert(`Игрок «${row.nickname}» указан дважды. Каждый ник должен быть только в одной команде.`);seen.add(key)}
-    const btn=document.getElementById('saveMatchEdit');busy=true;btn.disabled=true;btn.textContent='Сохраняю…';
+    const btn=document.getElementById('saveMatchEdit');busy=true;btn.disabled=true;btn.textContent='Saving…';
     let newMatchId=match?.id;
     try{
       const payload={team_id:team.id,opponent_team_id,opponent_name,team_score,opponent_score,map_name:document.getElementById('matchMap').value.trim(),played_at:new Date(playedValue).toISOString(),match_status:'completed'};
@@ -3090,7 +3090,7 @@ function tournamentEditMarkup(tournament,open=false){
   const current=tournament?.bracket_data||{};
   const selected=Array.isArray(current.teams)?current.teams:[];
   const available=teams.length>=8;
-  return `<details class="tourney-create" id="tourneyEditDetails" ${open?'open':''}><summary>✎ Редактировать созданную сетку</summary><form id="tourneyEditForm"><div class="field" style="margin-top:12px"><label for="tourneyEditName">Название турнира</label><input id="tourneyEditName" maxlength="100" value="${esc(tournament?.name||'')}" required></div><div class="field"><label for="tourneyEditBestOf">Формат матчей</label><select id="tourneyEditBestOf"><option value="1" ${Number(tournament?.best_of)===1?'selected':''}>BO1 — до 1 победы</option><option value="3" ${Number(tournament?.best_of)===3?'selected':''}>BO3 — до 2 побед</option><option value="5" ${Number(tournament?.best_of)===5?'selected':''}>BO5 — до 3 побед</option></select></div><div class="tourney-public-note">Изменение названия не сбрасывает результаты. Если изменить состав, порядок посева или BO, результаты матчей будут очищены, чтобы не оставить неверную сетку.</div><div class="tourney-create-grid">${Array.from({length:8},(_,i)=>{const id=selected[i]?.id??'';const hasOption=teams.some(t=>String(t.id)===String(id));const missing=id&&!hasOption?`<option value="${esc(id)}" selected>${esc(selected[i]?.name||'Команда вне рейтинга')} (нет в рейтинге)</option>`:'';return `<div class="field"><label for="tourneyEditSeed${i+1}">Посев ${i+1}</label><select id="tourneyEditSeed${i+1}" required>${missing}${tournamentTeamOptions(id)}</select></div>`}).join('')}</div><div class="tourney-score-actions" style="margin-top:10px"><button class="btn primary" type="submit" ${available?'':'disabled'}>Сохранить изменения</button><button class="btn" type="button" id="cancelTourneyEdit">Отмена</button></div><div class="tourney-public-note">В сетке должны быть выбраны 8 разных команд.</div></form></details>`;
+  return `<details class="tourney-create" id="tourneyEditDetails" ${open?'open':''}><summary>✎ Edit созданную сетку</summary><form id="tourneyEditForm"><div class="field" style="margin-top:12px"><label for="tourneyEditName">Название турнира</label><input id="tourneyEditName" maxlength="100" value="${esc(tournament?.name||'')}" required></div><div class="field"><label for="tourneyEditBestOf">Формат матчей</label><select id="tourneyEditBestOf"><option value="1" ${Number(tournament?.best_of)===1?'selected':''}>BO1 — до 1 победы</option><option value="3" ${Number(tournament?.best_of)===3?'selected':''}>BO3 — до 2 побед</option><option value="5" ${Number(tournament?.best_of)===5?'selected':''}>BO5 — до 3 побед</option></select></div><div class="tourney-public-note">Изменение названия не сбрасывает результаты. Если изменить состав, порядок посева или BO, результаты матчей будут очищены, чтобы не оставить неверную сетку.</div><div class="tourney-create-grid">${Array.from({length:8},(_,i)=>{const id=selected[i]?.id??'';const hasOption=teams.some(t=>String(t.id)===String(id));const missing=id&&!hasOption?`<option value="${esc(id)}" selected>${esc(selected[i]?.name||'Команда вне рейтинга')} (нет в рейтинге)</option>`:'';return `<div class="field"><label for="tourneyEditSeed${i+1}">Посев ${i+1}</label><select id="tourneyEditSeed${i+1}" required>${missing}${tournamentTeamOptions(id)}</select></div>`}).join('')}</div><div class="tourney-score-actions" style="margin-top:10px"><button class="btn primary" type="submit" ${available?'':'disabled'}>Save changes</button><button class="btn" type="button" id="cancelTourneyEdit">Отмена</button></div><div class="tourney-public-note">В сетке должны быть выбраны 8 разных команд.</div></form></details>`;
 }
 function tournamentMarkup(tournament){
   if(!tournament){return `${can('manage_matches')?tournamentCreateMarkup(true):''}<div class="tourney-empty"><b>Активный турнир пока не создан.</b><br><span>Организатор может создать верхнюю сетку на 8 команд, а затем отдельно добавить до 8 команд в нижнюю сетку.</span></div>`;}
@@ -3099,7 +3099,7 @@ function tournamentMarkup(tournament){
   const activeCount=Object.values(resolved.games).filter(g=>g.winner).length;
   const status=champion?'ТУРНИР ЗАВЕРШЁН':activeCount?'ТУРНИР ИДЁТ':'ОЖИДАЕТ СТАРТА';
   const statusText=champion?'Чемпион определён':activeCount?`Завершено матчей: ${activeCount} из 15`:'Матчи ещё не сыграны';
-  return `${can('manage_matches')?`<div class="tourney-adminbar"><span><b>Управление турниром</b><br><small>Можно изменить состав и формат или удалить текущую сетку.</small></span><div class="tourney-admin-actions"><button type="button" class="btn" id="tourneyEditBtn">✎ Редактировать</button><button type="button" class="btn danger" id="tourneyDeleteBtn">Удалить турнир</button><button type="button" class="btn" id="tourneyNewBtn">＋ Новый турнир</button></div></div>`:''}${can('manage_matches')?`<div id="tourneyCreateHost"></div>`:''}<section class="tourney-hero"><div class="tourney-hero-top"><div><div class="tourney-kicker">MVP CS2 · 8 + 8 TEAMS</div><h2 class="tourney-title">${esc(tournament.name)}</h2><div class="tourney-subtitle">${statusText} · Формат матчей BO${resolved.bestOf}</div></div><span class="tourney-status">${status}</span></div>${champion?`<div class="tourney-champion"><span class="cup">🏆</span><div><small>ЧЕМПИОН MVP CS2</small><strong>${esc(champion.name)}</strong></div></div>`:''}</section><section class="tourney-section"><div class="tourney-section-head"><strong>ВЕРХНЯЯ СЕТКА · 8 КОМАНД</strong><span>Отдельная ветка верхнего турнира</span></div><div class="tourney-rounds">${TOURNAMENT_ROUNDS.upper.map(r=>tournamentRoundHtml(r,tournament)).join('')}</div></section><section class="tourney-section"><div class="tourney-section-head"><strong>НИЖНЯЯ СЕТКА · 8 МЕСТ</strong><span>Добавь команды и разыграй отдельную сетку</span></div>${tournamentLowerSeedsMarkup(tournament)}<div class="tourney-rounds">${TOURNAMENT_ROUNDS.lower.map(r=>tournamentRoundHtml(r,tournament)).join('')}</div></section><section class="tourney-section"><div class="tourney-section-head"><strong>ГРАНД-ФИНАЛ</strong><span>Победители верхней и нижней сеток</span></div><div class="tourney-rounds" style="grid-auto-columns:minmax(245px,390px);justify-content:center"><div class="tourney-round"><div class="tourney-round-title">Финал · за чемпионство</div>${tournamentMatchCard(resolved.games.gf,tournament)}</div></div></section><div class="tourney-bracket-note"><b>Порядок турнира:</b> в верхней и нижней сетках по 8 выбранных команд играют отдельные ветки. Победители каждой ветки встречаются в гранд-финале. Счёт вводится за серию карт (BO1 / BO3 / BO5). Это формат с двумя параллельными сетками, а не классическое Double Elimination с переводом проигравших из верхней сетки.</div>${can('manage_matches')?`<div class="tourney-public-note">Изменение результата автоматически сбрасывает зависимые матчи. Составы верхней и нижней сеток сохраняются в базе Neon.</div>`:''}`;
+  return `${can('manage_matches')?`<div class="tourney-adminbar"><span><b>Управление турниром</b><br><small>Можно изменить состав и формат или удалить текущую сетку.</small></span><div class="tourney-admin-actions"><button type="button" class="btn" id="tourneyEditBtn">✎ Edit</button><button type="button" class="btn danger" id="tourneyDeleteBtn">Delete турнир</button><button type="button" class="btn" id="tourneyNewBtn">＋ Новый турнир</button></div></div>`:''}${can('manage_matches')?`<div id="tourneyCreateHost"></div>`:''}<section class="tourney-hero"><div class="tourney-hero-top"><div><div class="tourney-kicker">MVP CS2 · 8 + 8 TEAMS</div><h2 class="tourney-title">${esc(tournament.name)}</h2><div class="tourney-subtitle">${statusText} · Формат матчей BO${resolved.bestOf}</div></div><span class="tourney-status">${status}</span></div>${champion?`<div class="tourney-champion"><span class="cup">🏆</span><div><small>ЧЕМПИОН MVP CS2</small><strong>${esc(champion.name)}</strong></div></div>`:''}</section><section class="tourney-section"><div class="tourney-section-head"><strong>ВЕРХНЯЯ СЕТКА · 8 КОМАНД</strong><span>Отдельная ветка верхнего турнира</span></div><div class="tourney-rounds">${TOURNAMENT_ROUNDS.upper.map(r=>tournamentRoundHtml(r,tournament)).join('')}</div></section><section class="tourney-section"><div class="tourney-section-head"><strong>НИЖНЯЯ СЕТКА · 8 МЕСТ</strong><span>Добавь команды и разыграй отдельную сетку</span></div>${tournamentLowerSeedsMarkup(tournament)}<div class="tourney-rounds">${TOURNAMENT_ROUNDS.lower.map(r=>tournamentRoundHtml(r,tournament)).join('')}</div></section><section class="tourney-section"><div class="tourney-section-head"><strong>ГРАНД-ФИНАЛ</strong><span>Победители верхней и нижней сеток</span></div><div class="tourney-rounds" style="grid-auto-columns:minmax(245px,390px);justify-content:center"><div class="tourney-round"><div class="tourney-round-title">Финал · за чемпионство</div>${tournamentMatchCard(resolved.games.gf,tournament)}</div></div></section><div class="tourney-bracket-note"><b>Порядок турнира:</b> в верхней и нижней сетках по 8 выбранных команд играют отдельные ветки. Победители каждой ветки встречаются в гранд-финале. Счёт вводится за серию карт (BO1 / BO3 / BO5). Это формат с двумя параллельными сетками, а не классическое Double Elimination с переводом проигравших из верхней сетки.</div>${can('manage_matches')?`<div class="tourney-public-note">Изменение результата автоматически сбрасывает зависимые матчи. Составы верхней и нижней сеток сохраняются в базе Neon.</div>`:''}`;
 }
 
 async function loadTournamentIntoModal(force=false){
@@ -3200,13 +3200,13 @@ async function saveTournamentEdits(event){
     const {error}=await client.from('mvp_tournaments').update({name,best_of:bestOf,status,bracket_data:nextData,updated_at:new Date().toISOString()}).eq('id',activeTournament.id);
     if(error)throw error;
     await loadTournamentIntoModal(true);
-  }catch(e){alert('Не удалось изменить турнир: '+niceError(e));if(submit){submit.disabled=false;submit.textContent='Сохранить изменения';}}
+  }catch(e){alert('Не удалось изменить турнир: '+niceError(e));if(submit){submit.disabled=false;submit.textContent='Save changes';}}
 }
 async function deleteActiveTournament(){
   if(!can('manage_matches')||!activeTournament?.id)return;
   const id=activeTournament.id;
   const name=activeTournament.name||'этот турнир';
-  if(!confirm(`Удалить турнир «${name}»? Его сетка и результаты будут удалены без возможности восстановления.`))return;
+  if(!confirm(`Delete турнир «${name}»? Его сетка и результаты будут удалены без возможности восстановления.`))return;
   try{
     const {data,error}=await client.from('mvp_tournaments').delete().eq('id',id).select('id').maybeSingle();
     if(error)throw error;
@@ -3287,7 +3287,7 @@ async function openStreamsCenter(){
       e.preventDefault();const title=document.getElementById('streamTitle').value.trim(),youtube_url=document.getElementById('streamUrl').value.trim();
       if(!title)return alert('Введи название трансляции.');
       if(!youtubeEmbedUrl(youtube_url))return alert('Вставь ссылку на видео или эфир YouTube, например https://www.youtube.com/live/VIDEO_ID.');
-      const btn=e.currentTarget.querySelector('button[type="submit"]');btn.disabled=true;btn.textContent='Сохраняю…';
+      const btn=e.currentTarget.querySelector('button[type="submit"]');btn.disabled=true;btn.textContent='Saving…';
       const {error}=await client.from('cs2_streams').insert({title,youtube_url,created_by:currentUser.id});
       if(error){alert('Не удалось добавить трансляцию. Проверь таблицу cs2_streams в Neon. Ошибка: '+niceError(error));btn.disabled=false;btn.textContent='＋ Добавить эфир';return;}
       await loadStreamsIntoModal();
@@ -3306,10 +3306,10 @@ async function loadStreamsIntoModal(){
     const embed=youtubeEmbedUrl(stream.youtube_url);
     if(!embed)return '';
     const date=stream.created_at?new Date(stream.created_at).toLocaleDateString('ru-RU'):'Ютуб';
-    return `<article class="stream-card"><div class="stream-embed"><iframe src="${embed}" title="${esc(stream.title)}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div><div class="stream-card-info"><div><div class="stream-title">${esc(stream.title)}</div><div class="stream-date">Добавлено: ${esc(date)}</div><a href="${esc(stream.youtube_url)}" target="_blank" rel="noopener noreferrer" style="font-size:11px;color:#8a6200">Открыть на YouTube</a></div>${can('manage_streams')?`<button class="btn" type="button" data-delete-stream="${stream.id}" title="Удалить эфир">Удалить</button>`:''}</div></article>`;
+    return `<article class="stream-card"><div class="stream-embed"><iframe src="${embed}" title="${esc(stream.title)}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div><div class="stream-card-info"><div><div class="stream-title">${esc(stream.title)}</div><div class="stream-date">Добавлено: ${esc(date)}</div><a href="${esc(stream.youtube_url)}" target="_blank" rel="noopener noreferrer" style="font-size:11px;color:#8a6200">Открыть на YouTube</a></div>${can('manage_streams')?`<button class="btn" type="button" data-delete-stream="${stream.id}" title="Delete эфир">Delete</button>`:''}</div></article>`;
   }).join('')||'<div class="stream-empty">Не удалось найти подходящие ссылки на YouTube.</div>';
   if(can('manage_streams'))host.querySelectorAll('[data-delete-stream]').forEach(btn=>btn.onclick=async()=>{
-    if(!confirm('Удалить эту трансляцию из списка?'))return;
+    if(!confirm('Delete эту трансляцию из списка?'))return;
     const {error}=await client.from('cs2_streams').delete().eq('id',btn.dataset.deleteStream);
     if(error){alert('Не удалось удалить трансляцию: '+niceError(error));return;}
     await loadStreamsIntoModal();
@@ -3338,7 +3338,7 @@ async function openTopPlayersCenter(){
     teams.forEach(team=>{
       const roster=getRoster(team),photos=getPlayerPhotos(team);
       roster.forEach((nickname,i)=>{
-        if(!nickname||nickname==='Игрок не указан')return;
+        if(!nickname||nickname==='Player not specified')return;
         const key=nickname.toLowerCase();
         let member=members.get(key);
         if(!member){member={nickname,photo:photos[i]||'',teams:[]};members.set(key,member)}
@@ -3399,9 +3399,9 @@ async function loadGlobalMatches(){
     const badge=t=>t?.logo?`<img src="${esc(t.logo)}" alt="">`:`<span style="width:34px;height:34px;display:grid;place-items:center;border:1px solid #e3e7eb;border-radius:6px;font-size:10px">${esc(t?.tag||t?.name?.slice(0,3)||'CS2')}</span>`;
     const scheduled=m.match_status==='scheduled';
     const when=m.played_at?new Date(m.played_at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'Время не указано';
-    return `<article class="global-match-card"><div class="global-match-head"><div class="global-match-team">${badge(home)}<span class="global-match-team-name">${esc(homeName)}</span></div><div class="global-match-vs">${scheduled?'VS':`<span class="global-match-score">${Number(m.team_score)} : ${Number(m.opponent_score)}</span>`}</div><div class="global-match-team">${badge(away)}<span class="global-match-team-name">${esc(awayName)}</span></div></div><div class="global-match-info"><span class="global-match-status">${scheduled?'Запланирован':'Завершён'}</span><span>${esc(when)}${m.map_name?' · '+esc(m.map_name):''}${m.tournament_name?' · '+esc(m.tournament_name):''}</span></div>${can('manage_matches')?`<div class="global-match-actions"><button class="btn" type="button" data-edit-global-match="${m.id}">Редактировать</button>${!scheduled?`<button class="btn" type="button" data-edit-match-stats="${m.id}">Статистика игроков</button>`:''}<button class="btn" type="button" data-delete-global-match="${m.id}">Удалить</button></div>`:''}</article>`;
+    return `<article class="global-match-card"><div class="global-match-head"><div class="global-match-team">${badge(home)}<span class="global-match-team-name">${esc(homeName)}</span></div><div class="global-match-vs">${scheduled?'VS':`<span class="global-match-score">${Number(m.team_score)} : ${Number(m.opponent_score)}</span>`}</div><div class="global-match-team">${badge(away)}<span class="global-match-team-name">${esc(awayName)}</span></div></div><div class="global-match-info"><span class="global-match-status">${scheduled?'Запланирован':'Завершён'}</span><span>${esc(when)}${m.map_name?' · '+esc(m.map_name):''}${m.tournament_name?' · '+esc(m.tournament_name):''}</span></div>${can('manage_matches')?`<div class="global-match-actions"><button class="btn" type="button" data-edit-global-match="${m.id}">Edit</button>${!scheduled?`<button class="btn" type="button" data-edit-match-stats="${m.id}">Статистика игроков</button>`:''}<button class="btn" type="button" data-delete-global-match="${m.id}">Delete</button></div>`:''}</article>`;
   }).join('');
-  if(can('manage_matches')){host.querySelectorAll('[data-edit-global-match]').forEach(b=>b.onclick=()=>editGlobalMatch(data.find(m=>String(m.id)===b.dataset.editGlobalMatch)));host.querySelectorAll('[data-edit-match-stats]').forEach(b=>b.onclick=()=>{const m=data.find(x=>String(x.id)===b.dataset.editMatchStats);const home=teams.find(t=>String(t.id)===String(m?.team_id));if(home)editTeamMatch(home,m)});host.querySelectorAll('[data-delete-global-match]').forEach(b=>b.onclick=async()=>{if(!confirm('Удалить этот матч и связанную статистику?'))return;const {error}=await client.from('team_matches').delete().eq('id',b.dataset.deleteGlobalMatch);if(error){alert('Не удалось удалить матч: '+niceError(error));return}await loadGlobalMatches()})}
+  if(can('manage_matches')){host.querySelectorAll('[data-edit-global-match]').forEach(b=>b.onclick=()=>editGlobalMatch(data.find(m=>String(m.id)===b.dataset.editGlobalMatch)));host.querySelectorAll('[data-edit-match-stats]').forEach(b=>b.onclick=()=>{const m=data.find(x=>String(x.id)===b.dataset.editMatchStats);const home=teams.find(t=>String(t.id)===String(m?.team_id));if(home)editTeamMatch(home,m)});host.querySelectorAll('[data-delete-global-match]').forEach(b=>b.onclick=async()=>{if(!confirm('Delete этот матч и связанную статистику?'))return;const {error}=await client.from('team_matches').delete().eq('id',b.dataset.deleteGlobalMatch);if(error){alert('Не удалось удалить матч: '+niceError(error));return}await loadGlobalMatches()})}
 }
 function localDateTimeValue(value){const d=value?new Date(value):new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)}
 async function editGlobalMatch(match=null){
@@ -3409,7 +3409,7 @@ async function editGlobalMatch(match=null){
   if(teams.length<2)return alert('Для создания матча сначала добавь минимум две команды.');
   const options=teams.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join('');
   const primary=String(match?.team_id||teams[0].id),secondary=String(match?.opponent_team_id||teams.find(t=>String(t.id)!==primary)?.id||teams[1].id);
-  modal(`<h2>${match?'Редактировать матч':'Создать матч'}</h2><div class="global-match-form"><div class="field"><label>Первая команда</label><select id="globalMatchTeam1">${options}</select></div><div class="field"><label>Вторая команда</label><select id="globalMatchTeam2">${options}</select></div><div class="field full"><label>Название турнира (необязательно)</label><input id="globalMatchTournament" maxlength="100" value="${esc(match?.tournament_name||'')}" placeholder="MVP CS2 Cup"></div><div class="field"><label>Карта</label><input id="globalMatchMap" maxlength="50" value="${esc(match?.map_name||'')}" placeholder="Mirage"></div><div class="field"><label>Дата и время матча</label><input id="globalMatchTime" type="datetime-local" value="${localDateTimeValue(match?.played_at)}"></div><div class="field"><label>Статус</label><select id="globalMatchStatus"><option value="scheduled" ${match?.match_status==='scheduled'?'selected':''}>Запланирован</option><option value="completed" ${match?.match_status!=='scheduled'?'selected':''}>Завершён</option></select></div><div class="field"><label>Счёт первой команды</label><input id="globalMatchScore1" type="number" min="0" max="99" value="${Number(match?.team_score)||0}"></div><div class="field"><label>Счёт второй команды</label><input id="globalMatchScore2" type="number" min="0" max="99" value="${Number(match?.opponent_score)||0}"></div></div><div class="notice match-points-note">Когда статус матча установлен как «Завершён», победитель получит <b>+30 MVP Points</b>, проигравший потеряет <b>15 MVP Points</b>. При изменении результата очки пересчитаются автоматически.</div><div class="modalfoot"><button class="btn" id="cancelGlobalMatch">Отмена</button><button class="btn primary" id="saveGlobalMatch">Сохранить матч</button></div>`,true);
+  modal(`<h2>${match?'Edit матч':'Создать матч'}</h2><div class="global-match-form"><div class="field"><label>Первая команда</label><select id="globalMatchTeam1">${options}</select></div><div class="field"><label>Вторая команда</label><select id="globalMatchTeam2">${options}</select></div><div class="field full"><label>Название турнира (необязательно)</label><input id="globalMatchTournament" maxlength="100" value="${esc(match?.tournament_name||'')}" placeholder="MVP CS2 Cup"></div><div class="field"><label>Карта</label><input id="globalMatchMap" maxlength="50" value="${esc(match?.map_name||'')}" placeholder="Mirage"></div><div class="field"><label>Дата и время матча</label><input id="globalMatchTime" type="datetime-local" value="${localDateTimeValue(match?.played_at)}"></div><div class="field"><label>Статус</label><select id="globalMatchStatus"><option value="scheduled" ${match?.match_status==='scheduled'?'selected':''}>Запланирован</option><option value="completed" ${match?.match_status!=='scheduled'?'selected':''}>Завершён</option></select></div><div class="field"><label>Счёт первой команды</label><input id="globalMatchScore1" type="number" min="0" max="99" value="${Number(match?.team_score)||0}"></div><div class="field"><label>Счёт второй команды</label><input id="globalMatchScore2" type="number" min="0" max="99" value="${Number(match?.opponent_score)||0}"></div></div><div class="notice match-points-note">Когда статус матча установлен как «Завершён», победитель получит <b>+30 MVP Points</b>, проигравший потеряет <b>15 MVP Points</b>. При изменении результата очки пересчитаются автоматически.</div><div class="modalfoot"><button class="btn" id="cancelGlobalMatch">Отмена</button><button class="btn primary" id="saveGlobalMatch">Сохранить матч</button></div>`,true);
   document.getElementById('globalMatchTeam1').value=primary;document.getElementById('globalMatchTeam2').value=secondary;
   document.getElementById('cancelGlobalMatch').onclick=loadMatchesAndReopen;
   async function loadMatchesAndReopen(){await openMatchesCenter()}
@@ -3422,7 +3422,7 @@ async function editGlobalMatch(match=null){
     if(!Number.isInteger(team_score)||team_score<0||team_score>99||!Number.isInteger(opponent_score)||opponent_score<0||opponent_score>99)return alert('Проверь счёт матча.');
     const match_status=document.getElementById('globalMatchStatus').value;
     const payload={team_id,opponent_team_id,opponent_name:team2.name,team_score,opponent_score,map_name:document.getElementById('globalMatchMap').value.trim(),played_at:new Date(played).toISOString(),match_status,tournament_name:document.getElementById('globalMatchTournament').value.trim()};
-    const btn=document.getElementById('saveGlobalMatch');btn.disabled=true;btn.textContent='Сохраняю…';
+    const btn=document.getElementById('saveGlobalMatch');btn.disabled=true;btn.textContent='Saving…';
     const result=match?await client.from('team_matches').update(payload).eq('id',match.id):await client.from('team_matches').insert({...payload,created_by:currentUser.id});
     if(result.error){alert('Не удалось сохранить матч. Проверь SQL-миграцию. Ошибка: '+niceError(result.error));btn.disabled=false;btn.textContent='Сохранить матч';return;}
     await openMatchesCenter();
@@ -3453,7 +3453,7 @@ document.getElementById('teams').addEventListener('click',async e=>{
     if(actionButton.dataset.act==='plus')return updatePoints(t,100);
     if(actionButton.dataset.act==='minus')return updatePoints(t,-100);
     if(actionButton.dataset.act==='edit')return editTeam(t);
-    if(actionButton.dataset.act==='delete'&&confirm('Удалить команду «'+t.name+'»?')){
+    if(actionButton.dataset.act==='delete'&&confirm('Delete команду «'+t.name+'»?')){
       const {error}=await client.from('teams').delete().eq('id',t.id);
       if(error){alert('Не удалось удалить команду: '+niceError(error));return}
       if(String(expandedTeamId)===String(t.id))expandedTeamId=null;
@@ -3476,7 +3476,7 @@ async function editTeam(t=null){
   let knownPlayers=[];if(oldRoster.length){const {data,error}=await client.from('cs2_players').select('id,nickname').in('nickname',oldRoster);if(!error)knownPlayers=data||[]}
   const idInfo=oldRoster.map(n=>{const p=knownPlayers.find(x=>x.nickname.toLowerCase()===n.toLowerCase());return `<span class="player-id-chip">${esc(n)} · ID ${p?'#'+p.id:'будет создан'}</span>`}).join('');
   const playerPhotoRows=Array.from({length:5},(_,i)=>`<div class="player-photo-edit"><label for="playerPhoto${i}">Фото игрока ${i+1}</label><div class="player-photo-preview" id="playerPhotoPreview${i}">${oldPlayerPhotos[i]?`<img src="${esc(oldPlayerPhotos[i])}" alt="Фото игрока ${i+1}">`:esc(playerInitials(oldRoster[i]))}</div><input id="playerPhoto${i}" type="file" accept="image/png,image/jpeg,image/webp"><button class="btn remove-player-photo" type="button" data-remove-player-photo="${i}">Убрать фото</button></div>`).join('');
-  modal(`<h2>${t?'Редактировать команду':'Добавить команду'}</h2><div class="field"><label>Название команды *</label><input id="teamName" maxlength="70" value="${esc(old.name)}" placeholder="Например, MVP Academy"></div><div class="formrow"><div class="field"><label>Тег команды</label><input id="teamTag" maxlength="12" value="${esc(old.tag)}" placeholder="MVP"></div><div class="field"><label>MVP Points</label><input id="teamPoints" type="number" min="0" max="1000000" value="${Number(old.points)}"></div></div><div class="field"><label>Победы в турнирах</label><input id="teamTournamentWins" type="number" min="0" max="9999" value="${Number(old.tournament_wins)||0}"></div><div class="field"><label>Игроки состава (через запятую, максимум 5)</label><textarea id="teamPlayers" maxlength="300" placeholder="Игрок1, Игрок2, Игрок3, Игрок4, Игрок5">${esc(old.players)}</textarea><div class="notice">Чтобы оформить переход: сначала удали игрока из старой команды и сохрани её, затем добавь его в новую команду и сохрани. Новость об исключении автоматически превратится в новость о трансфере.</div><div class="player-id-list">${idInfo||'Постоянные ID появятся после первого сохранения игроков. Переименовывай через профиль игрока — K/D и матчи сохранятся.'}</div></div><div class="field"><label>Фотографии игроков</label><div class="notice">Загрузи фото для каждого игрока. Изображения автоматически уменьшаются и сохраняются в общей базе, так что их увидят все посетители. Разрешены PNG, JPG и WEBP; исходный файл до 4 МБ.</div><div class="player-photo-editor">${playerPhotoRows}</div></div>${can('manage_bans')?`<div class="field ban-team-field"><label><input type="checkbox" id="teamIsBanned" ${old.is_banned?'checked':''}> Заблокировать команду и скрыть её из публичного рейтинга</label><input id="teamBanReason" maxlength=200 value="${esc(old.ban_reason||'')}" placeholder="Причина блокировки"></div>`:''}<div class="field"><label>Логотип команды (PNG, JPG, WEBP)</label><input id="teamLogo" type="file" accept="image/png,image/jpeg,image/webp"><div class="notice">Логотип сохранится в общей базе для всех посетителей. Файл — до 2 МБ.</div><div id="logoPreview" class="logo" style="margin-top:6px">${old.logo?`<img src="${esc(old.logo)}" alt="Лого">`:'Лого'}</div><button class="btn" type="button" id="removeLogo" style="margin-top:8px">Убрать логотип</button></div><div class="modalfoot"><button class="btn" id="cancelTeam">Отмена</button><button class="btn primary" id="saveTeam">Сохранить</button></div>`,true);
+  modal(`<h2>${t?'Edit команду':'Добавить команду'}</h2><div class="field"><label>Название команды *</label><input id="teamName" maxlength="70" value="${esc(old.name)}" placeholder="Например, MVP Academy"></div><div class="formrow"><div class="field"><label>Тег команды</label><input id="teamTag" maxlength="12" value="${esc(old.tag)}" placeholder="MVP"></div><div class="field"><label>MVP Points</label><input id="teamPoints" type="number" min="0" max="1000000" value="${Number(old.points)}"></div></div><div class="field"><label>Tournament wins</label><input id="teamTournamentWins" type="number" min="0" max="9999" value="${Number(old.tournament_wins)||0}"></div><div class="field"><label>Игроки состава (через запятую, максимум 5)</label><textarea id="teamPlayers" maxlength="300" placeholder="Игрок1, Игрок2, Игрок3, Игрок4, Игрок5">${esc(old.players)}</textarea><div class="notice">Чтобы оформить переход: сначала удали игрока из старой команды и сохрани её, затем добавь его в новую команду и сохрани. Новость об исключении автоматически превратится в новость о трансфере.</div><div class="player-id-list">${idInfo||'Постоянные ID появятся после первого сохранения игроков. Переименовывай через профиль игрока — K/D и матчи сохранятся.'}</div></div><div class="field"><label>Фотографии игроков</label><div class="notice">Загрузи фото для каждого игрока. Изображения автоматически уменьшаются и сохраняются в общей базе, так что их увидят все посетители. Разрешены PNG, JPG и WEBP; исходный файл до 4 МБ.</div><div class="player-photo-editor">${playerPhotoRows}</div></div>${can('manage_bans')?`<div class="field ban-team-field"><label><input type="checkbox" id="teamIsBanned" ${old.is_banned?'checked':''}> Заблокировать команду и скрыть её из публичного рейтинга</label><input id="teamBanReason" maxlength=200 value="${esc(old.ban_reason||'')}" placeholder="Причина блокировки"></div>`:''}<div class="field"><label>Логотип команды (PNG, JPG, WEBP)</label><input id="teamLogo" type="file" accept="image/png,image/jpeg,image/webp"><div class="notice">Логотип сохранится в общей базе для всех посетителей. Файл — до 2 МБ.</div><div id="logoPreview" class="logo" style="margin-top:6px">${old.logo?`<img src="${esc(old.logo)}" alt="Лого">`:'Лого'}</div><button class="btn" type="button" id="removeLogo" style="margin-top:8px">Убрать логотип</button></div><div class="modalfoot"><button class="btn" id="cancelTeam">Отмена</button><button class="btn primary" id="saveTeam">Сохранить</button></div>`,true);
   let logo=old.logo||'';
   let playerPhotos=[...oldPlayerPhotos];
   document.getElementById('cancelTeam').onclick=closeModal;
@@ -3522,7 +3522,7 @@ async function editTeam(t=null){
      const is_banned=can('manage_bans')?Boolean(document.getElementById('teamIsBanned')?.checked):Boolean(old.is_banned);
      const ban_reason=can('manage_bans')?(is_banned?(document.getElementById('teamBanReason')?.value.trim()||old.ban_reason||'Подозрение на использование читов'):''):String(old.ban_reason||'');
      const payload={p_team_id:t?Number(t.id):null,p_name:name,p_tag:document.getElementById('teamTag').value.trim()||name.slice(0,4).toUpperCase(),p_points:Math.floor(points),p_players:rawRoster,p_logo:logo,p_player_photos:playerPhotos,p_tournament_wins:tournament_wins,p_is_banned:is_banned,p_ban_reason:ban_reason};
-    const btn=document.getElementById('saveTeam');busy=true;btn.disabled=true;btn.textContent='Сохраняю…';
+    const btn=document.getElementById('saveTeam');busy=true;btn.disabled=true;btn.textContent='Saving…';
     try{
       const {data,error}=await client.rpc('admin_save_team',payload);if(error)throw error;
       const saved=Array.isArray(data)?data[0]:data;if(!saved)throw new Error('Сохранённая команда не вернулась из базы.');
@@ -3879,7 +3879,7 @@ function newsEditorialCard(row){
     <div class="news-hub-card-body"><div class="news-hub-meta"><span class="news-hub-category">${label}</span><span>${esc(newsDate(row.created_at))}</span><span>· ${esc(author)}</span></div>
     <h3 class="news-hub-title">${esc(row.title)}</h3><div class="news-hub-summary">${esc(row.summary||'')}</div>
     <div class="news-hub-card-actions"><button class="btn primary" type="button" data-read-editorial="${esc(row.id)}">Читать новость</button>
-    ${can('manage_news')?`<div class="news-hub-admin-actions"><button class="btn" type="button" data-edit-editorial="${esc(row.id)}">Изменить</button><button class="btn" type="button" data-delete-editorial="${esc(row.id)}">Удалить</button></div>`:''}</div></div>
+    ${can('manage_news')?`<div class="news-hub-admin-actions"><button class="btn" type="button" data-edit-editorial="${esc(row.id)}">Изменить</button><button class="btn" type="button" data-delete-editorial="${esc(row.id)}">Delete</button></div>`:''}</div></div>
   </article>`;
 }
 function newsAutomaticCard(row){
@@ -3936,7 +3936,7 @@ async function loadNewsHubItems(filter=newsCenterFilter){
   host.querySelectorAll('[data-edit-editorial]').forEach(b=>b.onclick=()=>openEditorialNewsEditor((articles||[]).find(x=>String(x.id)===b.dataset.editEditorial)));
   host.querySelectorAll('[data-delete-editorial]').forEach(b=>b.onclick=async()=>{
     if(!can('manage_news'))return;
-    const id=b.dataset.deleteEditorial;if(!confirm('Удалить эту новость без возможности восстановления?'))return;
+    const id=b.dataset.deleteEditorial;if(!confirm('Delete эту новость без возможности восстановления?'))return;
     const {error}=await client.from('mvp_editorial_news').delete().eq('id',id);
     if(error){alert('Не удалось удалить новость: '+niceError(error));return;}
     await openNewsCenter(newsCenterFilter);
@@ -3945,7 +3945,7 @@ async function loadNewsHubItems(filter=newsCenterFilter){
 function openEditorialNewsEditor(article=null){
   if(!can('manage_news'))return;
   const row=article||{};
-  modal(`<div class="page-head"><div><h2>${article?'Редактировать новость':'Новая публикация'}</h2><div class="page-intro">Создай оформленную новость для читателей MVP CS2 Ranking.</div></div><button class="btn" id="cancelEditorialNews">Назад</button></div>
+  modal(`<div class="page-head"><div><h2>${article?'Edit новость':'Новая публикация'}</h2><div class="page-intro">Создай оформленную новость для читателей MVP CS2 Ranking.</div></div><button class="btn" id="cancelEditorialNews">Назад</button></div>
     <div class="news-editor-grid"><div>
       <div class="field"><label for="editorialTitle">Заголовок *</label><input id="editorialTitle" maxlength="140" value="${esc(row.title||'')}" placeholder="Например: Новое обновление рейтинга"></div>
       <div class="field"><label for="editorialCategory">Категория</label><select id="editorialCategory"><option value="news" ${row.category==='news'?'selected':''}>Новость</option><option value="announcement" ${row.category==='announcement'?'selected':''}>Объявление</option><option value="tournament" ${row.category==='tournament'?'selected':''}>Турнир</option><option value="update" ${row.category==='update'?'selected':''}>Обновление сайта</option></select></div>
@@ -3956,7 +3956,7 @@ function openEditorialNewsEditor(article=null){
       <div class="field"><label for="editorialBody">Полный текст новости *</label><textarea id="editorialBody" style="min-height:310px" maxlength="12000" placeholder="Напиши полный текст новости. Абзацы сохраняются.">${esc(row.body||'')}</textarea></div>
       <div class="news-editor-preview"><b>Подсказка по оформлению</b><div class="notice">Используй короткие абзацы. Заголовок, изображение, категория и дата будут красиво оформлены автоматически. HTML-код вставлять не нужно.</div></div>
     </div></div>
-    <div class="modalfoot"><button class="btn" id="cancelEditorialNews2">Отмена</button><button class="btn primary" id="saveEditorialNews">${article?'Сохранить изменения':'Опубликовать'}</button></div>`,true);
+    <div class="modalfoot"><button class="btn" id="cancelEditorialNews2">Отмена</button><button class="btn primary" id="saveEditorialNews">${article?'Save changes':'Опубликовать'}</button></div>`,true);
   document.querySelector('#modalRoot .modal').classList.add('modal-page');
   const goBack=()=>openNewsCenter(newsCenterFilter);
   document.getElementById('cancelEditorialNews').onclick=goBack;document.getElementById('cancelEditorialNews2').onclick=goBack;
@@ -3969,9 +3969,9 @@ function openEditorialNewsEditor(article=null){
     if(externalInput&&!newsValidWebUrl(externalInput))return alert('Дополнительная ссылка должна начинаться с https:// или http://.');
     const payload={title,category:document.getElementById('editorialCategory').value,image_url:imageInput||null,external_url:externalInput||null,summary:document.getElementById('editorialSummary').value.trim(),body,published:true,updated_at:new Date().toISOString()};
     if(!article){payload.author_id=currentUser.id;payload.author_name=currentUser.username;}
-    const button=document.getElementById('saveEditorialNews');button.disabled=true;button.textContent='Сохраняю…';
+    const button=document.getElementById('saveEditorialNews');button.disabled=true;button.textContent='Saving…';
     const result=article?await client.from('mvp_editorial_news').update(payload).eq('id',article.id):await client.from('mvp_editorial_news').insert(payload);
-    if(result.error){alert('Не удалось сохранить публикацию: '+niceError(result.error));button.disabled=false;button.textContent=article?'Сохранить изменения':'Опубликовать';return;}
+    if(result.error){alert('Не удалось сохранить публикацию: '+niceError(result.error));button.disabled=false;button.textContent=article?'Save changes':'Опубликовать';return;}
     await openNewsCenter('all');
   };
 }
@@ -4341,14 +4341,14 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  const dictionaries={
  en:{
  'Рейтинг':'Ranking','Турнир':'Tournament','Матчи':'Matches','Трансляции':'Streams','Топ игроков':'Top players','Новости':'News',
- 'Настройки':'Settings','Войти / регистрация':'Login / Register','Выйти':'Log out','Публичный просмотр':'Public view','Помощь':'Help',
+ 'Настройки':'Settings','Log in / Sign up':'Login / Register','Выйти':'Log out','Public view':'Public view','Помощь':'Help',
  'ОФОРМЛЕНИЕ':'APPEARANCE','Выбери оформление сайта и настрой его внешний вид.':'Choose the site appearance and customize its look.',
  'Закрыть':'Close','Светлая тема':'Light theme','Тёмно-серые панели':'Dark gray panels','DAY · Дневная':'DAY · Light','NIGHT · Ночная':'NIGHT · Dark',
  'Выбор темы сохраняется на этом устройстве. Логотип и фон сайта сохраняются в общей базе и видны всем посетителям.':'Your theme choice is saved on this device. The logo and background are saved centrally and visible to all visitors.',
  'ЯЗЫК / LANGUAGE':'LANGUAGE','Язык интерфейса сохраняется на этом устройстве.':'Your language choice is saved on this device.',
  'Состав команды':'Team roster','Состав команды ·':'Team roster ·','Профиль команды':'Team profile','Игроков':'players',
- 'Место':'Rank','Команда':'Team','Очки':'Points','Сохранить':'Save','Отмена':'Cancel','Удалить':'Delete','Изменить':'Edit',
- 'Добавить':'Add','Поиск':'Search','Loading…':'Loading…','Сохранить изменения':'Save changes','Назад':'Back','Далее':'Next',
+ 'Место':'Rank','Команда':'Team','Очки':'Points','Сохранить':'Save','Отмена':'Cancel','Delete':'Delete','Изменить':'Edit',
+ 'Добавить':'Add','Поиск':'Search','Loading…':'Loading…','Save changes':'Save changes','Назад':'Back','Далее':'Next',
  'Текущий день':'Current day','Сегодня':'Today','Вчера':'Yesterday','Кубки':'Trophies','Статистика':'Statistics',
  'Участники':'Participants','Результаты':'Results','Дата':'Date','Время':'Time','Сезон':'Season','Архив':'Archive',
  'Нет данных':'No data','Пока нет данных.':'No data yet.','Обновить':'Refresh','Подтвердить':'Confirm','Отправить':'Send',
@@ -4379,14 +4379,14 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  },
  uk:{
  'Рейтинг':'Рейтинг','Турнир':'Турнір','Матчи':'Матчі','Трансляции':'Трансляції','Топ игроков':'Топ гравців','Новости':'Новини',
- 'Настройки':'Налаштування','Войти / регистрация':'Увійти / реєстрація','Выйти':'Вийти','Публичный просмотр':'Публічний перегляд','Помощь':'Допомога',
+ 'Настройки':'Налаштування','Log in / Sign up':'Увійти / реєстрація','Выйти':'Вийти','Public view':'Публічний перегляд','Помощь':'Допомога',
  'ОФОРМЛЕНИЕ':'ОФОРМЛЕННЯ','Выбери оформление сайта и настрой его внешний вид.':'Обери оформлення сайту та налаштуй його вигляд.',
  'Закрыть':'Закрити','Светлая тема':'Світла тема','Тёмно-серые панели':'Темно-сірі панелі','DAY · Дневная':'DAY · Денна','NIGHT · Ночная':'NIGHT · Нічна',
  'Выбор темы сохраняется на этом устройстве. Логотип и фон сайта сохраняются в общей базе и видны всем посетителям.':'Вибір теми зберігається на цьому пристрої. Логотип і тло сайту зберігаються в спільній базі та видимі всім відвідувачам.',
  'ЯЗЫК / LANGUAGE':'МОВА / LANGUAGE','Язык интерфейса сохраняется на этом устройстве.':'Мову інтерфейсу збережено на цьому пристрої.',
  'Состав команды':'Склад команди','Состав команды ·':'Склад команди ·','Профиль команды':'Профіль команди','Игроков':'гравців',
- 'Место':'Місце','Команда':'Команда','Очки':'Бали','Сохранить':'Зберегти','Отмена':'Скасувати','Удалить':'Видалити','Изменить':'Змінити',
- 'Добавить':'Додати','Поиск':'Пошук','Loading…':'Завантаження…','Сохранить изменения':'Зберегти зміни','Назад':'Назад','Далее':'Далі',
+ 'Место':'Місце','Команда':'Команда','Очки':'Бали','Сохранить':'Зберегти','Отмена':'Скасувати','Delete':'Видалити','Изменить':'Змінити',
+ 'Добавить':'Додати','Поиск':'Пошук','Loading…':'Завантаження…','Save changes':'Зберегти зміни','Назад':'Назад','Далее':'Далі',
  'Текущий день':'Поточний день','Сегодня':'Сьогодні','Вчера':'Учора','Кубки':'Кубки','Статистика':'Статистика',
  'Участники':'Учасники','Результаты':'Результати','Дата':'Дата','Время':'Час','Сезон':'Сезон','Архив':'Архів',
  'Нет данных':'Немає даних','Пока нет данных.':'Поки немає даних.','Обновить':'Оновити','Подтвердить':'Підтвердити','Отправить':'Надіслати',
@@ -4417,14 +4417,14 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  },
  de:{
  'Рейтинг':'Rangliste','Турнир':'Turnier','Матчи':'Spiele','Трансляции':'Streams','Топ игроков':'Top-Spieler','Новости':'News',
- 'Настройки':'Einstellungen','Войти / регистрация':'Anmelden / Registrieren','Выйти':'Abmelden','Публичный просмотр':'Öffentliche Ansicht','Помощь':'Hilfe',
+ 'Настройки':'Einstellungen','Log in / Sign up':'Anmelden / Registrieren','Выйти':'Abmelden','Public view':'Öffentliche Ansicht','Помощь':'Hilfe',
  'ОФОРМЛЕНИЕ':'DARSTELLUNG','Выбери оформление сайта и настрой его внешний вид.':'Wähle das Erscheinungsbild der Website.',
  'Закрыть':'Schließen','Светлая тема':'Helles Design','Тёмно-серые панели':'Dunkelgraue Felder','DAY · Дневная':'DAY · Hell','NIGHT · Ночная':'NIGHT · Dunkel',
  'Выбор темы сохраняется на этом устройстве. Логотип и фон сайта сохраняются в общей базе и видны всем посетителям.':'Die Designauswahl wird auf diesem Gerät gespeichert. Logo und Hintergrund sind für alle Besucher sichtbar.',
  'ЯЗЫК / LANGUAGE':'SPRACHE / LANGUAGE','Язык интерфейса сохраняется на этом устройстве.':'Die Sprachauswahl wird auf diesem Gerät gespeichert.',
  'Состав команды':'Teamaufstellung','Состав команды ·':'Teamaufstellung ·','Профиль команды':'Teamprofil','Игроков':'Spieler',
- 'Место':'Platz','Команда':'Team','Очки':'Punkte','Сохранить':'Speichern','Отмена':'Abbrechen','Удалить':'Löschen','Изменить':'Bearbeiten',
- 'Добавить':'Hinzufügen','Поиск':'Suche','Loading…':'Wird geladen…','Сохранить изменения':'Änderungen speichern','Назад':'Zurück','Далее':'Weiter',
+ 'Место':'Platz','Команда':'Team','Очки':'Punkte','Сохранить':'Speichern','Отмена':'Abbrechen','Delete':'Löschen','Изменить':'Bearbeiten',
+ 'Добавить':'Hinzufügen','Поиск':'Suche','Loading…':'Wird geladen…','Save changes':'Änderungen speichern','Назад':'Zurück','Далее':'Weiter',
  'Текущий день':'Aktueller Tag','Сегодня':'Heute','Вчера':'Gestern','Кубки':'Pokale','Статистика':'Statistik',
  'Участники':'Teilnehmer','Результаты':'Ergebnisse','Дата':'Datum','Время':'Uhrzeit','Сезон':'Saison','Архив':'Archiv',
  'Нет данных':'Keine Daten','Пока нет данных.':'Noch keine Daten.','Обновить':'Aktualisieren','Подтвердить':'Bestätigen','Отправить':'Senden',
@@ -4539,7 +4539,7 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  };
  Object.keys(modalTranslations).forEach(code=>Object.assign(dictionaries[code],modalTranslations[code]));
  // Extended interface coverage for dynamically rendered sections.
- const extraTranslations={"en":{"Состав пока не указан.":"Roster not provided yet.","Состав не указан":"Roster not provided","Команда не указана":"No team specified","Все трансферы":"All transfers","Матчей пока нет.":"No matches yet.","История боёв пока пуста.":"Match history is empty.","Пока нет сообщений":"No messages yet","Пока нет зарегистрированных пользователей.":"No registered users yet.","Блокировок пока нет.":"No bans yet.","Трансферных новостей пока нет.":"No transfer news yet.","Добавить команду":"Add team","Добавить бой":"Add match","Создать матч":"Create match","Создать турнир":"Create tournament","Редактировать матч":"Edit match","Редактировать команду":"Edit team","Заблокировать":"Ban","Разблокировать":"Unban","Имя пользователя":"Username","Ник игрока":"Player nickname","Причина блокировки":"Ban reason","Ответ пользователю":"Reply to user","Чат с администратором":"Chat with administrator","Предыдущий день":"Previous day","Следующий день":"Next day","Верхняя":"Upper bracket","Нижняя":"Lower bracket","полуфинал":"semifinal","четвертьфинал":"quarterfinal","Гранд-финал":"Grand final","Чемпион определён":"Champion determined","Профиль игрока":"Player profile","Профиль":"Profile","Access Management":"Access management","Управление командами и очками":"Manage teams and points","Управление профилями игроков":"Manage player profiles","Управление трансляциями":"Manage streams","Выдать кубок":"Award trophy","Убрать награду":"Remove award","Забыли пароль?":"Forgot password?","Вход в аккаунт":"Log in","Регистрация":"Register","Состав команды. Прокручивайте по горизонтали":"Team roster. Scroll horizontally","Матч создан":"Match created","Матч завершён":"Match completed","Завершён":"Completed","Запланирован":"Scheduled","ОЖИДАЕТ РЕЗУЛЬТАТА":"AWAITING RESULT","ОЖИДАЕТ СТАРТА":"AWAITING START","Сохранить бой и статистику":"Save match and statistics","Пока нет добавленных трансляций. Загляни позже!":"No streams have been added yet. Check back later!","Пока нет запланированных или завершённых матчей.":"No scheduled or completed matches yet.","Пока нет трансляций.":"No streams yet.","Общая база подключена. Команды появятся после их переноса администратором.":"Shared database connected. Teams will appear after an administrator migrates them."},"uk":{"Состав пока не указан.":"Склад поки не вказано.","Состав не указан":"Склад не вказано","Команда не указана":"Команду не вказано","Все трансферы":"Усі трансфери","Матчей пока нет.":"Матчів поки немає.","История боёв пока пуста.":"Історія матчів поки порожня.","Пока нет сообщений":"Повідомлень поки немає","Пока нет зарегистрированных пользователей.":"Зареєстрованих користувачів поки немає.","Блокировок пока нет.":"Блокувань поки немає.","Трансферных новостей пока нет.":"Новин про трансфери поки немає.","Добавить команду":"Додати команду","Добавить бой":"Додати матч","Создать матч":"Створити матч","Создать турнир":"Створити турнір","Редактировать матч":"Редагувати матч","Редактировать команду":"Редагувати команду","Заблокировать":"Заблокувати","Разблокировать":"Розблокувати","Имя пользователя":"Ім’я користувача","Ник игрока":"Нік гравця","Причина блокировки":"Причина блокування","Ответ пользователю":"Відповідь користувачу","Чат с администратором":"Чат з адміністратором","Предыдущий день":"Попередній день","Следующий день":"Наступний день","Верхняя":"Верхня сітка","Нижняя":"Нижня сітка","полуфинал":"півфінал","четвертьфинал":"чвертьфінал","Гранд-финал":"Гранд-фінал","Чемпион определён":"Чемпіона визначено","Профиль игрока":"Профіль гравця","Профиль":"Профіль","Access Management":"Керування доступом","Управление командами и очками":"Керування командами та балами","Управление профилями игроков":"Керування профілями гравців","Управление трансляциями":"Керування трансляціями","Выдать кубок":"Видати кубок","Убрать награду":"Прибрати нагороду","Забыли пароль?":"Забули пароль?","Вход в аккаунт":"Вхід до акаунта","Регистрация":"Реєстрація","Состав команды. Прокручивайте по горизонтали":"Склад команди. Гортайте горизонтально","Матч создан":"Матч створено","Матч завершён":"Матч завершено","Завершён":"Завершено","Запланирован":"Заплановано","ОЖИДАЕТ РЕЗУЛЬТАТА":"ОЧІКУЄ РЕЗУЛЬТАТУ","ОЖИДАЕТ СТАРТА":"ОЧІКУЄ ПОЧАТКУ","Сохранить бой и статистику":"Зберегти матч і статистику","Пока нет добавленных трансляций. Загляни позже!":"Трансляцій поки немає. Завітай пізніше!","Пока нет запланированных или завершённых матчей.":"Запланованих або завершених матчів поки немає.","Пока нет трансляций.":"Трансляцій поки немає.","Общая база подключена. Команды появятся после их переноса администратором.":"Спільну базу даних підключено. Команди з’являться після перенесення адміністратором."},"de":{"Состав пока не указан.":"Aufstellung noch nicht angegeben.","Состав не указан":"Aufstellung nicht angegeben","Команда не указана":"Kein Team angegeben","Все трансферы":"Alle Transfers","Матчей пока нет.":"Noch keine Spiele.","История боёв пока пуста.":"Der Spielverlauf ist noch leer.","Пока нет сообщений":"Noch keine Nachrichten","Пока нет зарегистрированных пользователей.":"Noch keine registrierten Benutzer.","Блокировок пока нет.":"Noch keine Sperren.","Трансферных новостей пока нет.":"Noch keine Transfermeldungen.","Добавить команду":"Team hinzufügen","Добавить бой":"Match hinzufügen","Создать матч":"Match erstellen","Создать турнир":"Turnier erstellen","Редактировать матч":"Match bearbeiten","Редактировать команду":"Team bearbeiten","Заблокировать":"Sperren","Разблокировать":"Entsperren","Имя пользователя":"Benutzername","Ник игрока":"Spielername","Причина блокировки":"Sperrgrund","Ответ пользователю":"Antwort an Benutzer","Чат с администратором":"Chat mit Administrator","Предыдущий день":"Vorheriger Tag","Следующий день":"Nächster Tag","Верхняя":"Obere","Нижняя":"Untere","полуфинал":"Halbfinale","четвертьфинал":"Viertelfinale","Гранд-финал":"Großes Finale","Чемпион определён":"Champion steht fest","Профиль игрока":"Spielerprofil","Профиль":"Profil","Access Management":"Zugriffsverwaltung","Управление командами и очками":"Teams und Punkte verwalten","Управление профилями игроков":"Spielerprofile verwalten","Управление трансляциями":"Streams verwalten","Выдать кубок":"Pokal verleihen","Убрать награду":"Auszeichnung entfernen","Забыли пароль?":"Passwort vergessen?","Вход в аккаунт":"Anmelden","Регистрация":"Registrieren","Состав команды. Прокручивайте по горизонтали":"Teamaufstellung. Horizontal scrollen","Матч создан":"Match erstellt","Матч завершён":"Match abgeschlossen","Завершён":"Abgeschlossen","Запланирован":"Geplant","ОЖИДАЕТ РЕЗУЛЬТАТА":"ERGEBNIS AUSSTEHEND","ОЖИДАЕТ СТАРТА":"START AUSSTEHEND","Сохранить бой и статистику":"Match und Statistiken speichern","Пока нет добавленных трансляций. Загляни позже!":"Noch keine Streams hinzugefügt. Schau später wieder vorbei!","Пока нет запланированных или завершённых матчей.":"Noch keine geplanten oder abgeschlossenen Spiele.","Пока нет трансляций.":"Noch keine Streams.","Общая база подключена. Команды появятся после их переноса администратором.":"Gemeinsame Datenbank verbunden. Teams erscheinen, sobald ein Administrator sie migriert hat."}};
+ const extraTranslations={"en":{"Roster not specified yet.":"Roster not provided yet.","Roster not specified":"Roster not provided","Команда не указана":"No team specified","Все трансферы":"All transfers","Матчей пока нет.":"No matches yet.","История боёв пока пуста.":"Match history is empty.","Пока нет сообщений":"No messages yet","Пока нет зарегистрированных пользователей.":"No registered users yet.","Блокировок пока нет.":"No bans yet.","Трансферных новостей пока нет.":"No transfer news yet.","Добавить команду":"Add team","Добавить бой":"Add match","Создать матч":"Create match","Создать турнир":"Create tournament","Edit матч":"Edit match","Edit команду":"Edit team","Заблокировать":"Ban","Разблокировать":"Unban","Имя пользователя":"Username","Ник игрока":"Player nickname","Причина блокировки":"Ban reason","Ответ пользователю":"Reply to user","Чат с администратором":"Chat with administrator","Previous day":"Previous day","Next day":"Next day","Верхняя":"Upper bracket","Нижняя":"Lower bracket","полуфинал":"semifinal","четвертьфинал":"quarterfinal","Гранд-финал":"Grand final","Чемпион определён":"Champion determined","Профиль игрока":"Player profile","Профиль":"Profile","Access Management":"Access management","Manage teams and points":"Manage teams and points","Manage player profiles":"Manage player profiles","Manage streams":"Manage streams","Выдать кубок":"Award trophy","Убрать награду":"Remove award","Забыли пароль?":"Forgot password?","Вход в аккаунт":"Log in","Регистрация":"Register","Team roster. Scroll horizontally":"Team roster. Scroll horizontally","Матч создан":"Match created","Матч завершён":"Match completed","Завершён":"Completed","Запланирован":"Scheduled","ОЖИДАЕТ РЕЗУЛЬТАТА":"AWAITING RESULT","ОЖИДАЕТ СТАРТА":"AWAITING START","Сохранить бой и статистику":"Save match and statistics","Пока нет добавленных трансляций. Загляни позже!":"No streams have been added yet. Check back later!","Пока нет запланированных или завершённых матчей.":"No scheduled or completed matches yet.","Пока нет трансляций.":"No streams yet.","Общая база подключена. Команды появятся после их переноса администратором.":"Shared database connected. Teams will appear after an administrator migrates them."},"uk":{"Roster not specified yet.":"Склад поки не вказано.","Roster not specified":"Склад не вказано","Команда не указана":"Команду не вказано","Все трансферы":"Усі трансфери","Матчей пока нет.":"Матчів поки немає.","История боёв пока пуста.":"Історія матчів поки порожня.","Пока нет сообщений":"Повідомлень поки немає","Пока нет зарегистрированных пользователей.":"Зареєстрованих користувачів поки немає.","Блокировок пока нет.":"Блокувань поки немає.","Трансферных новостей пока нет.":"Новин про трансфери поки немає.","Добавить команду":"Додати команду","Добавить бой":"Додати матч","Создать матч":"Створити матч","Создать турнир":"Створити турнір","Edit матч":"Редагувати матч","Edit команду":"Редагувати команду","Заблокировать":"Заблокувати","Разблокировать":"Розблокувати","Имя пользователя":"Ім’я користувача","Ник игрока":"Нік гравця","Причина блокировки":"Причина блокування","Ответ пользователю":"Відповідь користувачу","Чат с администратором":"Чат з адміністратором","Previous day":"Попередній день","Next day":"Наступний день","Верхняя":"Верхня сітка","Нижняя":"Нижня сітка","полуфинал":"півфінал","четвертьфинал":"чвертьфінал","Гранд-финал":"Гранд-фінал","Чемпион определён":"Чемпіона визначено","Профиль игрока":"Профіль гравця","Профиль":"Профіль","Access Management":"Керування доступом","Manage teams and points":"Керування командами та балами","Manage player profiles":"Керування профілями гравців","Manage streams":"Керування трансляціями","Выдать кубок":"Видати кубок","Убрать награду":"Прибрати нагороду","Забыли пароль?":"Забули пароль?","Вход в аккаунт":"Вхід до акаунта","Регистрация":"Реєстрація","Team roster. Scroll horizontally":"Склад команди. Гортайте горизонтально","Матч создан":"Матч створено","Матч завершён":"Матч завершено","Завершён":"Завершено","Запланирован":"Заплановано","ОЖИДАЕТ РЕЗУЛЬТАТА":"ОЧІКУЄ РЕЗУЛЬТАТУ","ОЖИДАЕТ СТАРТА":"ОЧІКУЄ ПОЧАТКУ","Сохранить бой и статистику":"Зберегти матч і статистику","Пока нет добавленных трансляций. Загляни позже!":"Трансляцій поки немає. Завітай пізніше!","Пока нет запланированных или завершённых матчей.":"Запланованих або завершених матчів поки немає.","Пока нет трансляций.":"Трансляцій поки немає.","Общая база подключена. Команды появятся после их переноса администратором.":"Спільну базу даних підключено. Команди з’являться після перенесення адміністратором."},"de":{"Roster not specified yet.":"Aufstellung noch nicht angegeben.","Roster not specified":"Aufstellung nicht angegeben","Команда не указана":"Kein Team angegeben","Все трансферы":"Alle Transfers","Матчей пока нет.":"Noch keine Spiele.","История боёв пока пуста.":"Der Spielverlauf ist noch leer.","Пока нет сообщений":"Noch keine Nachrichten","Пока нет зарегистрированных пользователей.":"Noch keine registrierten Benutzer.","Блокировок пока нет.":"Noch keine Sperren.","Трансферных новостей пока нет.":"Noch keine Transfermeldungen.","Добавить команду":"Team hinzufügen","Добавить бой":"Match hinzufügen","Создать матч":"Match erstellen","Создать турнир":"Turnier erstellen","Edit матч":"Match bearbeiten","Edit команду":"Team bearbeiten","Заблокировать":"Sperren","Разблокировать":"Entsperren","Имя пользователя":"Benutzername","Ник игрока":"Spielername","Причина блокировки":"Sperrgrund","Ответ пользователю":"Antwort an Benutzer","Чат с администратором":"Chat mit Administrator","Previous day":"Vorheriger Tag","Next day":"Nächster Tag","Верхняя":"Obere","Нижняя":"Untere","полуфинал":"Halbfinale","четвертьфинал":"Viertelfinale","Гранд-финал":"Großes Finale","Чемпион определён":"Champion steht fest","Профиль игрока":"Spielerprofil","Профиль":"Profil","Access Management":"Zugriffsverwaltung","Manage teams and points":"Teams und Punkte verwalten","Manage player profiles":"Spielerprofile verwalten","Manage streams":"Streams verwalten","Выдать кубок":"Pokal verleihen","Убрать награду":"Auszeichnung entfernen","Забыли пароль?":"Passwort vergessen?","Вход в аккаунт":"Anmelden","Регистрация":"Registrieren","Team roster. Scroll horizontally":"Teamaufstellung. Horizontal scrollen","Матч создан":"Match erstellt","Матч завершён":"Match abgeschlossen","Завершён":"Abgeschlossen","Запланирован":"Geplant","ОЖИДАЕТ РЕЗУЛЬТАТА":"ERGEBNIS AUSSTEHEND","ОЖИДАЕТ СТАРТА":"START AUSSTEHEND","Сохранить бой и статистику":"Match und Statistiken speichern","Пока нет добавленных трансляций. Загляни позже!":"Noch keine Streams hinzugefügt. Schau später wieder vorbei!","Пока нет запланированных или завершённых матчей.":"Noch keine geplanten oder abgeschlossenen Spiele.","Пока нет трансляций.":"Noch keine Streams.","Общая база подключена. Команды появятся после их переноса администратором.":"Gemeinsame Datenbank verbunden. Teams erscheinen, sobald ein Administrator sie migriert hat."}};
  Object.keys(extraTranslations).forEach(code=>Object.assign(dictionaries[code],extraTranslations[code]));
 
  let lang='en';
