@@ -1770,6 +1770,101 @@ body[data-theme="night"] .season-admin-card{background:#2d2b24;border-color:#806
   .player-hltv-awards .player-trophy img{width:52px;height:52px}
 }
 </style>
+<style id="compact-player-profile-panel">
+/* Compact the entire player profile dialog while keeping the trophy showcase intact. */
+.modal.player-profile-modal{
+  width:min(820px,calc(100vw - 48px))!important;
+  max-width:calc(100vw - 48px)!important;
+  box-sizing:border-box!important;
+  padding:17px!important;
+  max-height:calc(100vh - 36px)!important;
+  max-height:calc(100dvh - 36px)!important;
+}
+.modal.player-profile-modal .player-hltv-hero{
+  min-height:218px;
+  margin-bottom:11px;
+}
+.modal.player-profile-modal .player-hltv-hero-content{
+  padding:16px;
+  gap:15px;
+}
+.modal.player-profile-modal .player-hltv-identity h2{
+  font-size:clamp(24px,3vw,33px);
+}
+.modal.player-profile-modal .player-hltv-metrics{
+  gap:6px;
+}
+.modal.player-profile-modal .player-hltv-metrics>div{
+  padding:7px 8px;
+}
+.modal.player-profile-modal .player-hltv-metrics strong{
+  font-size:clamp(16px,1.8vw,21px);
+}
+.modal.player-profile-modal .player-hltv-awards{
+  margin-bottom:13px;
+  padding:9px 11px 7px;
+}
+.modal.player-profile-modal .player-profile-layout{
+  grid-template-columns:minmax(170px,210px) minmax(0,1fr);
+  gap:16px;
+  margin-bottom:13px;
+}
+.modal.player-profile-modal .player-profile-photo{
+  width:100%;
+}
+.modal.player-profile-modal .player-profile-info{
+  gap:7px;
+}
+.modal.player-profile-modal .player-profile-name{
+  font-size:24px;
+}
+.modal.player-profile-modal .player-profile-stats{
+  gap:6px;
+  margin:2px 0 3px;
+}
+.modal.player-profile-modal .player-profile-stat{
+  padding:7px 8px;
+}
+.modal.player-profile-modal .player-profile-stat strong{
+  font-size:18px;
+}
+.modal.player-profile-modal .player-profile-details-label{
+  margin:4px 0 8px;
+}
+.modal.player-profile-modal .roster-heading{
+  margin-top:7px;
+}
+@media(max-width:700px){
+  .modal.player-profile-modal{
+    width:calc(100vw - 20px)!important;
+    max-width:calc(100vw - 20px)!important;
+    padding:12px!important;
+    max-height:calc(100dvh - 20px)!important;
+  }
+  .modal.player-profile-modal .player-hltv-hero{
+    min-height:205px;
+    margin-bottom:9px;
+  }
+  .modal.player-profile-modal .player-hltv-hero-content{
+    padding:12px;
+    gap:12px;
+  }
+  .modal.player-profile-modal .player-hltv-metrics{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:5px;
+  }
+  .modal.player-profile-modal .player-hltv-metrics>div{
+    padding:6px;
+  }
+  .modal.player-profile-modal .player-profile-layout{
+    grid-template-columns:minmax(108px,34%) minmax(0,1fr);
+    gap:10px;
+  }
+  .modal.player-profile-modal .player-profile-name{
+    font-size:19px;
+  }
+}
+</style>
 </head><body data-theme="night">
 <header class="top">
   <nav class="main-nav" aria-label="Основная навигация">
