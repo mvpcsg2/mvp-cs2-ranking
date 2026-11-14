@@ -2740,7 +2740,7 @@ async function editTeamMatch(team,match=null){
   };
 }
 function stopHelpPolling(){if(helpRefreshTimer){clearInterval(helpRefreshTimer);helpRefreshTimer=null}}
-function modal(content,wide=false){stopHelpPolling();activeHelpProfile=null;document.getElementById('modalRoot').innerHTML=`<div class="modalback" id="backdrop"><div class="modal${wide?' modal-wide':''}">${content}</div></div>`;document.getElementById('backdrop').addEventListener('click',e=>{if(e.target.id==='backdrop')closeModal()})}
+function modal(content,wide=false){stopHelpPolling();activeHelpProfile=null;document.getElementById('modalRoot').innerHTML=`<div class="modalback" id="backdrop"><div class="modal${wide?' modal-wide':''}">${content}</div></div>`;document.getElementById('backdrop').addEventListener('click',e=>{if(e.target.id==='backdrop')closeModal()});if(window.mvpApplyLanguage)window.mvpApplyLanguage()}
 function closeModal(){cleanupLiveCenter();cleanupTournamentCenter();stopHelpPolling();activeHelpProfile=null;document.getElementById('modalRoot').innerHTML=''}
 function niceError(error){return error?.message||'Не удалось выполнить действие. Проверь соединение и попробуй ещё раз.'}
 function showAuthFeedback(message){const box=document.getElementById('authFeedback');if(!box)return;box.textContent=String(message||'Не удалось выполнить действие.');box.classList.remove('hidden');}
@@ -4535,91 +4535,106 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  Object.keys(extraTranslations).forEach(code=>Object.assign(dictionaries[code],extraTranslations[code]));
 
  let lang='en';
- const validLanguages=['en','ru','uk','de'];
+ const LANGUAGES=['en','ru','uk','de'];
+ const STORAGE_KEY=KEY;
  const originalText=new WeakMap();
- const originalAttrs=new WeakMap();
- const attrs=['placeholder','title','aria-label','alt','value'];
- function savedLanguage(){
+ const originalAttributes=new WeakMap();
+ const TRANSLATABLE_ATTRIBUTES=['placeholder','title','aria-label','alt'];
+ const SKIP_TAGS=/^(SCRIPT|STYLE|TEXTAREA|INPUT)$/;
+
+ function readLanguage(){
    try{
-     const value=localStorage.getItem(KEY);
-     return validLanguages.includes(value)?value:'en';
-   }catch(_){return 'en'}
+     const stored=localStorage.getItem(STORAGE_KEY);
+     return LANGUAGES.includes(stored)?stored:'en';
+   }catch(error){return 'en'}
  }
- function translateValue(source){
-   const dict=dictionaries[lang]||{};
+ function translateString(source){
+   if(lang==='ru')return source;
+   const dictionary=dictionaries[lang]||{};
    let result=source;
-   const keys=Object.keys(dict).filter(key=>key.length>2).sort((a,b)=>b.length-a.length);
+   const keys=Object.keys(dictionary).filter(key=>key.length>2).sort((a,b)=>b.length-a.length);
    for(const key of keys){
-     if(result.includes(key))result=result.split(key).join(dict[key]);
+     if(result.includes(key))result=result.split(key).join(dictionary[key]);
    }
    return result;
  }
- function translateNode(node){
+ function translateTextNode(node){
    if(!node||node.nodeType!==Node.TEXT_NODE)return;
+   const parent=node.parentElement;
+   if(parent&&SKIP_TAGS.test(parent.tagName))return;
    if(!originalText.has(node))originalText.set(node,node.nodeValue);
-   const translated=lang==='ru'?originalText.get(node):translateValue(originalText.get(node));
+   const original=originalText.get(node);
+   const translated=translateString(original);
    if(node.nodeValue!==translated)node.nodeValue=translated;
  }
  function translateElement(element){
-   if(!element||element.nodeType!==Node.ELEMENT_NODE||/^(SCRIPT|STYLE)$/.test(element.tagName))return;
+   if(!element||element.nodeType!==Node.ELEMENT_NODE||SKIP_TAGS.test(element.tagName))return;
+   if(element.closest('[data-no-translate]'))return;
    element.childNodes.forEach(child=>{
-     if(child.nodeType===Node.TEXT_NODE)translateNode(child);
+     if(child.nodeType===Node.TEXT_NODE)translateTextNode(child);
      else if(child.nodeType===Node.ELEMENT_NODE)translateElement(child);
    });
-   let originals=originalAttrs.get(element);
-   if(!originals){originals={};originalAttrs.set(element,originals)}
-   attrs.forEach(attr=>{
-     if(!element.hasAttribute(attr))return;
-     if(!(attr in originals))originals[attr]=element.getAttribute(attr);
-     const translated=lang==='ru'?originals[attr]:translateValue(originals[attr]);
-     if(element.getAttribute(attr)!==translated)element.setAttribute(attr,translated);
+   let originals=originalAttributes.get(element);
+   if(!originals){originals={};originalAttributes.set(element,originals)}
+   TRANSLATABLE_ATTRIBUTES.forEach(attribute=>{
+     if(!element.hasAttribute(attribute))return;
+     if(!(attribute in originals))originals[attribute]=element.getAttribute(attribute);
+     const translated=translateString(originals[attribute]);
+     if(element.getAttribute(attribute)!==translated)element.setAttribute(attribute,translated);
    });
+ }
+ function syncSelector(){
+   const selector=document.getElementById('siteLanguageSelect');
+   if(selector&&selector.value!==lang)selector.value=lang;
  }
  function applyLanguage(){
    document.documentElement.lang=lang;
    if(document.body)translateElement(document.body);
-   const select=document.getElementById('siteLanguageSelect');
-   if(select&&select.value!==lang)select.value=lang;
+   syncSelector();
+   const settings=document.getElementById('settingsBtn');
    const labels={en:'Settings',ru:'Настройки',uk:'Налаштування',de:'Einstellungen'};
-   const button=document.getElementById('settingsBtn');
-   if(button){button.title=labels[lang];button.setAttribute('aria-label',labels[lang])}
- }
- window.mvpGetLanguage=function(){return lang};
- window.mvpSetLanguage=function(next){
-   if(!validLanguages.includes(next))return;
-   lang=next;
-   try{localStorage.setItem(KEY,next)}catch(_){}
-   applyLanguage();
- };
- document.addEventListener('change',event=>{
-   if(event.target&&event.target.id==='siteLanguageSelect')window.mvpSetLanguage(event.target.value);
- });
- const observer=new MutationObserver(records=>{
-   records.forEach(record=>{
-     if(record.type==='characterData')translateNode(record.target);
-     record.addedNodes&&record.addedNodes.forEach(node=>{
-       if(node.nodeType===Node.TEXT_NODE)translateNode(node);
-       else if(node.nodeType===Node.ELEMENT_NODE)translateElement(node);
-     });
-   });
- });
- function startLanguage(){
-   lang=savedLanguage();
-   if(document.body){
-     applyLanguage();
-     observer.observe(document.body,{subtree:true,childList:true,characterData:true});
+   if(settings){
+     settings.title=labels[lang];
+     settings.setAttribute('aria-label',labels[lang]);
    }
  }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startLanguage,{once:true});
- else startLanguage();
- const previousModal=window.modal;
- if(typeof previousModal==='function'){
-   window.modal=function(content,wide){
-     previousModal(content,wide);
-     applyLanguage();
-   };
+ function setLanguage(next){
+   if(!LANGUAGES.includes(next))return;
+   lang=next;
+   try{localStorage.setItem(STORAGE_KEY,next)}catch(error){}
+   applyLanguage();
  }
+ window.mvpGetLanguage=()=>lang;
+ window.mvpSetLanguage=setLanguage;
+ window.mvpApplyLanguage=applyLanguage;
 
-})();
+ document.addEventListener('change',event=>{
+   if(event.target&&event.target.id==='siteLanguageSelect')setLanguage(event.target.value);
+ });
+ document.addEventListener('input',event=>{
+   if(event.target&&event.target.id==='siteLanguageSelect')setLanguage(event.target.value);
+ });
+
+ const observer=new MutationObserver(records=>{
+   for(const record of records){
+     if(record.type==='characterData')translateTextNode(record.target);
+     if(record.type==='childList'){
+       record.addedNodes.forEach(node=>{
+         if(node.nodeType===Node.TEXT_NODE)translateTextNode(node);
+         else if(node.nodeType===Node.ELEMENT_NODE)translateElement(node);
+       });
+     }
+   }
+ });
+ function initializeLanguage(){
+   lang=readLanguage();
+   applyLanguage();
+   if(document.body)observer.observe(document.body,{subtree:true,childList:true,characterData:true});
+ }
+ if(document.readyState==='loading'){
+   document.addEventListener('DOMContentLoaded',initializeLanguage,{once:true});
+ }else{
+   initializeLanguage();
+ }
 </script>
 </body></html>
