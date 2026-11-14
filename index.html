@@ -4542,8 +4542,8 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
  function savedLanguage(){
    try{
      const value=localStorage.getItem(KEY);
-     return validLanguages.includes(value)?value:'ru';
-   }catch(_){return 'ru'}
+     return validLanguages.includes(value)?value:'en';
+   }catch(_){return 'en'}
  }
  function translateValue(source){
    const dict=dictionaries[lang]||{};
