@@ -32,6 +32,19 @@ UPDATE public.mvp_tournaments
 SET organizer_id = (SELECT id FROM public.mvp_tournament_organizers WHERE slug = 'ect' LIMIT 1)
 WHERE organizer_id IS NULL;
 
+-- Preserve the existing bracket shape and completed/live state for legacy events.
+UPDATE public.mvp_tournaments
+SET event_status = CASE
+  WHEN status = 'completed' THEN 'completed'
+  WHEN status = 'live' THEN 'live'
+  ELSE 'upcoming'
+END,
+team_count = CASE
+  WHEN jsonb_typeof(bracket_data->'lower_teams') = 'array'
+       AND jsonb_array_length(bracket_data->'lower_teams') > 0 THEN 16
+  ELSE 8
+END;
+
 ALTER TABLE public.mvp_tournaments
   ALTER COLUMN organizer_id SET NOT NULL;
 
