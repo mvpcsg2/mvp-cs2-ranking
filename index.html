@@ -1946,6 +1946,101 @@ body[data-theme] .panel{
 .tourney-modal .tourney-match-hint{color:#c1ccda!important}
 .tourney-modal .tourney-round-note{color:#b5c1d0!important}
 </style>
+
+<style id="cstt-comfort-polish">
+/* CSTT comfort polish v1 — visual-only: no dimensions, grid, spacing or layout rules. */
+:root{
+  --cstt-accent:#e6ad45;
+  --cstt-accent-soft:rgba(230,173,69,.16);
+  --cstt-glass:rgba(255,255,255,.055);
+  --cstt-ease:cubic-bezier(.2,.75,.25,1);
+}
+body{scroll-behavior:smooth}
+button,.btn,a,.tiny,[role="button"],summary,select,input,textarea{
+  transition:background-color .22s var(--cstt-ease),color .22s var(--cstt-ease),
+  border-color .22s var(--cstt-ease),box-shadow .24s var(--cstt-ease),
+  filter .22s var(--cstt-ease),transform .22s var(--cstt-ease),opacity .22s var(--cstt-ease);
+}
+button,.btn,.tiny,[role="button"]{ -webkit-tap-highlight-color:transparent }
+button:not(:disabled):hover,.btn:not(:disabled):hover,.tiny:not(:disabled):hover,[role="button"]:not([aria-disabled="true"]):hover{
+  filter:brightness(1.07) saturate(1.06);
+  box-shadow:0 5px 16px rgba(4,15,31,.16);
+}
+button:not(:disabled):active,.btn:not(:disabled):active,.tiny:not(:disabled):active,[role="button"]:not([aria-disabled="true"]):active{
+  transform:translateY(1px) scale(.985);
+  filter:brightness(.97);
+}
+button:focus-visible,.btn:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{
+  outline:2px solid var(--cstt-accent)!important;
+  outline-offset:3px;
+  box-shadow:0 0 0 5px rgba(230,173,69,.16)!important;
+}
+a:not(.news-team-chip):not(.news-no-team-chip):hover{filter:brightness(1.12)}
+#mainNav button,.top-nav button,.navbar button,.nav-tabs button{
+  position:relative;
+  isolation:isolate;
+}
+#mainNav button::after,.top-nav button::after,.navbar button::after,.nav-tabs button::after{
+  content:"";position:absolute;left:16%;right:16%;bottom:3px;height:2px;border-radius:5px;
+  background:var(--cstt-accent);transform:scaleX(0);transform-origin:center;
+  transition:transform .24s var(--cstt-ease);pointer-events:none;
+}
+#mainNav button:hover::after,.top-nav button:hover::after,.navbar button:hover::after,
+.nav-tabs button:hover::after,#mainNav button.active::after,.top-nav button.active::after,
+.navbar button.active::after,.nav-tabs button.active::after{transform:scaleX(1)}
+.team-card,.season-admin-card,.mvp-season-rail,.player-hltv-hero,.player-hltv-awards,
+.tourney-event-card,.tourney-operator-card,.tourney-section,.tourney-match,
+.custom-trophy-card,.modal,.transfer-card,.news-card{
+  transition:background-color .25s var(--cstt-ease),border-color .25s var(--cstt-ease),
+  box-shadow .28s var(--cstt-ease),filter .25s var(--cstt-ease);
+}
+#teams>.team-card,.tourney-event-card,.tourney-operator-card,.custom-trophy-card,.news-card{
+  box-shadow:0 3px 12px rgba(3,12,24,.09);
+}
+#teams>.team-card:hover,.tourney-event-card:hover,.tourney-operator-card:hover,
+.custom-trophy-card:hover,.news-card:hover{
+  box-shadow:0 8px 22px rgba(3,12,24,.15);
+  border-color:rgba(230,173,69,.55)!important;
+}
+input,select,textarea{
+  accent-color:var(--cstt-accent);
+}
+input:hover,select:hover,textarea:hover{border-color:rgba(230,173,69,.7)}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--cstt-accent)!important;
+  box-shadow:0 0 0 3px rgba(230,173,69,.14)!important;
+}
+#modalRoot .modal,.modal-page{
+  box-shadow:0 22px 70px rgba(0,0,0,.27);
+}
+#modalRoot .modal{animation:csttModalIn .26s var(--cstt-ease) both}
+@keyframes csttModalIn{from{opacity:0;transform:translateY(9px) scale(.993)}to{opacity:1;transform:translateY(0) scale(1)}}
+.badge,.pill,.status-pill,.tourney-status-pill{transition:filter .2s ease,background-color .2s ease}
+.badge:hover,.pill:hover,.status-pill:hover,.tourney-status-pill:hover{filter:brightness(1.08)}
+.help-fab,.help-button{box-shadow:0 8px 24px rgba(0,24,65,.24);transition:filter .2s ease,box-shadow .2s ease,transform .2s ease}
+.help-fab:hover,.help-button:hover{box-shadow:0 12px 30px rgba(0,24,65,.3);transform:translateY(-2px)}
+body[data-theme="night"] #teams>.team-card,
+body[data-theme="night"] .tourney-event-card,
+body[data-theme="night"] .tourney-operator-card,
+body[data-theme="night"] .custom-trophy-card,
+body[data-theme="night"] .news-card{
+  box-shadow:0 4px 16px rgba(0,0,0,.22);
+}
+body[data-theme="night"] #teams>.team-card:hover,
+body[data-theme="night"] .tourney-event-card:hover,
+body[data-theme="night"] .tourney-operator-card:hover,
+body[data-theme="night"] .custom-trophy-card:hover,
+body[data-theme="night"] .news-card:hover{
+  box-shadow:0 9px 25px rgba(0,0,0,.32),0 0 0 1px rgba(230,173,69,.16);
+}
+@media(hover:none){
+  button:not(:disabled):hover,.btn:not(:disabled):hover,.tiny:not(:disabled):hover{filter:none;box-shadow:none}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+
 </head><body data-theme="night">
 <header class="top">
   <nav class="main-nav" aria-label="Основная навигация">
