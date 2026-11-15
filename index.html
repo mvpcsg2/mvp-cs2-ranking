@@ -2182,7 +2182,7 @@ function startDailyDateMonitor(){if(dailyDateMonitor)clearInterval(dailyDateMoni
 let rosterPlayerDirectory = new Map();
 let helpRefreshTimer = null, activeHelpProfile = null;
 let liveRealtimeChannel = null, liveRefreshTimer = null, liveLoadBusy = false;
-let activeTournament = null, tournamentRealtimeChannel = null, tournamentRefreshTimer = null, tournamentLoadBusy = false;
+let activeTournament = null, activeTournamentOrganizer = null, selectedTournamentId = null, tournamentOrganizers = [], tournamentRealtimeChannel = null, tournamentRefreshTimer = null, tournamentLoadBusy = false;
 function can(permission){const allowed=admin || (moderator && userPermissions?.[permission] === true);return permission==='manage_site_settings'?allowed:(!isSeasonReadOnly()&&allowed)}
 const MOD_PERMISSION_LABELS={manage_teams:'Управление командами и очками',manage_matches:'Создание и редактирование матчей',manage_players:'Управление профилями игроков',manage_trophies:'Выдача и удаление кубков',manage_streams:'Управление трансляциями',manage_support:'Ответы в чате помощи',manage_bans:'Блокировка игроков и команд',manage_news:'Публикация и редактирование новостей',manage_site_settings:'Изменение логотипа сайта'};
 const THEME_STORAGE_KEY='mvp_cs2_theme_mode_v2';
@@ -3384,7 +3384,8 @@ function resolveTournament(tournament){
   const lb6=game('lb6','Нижняя · полуфинал 2',lb3.winner,lb4.winner);
   const lb7=game('lb7','Финал нижней сетки',lb5.winner,lb6.winner);
   const gf=game('gf','Гранд-финал',u7.winner,lb7.winner);
-  return {games:out,champion:gf.winner,bestOf:bo,seeds,lowerSeeds};
+  const champion=Number(tournament?.team_count||8)<=8?u7.winner:gf.winner;
+  return {games:out,champion,bestOf:bo,seeds,lowerSeeds};
 }
 function tournamentTeamLine(team,score,isWinner){
   // Bracket data stores compact team IDs; resolve the current logo from the teams list.
@@ -3429,48 +3430,104 @@ function tournamentEditMarkup(tournament,open=false){
   const available=teams.length>=8;
   return `<details class="tourney-create" id="tourneyEditDetails" ${open?'open':''}><summary>✎ Редактировать созданную сетку</summary><form id="tourneyEditForm"><div class="field" style="margin-top:12px"><label for="tourneyEditName">Название турнира</label><input id="tourneyEditName" maxlength="100" value="${esc(tournament?.name||'')}" required></div><div class="field"><label for="tourneyEditBestOf">Формат матчей</label><select id="tourneyEditBestOf"><option value="1" ${Number(tournament?.best_of)===1?'selected':''}>BO1 — до 1 победы</option><option value="3" ${Number(tournament?.best_of)===3?'selected':''}>BO3 — до 2 побед</option><option value="5" ${Number(tournament?.best_of)===5?'selected':''}>BO5 — до 3 побед</option></select></div><div class="tourney-public-note">Изменение названия не сбрасывает результаты. Если изменить состав, порядок посева или BO, результаты матчей будут очищены, чтобы не оставить неверную сетку.</div><div class="tourney-create-grid">${Array.from({length:8},(_,i)=>{const id=selected[i]?.id??'';const hasOption=teams.some(t=>String(t.id)===String(id));const missing=id&&!hasOption?`<option value="${esc(id)}" selected>${esc(selected[i]?.name||'Команда вне рейтинга')} (нет в рейтинге)</option>`:'';return `<div class="field"><label for="tourneyEditSeed${i+1}">Посев ${i+1}</label><select id="tourneyEditSeed${i+1}" required>${missing}${tournamentTeamOptions(id)}</select></div>`}).join('')}</div><div class="tourney-score-actions" style="margin-top:10px"><button class="btn primary" type="submit" ${available?'':'disabled'}>Сохранить изменения</button><button class="btn" type="button" id="cancelTourneyEdit">Отмена</button></div><div class="tourney-public-note">В сетке должны быть выбраны 8 разных команд.</div></form></details>`;
 }
-function tournamentMarkup(tournament){
-  if(!tournament){return `${can('manage_matches')?tournamentCreateMarkup(true):''}<div class="tourney-empty"><b>Активный турнир пока не создан.</b><br><span>Организатор может создать верхнюю сетку на 8 команд, а затем отдельно добавить до 8 команд в нижнюю сетку.</span></div>`;}
-  const resolved=resolveTournament(tournament);tournament._resolved=resolved;
-  const champion=resolved.champion;
-  const activeCount=Object.values(resolved.games).filter(g=>g.winner).length;
-  const status=champion?'ТУРНИР ЗАВЕРШЁН':activeCount?'ТУРНИР ИДЁТ':'ОЖИДАЕТ СТАРТА';
-  const statusText=champion?'Чемпион определён':activeCount?`Завершено матчей: ${activeCount} из 15`:'Матчи ещё не сыграны';
-  return `${can('manage_matches')?`<div class="tourney-adminbar"><span><b>Управление турниром</b><br><small>Можно изменить состав и формат или удалить текущую сетку.</small></span><div class="tourney-admin-actions"><button type="button" class="btn" id="tourneyEditBtn">✎ Редактировать</button><button type="button" class="btn danger" id="tourneyDeleteBtn">Удалить турнир</button><button type="button" class="btn" id="tourneyNewBtn">＋ Новый турнир</button></div></div>`:''}${can('manage_matches')?`<div id="tourneyCreateHost"></div>`:''}<section class="tourney-hero"><div class="tourney-hero-top"><div><div class="tourney-kicker">MVP CS2 · 8 + 8 TEAMS</div><h2 class="tourney-title">${esc(tournament.name)}</h2><div class="tourney-subtitle">${statusText} · Формат матчей BO${resolved.bestOf}</div></div><span class="tourney-status">${status}</span></div>${champion?`<div class="tourney-champion"><span class="cup">🏆</span><div><small>ЧЕМПИОН MVP CS2</small><strong>${esc(champion.name)}</strong></div></div>`:''}</section><section class="tourney-section"><div class="tourney-section-head"><strong>ВЕРХНЯЯ СЕТКА · 8 КОМАНД</strong><span>Отдельная ветка верхнего турнира</span></div><div class="tourney-rounds">${TOURNAMENT_ROUNDS.upper.map(r=>tournamentRoundHtml(r,tournament)).join('')}</div></section><section class="tourney-section"><div class="tourney-section-head"><strong>НИЖНЯЯ СЕТКА · 8 МЕСТ</strong><span>Добавь команды и разыграй отдельную сетку</span></div>${tournamentLowerSeedsMarkup(tournament)}<div class="tourney-rounds">${TOURNAMENT_ROUNDS.lower.map(r=>tournamentRoundHtml(r,tournament)).join('')}</div></section><section class="tourney-section"><div class="tourney-section-head"><strong>ГРАНД-ФИНАЛ</strong><span>Победители верхней и нижней сеток</span></div><div class="tourney-rounds" style="grid-auto-columns:minmax(245px,390px);justify-content:center"><div class="tourney-round"><div class="tourney-round-title">Финал · за чемпионство</div>${tournamentMatchCard(resolved.games.gf,tournament)}</div></div></section><div class="tourney-bracket-note"><b>Порядок турнира:</b> в верхней и нижней сетках по 8 выбранных команд играют отдельные ветки. Победители каждой ветки встречаются в гранд-финале. Счёт вводится за серию карт (BO1 / BO3 / BO5). Это формат с двумя параллельными сетками, а не классическое Double Elimination с переводом проигравших из верхней сетки.</div>${can('manage_matches')?`<div class="tourney-public-note">Изменение результата автоматически сбрасывает зависимые матчи. Составы верхней и нижней сеток сохраняются в базе Neon.</div>`:''}`;
+
+function tournamentStatusLabel(v){return v==='completed'?'Завершён':v==='live'?'Идёт сейчас':'Скоро';}
+function tournamentStatusClass(v){return v==='completed'?'completed':v==='live'?'live':'upcoming';}
+function tournamentFormatDate(v){if(!v)return 'Дата не указана';const d=new Date(String(v).slice(0,10)+'T12:00:00');return Number.isNaN(d.getTime())?String(v):d.toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'});}
+function tournamentDateRange(row){if(!row.start_date&&!row.end_date)return 'Даты будут объявлены';if(row.start_date&&row.end_date)return tournamentFormatDate(row.start_date)+' — '+tournamentFormatDate(row.end_date);return row.start_date?'С '+tournamentFormatDate(row.start_date):'До '+tournamentFormatDate(row.end_date);}
+function tournamentPrize(row){const n=Number(row.prize_pool||0).toLocaleString('en-US',{maximumFractionDigits:2}),c=String(row.prize_currency||'USD').toUpperCase();return c==='USD'?'$'+n:n+' '+c;}
+function organizerLogoMarkup(org,size='large'){const src=safeTournamentLogo(org?.logo_url);return src?`<img class="tourney-operator-logo ${size}" src="${esc(src)}" alt="${esc(org.name||'')}" loading="lazy">`:`<div class="tourney-operator-placeholder ${size}">${esc(String(org?.slug||org?.name||'CS').slice(0,3).toUpperCase())}</div>`;}
+function tournamentOrganizerFormMarkup(org=null){const edit=!!org;return `<form id="tourneyOrganizerForm" class="tourney-editor-form"><input type="hidden" id="tourneyOrganizerId" value="${esc(org?.id||'')}"><div class="tourney-form-grid"><div class="field"><label>Название компании</label><input id="tourneyOrganizerName" maxlength="80" value="${esc(org?.name||'')}" placeholder="ECT Esports" required></div><div class="field"><label>Короткий код</label><input id="tourneyOrganizerSlug" maxlength="80" value="${esc(org?.slug||'')}" placeholder="ect" pattern="[a-z0-9-]{2,80}" required></div><div class="field full"><label>Описание</label><textarea id="tourneyOrganizerDescription" rows="3" maxlength="800">${esc(org?.description||'')}</textarea></div><div class="field"><label>Ссылка на логотип</label><input id="tourneyOrganizerLogoUrl" type="url" value="${esc(org?.logo_url||'')}" placeholder="https://..."></div><div class="field"><label>Загрузить логотип</label><input id="tourneyOrganizerLogoFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div></div><div class="tourney-editor-actions"><button class="btn primary" type="submit">${edit?'Сохранить компанию':'Создать компанию'}</button><button class="btn" type="button" id="cancelOrganizerEdit">Отмена</button></div><div class="tourney-editor-note">PNG, JPG, WebP или GIF · до 8 МБ.</div></form>`;}
+function tournamentEventFormMarkup(row=null){const edit=!!row;return `<form id="tourneyEventForm" class="tourney-editor-form"><input type="hidden" id="tourneyEventId" value="${esc(row?.id||'')}"><div class="tourney-form-grid"><div class="field"><label>Название турнира</label><input id="tourneyEventName" maxlength="100" value="${esc(row?.name||'')}" placeholder="ECT Winter Cup" required></div><div class="field"><label>Призовой фонд</label><div class="tourney-input-inline"><input id="tourneyEventPrize" type="number" min="0" max="100000000" step="0.01" value="${esc(row?.prize_pool??'0')}" required><select id="tourneyEventCurrency"><option value="USD" ${String(row?.prize_currency||'USD')==='USD'?'selected':''}>USD $</option><option value="EUR" ${String(row?.prize_currency||'')==='EUR'?'selected':''}>EUR €</option><option value="RUB" ${String(row?.prize_currency||'')==='RUB'?'selected':''}>RUB ₽</option></select></div></div><div class="field"><label>Команд в сетке</label><select id="tourneyEventTeams"><option value="8" ${Number(row?.team_count||8)===8?'selected':''}>8 команд</option><option value="16" ${Number(row?.team_count||8)===16?'selected':''}>16 команд</option></select></div><div class="field"><label>Формат матчей</label><div class="tourney-editor-note">8 команд — одна сетка; 16 команд — верхняя и нижняя ветки.</div><select id="tourneyEventFormat"><option value="1" ${Number(row?.best_of||3)===1?'selected':''}>BO1</option><option value="3" ${Number(row?.best_of||3)===3?'selected':''}>BO3</option><option value="5" ${Number(row?.best_of||3)===5?'selected':''}>BO5</option></select></div><div class="field"><label>Статус</label><select id="tourneyEventStatus"><option value="upcoming" ${String(row?.event_status||'upcoming')==='upcoming'?'selected':''}>Предстоящий</option><option value="live" ${row?.event_status==='live'?'selected':''}>Идёт сейчас</option><option value="completed" ${row?.event_status==='completed'?'selected':''}>Завершён</option></select></div><div class="field"><label>Дата начала</label><input id="tourneyEventStart" type="date" value="${esc(String(row?.start_date||'').slice(0,10))}"></div><div class="field"><label>Дата окончания</label><input id="tourneyEventEnd" type="date" value="${esc(String(row?.end_date||'').slice(0,10))}"></div><div class="field full"><label>Подробности турнира</label><textarea id="tourneyEventDescription" rows="3" maxlength="1800">${esc(row?.description||'')}</textarea></div></div><div class="tourney-editor-actions"><button class="btn primary" type="submit">${edit?'Сохранить изменения':'＋ Создать турнир'}</button><button class="btn" type="button" id="cancelEventEdit">Отмена</button></div></form>`;}
+async function saveTournamentOrganizer(event){
+ event.preventDefault();if(!can('manage_matches')||!currentUser)return;
+ const form=event.currentTarget,id=document.getElementById('tourneyOrganizerId').value,name=document.getElementById('tourneyOrganizerName').value.trim(),slug=document.getElementById('tourneyOrganizerSlug').value.trim().toLowerCase();
+ let logo_url=document.getElementById('tourneyOrganizerLogoUrl').value.trim();const description=document.getElementById('tourneyOrganizerDescription').value.trim(),file=document.getElementById('tourneyOrganizerLogoFile').files?.[0];
+ if(name.length<2||!(/^[a-z0-9-]{2,80}$/).test(slug))return alert('Проверь название компании и короткий код.');if(logo_url&&!safeTournamentLogo(logo_url))return alert('Укажи корректную ссылку на логотип.');
+ const btn=form.querySelector('button[type="submit"]');btn.disabled=true;btn.textContent='Сохраняем…';
+ try{
+  if(file){if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type)||file.size>8*1024*1024)throw new Error('Выбери PNG, JPG, WebP или GIF размером до 8 МБ.');const safe=String(file.name||'logo').replace(/[^a-zA-Z0-9._-]+/g,'-').slice(-80)||'logo',path=`tournament-organizers/${Date.now()}-${safe}`;const up=await client.storage.from('mvp-site-assets').upload(path,file,{upsert:true,cacheControl:'31536000',contentType:file.type});if(up.error)throw up.error;const {data}=client.storage.from('mvp-site-assets').getPublicUrl(path);if(!data?.publicUrl)throw new Error('Не удалось получить ссылку на логотип.');logo_url=data.publicUrl;}
+  const payload={name,slug,logo_url,description,is_active:true,updated_at:new Date().toISOString()};
+  const result=id?await client.from('mvp_tournament_organizers').update(payload).eq('id',id).select('id').single():await client.from('mvp_tournament_organizers').insert({...payload,sort_order:100,created_by:currentUser.id}).select('id').single();
+  if(result.error)throw result.error;await loadTournamentOrganizersPage();
+ }catch(e){alert('Не удалось сохранить компанию: '+niceError(e));btn.disabled=false;btn.textContent=id?'Сохранить компанию':'Создать компанию';}
+}
+function bindTournamentOrganizerForm(host){const f=host.querySelector('#tourneyOrganizerForm');if(f)f.addEventListener('submit',saveTournamentOrganizer);const c=host.querySelector('#cancelOrganizerEdit');if(c)c.onclick=()=>{host.querySelector('#tourneyOrganizerEditor').innerHTML='';};const n=host.querySelector('#tourneyOrganizerName'),sl=host.querySelector('#tourneyOrganizerSlug');if(n&&sl&&!sl.value)n.addEventListener('input',()=>{sl.value=n.value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,80);});}
+async function loadTournamentOrganizersPage(){
+ const host=document.getElementById('tournamentContent');if(!host)return;host.innerHTML='<div class="tourney-loading">Загружаем турнирные компании…</div>';
+ try{const rows=await mvpApiGet('/api/tournament-organizers')||[];tournamentOrganizers=rows;
+ host.innerHTML=`<div class="tourney-directory-head"><div><div class="tourney-kicker">CSTT · TOURNAMENT NETWORK</div><h2>Турнирные компании</h2><p>Выбери организатора, чтобы посмотреть его турниры, сетки и результаты.</p></div>${can('manage_matches')?'<button class="btn primary" id="newTournamentOrganizer">＋ Добавить компанию</button>':''}</div><div id="tourneyOrganizerEditor"></div>${rows.length?`<div class="tourney-operator-grid">${rows.map(org=>`<article class="tourney-operator-card"><div class="tourney-operator-top">${organizerLogoMarkup(org)}<span class="tourney-operator-arrow">↗</span></div><div class="tourney-operator-code">${esc(org.slug.toUpperCase())} · TOURNAMENT ORGANIZER</div><h3>${esc(org.name)}</h3><p>${esc(org.description||'Организатор турниров Counter-Strike.')}</p><div class="tourney-operator-actions"><button class="btn primary" type="button" data-open-organizer="${esc(org.id)}">Открыть турниры →</button>${can('manage_matches')?`<button class="btn tourney-icon-btn" type="button" data-edit-organizer="${esc(org.id)}">⚙</button>`:''}</div></article>`).join('')}</div>`:'<div class="tourney-empty"><b>Пока нет турнирных компаний.</b><br>Добавь первую компанию.</div>'}<div class="tourney-directory-foot"><span>POWERED BY <b>CSTT</b></span><span>COUNTER-STRIKE ESPORTS</span></div>`;
+ const add=host.querySelector('#newTournamentOrganizer');if(add)add.onclick=()=>{const ed=host.querySelector('#tourneyOrganizerEditor');ed.innerHTML=tournamentOrganizerFormMarkup();bindTournamentOrganizerForm(host);};
+ host.querySelectorAll('[data-open-organizer]').forEach(b=>b.onclick=()=>openTournamentOrganizerPage(b.dataset.openOrganizer));
+ host.querySelectorAll('[data-edit-organizer]').forEach(b=>b.onclick=()=>{const org=rows.find(x=>String(x.id)===String(b.dataset.editOrganizer)),ed=host.querySelector('#tourneyOrganizerEditor');ed.innerHTML=tournamentOrganizerFormMarkup(org);bindTournamentOrganizerForm(host);});
+
+ }catch(e){host.innerHTML=`<div class="tourney-empty"><b>Не удалось загрузить компании.</b><br>${esc(niceError(e))}<br><small>Сначала выполни SQL-миграцию CSTT Tournament Platform.</small></div>`;}
+}
+async function openTournamentOrganizerPage(id){
+ cleanupTournamentCenter();activeTournamentOrganizer=tournamentOrganizers.find(x=>String(x.id)===String(id))||null;
+ if(!activeTournamentOrganizer){try{tournamentOrganizers=await mvpApiGet('/api/tournament-organizers')||[];activeTournamentOrganizer=tournamentOrganizers.find(x=>String(x.id)===String(id))||null;}catch(_){}}
+ if(!activeTournamentOrganizer)return alert('Компания не найдена.');selectedTournamentId=null;
+ modal(`<div class="page-head tourney-page-toolbar"><div><div class="tourney-kicker">CSTT · TOURNAMENT NETWORK</div><h2>${esc(activeTournamentOrganizer.name)}</h2><div class="page-intro">Турниры, расписание и история соревнований.</div></div><div class="tourney-toolbar-actions"><button class="btn" id="backTournamentOrganizers">← Компании</button><button class="btn" id="closeTournamentCenter">Закрыть</button></div></div><div id="tournamentContent">Загружаем турниры…</div>`,true);
+ document.querySelector('#modalRoot .modal').classList.add('modal-page','tourney-modal');document.getElementById('backTournamentOrganizers').onclick=()=>openTournamentCenter(true);document.getElementById('closeTournamentCenter').onclick=()=>{closeModal();setMainNavActive('ranking');};await loadTournamentEventsPage();
+}
+async function loadTournamentEventsPage(){
+ const host=document.getElementById('tournamentContent');if(!host||!activeTournamentOrganizer)return;
+ try{
+ const rows=await mvpApiGet('/api/tournaments?organizer_id='+encodeURIComponent(activeTournamentOrganizer.id))||[],sorted=rows.slice().sort((a,b)=>{const rank=x=>x.event_status==='completed'?2:x.event_status==='live'?0:1;return rank(a)-rank(b)||String(a.start_date||'9999').localeCompare(String(b.start_date||'9999'));});
+ const active=sorted.filter(x=>x.event_status!=='completed'),done=sorted.filter(x=>x.event_status==='completed');
+ host.innerHTML=`<div class="tourney-events-banner"><div class="tourney-events-brand">${organizerLogoMarkup(activeTournamentOrganizer)}<div><div class="tourney-kicker">${esc(activeTournamentOrganizer.slug.toUpperCase())} · OFFICIAL EVENTS</div><h2>${esc(activeTournamentOrganizer.name)}</h2><p>${esc(activeTournamentOrganizer.description||'Турниры по Counter-Strike')}</p></div></div><div class="tourney-event-counter"><strong>${rows.length}</strong><span>ТУРНИРОВ</span></div></div>${can('manage_matches')?`<div class="tourney-create-event"><div><b>Управление турнирами</b><span>Создавай события, указывай призовой фонд, даты и число команд.</span></div><button class="btn primary" id="newTournamentEvent">＋ Новый турнир</button></div><div id="tourneyEventEditor"></div>`:''}${active.length?`<section class="tourney-event-section"><div class="tourney-list-heading"><div><span>01 / ACTIVE</span><h3>Текущие и предстоящие</h3></div><small>${active.length} турниров</small></div><div class="tourney-event-list">${active.map(tournamentEventCardMarkup).join('')}</div></section>`:'<div class="tourney-empty"><b>Активных турниров пока нет.</b></div>'}${done.length?`<section class="tourney-event-section tourney-event-archive"><div class="tourney-list-heading"><div><span>02 / ARCHIVE</span><h3>Завершённые турниры</h3></div><small>${done.length} в архиве</small></div><div class="tourney-event-list">${done.map(tournamentEventCardMarkup).join('')}</div></section>`:''}<div class="tourney-directory-foot"><span>${esc(activeTournamentOrganizer.name.toUpperCase())}</span><span>POWERED BY <b>CSTT</b></span></div>`;
+ const add=host.querySelector('#newTournamentEvent');if(add)add.onclick=()=>{const ed=host.querySelector('#tourneyEventEditor');ed.innerHTML=tournamentEventFormMarkup();bindTournamentEventForm(host);};
+ host.querySelectorAll('[data-open-event]').forEach(b=>b.onclick=()=>openTournamentBracket(b.dataset.openEvent));
+ host.querySelectorAll('[data-edit-event]').forEach(b=>b.onclick=()=>{const row=rows.find(x=>String(x.id)===String(b.dataset.editEvent)),ed=host.querySelector('#tourneyEventEditor');ed.innerHTML=tournamentEventFormMarkup(row);bindTournamentEventForm(host);});
+ host.querySelectorAll('[data-delete-event]').forEach(b=>b.onclick=async()=>{const row=rows.find(x=>String(x.id)===String(b.dataset.deleteEvent));if(!row||!confirm('Удалить турнир вместе с сеткой и результатами?'))return;const {error}=await client.from('mvp_tournaments').delete().eq('id',row.id);if(error)alert(niceError(error));else await loadTournamentEventsPage();});
+ }catch(e){host.innerHTML=`<div class="tourney-empty"><b>Не удалось загрузить турниры.</b><br>${esc(niceError(e))}</div>`;}
+}
+function tournamentEventCardMarkup(row){const status=String(row.event_status||'upcoming'),done=status==='completed';return `<article class="tourney-event-card ${done?'is-completed':''}"><div class="tourney-event-accent"></div><div class="tourney-event-main"><div class="tourney-event-meta"><span class="tourney-status-pill ${tournamentStatusClass(status)}"><i></i>${tournamentStatusLabel(status)}</span><span>${tournamentDateRange(row)}</span></div><h3>${esc(row.name)}</h3><p>${esc(row.description||'Турнир по Counter-Strike')}</p><div class="tourney-event-stats"><div><strong>${tournamentPrize(row)}</strong><small>ПРИЗОВОЙ ФОНД</small></div><div><strong>${Number(row.team_count)||8}</strong><small>КОМАНД В СЕТКЕ</small></div><div><strong>BO${Number(row.best_of)||3}</strong><small>ФОРМАТ МАТЧЕЙ</small></div></div></div><div class="tourney-event-actions"><button class="btn primary" data-open-event="${esc(row.id)}">Открыть сетку ↗</button>${can('manage_matches')?`<button class="btn" data-edit-event="${esc(row.id)}">Настроить</button><button class="btn tourney-danger-btn" data-delete-event="${esc(row.id)}">×</button>`:''}</div></article>`;}
+function bindTournamentEventForm(host){const f=host.querySelector('#tourneyEventForm');if(f)f.addEventListener('submit',saveTournamentEvent);const c=host.querySelector('#cancelEventEdit');if(c)c.onclick=()=>{host.querySelector('#tourneyEventEditor').innerHTML='';};}
+async function saveTournamentEvent(event){
+ event.preventDefault();if(!can('manage_matches')||!currentUser||!activeTournamentOrganizer)return;
+ const form=event.currentTarget,id=document.getElementById('tourneyEventId').value,name=document.getElementById('tourneyEventName').value.trim(),prize=Number(document.getElementById('tourneyEventPrize').value),prize_currency=document.getElementById('tourneyEventCurrency').value;
+ const team_count=Number(document.getElementById('tourneyEventTeams').value),best_of=Number(document.getElementById('tourneyEventFormat').value),event_status=document.getElementById('tourneyEventStatus').value,start_date=document.getElementById('tourneyEventStart').value||null,end_date=document.getElementById('tourneyEventEnd').value||null,description=document.getElementById('tourneyEventDescription').value.trim();
+ if(name.length<2||!Number.isFinite(prize)||prize<0||![8,16].includes(team_count)||![1,3,5].includes(best_of)||!['upcoming','live','completed'].includes(event_status)||start_date&&end_date&&end_date<start_date)return alert('Проверь название, даты, призовой фонд и настройки турнира.');
+ const btn=form.querySelector('button[type="submit"]');btn.disabled=true;btn.textContent='Сохраняем…';
+ try{const p={name,prize_pool:prize,prize_currency,team_count,best_of,event_status,description,start_date,end_date,organizer_id:activeTournamentOrganizer.id,updated_at:new Date().toISOString()};const r=id?await client.from('mvp_tournaments').update(p).eq('id',id).select('id').single():await client.from('mvp_tournaments').insert({...p,status:'registration',is_active:false,bracket_data:{version:2,teams:[],lower_teams:[],scores:{}},created_by:currentUser.id}).select('id').single();if(r.error)throw r.error;await loadTournamentEventsPage();}
+ catch(e){alert('Не удалось сохранить турнир: '+niceError(e));btn.disabled=false;btn.textContent=id?'Сохранить изменения':'＋ Создать турнир';}
+}
+async function openTournamentBracket(id){
+ if(!activeTournamentOrganizer)return;selectedTournamentId=String(id);cleanupTournamentCenter();
+ modal(`<div class="page-head tourney-page-toolbar"><div><div class="tourney-kicker">${esc(activeTournamentOrganizer.name.toUpperCase())} · BRACKET</div><h2>Турнирная сетка</h2><div class="page-intro">Составы, матчи и результаты соревнования.</div></div><div class="tourney-toolbar-actions"><button class="btn" id="backToOrganizerEvents">← К турнирам</button><button class="btn" id="closeTournamentBracket">Закрыть</button></div></div><div id="tournamentContent">Загружаем сетку…</div>`,true);
+ document.querySelector('#modalRoot .modal').classList.add('modal-page','tourney-modal');document.getElementById('backToOrganizerEvents').onclick=()=>openTournamentOrganizerPage(activeTournamentOrganizer.id);document.getElementById('closeTournamentBracket').onclick=()=>{closeModal();setMainNavActive('ranking');};await loadTournamentIntoModal(true);if(!isSeasonReadOnly())tournamentRefreshTimer=setInterval(()=>loadTournamentIntoModal(),30000);
 }
 
+function tournamentMarkup(tournament){
+ if(!tournament)return '<div class="tourney-empty">Турнир не найден.</div>';
+ const r=resolveTournament(tournament),oneBracket=Number(tournament.team_count||8)<=8;tournament._resolved=r;
+ const champ=r.champion,oneBracket=Number(tournament.team_count||8)<=8,matchKeys=oneBracket?['u1','u2','u3','u4','u5','u6','u7']:Object.keys(r.games),n=matchKeys.filter(k=>r.games[k]?.winner).length,label=tournamentStatusLabel(tournament.event_status||'upcoming'),cls=tournamentStatusClass(tournament.event_status||'upcoming');
+ return `<div class="tourney-adminbar"><span><b>Управление сеткой</b><br><small>Составы команд, формат серий и результаты матчей.</small></span><div class="tourney-admin-actions">${can('manage_matches')?'<button type="button" class="btn" id="tourneyEditBtn">✎ Состав сетки</button><button type="button" class="btn danger" id="tourneyDeleteBtn">Удалить турнир</button>':''}</div></div><div class="tourney-hero"><div class="tourney-hero-top"><div><div class="tourney-kicker">${esc(activeTournamentOrganizer?.name||'CSTT')} · BO${r.bestOf}</div><h2 class="tourney-title">${esc(tournament.name)}</h2><div class="tourney-subtitle">${champ?'Чемпион определён':n?'Завершено матчей: '+n+' из '+(oneBracket?7:15):'Матчи ещё не сыграны'} · ${tournamentDateRange(tournament)}</div></div><span class="tourney-status-pill ${cls}"><i></i>${label}</span></div><div class="tourney-hero-facts"><div><strong>${tournamentPrize(tournament)}</strong><small>ПРИЗОВОЙ ФОНД</small></div><div><strong>${Number(tournament.team_count)||8}</strong><small>КОМАНД В СЕТКЕ</small></div><div><strong>BO${r.bestOf}</strong><small>ФОРМАТ</small></div></div>${champ?'<div class="tourney-champion"><span class="cup">🏆</span><div><small>ЧЕМПИОН CSTT</small><strong>'+esc(champ.name)+'</strong></div></div>':''}</div><section class="tourney-section"><div class="tourney-section-head"><strong>${oneBracket?'ТУРНИРНАЯ СЕТКА':'ВЕРХНЯЯ СЕТКА · 8 КОМАНД'}</strong><span>${oneBracket?'8 команд · Single Elimination':'Основная ветка соревнования'}</span></div><div class="tourney-rounds">${TOURNAMENT_ROUNDS.upper.map(x=>tournamentRoundHtml(x,tournament)).join('')}</div></section>${oneBracket?'':`<section class="tourney-section"><div class="tourney-section-head"><strong>НИЖНЯЯ СЕТКА · 8 МЕСТ</strong><span>Дополнительная ветка соревнования</span></div>${tournamentLowerSeedsMarkup(tournament)}<div class="tourney-rounds">${TOURNAMENT_ROUNDS.lower.map(x=>tournamentRoundHtml(x,tournament)).join('')}</div></section><section class="tourney-section"><div class="tourney-section-head"><strong>ГРАНД-ФИНАЛ</strong><span>Решающий матч за чемпионство</span></div><div class="tourney-rounds" style="grid-auto-columns:minmax(245px,390px);justify-content:center"><div class="tourney-round"><div class="tourney-round-title">Финал · за чемпионство</div>${tournamentMatchCard(r.games.gf,tournament)}</div></div></section>`}`;
+}
 async function loadTournamentIntoModal(force=false){
   const host=document.getElementById('tournamentContent');if(!host||tournamentLoadBusy)return;
-  if(!force && tournamentHasOpenEditor(host)){
-    tournamentRefreshPending=true;
-    return;
-  }
+  if(!force && tournamentHasOpenEditor(host)){tournamentRefreshPending=true;return;}
   tournamentLoadBusy=true;
   try{
     let data=null;
-    if(isViewingHistoricalData())data=snapshotRows('tournaments').filter(row=>row.is_active).sort((a,b)=>new Date(b.updated_at||0)-new Date(a.updated_at||0))[0]||null;
-    else if(!isFutureSeason()){const rows=await mvpApiGet('/api/tournaments')||[];data=rows.filter(row=>row.is_active).sort((a,b)=>new Date(b.updated_at||0)-new Date(a.updated_at||0))[0]||null;}
+    if(isViewingHistoricalData())data=snapshotRows('tournaments').find(row=>String(row.id)===String(selectedTournamentId))||null;
+    else if(!isFutureSeason()){
+      const rows=await mvpApiGet('/api/tournaments?organizer_id='+encodeURIComponent(activeTournamentOrganizer?.id||''))||[];
+      data=rows.find(row=>String(row.id)===String(selectedTournamentId))||null;
+    }
     activeTournament=data||null;
-    host.innerHTML=tournamentMarkup(activeTournament);
-    bindTournamentControls(host);
-    tournamentRefreshPending=false;
-  }catch(e){
-    host.innerHTML=`<div class="tourney-empty"><b>Не удалось загрузить турнир.</b><br>Проверь, что таблицы турниров перенесены в Neon.<br><small>${esc(niceError(e))}</small></div>${can('manage_matches')?tournamentCreateMarkup(true):''}`;
-    bindTournamentControls(host);
-  }finally{tournamentLoadBusy=false;}
+    host.innerHTML=tournamentMarkup(activeTournament);bindTournamentControls(host);tournamentRefreshPending=false;
+  }catch(e){host.innerHTML=`<div class="tourney-empty"><b>Не удалось загрузить турнир.</b><br>Проверь SQL-миграцию CSTT Tournament Platform.<br><small>${esc(niceError(e))}</small></div>`;}
+  finally{tournamentLoadBusy=false;}
 }
+
 async function openTournamentCenter(){
-  cleanupLiveCenter();cleanupTournamentCenter();
-  setMainNavActive('tournament');
-  modal(`<div class="page-head"><div><h2>Турнирная сетка MVP CS2</h2><div class="tourney-page-intro">Настраиваемые верхняя и нижняя сетки по 8 команд · отдельное управление составами · общий гранд-финал.</div></div><button class="btn" id="closeTournamentCenter">Закрыть</button></div><div id="tournamentContent"><div class="tourney-empty">Загружаем турнир…</div></div>`,true);
-  document.querySelector('#modalRoot .modal').classList.add('modal-page');
-  document.getElementById('closeTournamentCenter').onclick=()=>{closeModal();setMainNavActive('ranking')};
-  await loadTournamentIntoModal();
-  if(!isSeasonReadOnly()){
-    // Tournament updates are polled from the Neon-backed API.
-    tournamentRefreshTimer=setInterval(()=>loadTournamentIntoModal(),30000);
-  }
+ cleanupLiveCenter();cleanupTournamentCenter();activeTournamentOrganizer=null;selectedTournamentId=null;setMainNavActive('tournament');
+ modal(`<div class="page-head tourney-page-toolbar"><div><div class="tourney-kicker">CSTT · TOURNAMENT NETWORK</div><h2>Турнирная платформа</h2><div class="page-intro">Выбери компанию-организатора, чтобы открыть её соревнования.</div></div><button class="btn" id="closeTournamentCenter">Закрыть</button></div><div id="tournamentContent">Загружаем компании…</div>`,true);
+ document.querySelector('#modalRoot .modal').classList.add('modal-page','tourney-modal');document.getElementById('closeTournamentCenter').onclick=()=>{closeModal();setMainNavActive('ranking');};await loadTournamentOrganizersPage();
 }
+
 function bindTournamentControls(host){
   const createForm=host.querySelector('#tourneyCreateForm');
   if(createForm)createForm.addEventListener('submit',createTournamentFromForm);
@@ -3548,8 +3605,8 @@ async function deleteActiveTournament(){
     const {data,error}=await client.from('mvp_tournaments').delete().eq('id',id).select('id').maybeSingle();
     if(error)throw error;
     if(!data)throw new Error('Турнир не удалён. Проверь право manage_matches в Worker.');
-    activeTournament=null;
-    await loadTournamentIntoModal(true);
+    activeTournament=null;selectedTournamentId=null;
+    await openTournamentOrganizerPage(activeTournamentOrganizer.id);
   }catch(e){alert('Не удалось удалить турнир: '+niceError(e));}
 }
 async function createTournamentFromForm(event){
@@ -3582,7 +3639,8 @@ async function persistTournamentData(nextState){
   const completed=!!resolved.champion;
   const hasResults=Object.values(resolved.games).some(g=>g.winner);
   const status=completed?'completed':hasResults?'live':'registration';
-  const {data,error}=await client.from('mvp_tournaments').update({bracket_data:nextState,status,updated_at:new Date().toISOString()}).eq('id',activeTournament.id).select('id').single();
+  const event_status=completed?'completed':hasResults?'live':String(activeTournament.event_status||'upcoming');
+  const {data,error}=await client.from('mvp_tournaments').update({bracket_data:nextState,status,event_status,updated_at:new Date().toISOString()}).eq('id',activeTournament.id).select('id').single();
   if(error)throw error;
 }
 function clearDownstreamScores(scores,key){
@@ -4671,6 +4729,88 @@ body[data-theme="night"] .custom-trophy-card-copy small,body[data-theme="night"]
   .roster-grid.roster-horizontal-scroll>.roster-player{padding:4px 1px!important}
   .roster-grid.roster-horizontal-scroll .roster-player-name{font-size:7px!important}
 }
+
+/* CSTT tournament platform: operator directory, event cards and tournament admin. */
+.tourney-modal{max-width:1160px!important;padding:22px!important;background:#f4f6fa!important;border:1px solid #dce3ed!important}
+.tourney-modal .page-head{align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid #dce3ed}
+.tourney-modal .page-head h2{font-size:27px;letter-spacing:-.7px;color:#12243b}
+.tourney-modal .page-intro{font-size:12px;color:#718198}
+.tourney-page-toolbar{display:flex;justify-content:space-between;gap:15px}
+.tourney-toolbar-actions{display:flex;gap:8px;flex-wrap:wrap}
+.tourney-kicker{font-size:10px;font-weight:900;letter-spacing:2px;color:#2258a0;text-transform:uppercase;margin-bottom:6px}
+.tourney-directory-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:6px 0 22px}
+.tourney-directory-head h2{font-size:25px;margin:0;color:#15263d;letter-spacing:-.6px}
+.tourney-directory-head p{margin:5px 0 0;color:#768397;font-size:13px}
+.tourney-operator-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.tourney-operator-card{min-width:0;padding:17px;border:1px solid #dfe5ee;border-radius:12px;background:linear-gradient(145deg,#fff,#f7f9fc);box-shadow:0 7px 22px rgba(20,43,73,.055);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.tourney-operator-card:hover{transform:translateY(-3px);border-color:#b8cce8;box-shadow:0 12px 28px rgba(20,43,73,.11)}
+.tourney-operator-top{height:74px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.tourney-operator-logo{display:block;width:68px;height:68px;object-fit:contain;border-radius:10px}
+.tourney-operator-placeholder{width:68px;height:68px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:linear-gradient(145deg,#0b2450,#174c91);color:#fff;font-weight:1000;font-size:21px;letter-spacing:-1px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)}
+.tourney-operator-arrow{font-size:24px;color:#a0aec0}
+.tourney-operator-code{font-size:9px;color:#4774ac;font-weight:900;letter-spacing:1.5px;text-transform:uppercase}
+.tourney-operator-card h3{margin:5px 0 6px;font-size:19px;color:#172b46}
+.tourney-operator-card p{min-height:38px;margin:0 0 15px;color:#748197;font-size:12px;line-height:1.5}
+.tourney-operator-actions{display:flex;gap:7px;align-items:center}
+.tourney-operator-actions .btn.primary{flex:1;justify-content:center}
+.tourney-icon-btn{width:38px;min-width:38px;padding:7px;font-size:16px}
+.tourney-directory-foot{display:flex;justify-content:space-between;gap:10px;margin-top:24px;padding-top:13px;border-top:1px solid #dce3ed;color:#92a0b2;font-size:9px;font-weight:900;letter-spacing:1.3px}
+.tourney-directory-foot b{color:#2b5f9d}
+.tourney-editor-form{margin:12px 0 20px;padding:17px;border:1px solid #cdd9e9;border-radius:11px;background:#fff;box-shadow:0 5px 20px rgba(24,48,78,.06)}
+.tourney-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 13px}
+.tourney-form-grid .field{min-width:0}.tourney-form-grid .field.full{grid-column:1/-1}
+.tourney-editor-form .field label{color:#41546d}
+.tourney-editor-form .field input,.tourney-editor-form .field select,.tourney-editor-form .field textarea{background:#f8fafc;border:1px solid #d6dfeb;border-radius:7px;color:#172b46;padding:10px;font:inherit}
+.tourney-input-inline{display:flex;gap:6px}.tourney-input-inline input{flex:1;min-width:0}.tourney-input-inline select{width:112px;flex:0 0 112px}
+.tourney-editor-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.tourney-editor-note{margin-top:9px;color:#8390a2;font-size:10px}
+.tourney-create-event{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;margin:0 0 18px;border:1px solid #cad9eb;border-radius:10px;background:linear-gradient(100deg,#e8f0fb,#f7faff)}
+.tourney-create-event div{display:flex;flex-direction:column;gap:3px}.tourney-create-event b{font-size:13px;color:#17365e}.tourney-create-event span{font-size:11px;color:#6d809a}
+.tourney-events-banner{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px;padding:17px 19px;border-radius:12px;background:linear-gradient(115deg,#0a1d3b,#123f79 65%,#1d5ca7);color:#fff;box-shadow:0 9px 24px rgba(10,36,76,.18)}
+.tourney-events-brand{display:flex;align-items:center;gap:14px;min-width:0}.tourney-events-brand .tourney-operator-logo,.tourney-events-brand .tourney-operator-placeholder{width:58px;height:58px;flex:0 0 58px;border:1px solid rgba(255,255,255,.22);background-color:rgba(255,255,255,.08)}
+.tourney-events-banner .tourney-kicker{color:#a9c8f2}.tourney-events-banner h2{margin:0;font-size:22px;color:#fff}.tourney-events-banner p{margin:4px 0 0;color:#c0d2ea;font-size:11px}
+.tourney-event-counter{min-width:78px;text-align:center;padding:7px 10px;border-left:1px solid rgba(255,255,255,.18)}.tourney-event-counter strong{display:block;font-size:28px;color:#fff;line-height:1.1}.tourney-event-counter span{display:block;margin-top:5px;color:#b3c9e4;font-size:8px;font-weight:900;letter-spacing:1.2px}
+.tourney-event-section{margin:20px 0 0}.tourney-list-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin:0 0 10px;padding:0 2px}
+.tourney-list-heading span{font-size:9px;letter-spacing:1.5px;font-weight:900;color:#4775ac}.tourney-list-heading h3{margin:3px 0 0;font-size:17px;color:#152d4c}.tourney-list-heading small{color:#8997aa;font-size:10px}
+.tourney-event-list{display:grid;gap:10px}
+.tourney-event-card{position:relative;display:grid;grid-template-columns:5px minmax(0,1fr) auto;gap:0;overflow:hidden;border:1px solid #dfe5ee;border-radius:10px;background:#fff;box-shadow:0 4px 15px rgba(25,46,72,.045);transition:transform .16s ease,box-shadow .16s ease}
+.tourney-event-card:hover{transform:translateY(-2px);box-shadow:0 9px 22px rgba(25,46,72,.09)}
+.tourney-event-accent{background:linear-gradient(180deg,#2c77d5,#0b2f67)}.tourney-event-card.is-completed{background:#f8fafc;opacity:.84}.tourney-event-card.is-completed .tourney-event-accent{background:#a9b5c4}
+.tourney-event-main{padding:14px 16px;min-width:0}.tourney-event-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:#8996a8;font-size:10px}
+.tourney-status-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;font-size:9px;font-weight:900;letter-spacing:.5px}
+.tourney-status-pill i{width:6px;height:6px;display:inline-block;border-radius:50%;background:currentColor}
+.tourney-status-pill.upcoming{background:#edf3fb;color:#3869a4}.tourney-status-pill.live{background:#e8f7ef;color:#16824a}.tourney-status-pill.completed{background:#edf0f4;color:#7b8797}
+.tourney-event-main h3{margin:8px 0 5px;font-size:18px;color:#162b47}.tourney-event-main p{margin:0;color:#7a8799;font-size:11px;line-height:1.5;max-width:780px}
+.tourney-event-stats{display:flex;gap:24px;flex-wrap:wrap;margin-top:13px}.tourney-event-stats div{display:flex;flex-direction:column;gap:2px;min-width:75px}
+.tourney-event-stats strong{font-size:17px;line-height:1.1;color:#0e376c;font-weight:950}.tourney-event-stats small{color:#91a0b2;font-size:8px;font-weight:900;letter-spacing:.8px}
+.tourney-event-actions{display:flex;align-items:center;justify-content:center;gap:7px;padding:12px;flex-wrap:wrap}.tourney-event-actions .btn{white-space:nowrap}.tourney-danger-btn{width:34px;min-width:34px;padding:5px;color:#a33838!important}
+.tourney-event-archive{margin-top:30px;padding-top:18px;border-top:1px dashed #cbd5e2}
+.tourney-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:46px 15px;color:#72839a;font-size:12px}
+.tourney-hero-facts{display:flex;gap:30px;flex-wrap:wrap;margin-top:17px;padding-top:14px;border-top:1px solid rgba(255,255,255,.16)}.tourney-hero-facts div{display:flex;flex-direction:column;gap:2px}.tourney-hero-facts strong{font-size:20px;color:#fff}.tourney-hero-facts small{font-size:8px;letter-spacing:1px;color:#afc5e0;font-weight:900}.tourney-hero-description{margin:13px 0 0;color:#d1def0;font-size:11px;line-height:1.6;max-width:760px}
+.tourney-modal .tourney-hero{border-radius:12px;background:linear-gradient(120deg,#081b36,#123a70 67%,#1b579d);box-shadow:0 10px 26px rgba(11,35,70,.17)}
+.tourney-modal .tourney-section{border:1px solid #dce4ee;border-radius:10px;background:#fff}
+.tourney-modal .tourney-section-head{color:#274366}.tourney-modal .tourney-round-title{color:#436184}.tourney-modal .tourney-match{background:#f8fafc;border-color:#e0e7f0}.tourney-modal .tourney-match-top{color:#75859a}.tourney-modal .tourney-teamline{color:#1d2f48}.tourney-modal .tourney-teamline.winner{background:#eaf3ff}.tourney-modal .tourney-match-admin{background:#f0f4f9;border-color:#dbe3ed}
+body[data-theme="night"] .tourney-modal{background:#151d28!important;border-color:#29394c!important;color:#e7edf5!important}
+body[data-theme="night"] .tourney-modal .page-head{border-bottom-color:#2b3b4e!important}
+body[data-theme="night"] .tourney-modal .page-head h2,body[data-theme="night"] .tourney-directory-head h2,body[data-theme="night"] .tourney-list-heading h3{color:#f1f5fb!important}
+body[data-theme="night"] .tourney-modal .page-intro,body[data-theme="night"] .tourney-directory-head p{color:#a7b5c7!important}
+body[data-theme="night"] .tourney-kicker{color:#90b8ee!important}
+body[data-theme="night"] .tourney-operator-card,body[data-theme="night"] .tourney-editor-form{background:linear-gradient(145deg,#202d3c,#192433)!important;border-color:#34465b!important;box-shadow:0 7px 22px rgba(0,0,0,.2)!important}
+body[data-theme="night"] .tourney-operator-card h3,body[data-theme="night"] .tourney-editor-form .field label,body[data-theme="night"] .tourney-create-event b,body[data-theme="night"] .tourney-event-main h3{color:#eaf1f9!important}
+body[data-theme="night"] .tourney-operator-card p,body[data-theme="night"] .tourney-editor-note,body[data-theme="night"] .tourney-create-event span,body[data-theme="night"] .tourney-event-main p,body[data-theme="night"] .tourney-list-heading small{color:#a0b0c3!important}
+body[data-theme="night"] .tourney-operator-arrow{color:#8198b8!important}
+body[data-theme="night"] .tourney-directory-foot{border-color:#304054!important;color:#91a2b8!important}body[data-theme="night"] .tourney-directory-foot b{color:#8bb9f4!important}
+body[data-theme="night"] .tourney-events-banner{background:linear-gradient(115deg,#08182c,#102e55 65%,#164078)!important}
+body[data-theme="night"] .tourney-create-event{background:#1c2a3a!important;border-color:#34485f!important}
+body[data-theme="night"] .tourney-event-card{background:#202c3a!important;border-color:#34465a!important}body[data-theme="night"] .tourney-event-card.is-completed{background:#1b2531!important;opacity:.78}
+body[data-theme="night"] .tourney-event-main h3{color:#edf3fa!important}body[data-theme="night"] .tourney-event-stats strong{color:#9dc7ff!important}
+body[data-theme="night"] .tourney-event-archive{border-top-color:#3b4a5d!important}body[data-theme="night"] .tourney-list-heading span{color:#91b5e5!important}
+body[data-theme="night"] .tourney-status-pill.upcoming{background:#263b56;color:#a9cafa}body[data-theme="night"] .tourney-status-pill.live{background:#173d31;color:#72d8a0}body[data-theme="night"] .tourney-status-pill.completed{background:#303a47;color:#b2bdcc}
+body[data-theme="night"] .tourney-editor-form .field input,body[data-theme="night"] .tourney-editor-form .field select,body[data-theme="night"] .tourney-editor-form .field textarea{background:#152232!important;color:#e8f0fa!important;border-color:#40536a!important}
+body[data-theme="night"] .tourney-modal .tourney-section{background:#1c2836!important;border-color:#34465b!important}body[data-theme="night"] .tourney-modal .tourney-match{background:#172331!important;border-color:#35495f!important}body[data-theme="night"] .tourney-modal .tourney-match-admin{background:#1d2c3d!important;border-color:#3a4c62!important}body[data-theme="night"] .tourney-modal .tourney-teamline{color:#e7edf5!important}body[data-theme="night"] .tourney-modal .tourney-teamline.winner{background:#19365a!important}
+@media(max-width:820px){.tourney-operator-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tourney-event-card{grid-template-columns:5px minmax(0,1fr)}.tourney-event-actions{grid-column:2;justify-content:flex-start;padding:0 16px 13px}}
+@media(max-width:600px){.tourney-modal{padding:13px!important}.tourney-modal .page-head{align-items:flex-start;flex-direction:column}.tourney-page-toolbar{gap:10px}.tourney-toolbar-actions{width:100%}.tourney-toolbar-actions .btn{flex:1}.tourney-directory-head{align-items:flex-start;flex-direction:column}.tourney-directory-head>.btn{width:100%}.tourney-operator-grid{grid-template-columns:1fr}.tourney-operator-card p{min-height:0}.tourney-events-banner{padding:13px}.tourney-events-brand{gap:9px}.tourney-events-brand .tourney-operator-logo,.tourney-events-brand .tourney-operator-placeholder{width:46px;height:46px;flex-basis:46px}.tourney-events-banner h2{font-size:17px}.tourney-event-counter{min-width:58px;padding:4px 7px}.tourney-event-counter strong{font-size:23px}.tourney-event-main{padding:11px}.tourney-event-main h3{font-size:15px}.tourney-event-stats{gap:13px}.tourney-event-stats strong{font-size:15px}.tourney-event-stats small{font-size:7px}.tourney-event-actions{padding:0 11px 11px}.tourney-form-grid{grid-template-columns:1fr}.tourney-form-grid .field.full{grid-column:auto}.tourney-input-inline select{width:94px;flex-basis:94px}.tourney-create-event{align-items:flex-start;flex-direction:column}.tourney-create-event .btn{width:100%}.tourney-directory-foot{font-size:8px}}
+
 </style>
 <script id="mvp-language-system">
 (function(){

@@ -11,7 +11,7 @@ function decodeAssetPath(path){
     const decoded=path.split("/").map(part=>decodeURIComponent(part));
     if(decoded.length!==2||decoded.some(part=>!part||part==="."||part===".."||part.includes("/")||part.includes("\\")))return "";
     if(!/^[a-z0-9._-]{1,120}$/i.test(decoded[1]))return "";
-    if(!["site-logo","site-background","player-trophies","team-logos"].includes(decoded[0]))return "";
+    if(!["site-logo","site-background","player-trophies","team-logos","tournament-organizers"].includes(decoded[0]))return "";
     return decoded.join("/");
   }catch{return "";}
 }
@@ -21,6 +21,7 @@ function allowed(user,prefix){
   if(user.role!=="moderator")return false;
   if(prefix==="player-trophies")return user.permissions?.manage_trophies===true;
   if(prefix==="team-logos")return user.permissions?.manage_teams===true;
+  if(prefix==="tournament-organizers")return user.permissions?.manage_matches===true;
   return user.permissions?.manage_site_settings===true;
 }
 

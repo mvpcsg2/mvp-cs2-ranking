@@ -218,9 +218,22 @@ export default {
       }
     }
 
+    if (url.pathname === "/api/tournament-organizers") {
+      try {
+        const rows = await sql`SELECT id, name, slug, logo_url, description, is_active, sort_order, created_at, updated_at FROM public.mvp_tournament_organizers WHERE is_active = true ORDER BY sort_order ASC, name ASC LIMIT 100`;
+        return json({ ok: true, data: rows }, 200, cors);
+      } catch (error) {
+        console.error("Tournament organizers query failed", error);
+        return json({ ok: false, error: "Could not load tournament organizers" }, 503, cors);
+      }
+    }
+
     if (url.pathname === "/api/tournaments") {
       try {
-        const rows = await sql`SELECT id, name, best_of, status, is_active, bracket_data, created_at, updated_at FROM public.mvp_tournaments ORDER BY updated_at DESC LIMIT 100`;
+        const organizerId = url.searchParams.get("organizer_id");
+        const rows = organizerId && /^\d+$/.test(organizerId)
+          ? await sql`SELECT id, name, best_of, status, is_active, bracket_data, created_at, updated_at, organizer_id, prize_pool, prize_currency, team_count, description, start_date, end_date, event_status FROM public.mvp_tournaments WHERE organizer_id = ${organizerId}::bigint ORDER BY CASE WHEN event_status = 'completed' THEN 1 ELSE 0 END, start_date ASC NULLS LAST, updated_at DESC LIMIT 500`
+          : await sql`SELECT id, name, best_of, status, is_active, bracket_data, created_at, updated_at, organizer_id, prize_pool, prize_currency, team_count, description, start_date, end_date, event_status FROM public.mvp_tournaments ORDER BY updated_at DESC LIMIT 500`;
         return json({ ok: true, data: rows }, 200, cors);
       } catch (error) {
         console.error("Tournaments query failed", error);
@@ -375,7 +388,10 @@ export default {
 
     if (url.pathname === "/api/tournaments") {
       try {
-        const rows = await sql`SELECT id, name, best_of, status, is_active, bracket_data, updated_at FROM public.mvp_tournaments ORDER BY updated_at DESC LIMIT 100`;
+        const organizerId = url.searchParams.get("organizer_id");
+        const rows = organizerId && /^\d+$/.test(organizerId)
+          ? await sql`SELECT id, name, best_of, status, is_active, bracket_data, updated_at, organizer_id, prize_pool, prize_currency, team_count, description, start_date, end_date, event_status FROM public.mvp_tournaments WHERE organizer_id = ${organizerId}::bigint ORDER BY CASE WHEN event_status = 'completed' THEN 1 ELSE 0 END, start_date ASC NULLS LAST, updated_at DESC LIMIT 500`
+          : await sql`SELECT id, name, best_of, status, is_active, bracket_data, updated_at, organizer_id, prize_pool, prize_currency, team_count, description, start_date, end_date, event_status FROM public.mvp_tournaments ORDER BY updated_at DESC LIMIT 500`;
         return json({ ok: true, data: rows }, 200, cors);
       } catch (error) {
         console.error("Tournaments query failed", error);
