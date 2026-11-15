@@ -40,8 +40,11 @@ SET event_status = CASE
   ELSE 'upcoming'
 END,
 team_count = CASE
-  WHEN jsonb_typeof(bracket_data->'lower_teams') = 'array'
-       AND jsonb_array_length(bracket_data->'lower_teams') > 0 THEN 16
+  WHEN CASE
+    WHEN jsonb_typeof(bracket_data->'lower_teams') = 'array'
+      THEN jsonb_array_length(bracket_data->'lower_teams') > 0
+    ELSE FALSE
+  END THEN 16
   ELSE 8
 END;
 
