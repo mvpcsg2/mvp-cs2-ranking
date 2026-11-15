@@ -2182,7 +2182,7 @@ function startDailyDateMonitor(){if(dailyDateMonitor)clearInterval(dailyDateMoni
 let rosterPlayerDirectory = new Map();
 let helpRefreshTimer = null, activeHelpProfile = null;
 let liveRealtimeChannel = null, liveRefreshTimer = null, liveLoadBusy = false;
-let activeTournament = null, tournamentRealtimeChannel = null, tournamentRefreshTimer = null, tournamentLoadBusy = false;
+let activeTournament = null, activeTournamentOrganizer = null, selectedTournamentId = null, tournamentRealtimeChannel = null, tournamentRefreshTimer = null, tournamentLoadBusy = false;
 function can(permission){const allowed=admin || (moderator && userPermissions?.[permission] === true);return permission==='manage_site_settings'?allowed:(!isSeasonReadOnly()&&allowed)}
 const MOD_PERMISSION_LABELS={manage_teams:'Управление командами и очками',manage_matches:'Создание и редактирование матчей',manage_players:'Управление профилями игроков',manage_trophies:'Выдача и удаление кубков',manage_streams:'Управление трансляциями',manage_support:'Ответы в чате помощи',manage_bans:'Блокировка игроков и команд',manage_news:'Публикация и редактирование новостей',manage_site_settings:'Изменение логотипа сайта'};
 const THEME_STORAGE_KEY='mvp_cs2_theme_mode_v2';
@@ -3430,46 +3430,35 @@ function tournamentEditMarkup(tournament,open=false){
   return `<details class="tourney-create" id="tourneyEditDetails" ${open?'open':''}><summary>✎ Редактировать созданную сетку</summary><form id="tourneyEditForm"><div class="field" style="margin-top:12px"><label for="tourneyEditName">Название турнира</label><input id="tourneyEditName" maxlength="100" value="${esc(tournament?.name||'')}" required></div><div class="field"><label for="tourneyEditBestOf">Формат матчей</label><select id="tourneyEditBestOf"><option value="1" ${Number(tournament?.best_of)===1?'selected':''}>BO1 — до 1 победы</option><option value="3" ${Number(tournament?.best_of)===3?'selected':''}>BO3 — до 2 побед</option><option value="5" ${Number(tournament?.best_of)===5?'selected':''}>BO5 — до 3 побед</option></select></div><div class="tourney-public-note">Изменение названия не сбрасывает результаты. Если изменить состав, порядок посева или BO, результаты матчей будут очищены, чтобы не оставить неверную сетку.</div><div class="tourney-create-grid">${Array.from({length:8},(_,i)=>{const id=selected[i]?.id??'';const hasOption=teams.some(t=>String(t.id)===String(id));const missing=id&&!hasOption?`<option value="${esc(id)}" selected>${esc(selected[i]?.name||'Команда вне рейтинга')} (нет в рейтинге)</option>`:'';return `<div class="field"><label for="tourneyEditSeed${i+1}">Посев ${i+1}</label><select id="tourneyEditSeed${i+1}" required>${missing}${tournamentTeamOptions(id)}</select></div>`}).join('')}</div><div class="tourney-score-actions" style="margin-top:10px"><button class="btn primary" type="submit" ${available?'':'disabled'}>Сохранить изменения</button><button class="btn" type="button" id="cancelTourneyEdit">Отмена</button></div><div class="tourney-public-note">В сетке должны быть выбраны 8 разных команд.</div></form></details>`;
 }
 function tournamentMarkup(tournament){
-  if(!tournament){return `${can('manage_matches')?tournamentCreateMarkup(true):''}<div class="tourney-empty"><b>Активный турнир пока не создан.</b><br><span>Организатор может создать верхнюю сетку на 8 команд, а затем отдельно добавить до 8 команд в нижнюю сетку.</span></div>`;}
+  if(!tournament)return \`<div class="tourney-empty"><b>Турнир не найден.</b><br><button type="button" class="btn" id="backToOrganizerEvents">← К турнирам</button></div>\`;
   const resolved=resolveTournament(tournament);tournament._resolved=resolved;
-  const champion=resolved.champion;
-  const activeCount=Object.values(resolved.games).filter(g=>g.winner).length;
-  const status=champion?'ТУРНИР ЗАВЕРШЁН':activeCount?'ТУРНИР ИДЁТ':'ОЖИДАЕТ СТАРТА';
-  const statusText=champion?'Чемпион определён':activeCount?`Завершено матчей: ${activeCount} из 15`:'Матчи ещё не сыграны';
-  return `${can('manage_matches')?`<div class="tourney-adminbar"><span><b>Управление турниром</b><br><small>Можно изменить состав и формат или удалить текущую сетку.</small></span><div class="tourney-admin-actions"><button type="button" class="btn" id="tourneyEditBtn">✎ Редактировать</button><button type="button" class="btn danger" id="tourneyDeleteBtn">Удалить турнир</button><button type="button" class="btn" id="tourneyNewBtn">＋ Новый турнир</button></div></div>`:''}${can('manage_matches')?`<div id="tourneyCreateHost"></div>`:''}<section class="tourney-hero"><div class="tourney-hero-top"><div><div class="tourney-kicker">MVP CS2 · 8 + 8 TEAMS</div><h2 class="tourney-title">${esc(tournament.name)}</h2><div class="tourney-subtitle">${statusText} · Формат матчей BO${resolved.bestOf}</div></div><span class="tourney-status">${status}</span></div>${champion?`<div class="tourney-champion"><span class="cup">🏆</span><div><small>ЧЕМПИОН MVP CS2</small><strong>${esc(champion.name)}</strong></div></div>`:''}</section><section class="tourney-section"><div class="tourney-section-head"><strong>ВЕРХНЯЯ СЕТКА · 8 КОМАНД</strong><span>Отдельная ветка верхнего турнира</span></div><div class="tourney-rounds">${TOURNAMENT_ROUNDS.upper.map(r=>tournamentRoundHtml(r,tournament)).join('')}</div></section><section class="tourney-section"><div class="tourney-section-head"><strong>НИЖНЯЯ СЕТКА · 8 МЕСТ</strong><span>Добавь команды и разыграй отдельную сетку</span></div>${tournamentLowerSeedsMarkup(tournament)}<div class="tourney-rounds">${TOURNAMENT_ROUNDS.lower.map(r=>tournamentRoundHtml(r,tournament)).join('')}</div></section><section class="tourney-section"><div class="tourney-section-head"><strong>ГРАНД-ФИНАЛ</strong><span>Победители верхней и нижней сеток</span></div><div class="tourney-rounds" style="grid-auto-columns:minmax(245px,390px);justify-content:center"><div class="tourney-round"><div class="tourney-round-title">Финал · за чемпионство</div>${tournamentMatchCard(resolved.games.gf,tournament)}</div></div></section><div class="tourney-bracket-note"><b>Порядок турнира:</b> в верхней и нижней сетках по 8 выбранных команд играют отдельные ветки. Победители каждой ветки встречаются в гранд-финале. Счёт вводится за серию карт (BO1 / BO3 / BO5). Это формат с двумя параллельными сетками, а не классическое Double Elimination с переводом проигравших из верхней сетки.</div>${can('manage_matches')?`<div class="tourney-public-note">Изменение результата автоматически сбрасывает зависимые матчи. Составы верхней и нижней сеток сохраняются в базе Neon.</div>`:''}`;
+  const champion=resolved.champion,activeCount=Object.values(resolved.games).filter(g=>g.winner).length;
+  const displayStatus=tournamentStatusLabel(tournament.event_status||'upcoming'),statusClass=tournamentStatusClass(tournament.event_status||'upcoming');
+  const statusText=champion?'Чемпион определён':activeCount?\`Завершено матчей: ${activeCount} из 15\`:'Матчи ещё не сыграны';
+  return \`<div class="tourney-adminbar"><span><b>Управление сеткой</b><br><small>Составы команд, формат серий и результаты матчей.</small></span><div class="tourney-admin-actions">${can('manage_matches')?'<button type="button" class="btn" id="tourneyEditBtn">✎ Состав сетки</button><button type="button" class="btn danger" id="tourneyDeleteBtn">Удалить турнир</button>':''}</div></div>${can('manage_matches')?'<div id="tourneyCreateHost"></div>':''}
+  <section class="tourney-hero"><div class="tourney-hero-top"><div><div class="tourney-kicker">${esc(activeTournamentOrganizer?.name||'CSTT')} · BO${resolved.bestOf}</div><h2 class="tourney-title">${esc(tournament.name)}</h2><div class="tourney-subtitle">${statusText} · ${tournamentDateRange(tournament)}</div></div><span class="tourney-status-pill ${statusClass}"><i></i>${displayStatus}</span></div>
+  <div class="tourney-hero-facts"><div><strong>${tournamentPrize(tournament)}</strong><small>ПРИЗОВОЙ ФОНД</small></div><div><strong>${Number(tournament.team_count)||8}</strong><small>КОМАНД В СЕТКЕ</small></div><div><strong>BO${resolved.bestOf}</strong><small>ФОРМАТ</small></div></div>
+  ${tournament.description?'<p class="tourney-hero-description">'+esc(tournament.description)+'</p>':''}${champion?\`<div class="tourney-champion"><span class="cup">🏆</span><div><small>ЧЕМПИОН ${esc(activeTournamentOrganizer?.slug?.toUpperCase()||'CSTT')}</small><strong>${esc(champion.name)}</strong></div></div>\`:''}</section>
+  <section class="tourney-section"><div class="tourney-section-head"><strong>ВЕРХНЯЯ СЕТКА · 8 КОМАНД</strong><span>Основная ветка соревнования</span></div><div class="tourney-rounds">${TOURNAMENT_ROUNDS.upper.map(r=>tournamentRoundHtml(r,tournament)).join('')}</div></section>
+  <section class="tourney-section"><div class="tourney-section-head"><strong>НИЖНЯЯ СЕТКА · 8 МЕСТ</strong><span>Дополнительная ветка соревнования</span></div>${tournamentLowerSeedsMarkup(tournament)}<div class="tourney-rounds">${TOURNAMENT_ROUNDS.lower.map(r=>tournamentRoundHtml(r,tournament)).join('')}</div></section>
+  <section class="tourney-section"><div class="tourney-section-head"><strong>ГРАНД-ФИНАЛ</strong><span>Решающий матч за чемпионство</span></div><div class="tourney-rounds" style="grid-auto-columns:minmax(245px,390px);justify-content:center"><div class="tourney-round"><div class="tourney-round-title">Финал · за чемпионство</div>${tournamentMatchCard(resolved.games.gf,tournament)}</div></div></section>
+  <div class="tourney-bracket-note"><b>Формат:</b> верхняя и нижняя ветки играются отдельно. Победители встречаются в гранд-финале. Счёт вводится за серию карт (BO1 / BO3 / BO5).</div>${can('manage_matches')?'<div class="tourney-public-note">Статус, призовой фонд, число команд и описание настраиваются в карточке турнира.</div>':''}\`;
 }
-
 async function loadTournamentIntoModal(force=false){
   const host=document.getElementById('tournamentContent');if(!host||tournamentLoadBusy)return;
-  if(!force && tournamentHasOpenEditor(host)){
-    tournamentRefreshPending=true;
-    return;
-  }
+  if(!force && tournamentHasOpenEditor(host)){tournamentRefreshPending=true;return;}
   tournamentLoadBusy=true;
   try{
     let data=null;
-    if(isViewingHistoricalData())data=snapshotRows('tournaments').filter(row=>row.is_active).sort((a,b)=>new Date(b.updated_at||0)-new Date(a.updated_at||0))[0]||null;
-    else if(!isFutureSeason()){const rows=await mvpApiGet('/api/tournaments')||[];data=rows.filter(row=>row.is_active).sort((a,b)=>new Date(b.updated_at||0)-new Date(a.updated_at||0))[0]||null;}
+    if(isViewingHistoricalData())data=snapshotRows('tournaments').find(row=>String(row.id)===String(selectedTournamentId))||null;
+    else if(!isFutureSeason()){
+      const rows=await mvpApiGet('/api/tournaments?organizer_id='+encodeURIComponent(activeTournamentOrganizer?.id||''))||[];
+      data=rows.find(row=>String(row.id)===String(selectedTournamentId))||null;
+    }
     activeTournament=data||null;
-    host.innerHTML=tournamentMarkup(activeTournament);
-    bindTournamentControls(host);
-    tournamentRefreshPending=false;
-  }catch(e){
-    host.innerHTML=`<div class="tourney-empty"><b>Не удалось загрузить турнир.</b><br>Проверь, что таблицы турниров перенесены в Neon.<br><small>${esc(niceError(e))}</small></div>${can('manage_matches')?tournamentCreateMarkup(true):''}`;
-    bindTournamentControls(host);
-  }finally{tournamentLoadBusy=false;}
-}
-async function openTournamentCenter(){
-  cleanupLiveCenter();cleanupTournamentCenter();
-  setMainNavActive('tournament');
-  modal(`<div class="page-head"><div><h2>Турнирная сетка MVP CS2</h2><div class="tourney-page-intro">Настраиваемые верхняя и нижняя сетки по 8 команд · отдельное управление составами · общий гранд-финал.</div></div><button class="btn" id="closeTournamentCenter">Закрыть</button></div><div id="tournamentContent"><div class="tourney-empty">Загружаем турнир…</div></div>`,true);
-  document.querySelector('#modalRoot .modal').classList.add('modal-page');
-  document.getElementById('closeTournamentCenter').onclick=()=>{closeModal();setMainNavActive('ranking')};
-  await loadTournamentIntoModal();
-  if(!isSeasonReadOnly()){
-    // Tournament updates are polled from the Neon-backed API.
-    tournamentRefreshTimer=setInterval(()=>loadTournamentIntoModal(),30000);
-  }
+    host.innerHTML=tournamentMarkup(activeTournament);bindTournamentControls(host);tournamentRefreshPending=false;
+  }catch(e){host.innerHTML=`<div class="tourney-empty"><b>Не удалось загрузить турнир.</b><br>Проверь SQL-миграцию CSTT Tournament Platform.<br><small>${esc(niceError(e))}</small></div>`;}
+  finally{tournamentLoadBusy=false;}
 }
 function bindTournamentControls(host){
   const createForm=host.querySelector('#tourneyCreateForm');
