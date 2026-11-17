@@ -1720,22 +1720,27 @@ body[data-theme="night"] .season-admin-card{background:#2d2b24;border-color:#806
   -webkit-overflow-scrolling:touch;
 }
 .player-hltv-awards .player-trophy{
-  position:relative;
-  display:flex;
-  flex:0 0 142px;
-  width:142px;
-  min-width:142px;
-  min-height:142px;
-  align-items:center;
-  justify-content:center;
-  padding:8px 10px;
-  border:0;
-  border-right:1px solid rgba(190,202,218,.15);
-  border-radius:0;
-  background:transparent;
-  text-align:center;
+  position:relative!important;
+  display:flex!important;
+  flex:0 0 96px!important;
+  width:96px!important;
+  min-width:96px!important;
+  max-width:96px!important;
+  height:96px!important;
+  min-height:96px!important;
+  max-height:96px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:4px!important;
+  margin:0!important;
+  border:0!important;
+  border-right:1px solid rgba(190,202,218,.15)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  text-align:center!important;
   scroll-snap-align:start;
   transition:background .18s ease;
+  overflow:visible!important;
 }
 .player-hltv-awards .player-trophy:last-child{border-right:0}
 .player-hltv-awards .player-trophy:hover,
@@ -1744,11 +1749,14 @@ body[data-theme="night"] .season-admin-card{background:#2d2b24;border-color:#806
   outline:none;
 }
 .player-hltv-awards .player-trophy img{
-  display:block;
-  width:122px;
-  height:122px;
-  max-width:100%;
-  object-fit:contain;
+  display:block!important;
+  width:88px!important;
+  height:88px!important;
+  max-width:88px!important;
+  max-height:88px!important;
+  object-fit:contain!important;
+  padding:0!important;
+  margin:0!important;
   background:transparent!important;
   border:0!important;
   border-radius:0!important;
@@ -1778,23 +1786,17 @@ body[data-theme="night"] .season-admin-card{background:#2d2b24;border-color:#806
   .player-hltv-awards{margin:0 0 14px;padding:9px 8px 7px}
   .player-hltv-awards .player-profile-awards-head{padding:0 3px 6px;font-size:10px}
   .player-hltv-awards .player-trophy{
-    flex-basis:104px;
-    width:104px;
-    min-width:104px;
-    min-height:112px;
-    padding:6px 7px;
+    flex:0 0 78px!important;width:78px!important;min-width:78px!important;max-width:78px!important;
+    height:78px!important;min-height:78px!important;max-height:78px!important;padding:3px!important;
   }
-  .player-hltv-awards .player-trophy img{width:92px;height:92px}
+  .player-hltv-awards .player-trophy img{width:72px!important;height:72px!important;max-width:72px!important;max-height:72px!important}
 }
 @media(max-width:380px){
   .player-hltv-awards .player-trophy{
-    flex-basis:88px;
-    width:88px;
-    min-width:88px;
-    min-height:96px;
-    padding:4px 6px;
+    flex:0 0 68px!important;width:68px!important;min-width:68px!important;max-width:68px!important;
+    height:68px!important;min-height:68px!important;max-height:68px!important;padding:2px!important;
   }
-  .player-hltv-awards .player-trophy img{width:78px;height:78px}
+  .player-hltv-awards .player-trophy img{width:64px!important;height:64px!important;max-width:64px!important;max-height:64px!important}
 }
 </style>
 <style id="compact-player-profile-panel">
