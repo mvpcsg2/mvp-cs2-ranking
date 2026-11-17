@@ -3290,19 +3290,85 @@ async function loadTeams(){
   else if(!admin)clearStatus();
 }
 async function openCaptainPanel(){
- const r=await client.rpc('captain_get_my_team',{});if(r.error)return alert(niceError(r.error));const t=r.data;if(!t)return alert('Администратор ещё не назначил тебе команду.');
- modal(`<h2>Управление командой</h2><div class="notice" style="margin:6px 0 12px;padding:8px 10px;font-size:13px">Можно менять название, тег, состав и изображения команды.</div>
+ const r=await client.rpc('captain_get_my_team',{});
+ if(r.error)return alert(niceError(r.error));
+ const t=r.data;
+ if(!t)return alert('Администратор ещё не назначил тебе команду.');
+ const roster=getRoster(t),photos=Array.isArray(t.player_photos)?[...t.player_photos]:[];
+ while(photos.length<5)photos.push('');
+ let logo=String(t.logo||'');
+ const safeFileName=(name,fallback)=>String(name||fallback).replace(/[^a-zA-Z0-9._-]+/g,'-').slice(-70)||fallback;
+ async function uploadCaptainImage(dataUrl,pathPrefix,fileName){
+   const blob=await (await fetch(dataUrl)).blob();
+   const path=`${pathPrefix}/${Date.now()}-${safeFileName(fileName,'image.webp')}.webp`;
+   const up=await client.storage.from('mvp-site-assets').upload(path,blob,{upsert:false,cacheControl:'31536000',contentType:blob.type||'image/webp'});
+   if(up.error)throw up.error;
+   const {data}=client.storage.from('mvp-site-assets').getPublicUrl(path);
+   if(!data?.publicUrl)throw new Error('Не удалось получить ссылку на загруженное изображение.');
+   return data.publicUrl;
+ }
+ const photoCards=Array.from({length:5},(_,i)=>`<div class="player-photo-edit" style="min-width:0">
+   <label for="capPhoto${i}">Фото игрока ${i+1}${roster[i]?' · '+esc(roster[i]):''}</label>
+   <div class="player-photo-preview" id="capPhotoPreview${i}">${photos[i]?'<img src="'+esc(photos[i])+'" alt="Фото игрока '+(i+1)+'">':esc(playerInitials(roster[i]))}</div>
+   <input id="capPhoto${i}" type="file" accept="image/png,image/jpeg,image/webp">
+   <button class="btn" type="button" data-cap-remove-photo="${i}">Убрать</button>
+ </div>`).join('');
+ modal(`<h2>Управление командой</h2>
+ <div class="notice" style="margin:6px 0 12px;padding:8px 10px;font-size:13px">Меняй название, тег, состав и загружай изображения прямо с устройства. Очки и результаты турниров недоступны.</div>
  <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(110px,1fr);gap:8px">
- <div class="field" style="margin:0"><label>Название команды</label><input id="capName" maxlength="80"></div>
- <div class="field" style="margin:0"><label>Тег</label><input id="capTag" maxlength="12"></div></div>
+  <div class="field" style="margin:0"><label>Название команды</label><input id="capName" maxlength="80"></div>
+  <div class="field" style="margin:0"><label>Тег</label><input id="capTag" maxlength="12"></div>
+ </div>
  <div class="field" style="margin:9px 0"><label>Состав — до 5 ников через запятую</label><textarea id="capPlayers" rows="2" maxlength="300" style="min-height:54px"></textarea></div>
- <details style="margin:8px 0;padding:8px 10px;border:1px solid #ccd0d6;border-radius:8px"><summary style="cursor:pointer;font-weight:600">Изображения команды — логотип и фото игроков</summary>
- <div class="field" style="margin:8px 0"><label>Ссылка или код логотипа</label><textarea id="capLogo" rows="2" maxlength="200000" style="min-height:48px" placeholder="Ссылка на изображение или data URL"></textarea><small>Длинный код изображения скрыт здесь, чтобы форма оставалась компактной.</small></div>
- <div class="field" style="margin:8px 0"><label>Фото игроков — по одному адресу в строке (до 5)</label><textarea id="capPhotos" rows="3" maxlength="1000000" style="min-height:68px" placeholder="Ссылка или data URL каждого игрока"></textarea></div></details>
+ <details style="margin:8px 0;padding:8px 10px;border:1px solid #ccd0d6;border-radius:8px">
+  <summary style="cursor:pointer;font-weight:600">Изображения команды</summary>
+  <div class="field" style="margin:8px 0"><label>Логотип команды</label>
+   <div id="capLogoPreview" class="logo" style="margin:6px 0">${logo?'<img src="'+esc(logo)+'" alt="Логотип">':'Лого'}</div>
+   <input id="capLogoFile" type="file" accept="image/png,image/jpeg,image/webp">
+   <small>Выбери PNG, JPG или WebP до 2 МБ.</small>
+   <button class="btn" type="button" id="capRemoveLogo">Убрать логотип</button>
+  </div>
+  <div class="field" style="margin:8px 0"><label>Фотографии игроков</label>
+   <div class="notice">Нажми «Выберите файл» под нужным игроком. Фото автоматически уменьшаются и загружаются на сайт.</div>
+   <div class="player-photo-editor">${photoCards}</div>
+  </div>
+ </details>
  <div class="modalfoot" style="margin-top:10px"><button class="btn" id="capCancel">Отмена</button><button class="btn primary" id="capSave">Сохранить</button></div>`,true);
- document.getElementById('capName').value=t.name||'';document.getElementById('capTag').value=t.tag||'';document.getElementById('capPlayers').value=t.players||'';document.getElementById('capLogo').value=t.logo||'';
- document.getElementById('capPhotos').value=Array.isArray(t.player_photos)?t.player_photos.join('\n'):'';
- document.getElementById('capCancel').onclick=closeModal;document.getElementById('capSave').onclick=async()=>{const photos=document.getElementById('capPhotos').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).slice(0,5);const saved=await client.rpc('captain_save_my_team',{p_name:document.getElementById('capName').value,p_tag:document.getElementById('capTag').value,p_players:document.getElementById('capPlayers').value,p_logo:document.getElementById('capLogo').value,p_player_photos:photos});if(saved.error)return alert(niceError(saved.error));closeModal();await loadTeams();alert('Команда обновлена.');};
+ document.getElementById('capName').value=t.name||'';
+ document.getElementById('capTag').value=t.tag||'';
+ document.getElementById('capPlayers').value=t.players||'';
+ document.getElementById('capCancel').onclick=closeModal;
+ document.getElementById('capLogoFile').onchange=async ev=>{
+   const file=ev.target.files?.[0];if(!file)return;
+   if(file.size>2*1024*1024){alert('Логотип должен быть меньше 2 МБ.');ev.target.value='';return}
+   if(!['image/png','image/jpeg','image/webp'].includes(file.type)){alert('Выбери PNG, JPG или WebP.');ev.target.value='';return}
+   const preview=document.getElementById('capLogoPreview');preview.textContent='Загрузка…';
+   try{const compressed=await compressLogoImage(file,512);logo=await uploadCaptainImage(compressed,'team-logos',file.name);preview.innerHTML='<img src="'+esc(logo)+'" alt="Логотип">'}
+   catch(err){preview.innerHTML=logo?'<img src="'+esc(logo)+'" alt="Логотип">':'Лого';alert('Не удалось загрузить логотип: '+niceError(err));ev.target.value=''}
+ };
+ document.getElementById('capRemoveLogo').onclick=()=>{logo='';document.getElementById('capLogoFile').value='';document.getElementById('capLogoPreview').textContent='Лого'};
+ for(let i=0;i<5;i++){
+  document.getElementById('capPhoto'+i).onchange=async ev=>{
+   const file=ev.target.files?.[0];if(!file)return;
+   if(file.size>4*1024*1024){alert('Фото должно быть меньше 4 МБ.');ev.target.value='';return}
+   if(!['image/png','image/jpeg','image/webp'].includes(file.type)){alert('Выбери PNG, JPG или WebP.');ev.target.value='';return}
+   const preview=document.getElementById('capPhotoPreview'+i);preview.textContent='Загрузка…';
+   try{const compressed=await compressImage(file,320,0.76);photos[i]=await uploadCaptainImage(compressed,'team-players',file.name);preview.innerHTML='<img src="'+esc(photos[i])+'" alt="Фото игрока '+(i+1)+'">'}
+   catch(err){preview.textContent=playerInitials(roster[i]);alert('Не удалось загрузить фото: '+niceError(err));ev.target.value=''}
+  };
+ }
+ document.querySelectorAll('[data-cap-remove-photo]').forEach(btn=>btn.onclick=()=>{const i=Number(btn.dataset.capRemovePhoto);photos[i]='';document.getElementById('capPhoto'+i).value='';document.getElementById('capPhotoPreview'+i).textContent=playerInitials(roster[i])});
+ document.getElementById('capSave').onclick=async()=>{
+  const button=document.getElementById('capSave');button.disabled=true;button.textContent='Сохраняю…';
+  try{
+   // Migrate any legacy embedded images to public storage URLs, so base64 never returns to the database.
+   if(logo.startsWith('data:image/'))logo=await uploadCaptainImage(logo,'team-logos','team-logo');
+   for(let i=0;i<5;i++)if(String(photos[i]||'').startsWith('data:image/'))photos[i]=await uploadCaptainImage(photos[i],'team-players','player-'+(i+1));
+   const saved=await client.rpc('captain_save_my_team',{p_name:document.getElementById('capName').value,p_tag:document.getElementById('capTag').value,p_players:document.getElementById('capPlayers').value,p_logo:logo,p_player_photos:photos.slice(0,5)});
+   if(saved.error)throw saved.error;
+   closeModal();await loadTeams();alert('Команда обновлена.');
+  }catch(err){alert('Не удалось сохранить команду: '+niceError(err));button.disabled=false;button.textContent='Сохранить'}
+ };
 }
 async function signOut(){await client.auth.signOut();currentUser=null;admin=false;moderator=false;userPermissions={};closeModal();render();await loadTeams()}
 function authModal(mode='login'){
