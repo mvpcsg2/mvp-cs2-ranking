@@ -3455,6 +3455,7 @@ function compactTournamentData(state){
 }
 function tournamentTeamById(state,id){return (state?.teams||[]).find(t=>String(t.id)===String(id))||null;}
 function tournamentWinTarget(bestOf){return Math.floor(Number(bestOf||3)/2)+1;}
+function tournamentMatchBestOf(key,tournament){return key==='gf'?5:Number(tournament?.best_of||3);}
 function resolveTournament(tournament){
   const state=tournament?.bracket_data||{};
   const seeds=Array.isArray(state.teams)?state.teams:[];
@@ -3470,7 +3471,7 @@ function resolveTournament(tournament){
     if(raw&&a&&b){
       const sameA=String(raw.team_a_id)===String(a.id),sameB=String(raw.team_b_id)===String(b.id);
       stale=!(sameA&&sameB);
-      const sa=Number(raw.a),sb=Number(raw.b),target=tournamentWinTarget(bo);
+      const sa=Number(raw.a),sb=Number(raw.b),target=tournamentWinTarget(tournamentMatchBestOf(key,tournament));
       const valid= sameA&&sameB&&Number.isInteger(sa)&&Number.isInteger(sb)&&sa>=0&&sb>=0&&sa!==sb&&Math.max(sa,sb)===target&&Math.min(sa,sb)<target;
       if(valid){score={a:sa,b:sb};winner=sa>sb?a:b;loser=sa>sb?b:a;}
       else if(!stale)stale=true;
@@ -3507,7 +3508,7 @@ function tournamentTeamLine(team,score,isWinner){
 function tournamentMatchCard(game,tournament){
   const manager=can('manage_matches');
   const played=!!game.winner;
-  const target=tournamentWinTarget(tournament.best_of);
+  const matchBestOf=tournamentMatchBestOf(game.key,tournament),target=tournamentWinTarget(matchBestOf);
   const adminForm=manager&&game.a&&game.b?`<details class="tourney-match-admin"><summary>${played?'Изменить счёт':'Внести счёт'}</summary><form class="tourney-score-form" data-tourney-score="${game.key}"><label>${esc(game.a.name)}<input name="scoreA" type="number" min="0" max="${target}" step="1" value="${game.score?game.score.a:''}" required></label><span class="tourney-score-sep">:</span><label>${esc(game.b.name)}<input name="scoreB" type="number" min="0" max="${target}" step="1" value="${game.score?game.score.b:''}" required></label><div class="tourney-score-actions"><button type="submit">Сохранить</button>${game.raw?`<button type="button" data-tourney-clear="${game.key}">Сбросить</button>`:''}</div></form></details>`:'';
   const hint=game.stale?'<div class="tourney-match-hint">Состав участников изменился. Введите результат заново.</div>':(!game.a||!game.b?'<div class="tourney-match-hint">Ожидает результатов предыдущего этапа.</div>':(!played?'<div class="tourney-match-hint">Введите счёт серии, чтобы продвинуть победителя.</div>':''));
   return `<article class="tourney-match"><div class="tourney-match-top"><span>${esc(game.label)}</span><span class="${played?'played':''}">${played?'ЗАВЕРШЁН':game.a&&game.b?'ОЖИДАЕТ РЕЗУЛЬТАТА':'ОЖИДАНИЕ'}</span></div>${tournamentTeamLine(game.a,game.score?game.score.a:null,!!(game.winner&&String(game.winner.id)===String(game.a?.id)))}${tournamentTeamLine(game.b,game.score?game.score.b:null,!!(game.winner&&String(game.winner.id)===String(game.b?.id)))}${hint}${adminForm}</article>`;
@@ -3762,8 +3763,8 @@ async function saveTournamentScore(event){
   const form=event.currentTarget,key=form.dataset.tourneyScore;
   const current=activeTournament?.bracket_data||{},scores={...(current.scores||{})};
   const before=resolveTournament(activeTournament).games[key];
-  const a=Number(form.elements.scoreA.value),b=Number(form.elements.scoreB.value),target=tournamentWinTarget(activeTournament?.best_of);
-  if(!Number.isInteger(a)||!Number.isInteger(b)||a<0||b<0||a===b||Math.max(a,b)!==target||Math.min(a,b)>=target){alert(`Для BO${activeTournament.best_of} введи итог серии: одна команда должна набрать ${target}, вторая — меньше. Например, ${target}:0 или ${target}:${target-1}.`);return;}
+  const a=Number(form.elements.scoreA.value),b=Number(form.elements.scoreB.value),matchBestOf=tournamentMatchBestOf(key,activeTournament),target=tournamentWinTarget(matchBestOf);
+  if(!Number.isInteger(a)||!Number.isInteger(b)||a<0||b<0||a===b||Math.max(a,b)!==target||Math.min(a,b)>=target){alert(`Для этого матча BO${matchBestOf}: одна команда должна набрать ${target}, вторая — меньше. Например, ${target}:0 или ${target}:${target-1}.`);return;}
   const match=before;
   if(!match?.a||!match?.b){alert('Обе команды ещё не определены.');return;}
   const newWinner=a>b?match.a:match.b;
