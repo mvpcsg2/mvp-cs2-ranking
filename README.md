@@ -1,2 +1,3 @@
-# mvp-cs2-ranking
-Турнир cs2
+# MVP CS2 Ranking
+
+CSTT website source restored from the supplied project archive.
