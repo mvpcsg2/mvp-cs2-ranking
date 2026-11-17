@@ -75,6 +75,37 @@ async function runRpc(sql,user,name,args,env){
       return saved;
     }
 
+    case "admin_get_team_captain": {
+      if(!isAdmin(user))throw new Error("Только администратор.");const id=String(p.p_team_id||"");if(!/^[0-9]+$/.test(id))throw new Error("Некорректная команда.");
+      const q=await sql.query("SELECT u.email,u.username FROM public.mvp_team_captains c JOIN public.mvp_auth_users u ON u.id=c.user_id WHERE c.team_id=$1::bigint LIMIT 1",[id]);return q.rows[0]||null;
+    }
+    case "admin_assign_team_captain": {
+      if(!isAdmin(user))throw new Error("Только администратор может назначать капитана.");const id=String(p.p_team_id||""),email=String(p.p_email||"").trim().toLowerCase();if(!/^[0-9]+$/.test(id))throw new Error("Некорректная команда.");
+      if(!email){await sql.query("DELETE FROM public.mvp_team_captains WHERE team_id=$1::bigint",[id]);return null;}
+      const q=await sql.query("SELECT id,email,username FROM public.mvp_auth_users WHERE lower(email)=$1 AND email_verified_at IS NOT NULL AND is_banned=false LIMIT 1",[email]);if(!q.rows.length)throw new Error("Пользователь не найден или email не подтверждён.");
+      await sql.query("INSERT INTO public.mvp_team_captains(team_id,user_id,assigned_by) VALUES($1::bigint,$2::uuid,$3::uuid) ON CONFLICT(team_id) DO UPDATE SET user_id=EXCLUDED.user_id,assigned_by=EXCLUDED.assigned_by,assigned_at=now()",[id,q.rows[0].id,user.id]);return q.rows[0];
+    }
+    case "captain_get_my_team": {
+      if(!user)throw new Error("Требуется вход.");const q=await sql.query("SELECT t.id,t.name,t.tag,t.players,t.logo,t.player_photos FROM public.mvp_team_captains c JOIN public.teams t ON t.id=c.team_id WHERE c.user_id=$1::uuid LIMIT 1",[user.id]);return q.rows[0]||null;
+    }
+    case "captain_save_my_team": {
+      if(!user)throw new Error("Требуется вход.");const name=String(p.p_name||"").trim(),tag=String(p.p_tag||"").trim().slice(0,12),players=String(p.p_players||"").trim(),logo=String(p.p_logo||"").slice(0,2000),photos=Array.isArray(p.p_player_photos)?p.p_player_photos.slice(0,5):[];
+      const roster=players.split(/[,;\n\r·•|]+/).map(x=>x.trim()).filter(Boolean);if(name.length<2||name.length>80||roster.length>5||new Set(roster.map(x=>x.toLowerCase())).size!==roster.length)throw new Error("Проверь название и состав (максимум пять игроков).");
+      const own=await sql.query("SELECT team_id FROM public.mvp_team_captains WHERE user_id=$1::uuid LIMIT 1",[user.id]);if(!own.rows.length)throw new Error("Тебе не назначена команда.");
+      const result=await sql.query("SELECT public.mvp_captain_save_team($1::bigint,$2,$3,$4,$5,$6::jsonb) AS team",[own.rows[0].team_id,name,tag,players,logo,JSON.stringify(photos)]);return result.rows[0].team;
+    }
+    case "captain_apply_tournament": {
+      if(!user)throw new Error("Требуется вход.");const id=String(p.p_tournament_id||"");if(!/^[0-9]+$/.test(id))throw new Error("Некорректный турнир.");
+      const q=await sql.query("SELECT c.team_id FROM public.mvp_team_captains c JOIN public.mvp_tournaments t ON t.id=$1::bigint AND t.allow_captain_registration=true AND t.event_status<>$3 WHERE c.user_id=$2::uuid LIMIT 1",[id,user.id,"completed"]);if(!q.rows.length)throw new Error("Регистрация закрыта или тебе не назначена команда.");
+      const r=await sql.query("INSERT INTO public.mvp_tournament_applications(tournament_id,team_id,captain_user_id) VALUES($1::bigint,$2::bigint,$3::uuid) ON CONFLICT(tournament_id,team_id) DO NOTHING RETURNING id,status",[id,q.rows[0].team_id,user.id]);if(!r.rows.length)throw new Error("Заявка этой команды уже существует.");return r.rows[0];
+    }
+    case "admin_list_tournament_applications": {
+      if(!hasPermission(user,"manage_matches"))throw new Error("Нет доступа.");const q=await sql.query("SELECT a.id,a.tournament_id,a.team_id,a.status,a.created_at,a.reviewed_at,a.admin_note,t.name tournament_name,tm.name team_name,u.email captain_email FROM public.mvp_tournament_applications a JOIN public.mvp_tournaments t ON t.id=a.tournament_id JOIN public.teams tm ON tm.id=a.team_id JOIN public.mvp_auth_users u ON u.id=a.captain_user_id ORDER BY a.created_at DESC LIMIT 500");return q.rows;
+    }
+    case "admin_review_tournament_application": {
+      if(!hasPermission(user,"manage_matches"))throw new Error("Нет доступа.");const id=String(p.p_application_id||""),status=String(p.p_status||"");if(!/^[0-9]+$/.test(id)||!["approved","rejected"].includes(status))throw new Error("Некорректное решение.");
+      const q=await sql.query("UPDATE public.mvp_tournament_applications SET status=$1,reviewed_at=now(),reviewed_by=$2::uuid,admin_note=$3 WHERE id=$4::bigint AND status=$5 RETURNING id,status",[status,user.id,String(p.p_admin_note||"").slice(0,500),id,"pending"]);if(!q.rows.length)throw new Error("Заявка уже рассмотрена.");return q.rows[0];
+    }
     case "admin_set_moderator_by_email": {
       if(!isAdmin(user))throw new Error("Назначать модераторов может только администратор.");
       const email=String(p.p_email||"").trim().toLowerCase();

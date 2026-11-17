@@ -29,7 +29,7 @@ const TABLES = {
   },
   mvp_tournaments: {
     read: ["id","name","best_of","status","is_active","bracket_data","created_at","updated_at","created_by","organizer_id","prize_pool","prize_currency","team_count","description","start_date","end_date","event_status","allow_captain_registration"],
-    write: ["name","best_of","status","is_active","bracket_data","created_at","updated_at","created_by","organizer_id","prize_pool","prize_currency","team_count","description","start_date","end_date","event_status"],
+    write: ["name","best_of","status","is_active","bracket_data","created_at","updated_at","created_by","organizer_id","prize_pool","prize_currency","team_count","description","start_date","end_date","event_status","allow_captain_registration"],
     permission: "manage_matches",
   },
   cs2_streams: {
