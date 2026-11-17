@@ -3,6 +3,7 @@ import { handleStorageRequest } from "./storage.js";
 import { handleRpcRequest } from "./rpc.js";
 import { handleDataRequest } from "./data.js";
 import { handleAuthRequest } from "./auth.js";
+import { handleMyhudRequest } from "./myhud.js";
 import { neon } from "@neondatabase/serverless";
 
 const json = (data, status = 200, headers = {}) =>
@@ -67,6 +68,8 @@ export default {
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: cors });
     }
+    const myhudResponse = await handleMyhudRequest(request, env, cors);
+    if (myhudResponse) return myhudResponse;
     const authResponse = await handleAuthRequest(request, env, cors);
     if (authResponse) return authResponse;
     const dataResponse = await handleDataRequest(request, env, cors);
