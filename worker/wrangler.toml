@@ -1,0 +1,21 @@
+# Cloudflare Worker configuration for the Neon-backed MVP API.
+name = "mvp-cs2-api"
+main = "src/index.js"
+compatibility_date = "2026-11-12"
+workers_dev = true
+
+[vars]
+CORS_ORIGIN = "https://mvpcsg2.github.io"
+AUTH_ADMIN_EMAIL = "semkimr@gmail.com"
+AUTH_PUBLIC_URL = "https://mvp-cs2-ranking.pages.dev/"
+AUTH_API_URL = "https://mvp-cs2-api.mvpcsgo2.workers.dev"
+MAIL_RELAY_URL = "https://script.google.com/macros/s/AKfycbwP4-YQVLw_4RHiiqowK9mOPvje3fBRNrebVdObCTvCrAGiD2yUDuW6OQooOhnwv_6jSA/exec"
+
+# Check every 15 minutes; SQL stores each completed Berlin day only once.
+[triggers]
+crons = ["*/15 * * * *"]
+
+# Create this bucket once in Cloudflare R2 before deploying the Worker.
+[[r2_buckets]]
+binding = "MVP_ASSETS"
+bucket_name = "mvp-cs2-assets"
