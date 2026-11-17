@@ -393,7 +393,7 @@ export default {
       try {
         const organizerId = url.searchParams.get("organizer_id");
         const rows = organizerId && /^\d+$/.test(organizerId)
-          ? await sql`SELECT id, name, best_of, status, is_active, bracket_data, updated_at, organizer_id, prize_pool, prize_currency, team_count, description, start_date, end_date, event_status FROM public.mvp_tournaments WHERE organizer_id = ${organizerId}::bigint ORDER BY CASE WHEN event_status = 'completed' THEN 1 ELSE 0 END, start_date ASC NULLS LAST, updated_at DESC LIMIT 500`
+          ? await sql`SELECT id, name, best_of, status, is_active, bracket_data, updated_at, organizer_id, prize_pool, prize_currency, team_count, description, start_date, end_date, event_status, allow_captain_registration FROM public.mvp_tournaments WHERE organizer_id = ${organizerId}::bigint ORDER BY CASE WHEN event_status = 'completed' THEN 1 ELSE 0 END, start_date ASC NULLS LAST, updated_at DESC LIMIT 500`
           : await sql`SELECT id, name, best_of, status, is_active, bracket_data, updated_at, organizer_id, prize_pool, prize_currency, team_count, description, start_date, end_date, event_status, allow_captain_registration FROM public.mvp_tournaments ORDER BY updated_at DESC LIMIT 500`;
         return json({ ok: true, data: rows }, 200, cors);
       } catch (error) {
