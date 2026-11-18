@@ -6549,13 +6549,28 @@ body>*{position:relative;z-index:1}
   .news-hub-event .news-ban-visual{max-width:320px!important}
 }
 
-/* Personal admin UI visibility toggle: hides controls only, never changes permissions. */
+/* Personal admin UI visibility toggle: hide admin controls across every section and modal.
+   This is presentation-only; server-side administrator permissions remain unchanged. */
 body.admin-ui-hidden #adminBar,
 body.admin-ui-hidden #addBtn,
 body.admin-ui-hidden .team-card .actions,
 body.admin-ui-hidden .tourney-adminbar,
+body.admin-ui-hidden .tourney-admin-actions,
+body.admin-ui-hidden .tourney-create,
+body.admin-ui-hidden .tourney-match-admin,
+body.admin-ui-hidden .matches-admin-tools,
+body.admin-ui-hidden .global-match-actions,
+body.admin-ui-hidden .stream-admin-form,
+body.admin-ui-hidden [data-delete-stream],
+body.admin-ui-hidden .news-hub-admin-actions,
 body.admin-ui-hidden .moderation-section,
-body.admin-ui-hidden .player-admin-editor{display:none!important}
+body.admin-ui-hidden .player-profile-admin-actions,
+body.admin-ui-hidden .player-admin-editor,
+body.admin-ui-hidden .site-logo-admin,
+body.admin-ui-hidden .tourney-lower-seeds-editor,
+body.admin-ui-hidden [data-tourney-clear]{
+  display:none!important;
+}
 </style>
 
 </body></html>
