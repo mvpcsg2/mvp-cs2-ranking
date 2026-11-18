@@ -5677,6 +5677,29 @@ body[data-theme="night"] .tourney-modal .tourney-section{background:#1c2836!impo
  .tourney-match-slot .tourney-match:after{right:-13px;width:13px}
 }
 </style>
+<style id="cstt-black-rainbow-ambient-gradient">
+/* Subtle full-page spectrum glow on black; intentional white surfaces stay white. */
+html,body{
+  background-color:#05070d!important;
+  background-image:
+    radial-gradient(ellipse 62% 42% at 8% 8%,rgba(49,91,205,.22),transparent 72%),
+    radial-gradient(ellipse 55% 46% at 92% 12%,rgba(120,45,190,.19),transparent 72%),
+    radial-gradient(ellipse 58% 48% at 78% 78%,rgba(16,151,166,.16),transparent 72%),
+    radial-gradient(ellipse 52% 44% at 18% 88%,rgba(166,52,117,.16),transparent 72%),
+    radial-gradient(ellipse 45% 35% at 52% 48%,rgba(176,105,35,.09),transparent 75%),
+    linear-gradient(180deg,#05070d 0%,#080a12 48%,#05070d 100%)!important;
+  background-attachment:fixed!important;
+  color-scheme:dark;
+}
+body{background-color:transparent!important;min-height:100vh}
+body:before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(120deg,rgba(44,100,214,.035),transparent 28%,rgba(146,55,185,.035) 55%,transparent 76%,rgba(25,174,168,.035));
+  mix-blend-mode:screen;
+}
+body>*{position:relative;z-index:1}
+/* Keep explicitly white/light surfaces untouched; add no tint to their backgrounds. */
+</style>
 </body></html>
 
 
