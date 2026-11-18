@@ -5954,6 +5954,36 @@ body>*{position:relative;z-index:1}
  #modalRoot .modal.tourney-modal .page-head{padding:10px!important}
 }
 </style>
+<style id="cstt-tournament-modal-viewport-fit">
+/* Keep the tournament workspace fully inside the visible browser viewport. */
+#modalRoot .modalback:has(.modal.tourney-modal){
+  position:fixed!important;inset:0!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  padding:12px!important;overflow:hidden!important;box-sizing:border-box!important;
+}
+#modalRoot .modal.tourney-modal{
+  box-sizing:border-box!important;
+  width:min(1160px,calc(100vw - 24px))!important;
+  max-width:calc(100vw - 24px)!important;
+  height:auto!important;
+  max-height:calc(100dvh - 24px)!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:18px!important;
+  overflow-x:hidden!important;overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+}
+#modalRoot .modal.tourney-modal .tourney-rounds{
+  max-width:100%!important;
+}
+@media(max-width:700px){
+ #modalRoot .modalback:has(.modal.tourney-modal){padding:6px!important}
+ #modalRoot .modal.tourney-modal{
+   width:calc(100vw - 12px)!important;max-width:calc(100vw - 12px)!important;
+   max-height:calc(100dvh - 12px)!important;padding:12px!important;
+ }
+}
+</style>
 </body></html>
 
 
