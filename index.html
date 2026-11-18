@@ -5700,6 +5700,39 @@ body:before{
 body>*{position:relative;z-index:1}
 /* Keep explicitly white/light surfaces untouched; add no tint to their backgrounds. */
 </style>
+<style id="cstt-visible-spectrum-tournament-backdrop">
+/* Make the spectrum glow visible inside the tournament modal, beneath bracket rounds. */
+.tourney-modal{
+  background-color:#05070d!important;
+  background-image:
+    radial-gradient(ellipse 58% 38% at 5% 12%,rgba(48,100,220,.28),transparent 72%),
+    radial-gradient(ellipse 54% 40% at 96% 14%,rgba(137,55,205,.25),transparent 72%),
+    radial-gradient(ellipse 58% 42% at 82% 88%,rgba(16,170,174,.22),transparent 72%),
+    radial-gradient(ellipse 54% 40% at 12% 88%,rgba(190,53,133,.2),transparent 72%),
+    linear-gradient(180deg,#070a16 0%,#05070d 52%,#070a14 100%)!important;
+  color:#f2f5ff!important;
+  border-color:#354a68!important;
+}
+.tourney-modal .page-head h2{color:#f2f5ff!important}
+.tourney-modal .page-intro{color:#aebcda!important}
+/* Let the colored black backdrop show through the bracket canvas. */
+.tourney-modal .tourney-section{
+  background:rgba(5,8,19,.28)!important;
+  border-color:rgba(150,178,235,.48)!important;
+  box-shadow:0 8px 28px rgba(0,0,0,.3)!important;
+}
+.tourney-modal .tourney-rounds{
+  background:transparent!important;
+}
+.tourney-modal .tourney-round + .tourney-round:before{
+  background:linear-gradient(180deg,transparent,rgba(177,199,255,.5) 12%,rgba(177,199,255,.5) 88%,transparent)!important;
+}
+/* Keep individual match cards readable above the gradient. */
+.tourney-modal .tourney-match-slot .tourney-match{
+  background:linear-gradient(110deg,rgba(12,22,48,.97),rgba(7,13,32,.97))!important;
+  backdrop-filter:blur(3px);
+}
+</style>
 </body></html>
 
 
