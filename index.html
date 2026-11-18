@@ -5497,65 +5497,68 @@ body[data-theme="night"] .tourney-modal .tourney-section{background:#1c2836!impo
 
 
 <style id="cstt-global-midnight-blue-theme">
-/* Site-wide Midnight Blue theme: black/navy surfaces with the tournament bracket's blue palette. */
+/* Global ECT navy palette, matched to the supplied tournament-organizer reference. */
 :root{
   color-scheme:dark;
-  --ink:#edf4fc;--muted:#a8b8ca;--line:#2b4058;--bg:#0b1420;--soft:#111e2d;
-  --orange:#72b7ee;--cstt-accent:#72b7ee;--cstt-accent-soft:rgba(83,164,226,.17);
-  --mvp-night-bg:#080e17;--mvp-panel:#111c2a;--mvp-card:#172638;--mvp-card-hover:#20354b;
-  --mvp-border:#304a64;--mvp-text:#edf4fc;--mvp-muted:#a8b8ca;--mvp-accent:#72b7ee;
+  --ink:#f1f5fb;--muted:#aebed1;--line:#354a60;--bg:#0b1c31;--soft:#1d2b3a;
+  --orange:#82b9ff;--cstt-accent:#82b9ff;--cstt-accent-soft:rgba(102,166,239,.17);
+  --mvp-night-bg:#081a30;--mvp-panel:#1f2d3d;--mvp-card:#243447;--mvp-card-hover:#2b4057;
+  --mvp-border:#354d68;--mvp-text:#f1f5fb;--mvp-muted:#aebed1;--mvp-accent:#82b9ff;
 }
-html,body{background:#080e17!important;color:#edf4fc!important}
+html,body{background:#1d2731!important;color:#f1f5fb!important}
 body{
-  background-image:radial-gradient(ellipse at 50% -18%,rgba(42,91,133,.28),transparent 58%)!important;
+  background-image:radial-gradient(ellipse at 50% -18%,rgba(33,91,153,.24),transparent 58%)!important;
   background-attachment:fixed!important;
 }
 .top,.main-nav,.topright,.adminbar,.nav,.site-header,.header,.footer,.bottom-nav{
-  background:rgba(10,18,29,.96)!important;color:#edf4fc!important;border-color:#263b52!important;
+  background:rgba(8,25,45,.97)!important;color:#f1f5fb!important;border-color:#30465e!important;
 }
-.site-brand-bar,.panel,.card,.team-card,.team-main,.match-card,.global-match-card,
+.site-brand-bar{
+  background:linear-gradient(110deg,#0d294a,#17477f)!important;color:#f3f7ff!important;border-color:#24558b!important;
+}
+.panel,.card,.team-card,.team-main,.match-card,.global-match-card,
 .stream-card,.news-hub-card,.news-rail-section,.profile-hero,.modal,.modal-content,
 .modal-page,.admin-panel,.settings-panel,.table-wrap,.ranking-table,.team-profile-tournament{
-  background:#111c2a!important;color:#edf4fc!important;border-color:#2b4058!important;
-  box-shadow:0 10px 28px rgba(0,0,0,.22);
+  background:#1f2d3d!important;color:#f1f5fb!important;border-color:#354a60!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.18);
 }
 .tablehead,.section-head,.panel-head,.match-card-head,.news-rail-head{
-  background:#172638!important;color:#dcecff!important;border-color:#304a64!important;
+  background:#243447!important;color:#e8f1fc!important;border-color:#3b536d!important;
 }
 .team,.team-row,.roster-player,.match-player-row,.global-match-info,.stream-card-info,
 .news-hub-event,.profile-roster li,.top-player-row{
-  background:#142235!important;color:#edf4fc!important;border-color:#2b4058!important;
+  background:#1b2a3a!important;color:#f1f5fb!important;border-color:#354a60!important;
 }
 button,.btn,.nav-btn,.tiny,summary,[role="button"]{
-  color:#e8f3ff!important;border-color:#38536e!important;
+  color:#edf4fc!important;border-color:#43576d!important;
 }
 button:not(.primary):not(.danger),.btn:not(.primary):not(.danger),.nav-btn{
-  background:#172638!important;
+  background:#303b49!important;
 }
 button:not(:disabled):hover,.btn:not(:disabled):hover,.nav-btn:hover{
-  background:#223b54!important;border-color:#5b91bd!important;
+  background:#3a4b5f!important;border-color:#6a91bd!important;
 }
 .primary,.btn.primary,.nav-btn.active{
-  background:#24547c!important;border-color:#4d91c4!important;color:#fff!important;
+  background:#285b91!important;border-color:#5c91c7!important;color:#fff!important;
 }
 input,select,textarea{
-  background:#0d1927!important;color:#edf4fc!important;border-color:#38536e!important;
+  background:#172638!important;color:#f1f5fb!important;border-color:#40566e!important;
   color-scheme:dark;
 }
-input::placeholder,textarea::placeholder{color:#91a5ba!important}
-a{color:#8fcaff}
+input::placeholder,textarea::placeholder{color:#9fb1c6!important}
+a{color:#91c3ff}
 h1,h2,h3,h4,strong,b,label{color:inherit}
-.muted,.sub,.crumb,.hint,.help-text{color:#a8b8ca!important}
-hr,.divider{border-color:#2b4058!important}
-.badge,.pill{border-color:#38536e!important}
+.muted,.sub,.crumb,.hint,.help-text{color:#aebed1!important}
+hr,.divider{border-color:#354a60!important}
+.badge,.pill{border-color:#435d79!important}
 .tourney-modal .tourney-match,.tourney-modal .tourney-round,
-.tourney-modal .tourney-match-card{background:#142235!important;border-color:#304a64!important}
+.tourney-modal .tourney-match-card{background:#1f2d3d!important;border-color:#354a60!important}
 .tourney-modal .tourney-round-title,.tourney-modal .tourney-match-top{
-  background:#1b2b3d!important;color:#e8f3ff!important;
+  background:#243447!important;color:#edf4fc!important;
 }
-.tourney-modal .tourney-teamline{background:#172638!important;color:#edf4fc!important}
-.tourney-modal .tourney-teamline.winner{background:#1b3850!important;border-color:#5797c5!important}
-.tourney-modal .tourney-team-score{color:#9ed0fa!important}
+.tourney-modal .tourney-teamline{background:#1b2a3a!important;color:#f1f5fb!important}
+.tourney-modal .tourney-teamline.winner{background:#183a5a!important;border-color:#5b91c7!important}
+.tourney-modal .tourney-team-score{color:#a8ceff!important}
 </style>
 </body></html>
 
