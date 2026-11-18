@@ -5,7 +5,7 @@ compatibility_date = "2026-11-12"
 workers_dev = true
 
 [vars]
-CORS_ORIGIN = "https://mvpcsg2.github.io"
+CORS_ORIGIN = "https://mvp-cs2-ranking.pages.dev"
 AUTH_ADMIN_EMAIL = "semkimr@gmail.com"
 AUTH_PUBLIC_URL = "https://mvp-cs2-ranking.pages.dev/"
 AUTH_API_URL = "https://mvp-cs2-api.mvpcsgo2.workers.dev"
