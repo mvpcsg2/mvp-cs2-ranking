@@ -48,36 +48,74 @@ async function runRpc(sql,user,name,args,env){
     }
 
     case "captain_apply_tournament": {
-      if(!user?.id)throw new Error("Войди в аккаунт, чтобы подать заявку.");
-      const tournamentId=String(p.p_tournament_id||"");
-      if(!/^[0-9a-f-]{36}$/i.test(tournamentId))throw new Error("Некорректный ID турнира.");
-      const teams=await sql`
-        SELECT c.team_id,t.name
-        FROM public.mvp_team_captains c
-        JOIN public.teams t ON t.id=c.team_id
-        WHERE c.user_id=${user.id}::uuid
-        LIMIT 1
-      `;
-      if(!teams.length)throw new Error("За твоим аккаунтом не закреплена команда. Попроси администратора назначить тебя капитаном.");
-      const tournaments=await sql`
-        SELECT id,allow_captain_registration,event_status
-        FROM public.mvp_tournaments
-        WHERE id=${tournamentId}::uuid
-        LIMIT 1
-      `;
-      if(!tournaments.length)throw new Error("Турнир не найден.");
-      if(tournaments[0].event_status==="completed")throw new Error("Приём заявок на завершённый турнир закрыт.");
-      if(tournaments[0].allow_captain_registration!==true)throw new Error("Приём заявок от капитанов сейчас закрыт.");
-      const inserted=await sql`
-        INSERT INTO public.mvp_tournament_applications(tournament_id,team_id,captain_user_id)
-        VALUES(${tournamentId}::uuid,${teams[0].team_id}::bigint,${user.id}::uuid)
-        ON CONFLICT(tournament_id,team_id) DO NOTHING
-        RETURNING id,tournament_id,team_id,status,created_at
-      `;
-      if(!inserted.length)throw new Error("Эта команда уже отправляла заявку на данный турнир.");
-      return inserted[0];
+      if(!user)throw new Error("Требуется вход.");const id=String(p.p_tournament_id||"");if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id))throw new Error("Некорректный турнир.");
+      const rows=await sql`SELECT c.team_id FROM public.mvp_team_captains c JOIN public.mvp_tournaments t ON t.id=${id}::uuid AND t.allow_captain_registration=true AND t.event_status<>'completed' WHERE c.user_id=${user.id}::uuid LIMIT 1`;if(!rows.length)throw new Error("Регистрация закрыта или тебе не назначена команда.");
+      const inserted=await sql`INSERT INTO public.mvp_tournament_applications(tournament_id,team_id,captain_user_id) VALUES(${id}::uuid,${rows[0].team_id}::bigint,${user.id}::uuid) ON CONFLICT(tournament_id,team_id) DO NOTHING RETURNING id,status`;if(!inserted.length)throw new Error("Заявка этой команды уже существует.");return inserted[0];
     }
-
+    case "admin_list_tournament_applications": {
+      if(!isAdmin(user))throw new Error("Только администратор может просматривать заявки.");const rows=await sql`SELECT a.id,a.tournament_id,a.team_id,a.status,a.created_at,a.reviewed_at,a.admin_note,t.name tournament_name,tm.name team_name,u.email captain_email FROM public.mvp_tournament_applications a JOIN public.mvp_tournaments t ON t.id=a.tournament_id JOIN public.teams tm ON tm.id=a.team_id JOIN public.mvp_auth_users u ON u.id=a.captain_user_id ORDER BY a.created_at DESC LIMIT 500`;return rows;
+    }
+    case "admin_delete_tournament_application": {
+      if(!isAdmin(user))throw new Error("Только администратор может удалять заявки.");
+      const id=String(p.p_application_id||"");
+      if(!/^[0-9]+$/.test(id))throw new Error("Некорректный номер заявки.");
+      // Removing an approved request only removes its application history.
+      // The team deliberately remains in the tournament bracket.
+      const rows=await sql`DELETE FROM public.mvp_tournament_applications WHERE id=${id}::bigint RETURNING id,status`;
+      if(!rows.length)throw new Error("Заявка не найдена или уже удалена.");
+      return rows[0];
+    }
+    case "admin_review_tournament_application": {
+      if(!isAdmin(user))throw new Error("Только администратор может рассматривать заявки.");
+      const id=String(p.p_application_id||""),status=String(p.p_status||"");
+      if(!/^[0-9]+$/.test(id)||!["approved","rejected"].includes(status))throw new Error("Некорректное решение.");
+      const note=String(p.p_admin_note||"").slice(0,500);
+      if(status==="rejected"){
+        const rows=await sql`UPDATE public.mvp_tournament_applications SET status='rejected',reviewed_at=now(),reviewed_by=${user.id}::uuid,admin_note=${note} WHERE id=${id}::bigint AND status='pending' RETURNING id,status`;
+        if(!rows.length)throw new Error("Заявка уже рассмотрена.");
+        return rows[0];
+      }
+      // Approved teams always enter the upper bracket. Lower-bracket places are
+      // derived automatically from first-round upper-bracket losers by the client resolver.
+      const rows=await sql`
+        WITH locked AS (
+          SELECT a.id AS application_id,a.team_id,t.id AS tournament_id,
+                 t.team_count,t.event_status,t.bracket_data,
+                 tm.name,tm.tag,tm.logo
+          FROM public.mvp_tournament_applications a
+          JOIN public.mvp_tournaments t ON t.id=a.tournament_id
+          JOIN public.teams tm ON tm.id=a.team_id
+          WHERE a.id=${id}::bigint AND a.status='pending'
+          FOR UPDATE OF a,t
+        ),
+        prepared AS (
+          SELECT *,COALESCE(bracket_data->'teams','[]'::jsonb) AS upper_teams,
+                   COALESCE(bracket_data->'lower_teams','[]'::jsonb) AS lower_teams
+          FROM locked
+        ),
+        placed AS (
+          UPDATE public.mvp_tournaments t
+          SET bracket_data=jsonb_set(COALESCE(p.bracket_data,'{}'::jsonb),'{teams}',
+                p.upper_teams||jsonb_build_array(jsonb_build_object('id',p.team_id::text,'name',p.name,'tag',COALESCE(p.tag,''),'logo',COALESCE(p.logo,''))),true)
+          FROM prepared p
+          WHERE t.id=p.tournament_id
+            AND p.event_status<>'completed'
+            AND NOT EXISTS (
+              SELECT 1 FROM jsonb_array_elements(p.upper_teams||p.lower_teams) existing
+              WHERE existing->>'id'=p.team_id::text
+            )
+            AND jsonb_array_length(p.upper_teams)<LEAST(16,GREATEST(8,COALESCE(p.team_count,8)))
+          RETURNING t.id
+        )
+        UPDATE public.mvp_tournament_applications a
+        SET status='approved',reviewed_at=now(),reviewed_by=${user.id}::uuid,admin_note=${note}
+        FROM locked l,placed p
+        WHERE a.id=l.application_id AND p.id=l.tournament_id
+        RETURNING a.id,a.status
+      `;
+      if(!rows.length)throw new Error("Не удалось добавить команду: заявка уже рассмотрена, турнир завершён, команда уже в сетке или свободных мест больше нет.");
+      return rows[0];
+    }
     case "captain_get_my_team": {
       if(!user?.id)throw new Error("Войди в аккаунт.");
       const rows=await sql`
@@ -158,6 +196,57 @@ async function runRpc(sql,user,name,args,env){
       return saved;
     }
 
+    case "admin_review_tournament_application": {
+      if(!isAdmin(user))throw new Error("Только администратор может рассматривать заявки.");
+      const id=String(p.p_application_id||""),status=String(p.p_status||"");
+      if(!/^[0-9]+$/.test(id)||!["approved","rejected"].includes(status))throw new Error("Некорректное решение.");
+      const note=String(p.p_admin_note||"").slice(0,500);
+      if(status==="rejected"){
+        const rows=await sql`UPDATE public.mvp_tournament_applications SET status='rejected',reviewed_at=now(),reviewed_by=${user.id}::uuid,admin_note=${note} WHERE id=${id}::bigint AND status='pending' RETURNING id,status`;
+        if(!rows.length)throw new Error("Заявка уже рассмотрена.");
+        return rows[0];
+      }
+      // Approved teams always enter the upper bracket. Lower-bracket places are
+      // derived automatically from first-round upper-bracket losers by the client resolver.
+      const rows=await sql`
+        WITH locked AS (
+          SELECT a.id AS application_id,a.team_id,t.id AS tournament_id,
+                 t.team_count,t.event_status,t.bracket_data,
+                 tm.name,tm.tag,tm.logo
+          FROM public.mvp_tournament_applications a
+          JOIN public.mvp_tournaments t ON t.id=a.tournament_id
+          JOIN public.teams tm ON tm.id=a.team_id
+          WHERE a.id=${id}::bigint AND a.status='pending'
+          FOR UPDATE OF a,t
+        ),
+        prepared AS (
+          SELECT *,COALESCE(bracket_data->'teams','[]'::jsonb) AS upper_teams,
+                   COALESCE(bracket_data->'lower_teams','[]'::jsonb) AS lower_teams
+          FROM locked
+        ),
+        placed AS (
+          UPDATE public.mvp_tournaments t
+          SET bracket_data=jsonb_set(COALESCE(p.bracket_data,'{}'::jsonb),'{teams}',
+                p.upper_teams||jsonb_build_array(jsonb_build_object('id',p.team_id::text,'name',p.name,'tag',COALESCE(p.tag,''),'logo',COALESCE(p.logo,''))),true)
+          FROM prepared p
+          WHERE t.id=p.tournament_id
+            AND p.event_status<>'completed'
+            AND NOT EXISTS (
+              SELECT 1 FROM jsonb_array_elements(p.upper_teams||p.lower_teams) existing
+              WHERE existing->>'id'=p.team_id::text
+            )
+            AND jsonb_array_length(p.upper_teams)<LEAST(16,GREATEST(8,COALESCE(p.team_count,8)))
+          RETURNING t.id
+        )
+        UPDATE public.mvp_tournament_applications a
+        SET status='approved',reviewed_at=now(),reviewed_by=${user.id}::uuid,admin_note=${note}
+        FROM locked l,placed p
+        WHERE a.id=l.application_id AND p.id=l.tournament_id
+        RETURNING a.id,a.status
+      `;
+      if(!rows.length)throw new Error("Не удалось добавить команду: заявка уже рассмотрена, турнир завершён, команда уже в сетке или свободных мест больше нет.");
+      return rows[0];
+    }
     case "admin_set_moderator_by_email": {
       if(!isAdmin(user))throw new Error("Назначать модераторов может только администратор.");
       const email=String(p.p_email||"").trim().toLowerCase();
