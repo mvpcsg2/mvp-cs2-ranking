@@ -6392,6 +6392,21 @@ body>*{position:relative;z-index:1}
   }
 }
 </style>
+<style id="cstt-auth-settings-width-only">
+/* Narrow these two dialogs horizontally; do not alter their height rules. */
+#modalRoot .modal.auth-modal{
+  width:min(320px,calc(100vw - 28px))!important;
+  max-width:320px!important;
+}
+#modalRoot .modalback:has(>.modal #siteLanguageSelect)>.modal{
+  width:min(420px,calc(100vw - 32px))!important;
+  max-width:420px!important;
+}
+@media(max-width:480px){
+  #modalRoot .modal.auth-modal{width:calc(100vw - 28px)!important;max-width:calc(100vw - 28px)!important}
+  #modalRoot .modalback:has(>.modal #siteLanguageSelect)>.modal{width:calc(100vw - 24px)!important;max-width:calc(100vw - 24px)!important}
+}
+</style>
 </body></html>
 
 
