@@ -2043,6 +2043,63 @@ body[data-theme="night"] .news-card:hover{
 }
 </style>
 
+<style>
+
+/* Tournament bracket visual refresh — compact broadcast-style CS2 bracket */
+.tourney-modal .modal,.tourney-modal .modal-content{background:#071426!important}
+.tourney-modal #tournamentContent{background:linear-gradient(135deg,#071426 0%,#0b1d35 52%,#071426 100%);color:#eef5ff;padding:16px}
+.tourney-modal .tourney-hero{background:radial-gradient(ellipse at 85% 0%,rgba(31,104,190,.28),transparent 48%),linear-gradient(135deg,#102642,#09172a 72%);border:1px solid #28496d;border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.28);color:#f4f8ff}
+.tourney-modal .tourney-kicker{color:#77baff;letter-spacing:2px}
+.tourney-modal .tourney-title{color:#fff;text-transform:uppercase;letter-spacing:.7px}
+.tourney-modal .tourney-subtitle{color:#a9bfd8}
+.tourney-modal .tourney-hero-facts>div{background:rgba(6,18,34,.72);border:1px solid #29496b;border-radius:8px}
+.tourney-modal .tourney-hero-facts strong{color:#fff}
+.tourney-modal .tourney-hero-facts small{color:#8eaccb}
+.tourney-modal .tourney-status-pill{border:1px solid #38648f;background:#102b49;color:#b8dcff}
+.tourney-modal .tourney-champion{background:linear-gradient(90deg,rgba(24,86,145,.42),rgba(10,29,52,.2));border:1px solid #3a6c9d;border-radius:9px}
+.tourney-modal .tourney-champion strong{color:#fff}
+.tourney-modal .tourney-adminbar{background:#0c2038;border:1px solid #294866;border-radius:10px;color:#e7f1fc}
+.tourney-modal .tourney-adminbar small{color:#9db5ce}
+.tourney-modal .tourney-section{margin-top:18px;background:#0b1b2e;border:1px solid #284764;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.tourney-modal .tourney-section-head{padding:14px 18px;background:linear-gradient(90deg,#142c48,#1a3858);color:#f4f8ff;border-bottom:1px solid #345879}
+.tourney-modal .tourney-section-head strong{font-size:12px;letter-spacing:1.7px}
+.tourney-modal .tourney-section-head span{color:#a9c2dd;font-size:11px}
+.tourney-modal .tourney-rounds{gap:28px;padding:22px 20px 26px;grid-auto-columns:minmax(230px,270px);align-items:start}
+.tourney-modal .tourney-round{position:relative;min-width:230px}
+.tourney-modal .tourney-round-title{height:38px;margin-bottom:16px;border:1px solid #355778;border-radius:6px;background:linear-gradient(180deg,#1a3553,#10243b);color:#dcecff;font-size:10px;letter-spacing:1.2px}
+.tourney-modal .tourney-match{margin-bottom:18px;border:1px solid #355675;border-radius:7px;background:linear-gradient(145deg,#14283e,#0d1d30);box-shadow:0 4px 12px rgba(0,0,0,.24);transition:border-color .18s,transform .18s}
+.tourney-modal .tourney-match:hover{border-color:#6ba9e5;transform:translateY(-1px)}
+.tourney-modal .tourney-match:before{inset:3px;border:1px solid rgba(130,184,235,.09)}
+.tourney-modal .tourney-match-top{padding:8px 10px 6px;color:#91b9e2;font-size:9px;letter-spacing:.5px}
+.tourney-modal .tourney-match-top .played{color:#76e0b0}
+.tourney-modal .tourney-teamline{min-height:37px;grid-template-columns:22px minmax(0,1fr) 25px;padding:5px 10px;border-top:1px solid rgba(145,183,220,.12)}
+.tourney-modal .tourney-teamline.winner{background:linear-gradient(90deg,rgba(31,123,191,.26),rgba(27,77,117,.08));box-shadow:inset 3px 0 #5bb5ff}
+.tourney-modal .tourney-team-logo{width:20px;height:20px;background:#243c56;border-radius:4px}
+.tourney-modal .tourney-team-name{color:#f2f7ff;font-size:11px;font-weight:750}
+.tourney-modal .tourney-team-name.tbd{color:#8198b2}
+.tourney-modal .tourney-team-score{color:#f4d98b;font-size:14px}
+.tourney-modal .tourney-match-hint{padding:2px 10px 8px;color:#91a9c2;font-size:9px}
+.tourney-modal .tourney-match-admin{border-top:1px solid rgba(130,177,220,.18)}
+.tourney-modal .tourney-match-admin summary{color:#8fcaff}
+.tourney-modal .tourney-score-form label{color:#a9bfd6}
+.tourney-modal .tourney-score-form input{background:#07182b;border-color:#355b7d;color:#fff}
+.tourney-modal .tourney-score-actions button{background:#173553;border-color:#3c6b95;color:#d9edff}
+.tourney-modal .tourney-score-actions button[type=submit]{background:#2c78b8;border-color:#59a9ed;color:#fff}
+.tourney-modal .tourney-lower-seeds-view{padding:14px 18px;background:#0e2239;border-bottom:1px solid #294866}
+.tourney-modal .tourney-lower-seeds-view>b{color:#e3efff}
+.tourney-modal .tourney-lower-seeds-list span{background:#132b45;border-color:#345573;color:#dcecff}
+.tourney-modal .tourney-lower-seeds-list i{color:#75baff}
+.tourney-modal .tourney-public-note{color:#9eb6cf}
+.tourney-modal .tourney-rounds::-webkit-scrollbar{height:8px}
+.tourney-modal .tourney-rounds::-webkit-scrollbar-track{background:#0a192a;border-radius:8px}
+.tourney-modal .tourney-rounds::-webkit-scrollbar-thumb{background:#315779;border-radius:8px}
+@media(max-width:760px){
+ .tourney-modal #tournamentContent{padding:10px}
+ .tourney-modal .tourney-rounds{grid-auto-columns:minmax(225px,82vw);gap:18px;padding:15px 12px}
+ .tourney-modal .tourney-section-head{align-items:flex-start;flex-direction:column;gap:5px}
+}
+
+</style>
 </head><body data-theme="night">
 <header class="top">
   <nav class="main-nav" aria-label="Основная навигация">
@@ -5443,60 +5500,4 @@ body[data-theme="night"] .tourney-modal .tourney-section{background:#1c2836!impo
 
 
 
-<style>
 
-/* Tournament bracket visual refresh — compact broadcast-style CS2 bracket */
-.tourney-modal .modal,.tourney-modal .modal-content{background:#071426!important}
-.tourney-modal #tournamentContent{background:linear-gradient(135deg,#071426 0%,#0b1d35 52%,#071426 100%);color:#eef5ff;padding:16px}
-.tourney-modal .tourney-hero{background:radial-gradient(ellipse at 85% 0%,rgba(31,104,190,.28),transparent 48%),linear-gradient(135deg,#102642,#09172a 72%);border:1px solid #28496d;border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.28);color:#f4f8ff}
-.tourney-modal .tourney-kicker{color:#77baff;letter-spacing:2px}
-.tourney-modal .tourney-title{color:#fff;text-transform:uppercase;letter-spacing:.7px}
-.tourney-modal .tourney-subtitle{color:#a9bfd8}
-.tourney-modal .tourney-hero-facts>div{background:rgba(6,18,34,.72);border:1px solid #29496b;border-radius:8px}
-.tourney-modal .tourney-hero-facts strong{color:#fff}
-.tourney-modal .tourney-hero-facts small{color:#8eaccb}
-.tourney-modal .tourney-status-pill{border:1px solid #38648f;background:#102b49;color:#b8dcff}
-.tourney-modal .tourney-champion{background:linear-gradient(90deg,rgba(24,86,145,.42),rgba(10,29,52,.2));border:1px solid #3a6c9d;border-radius:9px}
-.tourney-modal .tourney-champion strong{color:#fff}
-.tourney-modal .tourney-adminbar{background:#0c2038;border:1px solid #294866;border-radius:10px;color:#e7f1fc}
-.tourney-modal .tourney-adminbar small{color:#9db5ce}
-.tourney-modal .tourney-section{margin-top:18px;background:#0b1b2e;border:1px solid #284764;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.2)}
-.tourney-modal .tourney-section-head{padding:14px 18px;background:linear-gradient(90deg,#142c48,#1a3858);color:#f4f8ff;border-bottom:1px solid #345879}
-.tourney-modal .tourney-section-head strong{font-size:12px;letter-spacing:1.7px}
-.tourney-modal .tourney-section-head span{color:#a9c2dd;font-size:11px}
-.tourney-modal .tourney-rounds{gap:28px;padding:22px 20px 26px;grid-auto-columns:minmax(230px,270px);align-items:start}
-.tourney-modal .tourney-round{position:relative;min-width:230px}
-.tourney-modal .tourney-round-title{height:38px;margin-bottom:16px;border:1px solid #355778;border-radius:6px;background:linear-gradient(180deg,#1a3553,#10243b);color:#dcecff;font-size:10px;letter-spacing:1.2px}
-.tourney-modal .tourney-match{margin-bottom:18px;border:1px solid #355675;border-radius:7px;background:linear-gradient(145deg,#14283e,#0d1d30);box-shadow:0 4px 12px rgba(0,0,0,.24);transition:border-color .18s,transform .18s}
-.tourney-modal .tourney-match:hover{border-color:#6ba9e5;transform:translateY(-1px)}
-.tourney-modal .tourney-match:before{inset:3px;border:1px solid rgba(130,184,235,.09)}
-.tourney-modal .tourney-match-top{padding:8px 10px 6px;color:#91b9e2;font-size:9px;letter-spacing:.5px}
-.tourney-modal .tourney-match-top .played{color:#76e0b0}
-.tourney-modal .tourney-teamline{min-height:37px;grid-template-columns:22px minmax(0,1fr) 25px;padding:5px 10px;border-top:1px solid rgba(145,183,220,.12)}
-.tourney-modal .tourney-teamline.winner{background:linear-gradient(90deg,rgba(31,123,191,.26),rgba(27,77,117,.08));box-shadow:inset 3px 0 #5bb5ff}
-.tourney-modal .tourney-team-logo{width:20px;height:20px;background:#243c56;border-radius:4px}
-.tourney-modal .tourney-team-name{color:#f2f7ff;font-size:11px;font-weight:750}
-.tourney-modal .tourney-team-name.tbd{color:#8198b2}
-.tourney-modal .tourney-team-score{color:#f4d98b;font-size:14px}
-.tourney-modal .tourney-match-hint{padding:2px 10px 8px;color:#91a9c2;font-size:9px}
-.tourney-modal .tourney-match-admin{border-top:1px solid rgba(130,177,220,.18)}
-.tourney-modal .tourney-match-admin summary{color:#8fcaff}
-.tourney-modal .tourney-score-form label{color:#a9bfd6}
-.tourney-modal .tourney-score-form input{background:#07182b;border-color:#355b7d;color:#fff}
-.tourney-modal .tourney-score-actions button{background:#173553;border-color:#3c6b95;color:#d9edff}
-.tourney-modal .tourney-score-actions button[type=submit]{background:#2c78b8;border-color:#59a9ed;color:#fff}
-.tourney-modal .tourney-lower-seeds-view{padding:14px 18px;background:#0e2239;border-bottom:1px solid #294866}
-.tourney-modal .tourney-lower-seeds-view>b{color:#e3efff}
-.tourney-modal .tourney-lower-seeds-list span{background:#132b45;border-color:#345573;color:#dcecff}
-.tourney-modal .tourney-lower-seeds-list i{color:#75baff}
-.tourney-modal .tourney-public-note{color:#9eb6cf}
-.tourney-modal .tourney-rounds::-webkit-scrollbar{height:8px}
-.tourney-modal .tourney-rounds::-webkit-scrollbar-track{background:#0a192a;border-radius:8px}
-.tourney-modal .tourney-rounds::-webkit-scrollbar-thumb{background:#315779;border-radius:8px}
-@media(max-width:760px){
- .tourney-modal #tournamentContent{padding:10px}
- .tourney-modal .tourney-rounds{grid-auto-columns:minmax(225px,82vw);gap:18px;padding:15px 12px}
- .tourney-modal .tourney-section-head{align-items:flex-start;flex-direction:column;gap:5px}
-}
-
-</style>
