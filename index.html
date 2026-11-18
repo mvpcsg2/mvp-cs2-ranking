@@ -6222,6 +6222,34 @@ body>*{position:relative;z-index:1}
   }
 }
 </style>
+<style id="cstt-modal-width-final-tight">
+/* Compact non-tournament dialogs; wide data dialogs remain only slightly wider. */
+#modalRoot .modal:not(.tourney-modal){
+  box-sizing:border-box!important;
+  width:min(500px,calc(100vw - 32px))!important;
+  max-width:min(500px,calc(100vw - 32px))!important;
+}
+#modalRoot .modal.modal-wide:not(.tourney-modal){
+  width:min(560px,calc(100vw - 32px))!important;
+  max-width:min(560px,calc(100vw - 32px))!important;
+}
+#modalRoot .modal:not(.tourney-modal) .match-card,
+#modalRoot .modal:not(.tourney-modal) .match-row,
+#modalRoot .modal:not(.tourney-modal) .team-row{
+  min-width:0!important;max-width:100%!important;
+}
+#modalRoot .modal:not(.tourney-modal) .match-meta,
+#modalRoot .modal:not(.tourney-modal) .match-info{
+  overflow-wrap:anywhere!important;
+}
+@media(max-width:650px){
+ #modalRoot .modal:not(.tourney-modal),
+ #modalRoot .modal.modal-wide:not(.tourney-modal){
+   width:calc(100vw - 20px)!important;
+   max-width:calc(100vw - 20px)!important;
+ }
+}
+</style>
 </body></html>
 
 
