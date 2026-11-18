@@ -47,6 +47,37 @@ async function runRpc(sql,user,name,args,env){
       return rows[0];
     }
 
+    case "captain_apply_tournament": {
+      if(!user?.id)throw new Error("Войди в аккаунт, чтобы подать заявку.");
+      const tournamentId=String(p.p_tournament_id||"");
+      if(!/^[0-9a-f-]{36}$/i.test(tournamentId))throw new Error("Некорректный ID турнира.");
+      const teams=await sql`
+        SELECT c.team_id,t.name
+        FROM public.mvp_team_captains c
+        JOIN public.teams t ON t.id=c.team_id
+        WHERE c.user_id=${user.id}::uuid
+        LIMIT 1
+      `;
+      if(!teams.length)throw new Error("За твоим аккаунтом не закреплена команда. Попроси администратора назначить тебя капитаном.");
+      const tournaments=await sql`
+        SELECT id,allow_captain_registration,event_status
+        FROM public.mvp_tournaments
+        WHERE id=${tournamentId}::uuid
+        LIMIT 1
+      `;
+      if(!tournaments.length)throw new Error("Турнир не найден.");
+      if(tournaments[0].event_status==="completed")throw new Error("Приём заявок на завершённый турнир закрыт.");
+      if(tournaments[0].allow_captain_registration!==true)throw new Error("Приём заявок от капитанов сейчас закрыт.");
+      const inserted=await sql`
+        INSERT INTO public.mvp_tournament_applications(tournament_id,team_id,captain_user_id)
+        VALUES(${tournamentId}::uuid,${teams[0].team_id}::bigint,${user.id}::uuid)
+        ON CONFLICT(tournament_id,team_id) DO NOTHING
+        RETURNING id,tournament_id,team_id,status,created_at
+      `;
+      if(!inserted.length)throw new Error("Эта команда уже отправляла заявку на данный турнир.");
+      return inserted[0];
+    }
+
     case "captain_get_my_team": {
       if(!user?.id)throw new Error("Войди в аккаунт.");
       const rows=await sql`
