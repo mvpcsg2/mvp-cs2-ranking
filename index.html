@@ -3804,15 +3804,50 @@ async function loadTournamentEventsPage(){
 function tournamentEventCardMarkup(row){const status=String(row.event_status||'upcoming'),done=status==='completed';return `<article class="tourney-event-card ${done?'is-completed':''}"><div class="tourney-event-accent"></div><div class="tourney-event-main"><div class="tourney-event-meta"><span class="tourney-status-pill ${tournamentStatusClass(status)}"><i></i>${tournamentStatusLabel(status)}</span><span>${tournamentDateRange(row)}</span></div><h3>${esc(row.name)}</h3><p>${esc(row.description||'Турнир по Counter-Strike')}</p><div class="tourney-event-stats"><div><strong>${tournamentPrize(row)}</strong><small>ПРИЗОВОЙ ФОНД</small></div><div><strong>${Number(row.team_count)||8}</strong><small>КОМАНД В СЕТКЕ</small></div><div><strong>BO${Number(row.best_of)||3}</strong><small>ФОРМАТ МАТЧЕЙ</small></div></div>${row.allow_captain_registration&&!done?'<button class="btn tourney-apply-compact" data-apply-event="'+esc(row.id)+'">Подать заявку на участие</button>':''}</div><div class="tourney-event-actions"><button class="btn primary" data-open-event="${esc(row.id)}">Открыть сетку ↗</button>${can('manage_matches')?`<button class="btn" data-edit-event="${esc(row.id)}">Настроить</button><button class="btn tourney-danger-btn" data-delete-event="${esc(row.id)}">×</button>`:''}</div></article>`;}
 function bindTournamentEventForm(host){const f=host.querySelector('#tourneyEventForm');if(f)f.addEventListener('submit',saveTournamentEvent);const c=host.querySelector('#cancelEventEdit');if(c)c.onclick=()=>{host.querySelector('#tourneyEventEditor').innerHTML='';};}
 async function saveTournamentEvent(event){
- event.preventDefault();if(!can('manage_matches')||!currentUser||!activeTournamentOrganizer)return;
- const form=event.currentTarget,id=document.getElementById('tourneyEventId').value,name=document.getElementById('tourneyEventName').value.trim(),prize=Number(document.getElementById('tourneyEventPrize').value),prize_currency=document.getElementById('tourneyEventCurrency').value;
- const team_count=Number(document.getElementById('tourneyEventTeams').value),best_of=Number(document.getElementById('tourneyEventFormat').value),event_status=document.getElementById('tourneyEventStatus').value,start_date=document.getElementById('tourneyEventStart').value||null,end_date=document.getElementById('tourneyEventEnd').value||null,description=document.getElementById('tourneyEventDescription').value.trim();
- if(name.length<2||!Number.isFinite(prize)||prize<0||![8,16].includes(team_count)||![1,3,5].includes(best_of)||!['upcoming','live','completed'].includes(event_status)||start_date&&end_date&&end_date<start_date)return alert('Проверь название, даты, призовой фонд и настройки турнира.');
- const btn=form.querySelector('button[type="submit"]');btn.disabled=true;btn.textContent='Сохраняем…';
- try{const allowCaptainRegistration=!!form.querySelector('[name="allow_captain_registration"]')?.checked;const p={name,prize_pool:prize,prize_currency,team_count,best_of,event_status,description,start_date,end_date,allow_captain_registration:allowCaptainRegistration,organizer_id:activeTournamentOrganizer.id,updated_at:new Date().toISOString()};const r=id?await client.from('mvp_tournaments').update(p).eq('id',id).select('id').single():await client.from('mvp_tournaments').insert({...p,status:'registration',is_active:false,bracket_data:{version:2,teams:[],lower_teams:[],scores:{}},created_by:currentUser.id}).select('id').single();if(r.error)throw r.error;const savedId=id||r.data?.id;if(!savedId)throw new Error('Сервер не вернул ID турнира после сохранения.');const check=await client.from('mvp_tournaments').select('id,allow_captain_registration').eq('id',savedId).single();if(check.error)throw check.error;if(check.data?.allow_captain_registration!==allowCaptainRegistration)throw new Error('Настройка приёма заявок не сохранилась в базе. Проверь SQL-миграцию турниров.');await loadTournamentEventsPage();}
- catch(e){alert('Не удалось сохранить турнир: '+niceError(e));btn.disabled=false;btn.textContent=id?'Сохранить изменения':'＋ Создать турнир';}
-}
-async function openTournamentBracket(id){
+  event.preventDefault();
+  const form=event.currentTarget;
+  if(!form||!form.matches('#tourneyEventForm'))return;
+  if(!currentUser){alert('Войди в аккаунт, чтобы сохранить турнир.');return;}
+  if(!can('manage_matches')){alert('Недостаточно прав для управления турнирами.');return;}
+  if(!activeTournamentOrganizer){alert('Не выбран организатор турнира. Закрой окно и открой раздел организатора заново.');return;}
+  const field=id=>form.querySelector('#'+id);
+  const id=field('tourneyEventId')?.value||'';
+  const name=field('tourneyEventName')?.value.trim()||'';
+  const prize=Number(field('tourneyEventPrize')?.value);
+  const prize_currency=field('tourneyEventCurrency')?.value||'EUR';
+  const team_count=Number(field('tourneyEventTeams')?.value);
+  const best_of=Number(field('tourneyEventFormat')?.value);
+  const event_status=field('tourneyEventStatus')?.value||'upcoming';
+  const start_date=field('tourneyEventStart')?.value||null;
+  const end_date=field('tourneyEventEnd')?.value||null;
+  const description=field('tourneyEventDescription')?.value.trim()||'';
+  const checkbox=form.querySelector('input[name="allow_captain_registration"]');
+  if(!checkbox){alert('Не найден переключатель приёма заявок. Обнови страницу и попробуй снова.');return;}
+  const allowCaptainRegistration=checkbox.checked===true;
+  if(name.length<2||!Number.isFinite(prize)||prize<0||![8,16].includes(team_count)||![1,3,5].includes(best_of)||!['upcoming','live','completed'].includes(event_status)||start_date&&end_date&&end_date<start_date){
+    alert('Проверь название, даты, призовой фонд и настройки турнира.');return;
+  }
+  const btn=form.querySelector('button[type="submit"]');
+  if(btn){btn.disabled=true;btn.textContent='Сохраняем…';}
+  try{
+    const p={name,prize_pool:prize,prize_currency,team_count,best_of,event_status,description,start_date,end_date,allow_captain_registration:allowCaptainRegistration,organizer_id:activeTournamentOrganizer.id,updated_at:new Date().toISOString()};
+    const r=id
+      ?await client.from('mvp_tournaments').update(p).eq('id',id).select('id').single()
+      :await client.from('mvp_tournaments').insert({...p,status:'registration',is_active:false,bracket_data:{version:2,teams:[],lower_teams:[],scores:{}},created_by:currentUser.id}).select('id').single();
+    if(r.error)throw r.error;
+    const savedId=id||r.data?.id;
+    if(!savedId)throw new Error('Сервер не вернул ID турнира после сохранения.');
+    const check=await client.from('mvp_tournaments').select('id,allow_captain_registration').eq('id',savedId).single();
+    if(check.error)throw check.error;
+    const savedValue=check.data?.allow_captain_registration;
+    const savedEnabled=savedValue===true||savedValue===1||savedValue==='1'||savedValue==='true'||savedValue==='t';
+    if(savedEnabled!==allowCaptainRegistration)throw new Error('Сервер сохранил другое значение переключателя приёма заявок. Изменения не подтверждены.');
+    await loadTournamentEventsPage();
+  }catch(e){
+    alert('Не удалось сохранить турнир: '+niceError(e));
+    if(btn&&btn.isConnected){btn.disabled=false;btn.textContent=id?'Сохранить изменения':'＋ Создать турнир';}
+  }
+} async function openTournamentBracket(id){
  if(!activeTournamentOrganizer)return;selectedTournamentId=String(id);cleanupTournamentCenter();
  modal(`<div class="page-head tourney-page-toolbar"><div><div class="tourney-kicker">${esc(activeTournamentOrganizer.name.toUpperCase())} · BRACKET</div><h2>Турнирная сетка</h2><div class="page-intro">Составы, матчи и результаты соревнования.</div></div><div class="tourney-toolbar-actions"><button class="btn" id="backToOrganizerEvents">← К турнирам</button><button class="btn" id="closeTournamentBracket">Закрыть</button></div></div><div id="tournamentContent">Загружаем сетку…</div>`,true);
  document.querySelector('#modalRoot .modal').classList.add('modal-page','tourney-modal');document.getElementById('backToOrganizerEvents').onclick=()=>openTournamentOrganizerPage(activeTournamentOrganizer.id);document.getElementById('closeTournamentBracket').onclick=()=>{closeModal();setMainNavActive('ranking');};await loadTournamentIntoModal(true);if(!isSeasonReadOnly())tournamentRefreshTimer=setInterval(()=>loadTournamentIntoModal(),30000);
