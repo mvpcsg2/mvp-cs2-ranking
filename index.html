@@ -6292,6 +6292,44 @@ body>*{position:relative;z-index:1}
   }
 }
 </style>
+<style id="cstt-copy-tournament-modal-dimensions">
+/* Give every non-tournament popup the same outer dimensions as the tournament workspace. */
+#modalRoot .modalback:not(:has(.tourney-modal)){
+  position:fixed!important;
+  inset:74px 0 0 0!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  padding:14px 18px 18px!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+#modalRoot .modalback:not(:has(.tourney-modal))>.modal{
+  box-sizing:border-box!important;
+  width:min(960px,calc(100vw - 36px))!important;
+  max-width:960px!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:calc(100dvh - 106px)!important;
+  margin:0 auto!important;
+  padding:16px!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+}
+@media(max-width:700px){
+  #modalRoot .modalback:not(:has(.tourney-modal)){
+    inset:62px 0 0 0!important;
+    padding:8px 6px 10px!important;
+  }
+  #modalRoot .modalback:not(:has(.tourney-modal))>.modal{
+    width:calc(100vw - 12px)!important;
+    max-width:calc(100vw - 12px)!important;
+    max-height:calc(100dvh - 80px)!important;
+    padding:12px!important;
+  }
+}
+</style>
 </body></html>
 
 
