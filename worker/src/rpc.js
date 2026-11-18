@@ -47,6 +47,48 @@ async function runRpc(sql,user,name,args,env){
       return rows[0];
     }
 
+    case "captain_get_my_team": {
+      if(!user?.id)throw new Error("Войди в аккаунт.");
+      const rows=await sql`
+        SELECT t.id,t.name,t.tag,t.players,t.logo,t.player_photos
+        FROM public.mvp_team_captains c
+        JOIN public.teams t ON t.id=c.team_id
+        WHERE c.user_id=${user.id}::uuid
+        LIMIT 1
+      `;
+      return rows[0]||null;
+    }
+
+    case "captain_save_my_team": {
+      if(!user?.id)throw new Error("Войди в аккаунт.");
+      const name=String(p.p_name||"").trim();
+      const tag=String(p.p_tag||"").trim();
+      const players=String(p.p_players||"").trim();
+      const logo=String(p.p_logo||"").trim();
+      const photos=Array.isArray(p.p_player_photos)?p.p_player_photos.slice(0,5):[];
+      if(name.length<2||name.length>80)throw new Error("Название команды должно содержать от 2 до 80 символов.");
+      if(tag.length>12)throw new Error("Тег команды не должен превышать 12 символов.");
+      if(players.length>300)throw new Error("Состав команды слишком длинный.");
+      if(logo.length>2000||photos.some(photo=>String(photo||"").length>2000))throw new Error("Ссылка на изображение слишком длинная.");
+      if(photos.some(photo=>photo!=null&&typeof photo!=="string"))throw new Error("Некорректный список фотографий.");
+      const rows=await sql`
+        UPDATE public.teams t
+        SET name=${name},
+            tag=${tag},
+            players=${players},
+            logo=${logo},
+            player_photos=${JSON.stringify(photos)}::jsonb
+        WHERE t.id=(
+          SELECT c.team_id FROM public.mvp_team_captains c
+          WHERE c.user_id=${user.id}::uuid
+          LIMIT 1
+        )
+        RETURNING t.id,t.name,t.tag,t.players,t.logo,t.player_photos
+      `;
+      if(!rows.length)throw new Error("За твоим аккаунтом не закреплена команда. Попроси администратора назначить тебя капитаном.");
+      return rows[0];
+    }
+
     case "admin_get_team_captain": {
       if(!isAdmin(user))throw new Error("Только администратор.");const id=String(p.p_team_id||"");if(!/^[0-9]+$/.test(id))throw new Error("Некорректная команда.");
       const rows=await sql`SELECT u.email,u.username FROM public.mvp_team_captains c JOIN public.mvp_auth_users u ON u.id=c.user_id WHERE c.team_id=${id}::bigint LIMIT 1`;return rows[0]||null;
