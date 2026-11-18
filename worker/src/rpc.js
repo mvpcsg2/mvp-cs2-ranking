@@ -47,6 +47,16 @@ async function runRpc(sql,user,name,args,env){
       return rows[0];
     }
 
+    case "admin_get_team_captain": {
+      if(!isAdmin(user))throw new Error("Только администратор.");const id=String(p.p_team_id||"");if(!/^[0-9]+$/.test(id))throw new Error("Некорректная команда.");
+      const rows=await sql`SELECT u.email,u.username FROM public.mvp_team_captains c JOIN public.mvp_auth_users u ON u.id=c.user_id WHERE c.team_id=${id}::bigint LIMIT 1`;return rows[0]||null;
+    }
+    case "admin_assign_team_captain": {
+      if(!isAdmin(user))throw new Error("Только администратор может назначать капитана.");const id=String(p.p_team_id||""),email=String(p.p_email||"").trim().toLowerCase();if(!/^[0-9]+$/.test(id))throw new Error("Некорректная команда.");
+      if(!email){await sql.query("DELETE FROM public.mvp_team_captains WHERE team_id=$1::bigint",[id]);return null;}
+      const rows=await sql`SELECT id,email,username FROM public.mvp_auth_users WHERE lower(email)=${email} AND email_verified_at IS NOT NULL AND is_banned=false LIMIT 1`;if(!rows.length)throw new Error("Пользователь не найден или email не подтверждён.");
+      await sql`INSERT INTO public.mvp_team_captains(team_id,user_id,assigned_by) VALUES(${id}::bigint,${rows[0].id}::uuid,${user.id}::uuid) ON CONFLICT(team_id) DO UPDATE SET user_id=EXCLUDED.user_id,assigned_by=EXCLUDED.assigned_by,assigned_at=now()`;return rows[0];
+    }
     case "admin_save_team": {
       if(!hasPermission(user,"manage_teams"))throw new Error("Нет разрешения на управление командами.");
       const name=String(p.p_name||"").trim();
