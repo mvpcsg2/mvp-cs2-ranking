@@ -65,57 +65,6 @@ async function runRpc(sql,user,name,args,env){
       if(!rows.length)throw new Error("Заявка не найдена или уже удалена.");
       return rows[0];
     }
-    case "admin_review_tournament_application": {
-      if(!isAdmin(user))throw new Error("Только администратор может рассматривать заявки.");
-      const id=String(p.p_application_id||""),status=String(p.p_status||"");
-      if(!/^[0-9]+$/.test(id)||!["approved","rejected"].includes(status))throw new Error("Некорректное решение.");
-      const note=String(p.p_admin_note||"").slice(0,500);
-      if(status==="rejected"){
-        const rows=await sql`UPDATE public.mvp_tournament_applications SET status='rejected',reviewed_at=now(),reviewed_by=${user.id}::uuid,admin_note=${note} WHERE id=${id}::bigint AND status='pending' RETURNING id,status`;
-        if(!rows.length)throw new Error("Заявка уже рассмотрена.");
-        return rows[0];
-      }
-      // Approved teams always enter the upper bracket. Lower-bracket places are
-      // derived automatically from first-round upper-bracket losers by the client resolver.
-      const rows=await sql`
-        WITH locked AS (
-          SELECT a.id AS application_id,a.team_id,t.id AS tournament_id,
-                 t.team_count,t.event_status,t.bracket_data,
-                 tm.name,tm.tag,tm.logo
-          FROM public.mvp_tournament_applications a
-          JOIN public.mvp_tournaments t ON t.id=a.tournament_id
-          JOIN public.teams tm ON tm.id=a.team_id
-          WHERE a.id=${id}::bigint AND a.status='pending'
-          FOR UPDATE OF a,t
-        ),
-        prepared AS (
-          SELECT *,COALESCE(bracket_data->'teams','[]'::jsonb) AS upper_teams,
-                   COALESCE(bracket_data->'lower_teams','[]'::jsonb) AS lower_teams
-          FROM locked
-        ),
-        placed AS (
-          UPDATE public.mvp_tournaments t
-          SET bracket_data=jsonb_set(COALESCE(p.bracket_data,'{}'::jsonb),'{teams}',
-                p.upper_teams||jsonb_build_array(jsonb_build_object('id',p.team_id::text,'name',p.name,'tag',COALESCE(p.tag,''),'logo',COALESCE(p.logo,''))),true)
-          FROM prepared p
-          WHERE t.id=p.tournament_id
-            AND p.event_status<>'completed'
-            AND NOT EXISTS (
-              SELECT 1 FROM jsonb_array_elements(p.upper_teams||p.lower_teams) existing
-              WHERE existing->>'id'=p.team_id::text
-            )
-            AND jsonb_array_length(p.upper_teams)<LEAST(16,GREATEST(8,COALESCE(p.team_count,8)))
-          RETURNING t.id
-        )
-        UPDATE public.mvp_tournament_applications a
-        SET status='approved',reviewed_at=now(),reviewed_by=${user.id}::uuid,admin_note=${note}
-        FROM locked l,placed p
-        WHERE a.id=l.application_id AND p.id=l.tournament_id
-        RETURNING a.id,a.status
-      `;
-      if(!rows.length)throw new Error("Не удалось добавить команду: заявка уже рассмотрена, турнир завершён, команда уже в сетке или свободных мест больше нет.");
-      return rows[0];
-    }
     case "captain_get_my_team": {
       if(!user?.id)throw new Error("Войди в аккаунт.");
       const rows=await sql`
