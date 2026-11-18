@@ -4084,9 +4084,14 @@ document.getElementById('teams').addEventListener('click',async e=>{
     if(actionButton.dataset.act==='plus')return updatePoints(t,100);
     if(actionButton.dataset.act==='minus')return updatePoints(t,-100);
     if(actionButton.dataset.act==='edit')return editTeam(t);
-    if(actionButton.dataset.act==='delete'&&confirm('Удалить команду «'+t.name+'»?')){
-      const {error}=await client.from('teams').delete().eq('id',t.id);
-      if(error){alert('Не удалось удалить команду: '+niceError(error));return}
+    if(actionButton.dataset.act==='delete'&&confirm('Удалить команду «'+t.name+'»? Игроки останутся в базе без привязки к команде.')){
+      if(admin){
+        const result=await client.rpc('admin_delete_team',{p_team_id:Number(t.id)});
+        if(result.error){alert('Не удалось удалить команду: '+niceError(result.error));return}
+      }else{
+        const {error}=await client.from('teams').delete().eq('id',t.id);
+        if(error){alert('Не удалось удалить команду: '+niceError(error));return}
+      }
       if(String(expandedTeamId)===String(t.id))expandedTeamId=null;
       await loadTeams();
     }
