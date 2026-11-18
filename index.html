@@ -6084,6 +6084,65 @@ body>*{position:relative;z-index:1}
  #modalRoot .modal.tourney-modal .tourney-operator-grid{grid-template-columns:1fr!important}
 }
 </style>
+<style id="cstt-gradient-all-tournament-surfaces">
+/* Make every gray backing surface inside every tournament view use the same spectrum theme. */
+#modalRoot .modal.tourney-modal,
+#modalRoot .modal.tourney-modal .tourney-view,
+#modalRoot .modal.tourney-modal .tourney-content,
+#modalRoot .modal.tourney-modal .tourney-page,
+#modalRoot .modal.tourney-modal .tourney-directory,
+#modalRoot .modal.tourney-modal .tourney-organizer-view{
+  background-color:#070b18!important;
+  background-image:
+    radial-gradient(ellipse 68% 48% at 0% 0%,rgba(45,91,211,.22),transparent 72%),
+    radial-gradient(ellipse 65% 50% at 100% 0%,rgba(126,48,181,.20),transparent 73%),
+    radial-gradient(ellipse 62% 48% at 100% 100%,rgba(12,148,157,.17),transparent 74%),
+    radial-gradient(ellipse 60% 48% at 0% 100%,rgba(169,48,117,.17),transparent 74%),
+    linear-gradient(145deg,#080e20,#090b18 52%,#060a12)!important;
+}
+#modalRoot .modal.tourney-modal .panel,
+#modalRoot .modal.tourney-modal .card,
+#modalRoot .modal.tourney-modal .tourney-panel,
+#modalRoot .modal.tourney-modal .tourney-block,
+#modalRoot .modal.tourney-modal .tourney-toolbar,
+#modalRoot .modal.tourney-modal .tourney-adminbar,
+#modalRoot .modal.tourney-modal .tourney-section,
+#modalRoot .modal.tourney-modal .tourney-empty,
+#modalRoot .modal.tourney-modal .tourney-list-card,
+#modalRoot .modal.tourney-modal .tourney-event-card,
+#modalRoot .modal.tourney-modal .tourney-operator-card,
+#modalRoot .modal.tourney-modal .tourney-create,
+#modalRoot .modal.tourney-modal .tourney-lower-seeds,
+#modalRoot .modal.tourney-modal .tourney-lower-seeds-view,
+#modalRoot .modal.tourney-modal .tourney-bracket-note,
+#modalRoot .modal.tourney-modal .tourney-pair{
+  color:#f1f5ff!important;
+  border-color:rgba(145,176,235,.42)!important;
+  background-color:#0b1530!important;
+  background-image:
+    linear-gradient(128deg,rgba(25,66,128,.58) 0%,rgba(58,35,103,.52) 52%,rgba(10,77,82,.48) 100%)!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.035)!important;
+}
+#modalRoot .modal.tourney-modal .tourney-section:has(.tourney-rounds){
+  background-color:#070b18!important;
+  background-image:
+    radial-gradient(ellipse 68% 48% at 7% 7%,rgba(39,91,218,.30),transparent 73%),
+    radial-gradient(ellipse 62% 48% at 94% 12%,rgba(125,48,192,.25),transparent 73%),
+    radial-gradient(ellipse 64% 54% at 84% 94%,rgba(12,155,166,.22),transparent 73%),
+    radial-gradient(ellipse 60% 48% at 8% 91%,rgba(178,48,123,.21),transparent 73%),
+    linear-gradient(135deg,#070d1d 0%,#090b1b 48%,#060a13 100%)!important;
+}
+#modalRoot .modal.tourney-modal .tourney-section-head,
+#modalRoot .modal.tourney-modal .tourney-round-title{
+  color:#f4f7ff!important;
+  background:linear-gradient(100deg,rgba(24,55,112,.88),rgba(65,39,111,.82),rgba(12,78,86,.86))!important;
+  border-color:rgba(153,184,244,.45)!important;
+}
+#modalRoot .modal.tourney-modal .tourney-operator-card p,
+#modalRoot .modal.tourney-modal .tourney-list-card p,
+#modalRoot .modal.tourney-modal .tourney-event-card p,
+#modalRoot .modal.tourney-modal .tourney-panel p{color:#c5d3ee!important}
+</style>
 </body></html>
 
 
