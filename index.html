@@ -2122,7 +2122,7 @@ body[data-theme="night"] .news-card:hover{
     <div class="site-brand-caption">COUNTER-STRIKE ESPORTS COMMUNITY</div>
   </div>
 </div>
-<main class="wrap"><div class="crumb">COUNTER-STRIKE 2 · TEAM RANKING</div><div class="heading"><div><h1>Рейтинг команд</h1><div class="sub">Собственный рейтинг киберспортивных команд</div></div><button class="btn primary hidden" id="addBtn">＋ Добавить команду</button></div>
+<main class="wrap"><div class="crumb">COUNTER-STRIKE 2 · TEAM RANKING</div><div class="heading"><div><h1>Рейтинг команд</h1><div class="sub">Собственный рейтинг киберспортивных команд</div></div><div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><button class="btn hidden" id="adminUiToggle" type="button">Скрыть админку</button><button class="btn primary hidden" id="addBtn">＋ Добавить команду</button></div></div>
 <div id="adminBar" class="adminbar hidden"><strong id="staffBarText">Режим управления включён.</strong><div class="adminbar-actions"><button class="btn hidden" id="manageUsersBtn" type="button">Управление доступом</button><button class="btn hidden" id="manageBansBtn" type="button">Блокировки</button><button class="btn" id="logoutBtn">Выйти</button></div></div>
 <div id="dbStatus" class="hidden" style="margin:0 0 14px;padding:10px 13px;border:1px solid #dfe3e8;border-radius:6px;font-size:13px"></div>
 <div class="ranking-with-news">
@@ -2302,6 +2302,7 @@ function createMvpApiClient(){
 }
 const client=createMvpApiClient();
 let admin = false, moderator = false, userPermissions = {}, currentUser = null, teams = [], busy = false, expandedTeamId = null, initialTeamExpansionDone = false;
+let adminUiEnabled = localStorage.getItem('mvpAdminUiEnabled') !== '0';
 let teamRankMovements = new Map();
 function berlinTodayISO(){const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Berlin',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const pick=type=>parts.find(x=>x.type===type)?.value||'00';return `${pick('year')}-${pick('month')}-${pick('day')}`;}
 function shiftISODate(iso,days){const [y,m,d]=String(iso||'').split('-').map(Number);const date=new Date(Date.UTC(y,m-1,d+days,12));return `${date.getUTCFullYear()}-${String(date.getUTCMonth()+1).padStart(2,'0')}-${String(date.getUTCDate()).padStart(2,'0')}`;}
@@ -2688,8 +2689,10 @@ function render(){
   renderSeasonRail();
   renderDailyDateNavigator();
   const readOnlySeason=isSeasonReadOnly();
-  document.getElementById('adminBar').classList.toggle('hidden',!(admin||moderator)||readOnlySeason);
-  document.getElementById('addBtn').classList.toggle('hidden',!can('manage_teams'));
+  document.body.classList.toggle('admin-ui-hidden',admin&&!adminUiEnabled);
+  const adminUiToggle=document.getElementById('adminUiToggle');if(adminUiToggle){adminUiToggle.classList.toggle('hidden',!admin);adminUiToggle.textContent=adminUiEnabled?'Скрыть админку':'Включить админку';adminUiToggle.setAttribute('aria-pressed',String(adminUiEnabled));}
+  document.getElementById('adminBar').classList.toggle('hidden',!(admin||moderator)||readOnlySeason|| (admin&&!adminUiEnabled));
+  document.getElementById('addBtn').classList.toggle('hidden',!can('manage_teams') || (admin&&!adminUiEnabled));
   document.getElementById('adminState').textContent=isViewingPastDay()?`Архив дня ${formatDailyDate(selectedRankDate,false)} · только просмотр`:isViewingArchivedSeason()?`Архив ${selectedSeasonYear} · только просмотр`:isFutureSeason()?`Сезон ${selectedSeasonYear} ещё не начался`:currentUser?(currentUser.username+(admin?' · Администратор':moderator?' · Модератор':' · Игрок')):'Публичный просмотр';
   const staffText=document.getElementById('staffBarText');if(staffText)staffText.textContent=admin?'Панель администратора — полный доступ к проекту.':'Режим модератора — доступны только выданные разрешения.';
   const manageUsersBtn=document.getElementById('manageUsersBtn');if(manageUsersBtn)manageUsersBtn.classList.toggle('hidden',!admin);
@@ -4148,6 +4151,7 @@ document.querySelectorAll('[data-main-nav]').forEach(btn=>btn.addEventListener('
   else if(page==='news')openNewsCenter('all');
 }));
 document.getElementById('settingsBtn').onclick=openSettingsCenter;
+document.getElementById('adminUiToggle').onclick=()=>{if(!admin)return;adminUiEnabled=!adminUiEnabled;localStorage.setItem('mvpAdminUiEnabled',adminUiEnabled?'1':'0');render();};
 applyThemeMode(getThemeMode());
 document.getElementById('manageUsersBtn').onclick=()=>openSiteManagement(false);
 document.getElementById('manageBansBtn').onclick=()=>openSiteManagement(true);
@@ -6544,6 +6548,14 @@ body>*{position:relative;z-index:1}
   .news-hub-event .news-transfer-visual,
   .news-hub-event .news-ban-visual{max-width:320px!important}
 }
+
+/* Personal admin UI visibility toggle: hides controls only, never changes permissions. */
+body.admin-ui-hidden #adminBar,
+body.admin-ui-hidden #addBtn,
+body.admin-ui-hidden .team-card .actions,
+body.admin-ui-hidden .tourney-adminbar,
+body.admin-ui-hidden .moderation-section,
+body.admin-ui-hidden .player-admin-editor{display:none!important}
 </style>
 
 </body></html>
