@@ -158,7 +158,7 @@ export async function handleRpcRequest(request,env,cors){
     const data=await runRpc(sql,user,name,body.args||{},env);
     return json({ok:true,data},200,cors);
   }catch(error){
-    console.error("RPC request failed",error?.message||error);
+    console.error("RPC request failed", { operation: name, message: error?.message || String(error) });
     return fail(error?.message||"Ошибка операции.",400,cors);
   }
 }
