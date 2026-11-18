@@ -6352,6 +6352,46 @@ body>*{position:relative;z-index:1}
   }
 }
 </style>
+<style id="cstt-auth-settings-modal-compact">
+/* Compact account registration/login and site settings only. */
+#modalRoot .modalback:has(.modal.auth-modal),
+#modalRoot .modalback:has(.modal:has(#siteLanguageSelect)){
+  align-items:center!important;
+  justify-content:center!important;
+}
+#modalRoot .modal.auth-modal{
+  width:min(390px,calc(100vw - 28px))!important;
+  max-width:390px!important;
+  max-height: min(520px,calc(100dvh - 110px))!important;
+  height:auto!important;
+  min-height:0!important;
+  padding:16px!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+}
+#modalRoot .modalback:has(.modal:has(#siteLanguageSelect))>.modal{
+  width:min(620px,calc(100vw - 32px))!important;
+  max-width:620px!important;
+  max-height:min(680px,calc(100dvh - 110px))!important;
+  height:auto!important;
+  min-height:0!important;
+  padding:16px!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+}
+@media(max-width:650px){
+  #modalRoot .modal.auth-modal{
+    width:calc(100vw - 24px)!important;
+    max-width:calc(100vw - 24px)!important;
+    max-height:calc(100dvh - 96px)!important;
+  }
+  #modalRoot .modalback:has(.modal:has(#siteLanguageSelect))>.modal{
+    width:calc(100vw - 20px)!important;
+    max-width:calc(100vw - 20px)!important;
+    max-height:calc(100dvh - 90px)!important;
+  }
+}
+</style>
 </body></html>
 
 
