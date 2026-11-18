@@ -6202,6 +6202,26 @@ body>*{position:relative;z-index:1}
   #modalRoot .modalback{padding:10px!important}
 }
 </style>
+<style id="cstt-modal-width-tighten">
+/* Tighten horizontal width of dialogs site-wide; keep height content-driven. */
+#modalRoot .modal,
+#modalRoot .modal.modal-page,
+#modalRoot .modal.modal-wide,
+#modalRoot .modal.player-profile-modal{
+  width:min(620px,calc(100vw - 32px))!important;
+  max-width:min(620px,calc(100vw - 32px))!important;
+  box-sizing:border-box!important;
+}
+@media(max-width:700px){
+  #modalRoot .modal,
+  #modalRoot .modal.modal-page,
+  #modalRoot .modal.modal-wide,
+  #modalRoot .modal.player-profile-modal{
+    width:calc(100vw - 20px)!important;
+    max-width:calc(100vw - 20px)!important;
+  }
+}
+</style>
 </body></html>
 
 
