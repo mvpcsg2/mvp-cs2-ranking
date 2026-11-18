@@ -3880,7 +3880,9 @@ async function persistTournamentData(nextState){
   if(error)throw error;
 }
 function clearDownstreamScores(scores,key){
-  for(const child of (TOURNAMENT_DESCENDANTS[key]||[]))delete scores[child];
+  // Any changed winner can alter every later pairing in this simplified
+  // double-elimination flow; clear dependent and potentially shifted results.
+  for(const child of Object.keys(scores))if(child!==key)delete scores[child];
 }
 async function saveTournamentScore(event){
   event.preventDefault();if(!can('manage_matches'))return;
