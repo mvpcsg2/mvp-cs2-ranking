@@ -6405,9 +6405,75 @@ body>*{position:relative;z-index:1}
 }
 
 </style>
+
+<style id="cstt-compact-all-nontournament-panels-v2">
+/* Compact every ordinary dialog and content card. Tournament workspace is intentionally excluded. */
+#modalRoot>.modalback:not(:has(>.modal.tourney-modal)){
+  padding:12px!important;
+}
+#modalRoot>.modalback:not(:has(>.modal.tourney-modal))>.modal{
+  box-sizing:border-box!important;
+  width:min(760px,calc(100vw - 32px))!important;
+  max-width:760px!important;
+  max-height:78dvh!important;
+  min-height:0!important;
+  height:auto!important;
+  padding:14px!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  border-radius:9px!important;
+}
+#modalRoot>.modalback:not(:has(>.modal.tourney-modal))>.modal.modal-page{
+  width:min(760px,calc(100vw - 32px))!important;
+  max-width:760px!important;
+  max-height:78dvh!important;
+  padding:13px 14px!important;
+}
+#modalRoot>.modalback:not(:has(>.modal.tourney-modal))>.modal h2{
+  font-size:18px!important;
+  margin-bottom:8px!important;
+}
+#modalRoot>.modalback:not(:has(>.modal.tourney-modal))>.modal .page-head{
+  margin-bottom:9px!important;
+  gap:8px!important;
+}
+#modalRoot>.modalback:not(:has(>.modal.tourney-modal))>.modal .page-head h2{
+  font-size:18px!important;
+}
+#modalRoot>.modalback:not(:has(>.modal.tourney-modal))>.modal .page-intro{
+  font-size:11px!important;
+}
+#modalRoot .stream-grid{gap:8px!important}
+#modalRoot .stream-card{border-radius:7px!important}
+#modalRoot .stream-card-info{padding:7px 8px!important;gap:6px!important}
+#modalRoot .stream-title{font-size:12px!important;line-height:1.25!important}
+#modalRoot .stream-date{font-size:10px!important}
+#modalRoot .stream-admin-form{padding:9px!important;margin-bottom:10px!important;gap:7px!important}
+#modalRoot .stream-admin-form input{padding:8px!important;font-size:12px!important}
+#modalRoot .stream-admin-form .btn{padding:7px 9px!important;font-size:11px!important}
+.news-rail-section,.news-hub-card,.news-hub-event,.match-card,.global-match-card,
+.stream-card,.moderation-section,.moderation-card,.profile-stat,.player-profile-stat{
+  border-radius:7px!important;
+}
+.news-rail-head{padding:6px 8px!important}
+.news-rail-item{padding:6px 0!important}
+.news-hub-card-body{padding:8px 9px!important}
+.news-hub-title{font-size:13px!important}
+.news-hub-summary{font-size:10px!important}
+.match-card-head,.global-match-head{padding:7px 9px!important}
+.match-card-body{padding:7px 9px!important}
+.match-card-actions,.global-match-actions{padding:0 9px 7px!important}
+.moderation-section{padding:8px!important;margin:7px 0!important}
+.moderation-card{padding:7px!important}
+.profile-stat,.player-profile-stat{padding:7px!important}
+@media(max-width:650px){
+ #modalRoot>.modalback:not(:has(>.modal.tourney-modal)){padding:7px!important}
+ #modalRoot>.modalback:not(:has(>.modal.tourney-modal))>.modal,
+ #modalRoot>.modalback:not(:has(>.modal.tourney-modal))>.modal.modal-page{
+   width:calc(100vw - 14px)!important;max-width:calc(100vw - 14px)!important;
+   max-height:84dvh!important;padding:10px!important;
+ }
+}
+</style>
+
 </body></html>
-
-
-
-
-
