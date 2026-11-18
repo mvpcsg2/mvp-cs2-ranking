@@ -149,16 +149,17 @@ export async function handleRpcRequest(request,env,cors){
   if(url.pathname!=="/api/data/rpc")return null;
   if(request.method!=="POST")return fail("Method not allowed",405,cors);
   if(!env.DATABASE_URL)return fail("DATABASE_URL secret is missing",500,cors);
+  let operation = "";
   try{
     const body=await request.json();
-    const name=String(body.name||"");
-    if(!/^[a-z_]{2,80}$/.test(name))return fail("Некорректное имя операции.",400,cors);
+    operation=String(body.name||"");
+    if(!/^[a-z_]{2,80}$/.test(operation))return fail("Некорректное имя операции.",400,cors);
     const sql=neon(env.DATABASE_URL);
     const user=await getSessionUser(sql,request);
-    const data=await runRpc(sql,user,name,body.args||{},env);
+    const data=await runRpc(sql,user,operation,body.args||{},env);
     return json({ok:true,data},200,cors);
   }catch(error){
-    console.error("RPC request failed", { operation: name, message: error?.message || String(error) });
+    console.error("RPC request failed", { operation, message: error?.message || String(error) });
     return fail(error?.message||"Ошибка операции.",400,cors);
   }
 }
