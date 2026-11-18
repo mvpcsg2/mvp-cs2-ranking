@@ -19,3 +19,10 @@ crons = ["*/15 * * * *"]
 [[r2_buckets]]
 binding = "MVP_ASSETS"
 bucket_name = "mvp-cs2-assets"
+[[previews.r2_buckets]]
+binding = "MVP_ASSETS"
+bucket_name = "mvp-cs2-assets"
+
+[[previews.hyperdrive]]
+binding = "HYPERDRIVE"
+id = "c42cf984d5374843ac9fda902c9a4c99"
