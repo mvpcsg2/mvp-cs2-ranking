@@ -5844,6 +5844,116 @@ body>*{position:relative;z-index:1}
  .tourney-section:has(.tourney-rounds) .tourney-round{padding:0 12px!important}
 }
 </style>
+<style id="cstt-entire-tournament-modal-gradient">
+/* Full tournament workspace: continuous black canvas with a restrained multicolor spectrum. */
+#modalRoot .modal.tourney-modal{
+  color:#f3f6ff!important;border:1px solid rgba(128,159,224,.58)!important;
+  background-color:#05070d!important;
+  background-image:
+    radial-gradient(ellipse 76% 45% at 3% 0%,rgba(44,92,218,.30),transparent 72%),
+    radial-gradient(ellipse 68% 48% at 100% 7%,rgba(135,48,195,.25),transparent 73%),
+    radial-gradient(ellipse 66% 48% at 94% 100%,rgba(10,155,164,.22),transparent 74%),
+    radial-gradient(ellipse 62% 46% at 0% 96%,rgba(181,48,126,.21),transparent 74%),
+    radial-gradient(ellipse 45% 42% at 50% 52%,rgba(181,113,38,.10),transparent 76%),
+    linear-gradient(145deg,#070d1b 0%,#090b18 48%,#05070d 100%)!important;
+  box-shadow:0 24px 80px rgba(0,0,0,.58)!important;
+}
+#modalRoot .modal.tourney-modal .page-head{
+  border-bottom:1px solid rgba(160,190,246,.3)!important;
+  background:linear-gradient(100deg,rgba(14,31,75,.72),rgba(44,23,79,.52),rgba(8,48,61,.62))!important;
+  border-radius:8px!important;padding:15px!important;
+}
+#modalRoot .modal.tourney-modal .page-head h2,
+#modalRoot .modal.tourney-modal .tourney-directory-head h2{color:#f6f8ff!important}
+#modalRoot .modal.tourney-modal .page-intro,
+#modalRoot .modal.tourney-modal .tourney-directory-head p{color:#b8c7e6!important}
+#modalRoot .modal.tourney-modal .tourney-kicker,
+#modalRoot .modal.tourney-modal .tourney-operator-code{color:#a9caff!important}
+#modalRoot .modal.tourney-modal .tourney-adminbar{
+  color:#f1f5ff!important;border:1px solid rgba(150,181,239,.42)!important;border-radius:9px!important;
+  background:linear-gradient(110deg,rgba(22,48,103,.82),rgba(66,34,103,.72),rgba(13,69,80,.78))!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.22)!important;
+}
+#modalRoot .modal.tourney-modal .tourney-adminbar small{color:#c0d0ef!important}
+#modalRoot .modal.tourney-modal .tourney-hero{
+  color:#f5f7ff!important;border:1px solid rgba(150,183,246,.62)!important;border-radius:12px!important;
+  background:
+    radial-gradient(ellipse at 8% 0%,rgba(45,111,232,.42),transparent 58%),
+    radial-gradient(ellipse at 94% 100%,rgba(153,53,181,.32),transparent 62%),
+    linear-gradient(115deg,rgba(8,20,49,.97),rgba(20,19,57,.97) 52%,rgba(8,35,48,.97))!important;
+  box-shadow:0 12px 32px rgba(0,0,0,.32),inset 0 1px rgba(255,255,255,.07)!important;
+}
+#modalRoot .modal.tourney-modal .tourney-hero:after{border-color:rgba(173,199,250,.24)!important}
+#modalRoot .modal.tourney-modal .tourney-kicker{color:#a9caff!important}
+#modalRoot .modal.tourney-modal .tourney-subtitle{color:#c3d0eb!important}
+#modalRoot .modal.tourney-modal .tourney-hero-facts strong{color:#a9ceff!important}
+#modalRoot .modal.tourney-modal .tourney-hero-facts small{color:#d4def3!important}
+#modalRoot .modal.tourney-modal .tourney-status-pill,
+#modalRoot .modal.tourney-modal .tourney-status{background:rgba(255,255,255,.08)!important;color:#eaf2ff!important;border-color:rgba(174,200,248,.5)!important}
+#modalRoot .modal.tourney-modal .tourney-champion{
+  background:linear-gradient(100deg,rgba(26,69,112,.68),rgba(65,42,108,.54))!important;
+  border-color:rgba(167,201,255,.54)!important;
+}
+#modalRoot .modal.tourney-modal .tourney-champion small{color:#c5d8fa!important}
+#modalRoot .modal.tourney-modal .tourney-section:has(.tourney-rounds){
+  background-color:#05070d!important;
+  background-image:
+    radial-gradient(ellipse 68% 48% at 7% 7%,rgba(39,91,218,.34),transparent 73%),
+    radial-gradient(ellipse 62% 48% at 94% 12%,rgba(125,48,192,.29),transparent 73%),
+    radial-gradient(ellipse 64% 54% at 84% 94%,rgba(12,155,166,.26),transparent 73%),
+    radial-gradient(ellipse 60% 48% at 8% 91%,rgba(178,48,123,.25),transparent 73%),
+    radial-gradient(ellipse 42% 40% at 50% 48%,rgba(175,111,38,.12),transparent 76%),
+    linear-gradient(135deg,#070d1d 0%,#090b1b 48%,#060a13 100%)!important;
+}
+#modalRoot .modal.tourney-modal .tourney-section-head{
+  background:linear-gradient(100deg,rgba(15,31,76,.96),rgba(48,24,78,.94) 52%,rgba(9,48,63,.96))!important;
+  color:#f6f8ff!important;border-color:rgba(156,188,248,.42)!important;
+}
+#modalRoot .modal.tourney-modal .tourney-lower-seeds-view,
+#modalRoot .modal.tourney-modal .tourney-lower-seeds,
+#modalRoot .modal.tourney-modal .tourney-create,
+#modalRoot .modal.tourney-modal .tourney-bracket-note,
+#modalRoot .modal.tourney-modal .tourney-pair{
+  color:#edf3ff!important;border:1px solid rgba(154,184,242,.4)!important;border-radius:8px!important;
+  background:linear-gradient(115deg,rgba(16,38,83,.86),rgba(49,27,76,.78),rgba(10,51,62,.82))!important;
+}
+#modalRoot .modal.tourney-modal .tourney-create summary,
+#modalRoot .modal.tourney-modal .tourney-create label,
+#modalRoot .modal.tourney-modal .tourney-public-note,
+#modalRoot .modal.tourney-modal .tourney-bracket-note,
+#modalRoot .modal.tourney-modal .tourney-pair{color:#d0def7!important}
+#modalRoot .modal.tourney-modal input,
+#modalRoot .modal.tourney-modal select,
+#modalRoot .modal.tourney-modal textarea{
+  color:#f5f7ff!important;background:rgba(5,13,32,.88)!important;
+  border-color:rgba(143,177,236,.56)!important;color-scheme:dark;
+}
+#modalRoot .modal.tourney-modal .tourney-operator-card,
+#modalRoot .modal.tourney-modal .tourney-event-card,
+#modalRoot .modal.tourney-modal .tourney-list-card{
+  color:#f2f6ff!important;border-color:rgba(155,184,242,.4)!important;
+  background:linear-gradient(125deg,rgba(16,39,82,.9),rgba(47,27,75,.82),rgba(10,51,62,.86))!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.24)!important;
+}
+#modalRoot .modal.tourney-modal .tourney-operator-card h3,
+#modalRoot .modal.tourney-modal .tourney-operator-card p{color:#edf3ff!important}
+#modalRoot .modal.tourney-modal .tourney-empty{
+  color:#d6e2fa!important;border-color:rgba(153,184,241,.45)!important;
+  background:rgba(10,20,46,.78)!important;
+}
+#modalRoot .modal.tourney-modal button:not(.danger){
+  color:#f1f6ff!important;border-color:rgba(142,177,237,.48)!important;
+  background:linear-gradient(110deg,#173d70,#34265e)!important;
+}
+#modalRoot .modal.tourney-modal button.primary{
+  background:linear-gradient(110deg,#2368a8,#57408b)!important;border-color:#83b4f0!important;
+}
+#modalRoot .modal.tourney-modal .danger{color:#ffe7ee!important}
+@media(max-width:700px){
+ #modalRoot .modal.tourney-modal{padding:12px!important}
+ #modalRoot .modal.tourney-modal .page-head{padding:10px!important}
+}
+</style>
 </body></html>
 
 
