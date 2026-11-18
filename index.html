@@ -6053,6 +6053,37 @@ body>*{position:relative;z-index:1}
  #modalRoot .modal.tourney-modal .tourney-operator-grid{grid-template-columns:minmax(0,1fr)!important}
 }
 </style>
+<style id="cstt-modal-compact-final">
+/* Compact tournament modal: keep clear of the fixed top navigation and avoid oversized empty canvas. */
+#modalRoot .modalback:has(.modal.tourney-modal){
+  position:fixed!important;
+  inset:74px 0 0 0!important;
+  display:flex!important;align-items:flex-start!important;justify-content:center!important;
+  padding:14px 18px 18px!important;
+  overflow:hidden!important;box-sizing:border-box!important;
+}
+#modalRoot .modal.tourney-modal{
+  box-sizing:border-box!important;
+  width:min(960px,calc(100vw - 36px))!important;
+  max-width:960px!important;
+  height:auto!important;
+  max-height:calc(100dvh - 106px)!important;
+  min-height:0!important;
+  margin:0 auto!important;
+  padding:16px!important;
+  overflow-x:hidden!important;overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+}
+#modalRoot .modal.tourney-modal .tourney-directory-head{margin:4px 0 14px!important}
+#modalRoot .modal.tourney-modal .tourney-operator-grid{grid-template-columns:repeat(auto-fit,minmax(230px,300px))!important;gap:12px!important}
+#modalRoot .modal.tourney-modal .tourney-operator-card{padding:14px!important}
+#modalRoot .modal.tourney-modal .page-head{margin-bottom:14px!important;padding:12px!important}
+@media(max-width:700px){
+ #modalRoot .modalback:has(.modal.tourney-modal){inset:62px 0 0 0!important;padding:8px 6px 10px!important}
+ #modalRoot .modal.tourney-modal{width:calc(100vw - 12px)!important;max-width:calc(100vw - 12px)!important;max-height:calc(100dvh - 80px)!important;padding:12px!important}
+ #modalRoot .modal.tourney-modal .tourney-operator-grid{grid-template-columns:1fr!important}
+}
+</style>
 </body></html>
 
 
