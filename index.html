@@ -6146,7 +6146,10 @@ body>*{position:relative;z-index:1}
 <style id="cstt-actual-modal-shell-gradient">
 /* The gray surface is the actual .modal.modal-page shell created by modal(...).
    Override that shell itself, including its padding/gutter, not only inner cards. */
-#modalRoot>.modalback:has(>.modal.tourney-modal),
+#modalRoot>.modalback:has(>.modal.tourney-modal){
+  background:rgba(0,0,0,.72)!important;
+  background-image:none!important;
+}
 #modalRoot .modalback:has(.modal.tourney-modal)>.modal.tourney-modal,
 #modalRoot .modal.tourney-modal.modal-page{
   background-color:#050812!important;
