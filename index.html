@@ -3544,45 +3544,52 @@ function tournamentMatchBestOf(key,tournament){return key==='gf'?5:Number(tourna
 function resolveTournament(tournament){
   const state=tournament?.bracket_data||{};
   const seeds=Array.isArray(state.teams)?state.teams:[];
-  const lowerSeeds=Array.isArray(state.lower_teams)?state.lower_teams:[];
   const scores=state.scores&&typeof state.scores==='object'?state.scores:{};
-  const bo=Number(tournament?.best_of||state.best_of||3);
-  const out={};
-  const seed=(n)=>seeds[n-1]||null;
-  const lowerSeed=(n)=>lowerSeeds[n-1]||null;
+  const size=Math.max(8,Math.min(16,Number(tournament?.team_count||seeds.length||8)));
+  const upperSize=size===16?16:8,lowerSize=upperSize/2;
+  const bo=Number(tournament?.best_of||state.best_of||3),out={};
   function game(key,label,a,b){
-    const raw=scores[key];
-    let score=null,winner=null,loser=null,stale=false;
+    const raw=scores[key];let score=null,winner=null,loser=null,stale=false;
     if(raw&&a&&b){
       const sameA=String(raw.team_a_id)===String(a.id),sameB=String(raw.team_b_id)===String(b.id);
-      stale=!(sameA&&sameB);
-      const sa=Number(raw.a),sb=Number(raw.b),target=tournamentWinTarget(tournamentMatchBestOf(key,tournament));
-      const valid= sameA&&sameB&&Number.isInteger(sa)&&Number.isInteger(sb)&&sa>=0&&sb>=0&&sa!==sb&&Math.max(sa,sb)===target&&Math.min(sa,sb)<target;
-      if(valid){score={a:sa,b:sb};winner=sa>sb?a:b;loser=sa>sb?b:a;}
-      else if(!stale)stale=true;
-    } else if(raw) stale=true;
-    out[key]={key,label,a,b,score,winner,loser,stale,raw:raw||null};
-    return out[key];
+      stale=!(sameA&&sameB);const sa=Number(raw.a),sb=Number(raw.b),target=tournamentWinTarget(tournamentMatchBestOf(key,tournament));
+      const valid=sameA&&sameB&&Number.isInteger(sa)&&Number.isInteger(sb)&&sa>=0&&sb>=0&&sa!==sb&&Math.max(sa,sb)===target&&Math.min(sa,sb)<target;
+      if(valid){score={a:sa,b:sb};winner=sa>sb?a:b;loser=sa>sb?b:a;}else if(!stale)stale=true;
+    }else if(raw)stale=true;
+    out[key]={key,label,a,b,score,winner,loser,stale,raw:raw||null};return out[key];
   }
-  const u1=game('u1','Верхняя · четвертьфинал 1',seed(1),seed(8));
-  const u2=game('u2','Верхняя · четвертьфинал 2',seed(4),seed(5));
-  const u3=game('u3','Верхняя · четвертьфинал 3',seed(2),seed(7));
-  const u4=game('u4','Верхняя · четвертьфинал 4',seed(3),seed(6));
-  const u5=game('u5','Верхняя · полуфинал 1',u1.winner,u2.winner);
-  const u6=game('u6','Верхняя · полуфинал 2',u3.winner,u4.winner);
-  const u7=game('u7','Финал верхней сетки',u5.winner,u6.winner);
-  // Нижняя сетка имеет собственные 8 ручных мест. Её победитель встречается
-  // с победителем верхней сетки в гранд-финале.
-  const lb1=game('lb1','Нижняя · четвертьфинал 1',lowerSeed(1),lowerSeed(8));
-  const lb2=game('lb2','Нижняя · четвертьфинал 2',lowerSeed(4),lowerSeed(5));
-  const lb3=game('lb3','Нижняя · четвертьфинал 3',lowerSeed(2),lowerSeed(7));
-  const lb4=game('lb4','Нижняя · четвертьфинал 4',lowerSeed(3),lowerSeed(6));
-  const lb5=game('lb5','Нижняя · полуфинал 1',lb1.winner,lb2.winner);
-  const lb6=game('lb6','Нижняя · полуфинал 2',lb3.winner,lb4.winner);
-  const lb7=game('lb7','Финал нижней сетки',lb5.winner,lb6.winner);
-  const gf=game('gf','Гранд-финал',u7.winner,lb7.winner);
-  const champion=Number(tournament?.team_count||8)<=8?u7.winner:gf.winner;
-  return {games:out,champion,bestOf:bo,seeds,lowerSeeds};
+  const upperRounds=[],upperLosers=[];
+  let previous=[];
+  const firstPairs=upperSize===16?[[1,16],[8,9],[5,12],[4,13],[3,14],[6,11],[7,10],[2,15]]:[[1,8],[4,5],[2,7],[3,6]];
+  for(let r=0;r<Math.log2(upperSize);r++){
+    const count=upperSize/Math.pow(2,r+1),keys=[];
+    for(let i=0;i<count;i++){
+      const key='u'+(upperRounds.reduce((n,x)=>n+x.keys.length,0)+i+1);
+      let a,b,label;
+      if(r===0){const pair=firstPairs[i];a=seeds[pair[0]-1]||null;b=seeds[pair[1]-1]||null;label='Верхняя · раунд 1 · матч '+(i+1);}
+      else{a=previous[i*2]?.winner||null;b=previous[i*2+1]?.winner||null;label='Верхняя · раунд '+(r+1)+' · матч '+(i+1);}
+      const g=game(key,label,a,b);keys.push(key);if(r===0)upperLosers.push(g);
+    }
+    upperRounds.push({title:'Верхняя сетка · раунд '+(r+1),keys,labels:keys.map((_,i)=>'Матч '+(i+1))});
+    previous=keys.map(k=>out[k]);
+  }
+  const lowerEntrants=upperLosers.map(g=>g.loser).filter(Boolean).slice(0,lowerSize);
+  const lowerRounds=[];let lowerPrevious=[];
+  for(let r=0;r<Math.log2(lowerSize);r++){
+    const count=lowerSize/Math.pow(2,r+1),keys=[];
+    for(let i=0;i<count;i++){
+      const key='lb'+(lowerRounds.reduce((n,x)=>n+x.keys.length,0)+i+1);
+      const a=r===0?lowerEntrants[i*2]||null:lowerPrevious[i*2]?.winner||null;
+      const b=r===0?lowerEntrants[i*2+1]||null:lowerPrevious[i*2+1]?.winner||null;
+      keys.push(key);game(key,'Нижняя · раунд '+(r+1)+' · матч '+(i+1),a,b);
+    }
+    lowerRounds.push({title:'Нижняя сетка · раунд '+(r+1),keys,labels:keys.map((_,i)=>'Матч '+(i+1))});
+    lowerPrevious=keys.map(k=>out[k]);
+  }
+  const upperChampion=previous[0]?.winner||null,lowerChampion=lowerPrevious[0]?.winner||null;
+  const gf=game('gf','Гранд-финал',upperChampion,lowerChampion);
+  const champion=lowerSize?gf.winner:upperChampion;
+  return {games:out,champion,bestOf:bo,seeds,lowerSeeds:lowerEntrants,upperRounds,lowerRounds,upperSize,lowerSize};
 }
 function tournamentTeamLine(team,score,isWinner){
   // Bracket data stores compact team IDs; resolve the current logo from the teams list.
@@ -3605,21 +3612,15 @@ function tournamentTeamOptions(selectedId=''){
   return `<option value="">Выбрать команду</option>`+teams.map(t=>`<option value="${esc(t.id)}" ${String(t.id)===String(selectedId)?'selected':''}>${esc(t.name)}</option>`).join('');
 }
 function tournamentLowerSeedsMarkup(tournament){
-  const saved=Array.isArray(tournament?.bracket_data?.lower_teams)?tournament.bracket_data.lower_teams:[];
-  if(can('manage_matches')){
-    const fields=Array.from({length:8},(_,i)=>{
-      const id=saved[i]?.id??'';
-      const missing=id&&!teams.some(t=>String(t.id)===String(id))?`<option value="${esc(id)}" selected>${esc(saved[i]?.name||'Команда вне рейтинга')} (нет в рейтинге)</option>`:'';
-      return `<div class="field"><label for="tourneyLowerSeed${i+1}">Место ${i+1}</label><select id="tourneyLowerSeed${i+1}" required>${missing}${tournamentTeamOptions(id)}</select></div>`;
-    }).join('');
-    return `<details class="tourney-create tourney-lower-seeds-details"><summary>＋ Добавить или изменить команды нижней сетки · 8 мест</summary><form id="tourneyLowerSeedsForm" class="tourney-lower-seeds"><div class="tourney-lower-seeds-head"><div><b>Участники нижней сетки · 8 мест</b><small>Выбери восемь команд. Пары и переходы победителей будут рассчитаны автоматически.</small></div><button class="btn primary" type="submit">Сохранить команды нижней сетки</button></div><div class="tourney-create-grid">${fields}</div><div class="tourney-public-note">Нижняя сетка заполняется отдельно от верхней. Команды внутри нижней сетки не должны повторяться. При замене состава результаты нижней сетки и гранд-финала будут сброшены.</div></form></details>`;
-  }
-  return `<div class="tourney-lower-seeds-view"><b>Участники нижней сетки</b><div class="tourney-lower-seeds-list">${Array.from({length:8},(_,i)=>`<span><i>${i+1}.</i> ${esc(saved[i]?.name||'Место свободно')}</span>`).join('')}</div></div>`;
+  const resolved=tournament?._resolved||resolveTournament(tournament);
+  const names=resolved.lowerSeeds||[];
+  return '<div class="tourney-public-note">В нижнюю сетку автоматически переходят проигравшие первого раунда верхней сетки. Если мест нет, команда выбывает.</div><div class="tourney-lower-seeds-view"><b>Автоматические участники нижней сетки</b><div class="tourney-lower-seeds-list">'+Array.from({length:resolved.lowerSize},(_,i)=>'<span><i>'+(i+1)+'.</i> '+esc(names[i]?.name||'Ожидает проигравшего')+'</span>').join('')+'</div></div>';
 }
 function tournamentCreateMarkup(open=false){
-  const available=teams.length>=8;
+  const count=Number(document.getElementById('tourneyTeamCount')?.value||8);
+  const available=teams.length>=count;
   const opts=tournamentTeamOptions();
-  return `<details class="tourney-create" ${open?'open':''}><summary>＋ Создать новый турнир (8 команд)</summary><form id="tourneyCreateForm"><div class="field" style="margin-top:12px"><label for="tourneyName">Название турнира</label><input id="tourneyName" maxlength="100" placeholder="MVP CS2 2026" value="MVP CS2 2026" required></div><div class="field"><label for="tourneyBestOf">Формат матчей</label><select id="tourneyBestOf"><option value="1">BO1 — до 1 победы</option><option value="3" selected>BO3 — до 2 побед</option><option value="5">BO5 — до 3 побед</option></select></div><div class="tourney-create-grid">${Array.from({length:8},(_,i)=>`<div class="field"><label for="tourneySeed${i+1}">Посев ${i+1}</label><select id="tourneySeed${i+1}" required>${opts}</select></div>`).join('')}</div><button class="btn primary" type="submit" ${available?'':'disabled'}>Создать сетку на 8 команд</button><div class="tourney-public-note">${available?'Выбери восемь разных команд из общего рейтинга. Предыдущий активный турнир будет сохранён в архиве.':'Для создания сетки необходимо минимум 8 команд в рейтинге.'}</div></form></details>`;
+  return `<details class="tourney-create" ${open?'open':''}><summary>＋ Создать новый турнир (8 или 16 команд)</summary><form id="tourneyCreateForm"><div class="field" style="margin-top:12px"><label for="tourneyName">Название турнира</label><input id="tourneyName" maxlength="100" placeholder="MVP CS2 2026" value="MVP CS2 2026" required></div><div class="field"><label for="tourneyTeamCount">Количество команд</label><select id="tourneyTeamCount"><option value="8">8 команд</option><option value="16">16 команд</option></select></div><div class="field"><label for="tourneyBestOf">Формат матчей</label><select id="tourneyBestOf"><option value="1">BO1 — до 1 победы</option><option value="3" selected>BO3 — до 2 побед</option><option value="5">BO5 — до 3 побед</option></select></div><div class="tourney-create-grid" id="tourneySeedGrid">${Array.from({length:8},(_,i)=>`<div class="field"><label for="tourneySeed${i+1}">Посев ${i+1}</label><select id="tourneySeed${i+1}" required>${opts}</select></div>`).join('')}</div><button class="btn primary" type="submit" ${available?'':'disabled'}>Создать сетку на ${count} команд</button><div class="tourney-public-note">${available?'Выбери разные команды из общего рейтинга. Предыдущий активный турнир будет сохранён в архиве.':`Для сетки на ${count} команд необходимо минимум ${count} команд в рейтинге.`}</div></form></details>`;
 }
 function tournamentEditMarkup(tournament,open=false){
   const current=tournament?.bracket_data||{};
@@ -3738,8 +3739,8 @@ async function openTournamentBracket(id){
 function tournamentMarkup(tournament){
  if(!tournament)return '<div class="tourney-empty">Турнир не найден.</div>';
  const r=resolveTournament(tournament);tournament._resolved=r;
- const champ=r.champion,oneBracket=Number(tournament.team_count||8)<=8,matchKeys=oneBracket?['u1','u2','u3','u4','u5','u6','u7']:Object.keys(r.games),n=matchKeys.filter(k=>r.games[k]?.winner).length,label=tournamentStatusLabel(tournament.event_status||'upcoming'),cls=tournamentStatusClass(tournament.event_status||'upcoming');
- return `<div class="tourney-adminbar"><span><b>Управление сеткой</b><br><small>Составы команд, формат серий и результаты матчей.</small></span><div class="tourney-admin-actions">${can('manage_matches')?'<button type="button" class="btn" id="tourneyEditBtn">✎ Состав сетки</button><button type="button" class="btn danger" id="tourneyDeleteBtn">Удалить турнир</button>':''}</div></div><div class="tourney-hero"><div class="tourney-hero-top"><div><div class="tourney-kicker">${esc(activeTournamentOrganizer?.name||'CSTT')} · BO${r.bestOf}</div><h2 class="tourney-title">${esc(tournament.name)}</h2><div class="tourney-subtitle">${champ?'Чемпион определён':n?'Завершено матчей: '+n+' из '+(oneBracket?7:15):'Матчи ещё не сыграны'} · ${tournamentDateRange(tournament)}</div></div><span class="tourney-status-pill ${cls}"><i></i>${label}</span></div><div class="tourney-hero-facts"><div><strong>${tournamentPrize(tournament)}</strong><small>ПРИЗОВОЙ ФОНД</small></div><div><strong>${Number(tournament.team_count)||8}</strong><small>КОМАНД В СЕТКЕ</small></div><div><strong>BO${r.bestOf}</strong><small>ФОРМАТ</small></div></div>${champ?'<div class="tourney-champion"><span class="cup">🏆</span><div><small>ЧЕМПИОН CSTT</small><strong>'+esc(champ.name)+'</strong></div></div>':''}</div><section class="tourney-section"><div class="tourney-section-head"><strong>${oneBracket?'ТУРНИРНАЯ СЕТКА':'ВЕРХНЯЯ СЕТКА · 8 КОМАНД'}</strong><span>${oneBracket?'8 команд · Single Elimination':'Основная ветка соревнования'}</span></div><div class="tourney-rounds">${TOURNAMENT_ROUNDS.upper.map(x=>tournamentRoundHtml(x,tournament)).join('')}</div></section>${oneBracket?'':`<section class="tourney-section"><div class="tourney-section-head"><strong>НИЖНЯЯ СЕТКА · 8 МЕСТ</strong><span>Дополнительная ветка соревнования</span></div>${tournamentLowerSeedsMarkup(tournament)}<div class="tourney-rounds">${TOURNAMENT_ROUNDS.lower.map(x=>tournamentRoundHtml(x,tournament)).join('')}</div></section><section class="tourney-section"><div class="tourney-section-head"><strong>ГРАНД-ФИНАЛ</strong><span>Решающий матч за чемпионство</span></div><div class="tourney-rounds" style="grid-auto-columns:minmax(245px,390px);justify-content:center"><div class="tourney-round"><div class="tourney-round-title">Финал · за чемпионство</div>${tournamentMatchCard(r.games.gf,tournament)}</div></div></section>`}`;
+ const champ=r.champion,oneBracket=r.upperSize===8,allKeys=Object.keys(r.games),n=allKeys.filter(k=>r.games[k]?.winner).length,label=tournamentStatusLabel(tournament.event_status||'upcoming'),cls=tournamentStatusClass(tournament.event_status||'upcoming');
+ return `<div class="tourney-adminbar"><span><b>Управление сеткой</b><br><small>Составы команд, формат серий и результаты матчей.</small></span><div class="tourney-admin-actions">${can('manage_matches')?'<button type="button" class="btn" id="tourneyEditBtn">✎ Состав сетки</button><button type="button" class="btn danger" id="tourneyDeleteBtn">Удалить турнир</button>':''}</div></div><div class="tourney-hero"><div class="tourney-hero-top"><div><div class="tourney-kicker">${esc(activeTournamentOrganizer?.name||'CSTT')} · BO${r.bestOf}</div><h2 class="tourney-title">${esc(tournament.name)}</h2><div class="tourney-subtitle">${champ?'Чемпион определён':n?'Завершено матчей: '+n+' из '+allKeys.length:'Матчи ещё не сыграны'} · ${tournamentDateRange(tournament)}</div></div><span class="tourney-status-pill ${cls}"><i></i>${label}</span></div><div class="tourney-hero-facts"><div><strong>${tournamentPrize(tournament)}</strong><small>ПРИЗОВОЙ ФОНД</small></div><div><strong>${r.upperSize}</strong><small>КОМАНД В ВЕРХНЕЙ СЕТКЕ</small></div><div><strong>BO${r.bestOf}</strong><small>ФОРМАТ</small></div></div>${champ?'<div class="tourney-champion"><span class="cup">🏆</span><div><small>ЧЕМПИОН CSTT</small><strong>'+esc(champ.name)+'</strong></div></div>':''}</div><section class="tourney-section"><div class="tourney-section-head"><strong>ВЕРХНЯЯ СЕТКА · ${r.upperSize} КОМАНД</strong><span>Все команды начинают здесь</span></div><div class="tourney-rounds">${r.upperRounds.map(x=>tournamentRoundHtml(x,tournament)).join('')}</div></section><section class="tourney-section"><div class="tourney-section-head"><strong>НИЖНЯЯ СЕТКА · ${r.lowerSize} МЕСТ</strong><span>Проигравшие первого раунда верхней сетки</span></div>${tournamentLowerSeedsMarkup(tournament)}<div class="tourney-rounds">${r.lowerRounds.map(x=>tournamentRoundHtml(x,tournament)).join('')}</div></section><section class="tourney-section"><div class="tourney-section-head"><strong>ГРАНД-ФИНАЛ</strong><span>Победители верхней и нижней сетки</span></div><div class="tourney-rounds" style="grid-auto-columns:minmax(245px,390px);justify-content:center"><div class="tourney-round"><div class="tourney-round-title">Финал · за чемпионство</div>${tournamentMatchCard(r.games.gf,tournament)}</div></div></section>`;
 }
 async function loadTournamentIntoModal(force=false){
   const host=document.getElementById('tournamentContent');if(!host||tournamentLoadBusy)return;
@@ -3850,23 +3851,25 @@ async function createTournamentFromForm(event){
   const form=event.currentTarget;
   const name=document.getElementById('tourneyName').value.trim();
   const bestOf=Number(document.getElementById('tourneyBestOf').value);
-  const ids=Array.from({length:8},(_,i)=>document.getElementById(`tourneySeed${i+1}`).value);
+  const teamCount=Number(document.getElementById('tourneyTeamCount').value);
   if(!name)return alert('Укажи название турнира.');
   if(![1,3,5].includes(bestOf))return alert('Выбери BO1, BO3 или BO5.');
-  if(ids.some(x=>!x)||new Set(ids).size!==8)return alert('Выбери 8 разных команд.');
+  if(![8,16].includes(teamCount))return alert('Выбери сетку на 8 или 16 команд.');
+  const ids=Array.from({length:teamCount},(_,i)=>document.getElementById(`tourneySeed${i+1}`)?.value||'');
+  if(ids.some(x=>!x)||new Set(ids).size!==teamCount)return alert(`Выбери ${teamCount} разных команд.`);
   const picked=ids.map(id=>teams.find(t=>String(t.id)===String(id))).filter(Boolean);
-  if(picked.length!==8)return alert('Не удалось найти все выбранные команды. Обнови страницу и повтори.');
+  if(picked.length!==teamCount)return alert('Не удалось найти все выбранные команды. Обнови страницу и повтори.');
   const submit=form.querySelector('button[type="submit"]');submit.disabled=true;submit.textContent='Создаём…';
   try{
     const bracket_data=compactTournamentData({version:2,teams:picked.map(t=>({id:String(t.id),name:String(t.name||''),tag:String(t.tag||''),logo:String(t.logo||'')})),lower_teams:[],scores:{}});
-    const {data:created,error:insertError}=await client.from('mvp_tournaments').insert({name,best_of:bestOf,status:'registration',is_active:false,bracket_data,created_by:currentUser.id}).select('id').single();
+    const {data:created,error:insertError}=await client.from('mvp_tournaments').insert({name,best_of:bestOf,team_count:teamCount,status:'registration',is_active:false,bracket_data,created_by:currentUser.id}).select('id').single();
     if(insertError)throw insertError;
     const {error:archiveError}=await client.from('mvp_tournaments').update({is_active:false}).eq('is_active',true);
     if(archiveError)throw archiveError;
     const {error:activateError}=await client.from('mvp_tournaments').update({is_active:true,status:'registration'}).eq('id',created.id);
     if(activateError)throw activateError;
     await loadTournamentIntoModal(true);
-  }catch(e){alert('Не удалось создать турнир: '+niceError(e)+'\nПроверь SQL-файл и право manage_matches.');submit.disabled=false;submit.textContent='Создать сетку на 8 команд';}
+  }catch(e){alert('Не удалось создать турнир: '+niceError(e)+'\nПроверь SQL-файл и право manage_matches.');submit.disabled=false;submit.textContent='Создать турнир';}
 }
 async function persistTournamentData(nextState){
   if(!activeTournament?.id)throw new Error('Активный турнир не найден.');
@@ -3880,7 +3883,9 @@ async function persistTournamentData(nextState){
   if(error)throw error;
 }
 function clearDownstreamScores(scores,key){
-  for(const child of (TOURNAMENT_DESCENDANTS[key]||[]))delete scores[child];
+  // Any changed winner can alter every later pairing in this simplified
+  // double-elimination flow; clear dependent and potentially shifted results.
+  for(const child of Object.keys(scores))if(child!==key)delete scores[child];
 }
 async function saveTournamentScore(event){
   event.preventDefault();if(!can('manage_matches'))return;
