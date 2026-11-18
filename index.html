@@ -5676,6 +5676,27 @@ body[data-theme="night"] .tourney-modal .tourney-section{background:#1c2836!impo
  .tourney-round{padding:0 12px!important}
  .tourney-match-slot .tourney-match:after{right:-13px;width:13px}
 }
+ 
+/* Gradient belongs to the entire bracket body, not the outer page or individual match cards. */
+.tourney-section:has(.tourney-rounds){
+  background-color:#05070d!important;
+  background-image:
+    radial-gradient(ellipse 75% 52% at 8% 8%,rgba(44,91,220,.30),transparent 72%),
+    radial-gradient(ellipse 70% 55% at 92% 12%,rgba(133,48,195,.27),transparent 72%),
+    radial-gradient(ellipse 70% 60% at 78% 92%,rgba(18,165,169,.23),transparent 72%),
+    radial-gradient(ellipse 62% 55% at 12% 88%,rgba(190,54,130,.23),transparent 72%),
+    radial-gradient(ellipse 48% 42% at 52% 48%,rgba(190,117,39,.13),transparent 75%),
+    linear-gradient(145deg,#070b18 0%,#080b18 52%,#05070d 100%)!important;
+  background-repeat:no-repeat!important;
+  background-size:cover!important;
+}
+.tourney-section:has(.tourney-rounds)>.tourney-rounds{
+  background:transparent!important;
+  background-color:transparent!important;
+}
+.tourney-section:has(.tourney-rounds)>.tourney-section-head{
+  background:linear-gradient(90deg,rgba(13,25,58,.96),rgba(25,16,56,.92),rgba(8,38,54,.94))!important;
+}
 </style>
 <style id="cstt-black-rainbow-ambient-gradient">
 /* Subtle full-page spectrum glow on black; intentional white surfaces stay white. */
