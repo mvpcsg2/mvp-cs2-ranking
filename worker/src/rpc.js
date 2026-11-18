@@ -102,6 +102,31 @@ async function runRpc(sql,user,name,args,env){
     case "admin_list_tournament_applications": {
       if(!isAdmin(user))throw new Error("Только администратор может просматривать заявки.");const rows=await sql`SELECT a.id,a.tournament_id,a.team_id,a.status,a.created_at,a.reviewed_at,a.admin_note,t.name tournament_name,tm.name team_name,u.email captain_email FROM public.mvp_tournament_applications a JOIN public.mvp_tournaments t ON t.id=a.tournament_id JOIN public.teams tm ON tm.id=a.team_id JOIN public.mvp_auth_users u ON u.id=a.captain_user_id ORDER BY a.created_at DESC LIMIT 500`;return rows;
     }
+    case "admin_delete_tournament_application": {
+      if(!isAdmin(user))throw new Error("Только администратор может удалять заявки.");
+      const id=String(p.p_application_id||"");
+      if(!/^[0-9]+$/.test(id))throw new Error("Некорректный номер заявки.");
+      // Removing an approved request only removes its application history.
+      // The team deliberately remains in the tournament bracket.
+      const rows=await sql`DELETE FROM public.mvp_tournament_applications WHERE id=${id}::bigint RETURNING id,status`;
+      if(!rows.length)throw new Error("Заявка не найдена или уже удалена.");
+      return rows[0];
+    }
+    case "admin_delete_team": {
+      if(!isAdmin(user))throw new Error("Удалять команды может только администратор.");
+      const id=String(p.p_team_id||"");
+      if(!/^[0-9]+$/.test(id))throw new Error("Некорректный ID команды.");
+      const rows=await sql`
+        WITH detached AS (
+          UPDATE public.cs2_players SET team_id=NULL WHERE team_id=${id}::bigint
+        ), deleted AS (
+          DELETE FROM public.teams WHERE id=${id}::bigint RETURNING id,name
+        )
+        SELECT * FROM deleted
+      `;
+      if(!rows.length)throw new Error("Команда не найдена.");
+      return rows[0];
+    }
     case "admin_review_tournament_application": {
       if(!isAdmin(user))throw new Error("Только администратор может рассматривать заявки.");
       const id=String(p.p_application_id||""),status=String(p.p_status||"");
