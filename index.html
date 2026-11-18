@@ -3622,6 +3622,20 @@ function tournamentCreateMarkup(open=false){
   const opts=tournamentTeamOptions();
   return `<details class="tourney-create" ${open?'open':''}><summary>＋ Создать новый турнир (8 или 16 команд)</summary><form id="tourneyCreateForm"><div class="field" style="margin-top:12px"><label for="tourneyName">Название турнира</label><input id="tourneyName" maxlength="100" placeholder="MVP CS2 2026" value="MVP CS2 2026" required></div><div class="field"><label for="tourneyTeamCount">Количество команд</label><select id="tourneyTeamCount"><option value="8">8 команд</option><option value="16">16 команд</option></select></div><div class="field"><label for="tourneyBestOf">Формат матчей</label><select id="tourneyBestOf"><option value="1">BO1 — до 1 победы</option><option value="3" selected>BO3 — до 2 побед</option><option value="5">BO5 — до 3 побед</option></select></div><div class="tourney-create-grid" id="tourneySeedGrid">${Array.from({length:8},(_,i)=>`<div class="field"><label for="tourneySeed${i+1}">Посев ${i+1}</label><select id="tourneySeed${i+1}" required>${opts}</select></div>`).join('')}</div><button class="btn primary" type="submit" ${available?'':'disabled'}>Создать сетку на ${count} команд</button><div class="tourney-public-note">${available?'Выбери разные команды из общего рейтинга. Предыдущий активный турнир будет сохранён в архиве.':`Для сетки на ${count} команд необходимо минимум ${count} команд в рейтинге.`}</div></form></details>`;
 }
+function bindTournamentCreateCount(form){
+  const countSelect=form?.querySelector('#tourneyTeamCount');
+  if(!countSelect)return;
+  const render=()=>{
+    const count=Number(countSelect.value||8),grid=form.querySelector('#tourneySeedGrid'),opts=tournamentTeamOptions();
+    if(!grid)return;
+    grid.innerHTML=Array.from({length:count},(_,i)=>`<div class="field"><label for="tourneySeed${i+1}">Посев ${i+1}</label><select id="tourneySeed${i+1}" required>${opts}</select></div>`).join('');
+    const submit=form.querySelector('button[type="submit"]');
+    if(submit){submit.disabled=teams.length<count;submit.textContent=`Создать сетку на ${count} команд`;}
+    const note=form.querySelector('.tourney-public-note');
+    if(note)note.textContent=teams.length>=count?'Выбери разные команды из общего рейтинга. Предыдущий активный турнир будет сохранён в архиве.':`Для сетки на ${count} команд необходимо минимум ${count} команд в рейтинге.`;
+  };
+  countSelect.addEventListener('change',render);
+}
 function tournamentEditMarkup(tournament,open=false){
   const current=tournament?.bracket_data||{};
   const selected=Array.isArray(current.teams)?current.teams:[];
@@ -3767,9 +3781,9 @@ async function openTournamentCenter(){
 
 function bindTournamentControls(host){
   const createForm=host.querySelector('#tourneyCreateForm');
-  if(createForm)createForm.addEventListener('submit',createTournamentFromForm);
+  if(createForm){createForm.addEventListener('submit',createTournamentFromForm);bindTournamentCreateCount(createForm);}
   const newBtn=host.querySelector('#tourneyNewBtn');
-  if(newBtn)newBtn.onclick=()=>{const container=host.querySelector('#tourneyCreateHost');if(!container)return;container.innerHTML=tournamentCreateMarkup(true);const form=container.querySelector('#tourneyCreateForm');form?.addEventListener('submit',createTournamentFromForm);container.scrollIntoView({behavior:'smooth',block:'start'});};
+  if(newBtn)newBtn.onclick=()=>{const container=host.querySelector('#tourneyCreateHost');if(!container)return;container.innerHTML=tournamentCreateMarkup(true);const form=container.querySelector('#tourneyCreateForm');if(form){form.addEventListener('submit',createTournamentFromForm);bindTournamentCreateCount(form);}container.scrollIntoView({behavior:'smooth',block:'start'});};
   const editBtn=host.querySelector('#tourneyEditBtn');
   if(editBtn)editBtn.onclick=()=>{const container=host.querySelector('#tourneyCreateHost');if(!container||!activeTournament)return;container.innerHTML=tournamentEditMarkup(activeTournament,true);const form=container.querySelector('#tourneyEditForm');form?.addEventListener('submit',saveTournamentEdits);container.querySelector('#cancelTourneyEdit')?.addEventListener('click',()=>{container.innerHTML='';});container.scrollIntoView({behavior:'smooth',block:'start'});};
   const deleteBtn=host.querySelector('#tourneyDeleteBtn');
