@@ -137,8 +137,8 @@ async function runRpc(sql,user,name,args,env){
         if(!rows.length)throw new Error("Заявка уже рассмотрена.");
         return rows[0];
       }
-      // Approve and place the team into the next free bracket slot atomically.
-      // 8-team events use teams[]; 16-team events fill teams[] first, then lower_teams[].
+      // Approved teams always enter the upper bracket. Lower-bracket places are
+      // derived automatically from first-round upper-bracket losers by the client resolver.
       const rows=await sql`
         WITH locked AS (
           SELECT a.id AS application_id,a.team_id,t.id AS tournament_id,
@@ -157,14 +157,8 @@ async function runRpc(sql,user,name,args,env){
         ),
         placed AS (
           UPDATE public.mvp_tournaments t
-          SET bracket_data=CASE
-            WHEN jsonb_array_length(p.upper_teams)<8 THEN
-              jsonb_set(COALESCE(p.bracket_data,'{}'::jsonb),'{teams}',
+          SET bracket_data=jsonb_set(COALESCE(p.bracket_data,'{}'::jsonb),'{teams}',
                 p.upper_teams||jsonb_build_array(jsonb_build_object('id',p.team_id::text,'name',p.name,'tag',COALESCE(p.tag,''),'logo',COALESCE(p.logo,''))),true)
-            WHEN p.team_count>8 AND jsonb_array_length(p.lower_teams)<8 THEN
-              jsonb_set(COALESCE(p.bracket_data,'{}'::jsonb),'{lower_teams}',
-                p.lower_teams||jsonb_build_array(jsonb_build_object('id',p.team_id::text,'name',p.name,'tag',COALESCE(p.tag,''),'logo',COALESCE(p.logo,''))),true)
-            ELSE p.bracket_data END
           FROM prepared p
           WHERE t.id=p.tournament_id
             AND p.event_status<>'completed'
@@ -172,7 +166,7 @@ async function runRpc(sql,user,name,args,env){
               SELECT 1 FROM jsonb_array_elements(p.upper_teams||p.lower_teams) existing
               WHERE existing->>'id'=p.team_id::text
             )
-            AND (jsonb_array_length(p.upper_teams)<8 OR (p.team_count>8 AND jsonb_array_length(p.lower_teams)<8))
+            AND jsonb_array_length(p.upper_teams)<LEAST(16,GREATEST(8,COALESCE(p.team_count,8)))
           RETURNING t.id
         )
         UPDATE public.mvp_tournament_applications a
