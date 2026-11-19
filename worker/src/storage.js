@@ -1,3 +1,4 @@
+// Build retry marker: re-run the Worker build after GitHub access was re-authorized.
 import { neon } from "@neondatabase/serverless";
 import { getSessionUser } from "./auth.js";
 
