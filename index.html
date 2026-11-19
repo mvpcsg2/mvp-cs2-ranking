@@ -1854,6 +1854,7 @@ function createMvpApiClient(){
 }
 const client=createMvpApiClient();
 let admin = false, moderator = false, userPermissions = {}, currentUser = null, teams = [], busy = false, expandedTeamId = null, initialTeamExpansionDone = false;
+let captainTeam = null;
 let teamRankMovements = new Map();
 function berlinTodayISO(){const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Berlin',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const pick=type=>parts.find(x=>x.type===type)?.value||'00';return `${pick('year')}-${pick('month')}-${pick('day')}`;}
 function shiftISODate(iso,days){const [y,m,d]=String(iso||'').split('-').map(Number);const date=new Date(Date.UTC(y,m-1,d+days,12));return `${date.getUTCFullYear()}-${String(date.getUTCMonth()+1).padStart(2,'0')}-${String(date.getUTCDate()).padStart(2,'0')}`;}
@@ -2753,7 +2754,7 @@ function closeModal(){cleanupLiveCenter();cleanupTournamentCenter();stopHelpPoll
 function niceError(error){return error?.message||'Не удалось выполнить действие. Проверь соединение и попробуй ещё раз.'}
 function showAuthFeedback(message){const box=document.getElementById('authFeedback');if(!box)return;box.textContent=String(message||'Не удалось выполнить действие.');box.classList.remove('hidden');}
 async function refreshSignedInUser(user){
-  currentUser=null; admin=false; moderator=false; userPermissions={};
+  currentUser=null; admin=false; moderator=false; userPermissions={}; captainTeam=null;
   if(user){
     const username=user.user_metadata?.username||String(user.email||'Игрок').split('@')[0];
     currentUser={id:user.id,email:user.email,username};
@@ -2763,6 +2764,8 @@ async function refreshSignedInUser(user){
     if(error){setStatus('Аккаунт вошёл, но не удалось прочитать роль профиля: '+niceError(error),'error')}
     admin=profile?.role==='admin';moderator=profile?.role==='moderator';userPermissions=profile?.permissions||{};
     if(user.email && !profile && !error){setStatus('Профиль не найден. Проверь, что SQL-настройка Neon была выполнена полностью.','error')}
+    const captainResult=await client.rpc('captain_get_my_team');
+    if(!captainResult.error)captainTeam=captainResult.data||null;
   }
   render();
   await loadTeams();
@@ -2837,9 +2840,48 @@ async function loadTeams(){
   if(teams.length)clearStatus();
   else if(!admin)clearStatus();
 }
-async function signOut(){await client.auth.signOut();currentUser=null;admin=false;moderator=false;userPermissions={};closeModal();render();await loadTeams()}
+async function signOut(){await client.auth.signOut();currentUser=null;admin=false;moderator=false;userPermissions={};captainTeam=null;closeModal();render();await loadTeams()}
+async function uploadCaptainImage(file,kind,maxBytes,maxSide){
+  if(!file)throw new Error('Сначала выбери изображение.');
+  if(file.size>maxBytes)throw new Error('Файл слишком большой.');
+  if(!['image/png','image/jpeg','image/webp'].includes(file.type))throw new Error('Разрешены PNG, JPG и WEBP.');
+  const dataUrl=kind==='logo'?await compressLogoImage(file,maxSide):await compressImage(file,maxSide,0.78);
+  const blob=await (await fetch(dataUrl)).blob();
+  const safeName=String(file.name||kind).replace(/[^a-zA-Z0-9._-]+/g,'-').slice(-60)||kind;
+  const path=`${kind==='logo'?'team-logos':'team-players'}/${Date.now()}-${Math.random().toString(36).slice(2,8)}-${safeName}.webp`;
+  const {error}=await client.storage.from('mvp-site-assets').upload(path,blob,{upsert:false,contentType:blob.type||'image/webp'});
+  if(error)throw error;
+  const {data}=client.storage.from('mvp-site-assets').getPublicUrl(path);
+  if(!data?.publicUrl)throw new Error('Не удалось получить ссылку на изображение.');
+  return data.publicUrl;
+}
+function openCaptainTeamEditor(){
+  if(!currentUser||!captainTeam){alert('За аккаунтом не закреплена команда. Попроси администратора назначить тебя капитаном.');return;}
+  const t=captainTeam, photos=getPlayerPhotos(t);
+  let logo=String(t.logo||''), playerPhotos=[...photos];
+  const photoFields=Array.from({length:5},(_,i)=>`<div class="field"><label>Фото игрока ${i+1}</label><input type="file" id="captainPhoto${i}" accept="image/png,image/jpeg,image/webp"><div class="logo" id="captainPhotoPreview${i}" style="margin-top:6px;min-height:64px">${playerPhotos[i]?'<img src="'+esc(playerPhotos[i])+'" alt="Фото игрока">':'Нет фото'}</div><button class="btn" type="button" data-captain-remove-photo="${i}">Убрать фото</button></div>`).join('');
+  modal(`<h2>Кабинет капитана</h2><p class="notice">Ты можешь менять только свою команду. Очки, рейтинг и административные настройки недоступны.</p><div class="field"><label>Название команды</label><input id="captainTeamName" maxlength="80" value="${esc(t.name||'')}"></div><div class="field"><label>Тег команды</label><input id="captainTeamTag" maxlength="12" value="${esc(t.tag||'')}"></div><div class="field"><label>Состав (до 5 игроков, через запятую)</label><textarea id="captainTeamPlayers" maxlength="300">${esc(t.players||'')}</textarea></div><div class="field"><label>Логотип команды</label><input id="captainTeamLogoFile" type="file" accept="image/png,image/jpeg,image/webp"><div class="logo" id="captainTeamLogoPreview" style="margin-top:6px">${logo?'<img src="'+esc(logo)+'" alt="Логотип">':'Логотип не задан'}</div><button class="btn" type="button" id="captainRemoveLogo">Убрать логотип</button></div><h3>Фотографии игроков</h3><div class="grid-two">${photoFields}</div><div class="modalfoot"><button class="btn" id="captainCancel">Отмена</button><button class="btn primary" id="captainSave">Сохранить изменения</button></div>`,true);
+  const logoInput=document.getElementById('captainTeamLogoFile');
+  logoInput.onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{logo=await uploadCaptainImage(file,'logo',2*1024*1024,512);document.getElementById('captainTeamLogoPreview').innerHTML=`<img src="${esc(logo)}" alt="Логотип">`;}catch(err){alert('Не удалось загрузить логотип: '+niceError(err));e.target.value='';}};
+  for(let i=0;i<5;i++){
+    document.getElementById('captainPhoto'+i).onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{playerPhotos[i]=await uploadCaptainImage(file,'player',4*1024*1024,320);document.getElementById('captainPhotoPreview'+i).innerHTML=`<img src="${esc(playerPhotos[i])}" alt="Фото игрока">`;}catch(err){alert('Не удалось загрузить фото: '+niceError(err));e.target.value='';}};
+  }
+  document.querySelectorAll('[data-captain-remove-photo]').forEach(btn=>btn.onclick=()=>{const i=Number(btn.dataset.captainRemovePhoto);playerPhotos[i]='';document.getElementById('captainPhoto'+i).value='';document.getElementById('captainPhotoPreview'+i).textContent='Нет фото';});
+  document.getElementById('captainRemoveLogo').onclick=()=>{logo='';logoInput.value='';document.getElementById('captainTeamLogoPreview').textContent='Логотип не задан';};
+  document.getElementById('captainCancel').onclick=closeModal;
+  document.getElementById('captainSave').onclick=async()=>{
+    const name=document.getElementById('captainTeamName').value.trim(),tag=document.getElementById('captainTeamTag').value.trim(),players=document.getElementById('captainTeamPlayers').value.trim();
+    if(name.length<2||name.length>80)return alert('Название команды должно содержать от 2 до 80 символов.');
+    if(tag.length>12)return alert('Тег не должен быть длиннее 12 символов.');
+    const roster=getRoster({players});if(roster.length>5)return alert('В команде может быть максимум 5 игроков.');
+    const seen=new Set();for(const player of roster){const key=player.toLowerCase();if(seen.has(key))return alert('Один и тот же игрок указан дважды.');seen.add(key);const other=teams.find(x=>String(x.id)!==String(t.id)&&getRoster(x).some(n=>n.toLowerCase()===key));if(other)return alert(`Игрок «${player}» уже состоит в команде «${other.name}».`);}
+    const btn=document.getElementById('captainSave');btn.disabled=true;btn.textContent='Сохраняю…';
+    try{const {data,error}=await client.rpc('captain_save_my_team',{p_name:name,p_tag:tag,p_players:players,p_logo:logo,p_player_photos:playerPhotos});if(error)throw error;if(!data)throw new Error('Сервер не вернул сохранённую команду.');captainTeam=data;closeModal();await loadTeams();setStatus('Изменения команды сохранены.','success');}
+    catch(err){alert('Не удалось сохранить команду: '+niceError(err));btn.disabled=false;btn.textContent='Сохранить изменения';}
+  };
+}
 function authModal(mode='login'){
-  if(currentUser){modal(`<h2>Профиль</h2><p><b>${esc(currentUser.username)}</b></p><p>${esc(currentUser.email||'')}</p><p>Роль: <b>${admin?'Администратор':moderator?'Модератор':'Игрок'}</b></p>${moderator?`<p class="notice">Разрешения: ${Object.keys(MOD_PERMISSION_LABELS).filter(k=>userPermissions[k]).map(k=>MOD_PERMISSION_LABELS[k]).join(' · ')||'нет выданных разрешений'}</p>`:admin?'<p class="notice">У тебя полный доступ к управлению проектом.</p>':'<p class="notice">Ты можешь просматривать общий рейтинг и пользоваться чатом помощи.</p>'}<div class="modalfoot"><button class="btn" id="profileClose">Закрыть</button><button class="btn primary" id="profileLogout">Выйти из аккаунта</button></div>`);document.getElementById('profileClose').onclick=closeModal;document.getElementById('profileLogout').onclick=signOut;return}
+  if(currentUser){modal(`<h2>Профиль</h2><p><b>${esc(currentUser.username)}</b></p><p>${esc(currentUser.email||'')}</p><p>Роль: <b>${admin?'Администратор':moderator?'Модератор':'Игрок'}</b></p>${captainTeam?'<p class="notice">Назначена команда: '+esc(captainTeam.name)+'</p><button class="btn primary" id="openCaptainTeamEditor">Кабинет капитана · изменить команду</button>':''}${moderator?`<p class="notice">Разрешения: ${Object.keys(MOD_PERMISSION_LABELS).filter(k=>userPermissions[k]).map(k=>MOD_PERMISSION_LABELS[k]).join(' · ')||'нет выданных разрешений'}</p>`:admin?'<p class="notice">У тебя полный доступ к управлению проектом.</p>':'<p class="notice">Ты можешь просматривать общий рейтинг и пользоваться чатом помощи.</p>'}<div class="modalfoot"><button class="btn" id="profileClose">Закрыть</button><button class="btn primary" id="profileLogout">Выйти из аккаунта</button></div>`);document.getElementById('profileClose').onclick=closeModal;document.getElementById('profileLogout').onclick=signOut;const captainBtn=document.getElementById('openCaptainTeamEditor');if(captainBtn)captainBtn.onclick=openCaptainTeamEditor;return}
   modal(`<h2>${mode==='register'?'Регистрация':'Вход в аккаунт'}</h2>${mode==='register'?'<div class="field"><label>Имя пользователя</label><input id="authName" maxlength="24" autocomplete="username" placeholder="Например, MVPplayer"></div>':''}<div class="field"><label>Email</label><input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required></div><div class="field"><label>Пароль${mode==='register'?' (минимум 10 символов)':''}</label><input id="authPass" type="password" autocomplete="${mode==='register'?'new-password':'current-password'}" minlength="10" required></div><div class="notice">${mode==='register'?'Новый аккаунт получает роль игрока. После подтверждения почты аккаунт активируется.':'Введи email и пароль от аккаунта MVP CS2 Ranking.'}</div><div id="authFeedback" class="auth-feedback hidden" role="alert" aria-live="polite"></div>${mode==='login'?'<div class="auth-extra"><button type="button" class="auth-link" id="forgotAuthPassword">Забыли пароль?</button><button type="button" class="auth-link" id="resendAuthVerification">Отправить письмо подтверждения</button></div>':''}<div class="modalfoot"><button class="btn" id="switchAuth">${mode==='register'?'Уже есть аккаунт':'Регистрация'}</button><button class="btn primary" id="submitAuth">${mode==='register'?'Создать аккаунт':'Войти'}</button></div>`);
   document.querySelector('#modalRoot .modal').classList.add('auth-modal');
   document.getElementById('switchAuth').onclick=()=>authModal(mode==='register'?'login':'register');
