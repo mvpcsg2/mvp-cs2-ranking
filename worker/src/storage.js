@@ -22,7 +22,6 @@ function allowed(user,prefix){
   if(prefix==="player-trophies")return user.permissions?.manage_trophies===true;
   if(prefix==="team-logos"||prefix==="team-players")return user.permissions?.manage_teams===true;
   if(prefix==="tournament-organizers")return user.permissions?.manage_matches===true;
-  if(prefix==="team-logos"||prefix==="team-players")return user.permissions?.manage_teams===true;
   return user.permissions?.manage_site_settings===true;
 }
 
