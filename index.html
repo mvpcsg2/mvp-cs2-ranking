@@ -4281,7 +4281,7 @@ async function editTeam(t=null){
      const seenRoster=new Set();for(const nick of newRoster){const key=nick.toLowerCase();if(seenRoster.has(key))return alert(`Ник «${nick}» указан дважды в этой команде.`);seenRoster.add(key);const other=teams.find(x=>String(x.id)!==String(t?.id||'')&&getRoster(x).some(n=>n.toLowerCase()===key));if(other)return alert(`Ошибка: игрок «${nick}» уже состоит в команде «${other.name}». Один игрок не может находиться в двух командах одновременно.`)}
      const is_banned=can('manage_bans')?Boolean(document.getElementById('teamIsBanned')?.checked):Boolean(old.is_banned);
      const ban_reason=can('manage_bans')?(is_banned?(document.getElementById('teamBanReason')?.value.trim()||old.ban_reason||'Подозрение на использование читов'):''):String(old.ban_reason||'');
-     const payload={p_team_id:t?Number(t.id):null,p_name:name,p_tag:document.getElementById('teamTag').value.trim()||name.slice(0,4).toUpperCase(),p_points:Math.floor(points),p_players:rawRoster,p_logo:logo,p_player_photos:playerPhotos,p_tournament_wins:tournament_wins,p_is_banned:is_banned,p_ban_reason:ban_reason};
+     const payload={p_team_id:t?Number(t.id):null,p_name:name,p_tag:document.getElementById('teamTag').value.trim()||name.slice(0,4).toUpperCase(),p_points:Math.floor(points),p_players:rawRoster,p_logo:logo||'',p_player_photos:playerPhotos.some(photo=>typeof photo==='string'&&photo.trim())?Array.from({length:5},(_,i)=>String(playerPhotos[i]||'').trim()||null):[],p_tournament_wins:tournament_wins,p_is_banned:is_banned,p_ban_reason:ban_reason};
     const btn=document.getElementById('saveTeam');busy=true;btn.disabled=true;btn.textContent='Сохраняю…';
     try{
       const {data,error}=await client.rpc('admin_save_team',payload);if(error)throw error;
