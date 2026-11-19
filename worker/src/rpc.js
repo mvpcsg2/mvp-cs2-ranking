@@ -47,6 +47,23 @@ async function runRpc(sql,user,name,args,env){
       return rows[0];
     }
 
+    case "admin_delete_team": {
+      if(!isAdmin(user))throw new Error("Удалять команды может только администратор.");
+      const id=String(p.p_team_id||"");
+      if(!/^[0-9]+$/.test(id))throw new Error("Некорректный ID команды.");
+      // Keep the player records and their stats; only detach them from the deleted team.
+      const rows=await sql`
+        WITH detached AS (
+          UPDATE public.cs2_players SET team_id=NULL WHERE team_id=${id}::bigint
+        ), deleted AS (
+          DELETE FROM public.teams WHERE id=${id}::bigint RETURNING id,name
+        )
+        SELECT * FROM deleted
+      `;
+      if(!rows.length)throw new Error("Команда не найдена.");
+      return rows[0];
+    }
+
     case "captain_apply_tournament": {
       if(!user)throw new Error("Требуется вход.");const id=String(p.p_tournament_id||"");if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id))throw new Error("Некорректный турнир.");
       const rows=await sql`SELECT c.team_id FROM public.mvp_team_captains c JOIN public.mvp_tournaments t ON t.id=${id}::uuid AND t.allow_captain_registration=true AND t.event_status<>'completed' WHERE c.user_id=${user.id}::uuid LIMIT 1`;if(!rows.length)throw new Error("Регистрация закрыта или тебе не назначена команда.");
