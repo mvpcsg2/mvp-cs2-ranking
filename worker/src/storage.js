@@ -11,18 +11,35 @@ function decodeAssetPath(path){
     const decoded=path.split("/").map(part=>decodeURIComponent(part));
     if(decoded.length!==2||decoded.some(part=>!part||part==="."||part===".."||part.includes("/")||part.includes("\\")))return "";
     if(!/^[a-z0-9._-]{1,120}$/i.test(decoded[1]))return "";
-    if(!["site-logo","site-background","player-trophies","team-logos","tournament-organizers"].includes(decoded[0]))return "";
-    return decoded.join("/");
+    // Keep compatibility with older singular folder names.
+    const prefixAliases={"team-logo":"team-logos","team-player":"team-players"};
+    const prefix=prefixAliases[decoded[0]]||decoded[0];
+    if(!["site-logo","site-background","player-trophies","team-logos","team-players","tournament-organizers"].includes(prefix))return "";
+    return prefix+"/"+decoded[1];
   }catch{return "";}
 }
-function allowed(user,prefix){
+async function allowed(sql,user,prefix){
   if(!user)return false;
   if(user.role==="admin")return true;
-  if(user.role!=="moderator")return false;
-  if(prefix==="player-trophies")return user.permissions?.manage_trophies===true;
-  if(prefix==="team-logos")return user.permissions?.manage_teams===true;
-  if(prefix==="tournament-organizers")return user.permissions?.manage_matches===true;
-  return user.permissions?.manage_site_settings===true;
+  if(user.role==="moderator"){
+    if(prefix==="player-trophies")return user.permissions?.manage_trophies===true;
+    if(prefix==="team-logos"||prefix==="team-players")return user.permissions?.manage_teams===true;
+    if(prefix==="tournament-organizers")return user.permissions?.manage_matches===true;
+    return user.permissions?.manage_site_settings===true;
+  }
+  // A verified account assigned as a team captain may upload team logos and player photos.
+  if((prefix==="team-logos"||prefix==="team-players")&&user.email){
+    const rows=await sql`
+      SELECT 1
+      FROM public.mvp_team_captains c
+      JOIN public.mvp_auth_users u ON u.id=c.user_id
+      WHERE lower(u.email)=lower(${user.email})
+        AND u.email_verified_at IS NOT NULL
+      LIMIT 1
+    `;
+    if(rows.length)return true;
+  }
+  return false;
 }
 
 export async function handleStorageRequest(request,env,cors){
@@ -34,8 +51,9 @@ export async function handleStorageRequest(request,env,cors){
     if(!key)return fail("Некорректный путь к файлу.",400,cors);
     const prefix=key.split("/")[0];
     if(!env.DATABASE_URL)return fail("DATABASE_URL secret is missing",500,cors);
-    const sqlUser=await getSessionUser(neon(env.DATABASE_URL),request);
-    if(!allowed(sqlUser,prefix))return fail("Недостаточно прав для загрузки файла.",403,cors);
+    const sql=neon(env.DATABASE_URL);
+    const sqlUser=await getSessionUser(sql,request);
+    if(!(await allowed(sql,sqlUser,prefix)))return fail("Недостаточно прав для загрузки файла.",403,cors);
     const type=(request.headers.get("content-type")||"").split(";")[0].trim().toLowerCase();
     if(!TYPES.has(type))return fail("Поддерживаются только PNG, JPG, WebP и GIF.",415,cors);
     const buffer=await request.arrayBuffer();
