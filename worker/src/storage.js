@@ -11,8 +11,12 @@ function decodeAssetPath(path){
     const decoded=path.split("/").map(part=>decodeURIComponent(part));
     if(decoded.length!==2||decoded.some(part=>!part||part==="."||part===".."||part.includes("/")||part.includes("\\")))return "";
     if(!/^[a-z0-9._-]{1,120}$/i.test(decoded[1]))return "";
-    if(!["site-logo","site-background","player-trophies","team-logos","team-players","tournament-organizers"].includes(decoded[0]))return "";
-    return decoded.join("/");
+    // Older deployed pages used singular folder names for team images.
+    // Normalize them to the canonical R2 folders before permission checks and storage.
+    const prefixAliases={"team-logo":"team-logos","team-player":"team-players"};
+    const prefix=prefixAliases[decoded[0]]||decoded[0];
+    if(!["site-logo","site-background","player-trophies","team-logos","team-players","tournament-organizers"].includes(prefix))return "";
+    return prefix+"/"+decoded[1];
   }catch{return "";}
 }
 async function allowed(sql,user,prefix){
