@@ -28,10 +28,18 @@ async function allowed(sql,user,prefix){
     if(prefix==="tournament-organizers")return user.permissions?.manage_matches===true;
     return user.permissions?.manage_site_settings===true;
   }
-  // Captains remain ordinary players; they may upload images only when assigned to a team.
-  if(user.role==="player"&&(prefix==="team-logos"||prefix==="team-players")){
-    const rows=await sql`SELECT 1 FROM public.mvp_team_captains WHERE user_id=${user.id}::uuid LIMIT 1`;
-    return rows.length>0;
+  // A verified account may upload team images when its Gmail/email address is assigned as a team captain.
+  // Match the assigned captain by email as requested, rather than relying only on the role label.
+  if((prefix==="team-logos"||prefix==="team-players")&&user.email){
+    const rows=await sql`
+      SELECT 1
+      FROM public.mvp_team_captains c
+      JOIN public.mvp_auth_users u ON u.id=c.user_id
+      WHERE lower(u.email)=lower(${user.email})
+        AND u.email_verified_at IS NOT NULL
+      LIMIT 1
+    `;
+    if(rows.length)return true;
   }
   return false;
 }

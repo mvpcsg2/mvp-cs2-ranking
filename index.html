@@ -3364,10 +3364,12 @@ async function openCaptainPanel(){
  let logo=String(t.logo||'');
  const safeFileName=(name,fallback)=>String(name||fallback).replace(/[^a-zA-Z0-9._-]+/g,'-').slice(-70)||fallback;
  async function uploadCaptainImage(dataUrl,pathPrefix,fileName){
+   // Use the same direct R2 upload flow as the admin team editor.
    const blob=await (await fetch(dataUrl)).blob();
-   const path=`${pathPrefix}/${Date.now()}-${safeFileName(fileName,'image.webp')}.webp`;
-   const up=await client.storage.from('mvp-site-assets').upload(path,blob,{upsert:false,cacheControl:'31536000',contentType:blob.type||'image/webp'});
-   if(up.error)throw up.error;
+   const safeName=String(fileName||'team-image').replace(/[^a-zA-Z0-9._-]+/g,'-').slice(-70)||'team-image';
+   const path=`${pathPrefix}/${Date.now()}-${safeName}.webp`;
+   const {error:uploadError}=await client.storage.from('mvp-site-assets').upload(path,blob,{upsert:false,contentType:blob.type||'image/webp'});
+   if(uploadError)throw uploadError;
    const {data}=client.storage.from('mvp-site-assets').getPublicUrl(path);
    if(!data?.publicUrl)throw new Error('Не удалось получить ссылку на загруженное изображение.');
    return data.publicUrl;
