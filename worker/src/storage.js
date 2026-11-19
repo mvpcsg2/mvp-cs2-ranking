@@ -1,3 +1,4 @@
+// Build retry marker: re-run the Worker build after GitHub access was re-authorized.
 import { neon } from "@neondatabase/serverless";
 import { getSessionUser } from "./auth.js";
 
@@ -11,7 +12,7 @@ function decodeAssetPath(path){
     const decoded=path.split("/").map(part=>decodeURIComponent(part));
     if(decoded.length!==2||decoded.some(part=>!part||part==="."||part===".."||part.includes("/")||part.includes("\\")))return "";
     if(!/^[a-z0-9._-]{1,120}$/i.test(decoded[1]))return "";
-    if(!["site-logo","site-background","player-trophies","team-logos","tournament-organizers"].includes(decoded[0]))return "";
+    if(!["site-logo","site-background","player-trophies","team-logos","team-players","tournament-organizers"].includes(decoded[0]))return "";
     return decoded.join("/");
   }catch{return "";}
 }
@@ -20,7 +21,7 @@ function allowed(user,prefix){
   if(user.role==="admin")return true;
   if(user.role!=="moderator")return false;
   if(prefix==="player-trophies")return user.permissions?.manage_trophies===true;
-  if(prefix==="team-logos")return user.permissions?.manage_teams===true;
+  if(prefix==="team-logos"||prefix==="team-players")return user.permissions?.manage_teams===true;
   if(prefix==="tournament-organizers")return user.permissions?.manage_matches===true;
   return user.permissions?.manage_site_settings===true;
 }
@@ -34,8 +35,14 @@ export async function handleStorageRequest(request,env,cors){
     if(!key)return fail("Некорректный путь к файлу.",400,cors);
     const prefix=key.split("/")[0];
     if(!env.DATABASE_URL)return fail("DATABASE_URL secret is missing",500,cors);
-    const sqlUser=await getSessionUser(neon(env.DATABASE_URL),request);
-    if(!allowed(sqlUser,prefix))return fail("Недостаточно прав для загрузки файла.",403,cors);
+    const sql=neon(env.DATABASE_URL);
+    const sqlUser=await getSessionUser(sql,request);
+    let permitted=allowed(sqlUser,prefix);
+    if(!permitted&&sqlUser&&(prefix==="team-logos"||prefix==="team-players")){
+      const assigned=await sql`SELECT 1 FROM public.mvp_team_captains WHERE user_id=${sqlUser.id}::uuid LIMIT 1`;
+      permitted=assigned.length>0;
+    }
+    if(!permitted)return fail("Недостаточно прав для загрузки файла.",403,cors);
     const type=(request.headers.get("content-type")||"").split(";")[0].trim().toLowerCase();
     if(!TYPES.has(type))return fail("Поддерживаются только PNG, JPG, WebP и GIF.",415,cors);
     const buffer=await request.arrayBuffer();
