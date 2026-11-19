@@ -55,7 +55,12 @@ async function runRpc(sql,user,name,args,env){
       if(banned&&!hasPermission(user,"manage_bans"))throw new Error("Нет разрешения на блокировку команд.");
       const id=p.p_team_id==null?null:String(p.p_team_id);
       if(id!==null&&!/^\d+$/.test(id))throw new Error("Некорректный ID команды.");
-      const photos=Array.isArray(p.p_player_photos)?p.p_player_photos:[];
+      const rawPhotos=Array.isArray(p.p_player_photos)?p.p_player_photos.slice(0,5):[];
+      // Photos are optional. Preserve player-slot positions when some photos exist;
+      // send an empty JSON array when none were uploaded.
+      const photos=rawPhotos.some(photo=>typeof photo==="string"&&photo.trim())
+        ?Array.from({length:5},(_,i)=>typeof rawPhotos[i]==="string"&&rawPhotos[i].trim()?rawPhotos[i].trim():null)
+        :[];
       const rows=await sql`
         SELECT to_jsonb(public.mvp_admin_save_team(
           ${id}::bigint,
