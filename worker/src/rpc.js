@@ -125,6 +125,15 @@ async function runRpc(sql,user,name,args,env){
       if(banned&&!hasPermission(user,"manage_bans"))throw new Error("Нет разрешения на блокировку команд.");
       const id=p.p_team_id==null?null:String(p.p_team_id);
       if(id!==null&&!/^\d+$/.test(id))throw new Error("Некорректный ID команды.");
+      const hasHltvRank=Object.prototype.hasOwnProperty.call(p,"p_hltv_rank");
+      let hltvRank=null;
+      if(hasHltvRank){
+        const rawRank=p.p_hltv_rank==null?"":String(p.p_hltv_rank).trim();
+        hltvRank=rawRank===""?null:Number(rawRank);
+        if(hltvRank!==null&&(!Number.isInteger(hltvRank)||hltvRank<1||hltvRank>9999))throw new Error("Место HLTV должно быть целым числом от 1 до 9999 или пустым.");
+        const schema=await sql`SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='teams' AND column_name='hltv_rank') AS available`;
+        if(!schema?.[0]?.available)throw new Error("Сначала выполни SQL-миграцию worker/sql/2026-11-22-hltv-tier-logic.sql в Neon. Команда не была изменена.");
+      }
       const photos=Array.isArray(p.p_player_photos)?p.p_player_photos:[];
       const rows=await sql`
         SELECT to_jsonb(public.mvp_admin_save_team(
@@ -142,18 +151,10 @@ async function runRpc(sql,user,name,args,env){
       `;
       const saved=rows?.[0]?.saved;
       if(!saved)throw new Error("Не удалось сохранить команду.");
-      if(Object.prototype.hasOwnProperty.call(p,"p_hltv_rank")){
-        const rawRank=p.p_hltv_rank==null?"":String(p.p_hltv_rank).trim();
-        const hltvRank=rawRank===""?null:Number(rawRank);
-        if(hltvRank!==null&&(!Number.isInteger(hltvRank)||hltvRank<1||hltvRank>9999))throw new Error("Место HLTV должно быть целым числом от 1 до 9999 или пустым.");
-        try{
-          const updated=await sql`UPDATE public.teams SET hltv_rank=${hltvRank} WHERE id=${saved.id}::bigint RETURNING *`;
-          if(!updated.length)throw new Error("Команда сохранена, но место HLTV не обновилось.");
-          return updated[0];
-        }catch(error){
-          if(error?.code==="42703")throw new Error("Не найдено поле hltv_rank. Сначала выполни SQL-миграцию worker/sql/2026-11-22-hltv-tier-logic.sql в Neon.");
-          throw error;
-        }
+      if(hasHltvRank){
+        const updated=await sql`UPDATE public.teams SET hltv_rank=${hltvRank} WHERE id=${saved.id}::bigint RETURNING *`;
+        if(!updated.length)throw new Error("Команда сохранена, но место HLTV не обновилось.");
+        return updated[0];
       }
       return saved;
     }
