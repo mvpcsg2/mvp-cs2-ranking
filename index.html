@@ -2777,7 +2777,7 @@ function toggleTeam(id){
 }
 function openTeamProfile(t){
   if(!t)return;
-  navigateAppRoute(teamRoutePath(t));
+  setMainNavActive('ranking',teamRoutePath(t));
   const rank=[...teams].sort((a,b)=>Number(b.points)-Number(a.points)||Number(a.id)-Number(b.id)).findIndex(x=>String(x.id)===String(t.id))+1;
   const roster=getRoster(t),playerPhotos=getPlayerPhotos(t),wins=Math.max(0,Number(t.tournament_wins)||0);
   const playerCards=roster.map((player,n)=>{
@@ -2910,7 +2910,7 @@ async function getPlayerTopPosition(playerId){
 }
 async function openPlayerProfile(nickname,fallbackPhoto=''){
   nickname=String(nickname||'').trim();if(!nickname||nickname==='Игрок не указан')return;
-  navigateAppRoute(playerRoutePath(nickname));
+  setMainNavActive('players',playerRoutePath(nickname));
   const fallback=fallbackPhoto||defaultPlayerPhoto(nickname);
   showMainWorkspace(`<h2>Профиль игрока</h2><div class="help-empty">Загружаем статистику игрока…</div>`,true);
   try{
@@ -3161,7 +3161,7 @@ async function openAwardPrizeMoney(nickname,photo,teamId){
 
 async function openTeamMatchHistory(t){
   if(!t)return;
-  navigateAppRoute(teamRoutePath(t,'matches'));
+  setMainNavActive('ranking',teamRoutePath(t,'matches'));
   showMainWorkspace(`<div class="help-header"><div><h2>История боёв</h2><div class="notice">${esc(t.name)}</div></div><button class="btn" id="backTeamProfile">Профиль команды</button></div>${can('manage_matches')?'<div style="margin-bottom:12px"><button class="btn primary" id="addTeamMatch">＋ Добавить бой</button></div>':''}<div id="teamMatchList" class="match-list"><div class="help-empty">Загружаем матчи…</div></div><div class="modalfoot"><button class="btn" id="closeMatchHistory">Закрыть</button></div>`,true);
   document.getElementById('backTeamProfile').onclick=()=>openTeamProfile(t);
   document.getElementById('closeMatchHistory').onclick=closeMainWorkspace;
@@ -4917,7 +4917,7 @@ async function loadNewsHubItems(filter=newsCenterFilter){
 }
 function openEditorialNewsEditor(article=null){
   if(!can('manage_news'))return;
-  navigateAppRoute('/news/edit/'+encodeURIComponent(article?.id||'new'));
+  setMainNavActive('news','/news/edit/'+encodeURIComponent(article?.id||'new'));
   const row=article||{};
   showMainWorkspace(`<div class="page-head"><div><h2>${article?'Редактировать новость':'Новая публикация'}</h2><div class="page-intro">Создай оформленную новость для читателей CSTT.</div></div><button class="btn" id="cancelEditorialNews">Назад</button></div>
     <div class="news-editor-grid"><div>
@@ -4950,7 +4950,7 @@ function openEditorialNewsEditor(article=null){
 }
 function openEditorialNewsArticle(row){
   if(!row)return;
-  navigateAppRoute('/news/article/'+encodeURIComponent(row.id));
+  setMainNavActive('news','/news/article/'+encodeURIComponent(row.id));
   const image=newsValidWebUrl(row.image_url),external=newsValidWebUrl(row.external_url);
   showMainWorkspace(`<div class="page-head"><div><span class="news-hub-category">${NEWS_CATEGORY_LABELS[row.category]||'НОВОСТЬ'}</span><h2 style="margin:8px 0 0">${esc(row.title)}</h2><div class="page-intro">${esc(newsDate(row.created_at))} · ${esc(row.author_name||'MVP CS2')}</div></div><button class="btn" id="closeEditorialArticle">Закрыть</button></div>
     ${image?`<img class="news-article-cover" src="${esc(image)}" alt="${esc(row.title)}">`:''}
