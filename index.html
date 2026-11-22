@@ -7947,4 +7947,65 @@ body[data-theme="day"] .news-all-modal .news-all-entry .news-no-team-chip span:l
 }
 </style>
 
+
+
+<style id="cstt-news-transfer-main-panel-layout-fix">
+/* Put transfer details at the start of the main News column; remove the empty tile behind each row. */
+.news-hub-grid > .news-hub-event.news-kind-transfer{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+  justify-items:stretch!important;
+  gap:8px!important;
+  min-height:62px!important;
+  padding:7px 8px!important;
+  background:transparent!important;
+  border:0!important;
+  border-bottom:1px solid rgba(164,182,198,.2)!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+}
+.news-hub-grid > .news-hub-event.news-kind-transfer .news-transfer-visual{
+  grid-column:1!important;
+  grid-row:1!important;
+  justify-self:start!important;
+  align-self:center!important;
+  width:min(100%,400px)!important;
+  max-width:400px!important;
+  margin:0!important;
+}
+.news-hub-grid > .news-hub-event.news-kind-transfer .news-rail-meta{
+  grid-column:2!important;
+  grid-row:1!important;
+  justify-self:end!important;
+  align-self:center!important;
+  margin:0!important;
+  white-space:nowrap!important;
+}
+.news-hub-grid > .news-hub-event.news-kind-transfer .news-rail-reason{
+  display:none!important;
+}
+.news-hub-grid > .news-hub-event.news-kind-transfer .news-transfer-title{
+  display:none!important;
+}
+.news-hub-grid > .news-hub-event.news-kind-transfer:nth-child(odd){
+  background:transparent!important;
+}
+@media(max-width:700px){
+  .news-hub-grid > .news-hub-event.news-kind-transfer{
+    grid-template-columns:minmax(0,1fr) auto!important;
+    padding:7px 4px!important;
+  }
+  .news-hub-grid > .news-hub-event.news-kind-transfer .news-transfer-visual{
+    grid-column:1!important;
+    width:100%!important;
+    max-width:100%!important;
+  }
+  .news-hub-grid > .news-hub-event.news-kind-transfer .news-rail-meta{
+    grid-column:2!important;
+    font-size:9px!important;
+  }
+}
+</style>
+
 </body></html>
