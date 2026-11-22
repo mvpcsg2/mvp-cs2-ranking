@@ -8008,4 +8008,41 @@ body[data-theme="day"] .news-all-modal .news-all-entry .news-no-team-chip span:l
 }
 </style>
 
+
+
+<style id="cstt-news-transfer-remove-player-photo-backplates">
+/* Remove the pale square button/image backing beneath player portraits in News transfers. */
+.news-hub-grid > .news-hub-event.news-kind-transfer .news-player-chip,
+.news-hub-grid > .news-hub-event.news-kind-transfer .news-player-chip:hover,
+.news-hub-grid > .news-hub-event.news-kind-transfer .news-player-chip:focus,
+.news-hub-grid > .news-hub-event.news-kind-transfer .news-player-chip:active{
+  display:flex!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  outline-offset:2px;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  appearance:none!important;
+  -webkit-appearance:none!important;
+}
+.news-hub-grid > .news-hub-event.news-kind-transfer .news-player-chip img,
+.news-hub-grid > .news-hub-event.news-kind-transfer .news-player-chip .news-player-fallback{
+  display:block!important;
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+  min-height:36px!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:50%!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  object-fit:cover!important;
+  clip-path:circle(50% at 50% 50%)!important;
+}
+</style>
+
 </body></html>
