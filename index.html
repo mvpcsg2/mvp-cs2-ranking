@@ -7707,4 +7707,90 @@ body[data-theme="day"] .news-all-modal .news-all-entry .news-no-team-chip span:l
 }
 </style>
 
+
+<style id="mvp-transfer-modal-single-panel-fix">
+/* Keep the full transfers view as one surface; remove nested tiles behind portraits and badges. */
+.news-all-modal,
+.news-all-modal .news-all-list,
+.news-all-modal .news-all-entry,
+.news-all-modal .news-all-entry .news-transfer-visual,
+.news-all-modal .news-all-entry .news-player-chip,
+.news-all-modal .news-all-entry .news-team-chip,
+.news-all-modal .news-all-entry .news-no-team-chip{
+  box-shadow:none!important;
+}
+.news-all-modal .news-all-entry{
+  width:100%!important;
+  max-width:none!important;
+  background:transparent!important;
+  border-radius:0!important;
+}
+.news-all-modal .news-all-entry:nth-child(odd){
+  background:rgba(255,255,255,.025)!important;
+}
+.news-all-modal .news-all-entry .news-transfer-visual{
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  grid-template-columns:42px minmax(170px,250px)!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+}
+.news-all-modal .news-all-entry .news-player-chip{
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  outline:0!important;
+}
+.news-all-modal .news-all-entry .news-player-chip img,
+.news-all-modal .news-all-entry .news-player-chip .news-player-fallback{
+  display:block!important;
+  width:38px!important;
+  height:38px!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:50%!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  object-fit:cover!important;
+  overflow:hidden!important;
+}
+.news-all-modal .news-all-entry .news-team-chip,
+.news-all-modal .news-all-entry .news-no-team-chip{
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  outline:0!important;
+  background:transparent!important;
+}
+.news-all-modal .news-all-entry .news-team-chip img,
+.news-all-modal .news-all-entry .news-team-fallback{
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+}
+.news-all-modal .news-all-entry .news-no-team-chip img{
+  border:0!important;
+  border-radius:50%!important;
+  background:#40576b!important;
+  box-shadow:none!important;
+}
+.news-all-modal .news-all-entry .news-team-path{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+@media(max-width:560px){
+  .news-all-modal .news-all-entry .news-transfer-visual{
+    grid-template-columns:42px minmax(0,1fr)!important;
+  }
+}
+</style>
+
 </body></html>
