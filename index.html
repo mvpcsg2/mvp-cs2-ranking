@@ -8589,4 +8589,65 @@ body[data-design="ahltv"] .mvp-news-rail .news-banned-label{
 }
 </style>
 
+
+<style id="cstt-beta-transfer-rail-deep-override">
+/* Force the entire transfer/ban rail to use the Beta dark surface, including nested visual widgets. */
+body[data-design="ahltv"] .mvp-news-rail .news-rail-section,
+body[data-design="ahltv"] .mvp-news-rail #transferNews,
+body[data-design="ahltv"] .mvp-news-rail #banNews{
+  background:#102236!important;background-image:none!important;color:#e7f1fb!important;
+  border-color:#34536b!important;
+}
+body[data-design="ahltv"] .mvp-news-rail #transferNews *,
+body[data-design="ahltv"] .mvp-news-rail #banNews *{
+  background-color:transparent!important;
+  color:#dceaf6!important;
+  border-color:#34536b!important;
+  box-shadow:none!important;
+}
+body[data-design="ahltv"] .mvp-news-rail #transferNews .news-rail-item,
+body[data-design="ahltv"] .mvp-news-rail #banNews .news-rail-item,
+body[data-design="ahltv"] .mvp-news-rail #transferNews .news-transfer-visual,
+body[data-design="ahltv"] .mvp-news-rail #banNews .news-ban-visual{
+  background:#142a3e!important;color:#e4eef8!important;
+}
+body[data-design="ahltv"] .mvp-news-rail #transferNews .news-rail-item strong,
+body[data-design="ahltv"] .mvp-news-rail #banNews .news-rail-item strong,
+body[data-design="ahltv"] .mvp-news-rail #transferNews .news-player-chip span,
+body[data-design="ahltv"] .mvp-news-rail #transferNews .news-team-chip span,
+body[data-design="ahltv"] .mvp-news-rail #transferNews .news-no-team-chip span,
+body[data-design="ahltv"] .mvp-news-rail #banNews .news-player-chip span,
+body[data-design="ahltv"] .mvp-news-rail #banNews .news-team-chip span{
+  color:#dceaf6!important;
+}
+body[data-design="ahltv"] .mvp-news-rail #transferNews img,
+body[data-design="ahltv"] .mvp-news-rail #banNews img{
+  background:transparent!important;box-shadow:none!important;
+}
+body[data-design="ahltv"] .mvp-news-rail #transferNews .news-player-chip img,
+body[data-design="ahltv"] .mvp-news-rail #transferNews .news-team-chip img,
+body[data-design="ahltv"] .mvp-news-rail #transferNews .news-no-team-chip img,
+body[data-design="ahltv"] .mvp-news-rail #banNews .news-player-chip img,
+body[data-design="ahltv"] .mvp-news-rail #banNews .news-team-chip img{
+  background:#1a3045!important;border:1px solid #3b5a72!important;border-radius:7px!important;
+}
+body[data-design="ahltv"] .mvp-news-rail #transferNews .news-player-fallback,
+body[data-design="ahltv"] .mvp-news-rail #transferNews .news-team-fallback,
+body[data-design="ahltv"] .mvp-news-rail #banNews .news-player-fallback,
+body[data-design="ahltv"] .mvp-news-rail #banNews .news-team-fallback{
+  background:#1a3045!important;color:#dceaf6!important;border:1px solid #3b5a72!important;
+}
+body[data-design="ahltv"] .mvp-news-rail #transferNews .news-transfer-arrow{color:#83c9d1!important}
+body[data-design="ahltv"] .mvp-news-rail #banNews .news-banned-label{
+  background:#542d37!important;color:#ffd9df!important;border:1px solid #8e4c59!important;
+}
+body[data-design="ahltv"] .mvp-news-rail .news-rail-footer,
+body[data-design="ahltv"] .mvp-news-rail .news-rail-footer *{
+  background:#142a3e!important;color:#eaf3fc!important;border-color:#34536b!important;
+}
+body[data-design="ahltv"] .mvp-news-rail .news-rail-footer #allTransfersBtn{
+  background:#174b72!important;color:#fff!important;border-color:#39749b!important;
+}
+</style>
+
 </body></html>
