@@ -113,6 +113,8 @@ export default {
     }
 
     // Public, read-only ranking data. Never expose profiles or support messages here.
+    // Read the optional HLTV field via to_jsonb so this endpoint also builds before
+    // the additive Neon migration has been applied.
     if (url.pathname === "/api/teams") {
       try {
         const rows = await sql`
