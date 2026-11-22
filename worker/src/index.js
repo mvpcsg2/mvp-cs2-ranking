@@ -120,7 +120,8 @@ export default {
         const rows = await sql`
           SELECT id, name, tag, points, players, logo, created_at,
                  player_photos, tournament_wins, is_banned, ban_reason,
-                 NULLIF(to_jsonb(t)->>'hltv_rank','')::integer AS hltv_rank
+                 NULLIF(to_jsonb(t)->>'hltv_rank','')::integer AS hltv_rank,
+                 (to_jsonb(t) ? 'hltv_rank') AS hltv_rank_supported
           FROM public.teams t
           ORDER BY points DESC, id ASC
         `;
