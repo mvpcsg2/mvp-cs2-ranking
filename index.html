@@ -2753,6 +2753,8 @@ function applyInitialTeamExpansion(){
 }
 function render(){
   teams.sort((a,b)=>Number(b.points)-Number(a.points)||Number(a.id)-Number(b.id));
+  // Public ranking hides teams without any real roster members; administrators retain the full list.
+  const visibleTeams=admin?teams:teams.filter(team=>getRoster(team).length>0);
   const host=document.getElementById('teams'); host.innerHTML='';
   renderSeasonRail();
   renderDailyDateNavigator();
@@ -2768,8 +2770,8 @@ function render(){
   document.getElementById('loginBtn').textContent=currentUser?'Профиль / выход':'Войти / регистрация';
   document.getElementById('logoutBtn').classList.toggle('hidden',!currentUser);
   if(isFutureSeason()){host.innerHTML=`<div class="season-empty-state"><strong>Сезон ${selectedSeasonYear} ещё не начался</strong><span>Этот год пока пустой. Он станет активным после завершения сезона ${activeSeasonYear} и годового вайпа в настройках администратора.</span></div>`;return;}
-  if(!teams.length){host.innerHTML=isViewingPastDay()&&!dailySnapshot&&!isViewingArchivedSeason()?`<div class="season-empty-state"><strong>Снимок за ${esc(formatDailyDate(selectedRankDate,false))} не найден</strong><span>Ежедневная история начинается с установки SQL-миграции. Более ранние дни восстановить задним числом нельзя.</span></div>`:isViewingArchivedSeason()?`<div class="season-empty-state"><strong>Архив ${selectedSeasonYear} года пуст</strong><span>Для этого года пока нет сохранённого рейтинга.</span></div>`:'<div class="empty">Пока нет команд в общей базе данных. Администратор может перенести сохранённые команды или добавить первую команду.</div>';return}
-  teams.forEach((t,i)=>{
+  if(!visibleTeams.length){host.innerHTML=isViewingPastDay()&&!dailySnapshot&&!isViewingArchivedSeason()?`<div class="season-empty-state"><strong>Снимок за ${esc(formatDailyDate(selectedRankDate,false))} не найден</strong><span>Ежедневная история начинается с установки SQL-миграции. Более ранние дни восстановить задним числом нельзя.</span></div>`:isViewingArchivedSeason()?`<div class="season-empty-state"><strong>Архив ${selectedSeasonYear} года пуст</strong><span>Для этого года пока нет сохранённого рейтинга.</span></div>`:'<div class="empty">Пока нет команд в общей базе данных. Администратор может перенести сохранённые команды или добавить первую команду.</div>';return}
+  visibleTeams.forEach((t,i)=>{
     const tierClass = i<8 ? '1' : i<16 ? '2' : '3';
     const isExpanded=String(expandedTeamId)===String(t.id);
     const roster=getRoster(t);
