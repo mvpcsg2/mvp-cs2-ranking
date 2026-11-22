@@ -6848,5 +6848,60 @@ body[data-theme="night"] #teams>.team-card>.roster-expanded .roster-player-photo
  .hltv-roster-row{min-height:56px;gap:8px}
  .hltv-roster-row>img,.hltv-roster-placeholder{width:42px;height:42px;flex-basis:42px}
 }
+
+/* DAY theme: light HLTV-inspired team profile; NIGHT keeps the dark treatment above. */
+body[data-theme="day"] #modalRoot .modal:has(.team-profile-view){
+  background:#fff!important;color:#26313c!important;border-color:#d9e0e7!important;
+  box-shadow:0 22px 70px rgba(18,31,45,.28)!important;
+}
+body[data-theme="day"] #modalRoot .modalback:has(.team-profile-view){
+  background:rgba(25,34,44,.48)!important;backdrop-filter:blur(3px);
+}
+body[data-theme="day"] .team-profile-view{background:#fff!important;color:#26313c!important}
+body[data-theme="day"] .hltv-profile-close{background:#e9edf1!important;color:#354252!important;border:1px solid #d7dfe6}
+body[data-theme="day"] .hltv-profile-close:hover{background:#e50968!important;color:#fff!important;border-color:#e50968}
+body[data-theme="day"] .hltv-profile-rosterbar{
+  background:linear-gradient(180deg,#edf2f6,#dce4eb)!important;
+  border-bottom:1px solid #cbd5df;
+}
+body[data-theme="day"] .hltv-player-photo img{filter:drop-shadow(0 3px 4px rgba(29,43,57,.18))}
+body[data-theme="day"] .hltv-player-photo>span{
+  background:linear-gradient(145deg,#d7e0e8,#aebdca)!important;color:#334252!important;
+}
+body[data-theme="day"] .hltv-player-name{
+  background:#f7f9fb!important;border-top-color:#dba51b!important;color:#26313c!important;
+}
+body[data-theme="day"] .hltv-player-name .player-profile-link{color:#26313c!important}
+body[data-theme="day"] .hltv-player-name .player-profile-link:hover{color:#a56e00!important}
+body[data-theme="day"] .hltv-team-overview{background:#fff!important;border-bottom-color:#dce2e8!important}
+body[data-theme="day"] .hltv-team-logo{background:#f4f6f8!important;border-color:#d6dee6!important;color:#334252!important}
+body[data-theme="day"] .hltv-team-name{color:#222b35!important}
+body[data-theme="day"] .hltv-team-tag{color:#758292!important}
+body[data-theme="day"] .hltv-team-label{color:#8793a0!important}
+body[data-theme="day"] .hltv-team-ranking{background:#f7f9fb!important}
+body[data-theme="day"] .hltv-team-ranking>div{border-bottom-color:#dce2e8!important}
+body[data-theme="day"] .hltv-team-ranking>div+div{border-left-color:#dce2e8!important}
+body[data-theme="day"] .hltv-team-ranking span{color:#778493!important}
+body[data-theme="day"] .hltv-team-ranking strong{color:#26313c!important}
+body[data-theme="day"] .hltv-team-facts{background:#dce2e8!important;border-bottom-color:#dce2e8!important}
+body[data-theme="day"] .hltv-team-fact{background:#fff!important;color:#596777!important}
+body[data-theme="day"] .hltv-team-fact strong{color:#26313c!important}
+body[data-theme="day"] .hltv-profile-tabs{background:#f0f3f6!important;border-bottom-color:#d7dfe6!important}
+body[data-theme="day"] .hltv-profile-tabs>*{color:#718091!important}
+body[data-theme="day"] .hltv-profile-tabs .active{color:#26313c!important;border-bottom-color:#dba51b!important}
+body[data-theme="day"] .hltv-profile-tabs button:hover{color:#1f2933!important;background:#e4eaf0!important}
+body[data-theme="day"] .hltv-roster-caption{color:#354252!important}
+body[data-theme="day"] .hltv-roster-caption span{color:#82909e!important}
+body[data-theme="day"] .hltv-roster-list{background:#fff!important}
+body[data-theme="day"] .hltv-roster-row{background:#f7f9fb!important;border-color:#e0e6ec!important}
+body[data-theme="day"] .hltv-roster-number{color:#8995a2!important}
+body[data-theme="day"] .hltv-roster-row>img,
+body[data-theme="day"] .hltv-roster-placeholder{background:#e9eef3!important}
+body[data-theme="day"] .hltv-roster-placeholder{color:#718091!important}
+body[data-theme="day"] .hltv-roster-player-name .player-profile-link{color:#26313c!important}
+body[data-theme="day"] .hltv-roster-player-name .player-profile-link:hover{color:#a56e00!important}
+body[data-theme="day"] .hltv-roster-empty,
+body[data-theme="day"] .hltv-empty-roster{color:#7d8996!important}
+
 </style>
 </body></html>
