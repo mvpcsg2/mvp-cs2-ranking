@@ -7049,4 +7049,165 @@ body[data-theme="night"] .top .nav-btn.active{
 
 </style>
 
+
+<style id="mvp-global-motion-system">
+/* MVP CS2 — cohesive, lightweight motion across the interface. */
+@keyframes mvpPageEnter{
+  from{opacity:0;transform:translateY(13px) scale(.992)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes mvpDialogEnter{
+  from{opacity:0;transform:translateY(15px) scale(.978)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes mvpBackdropEnter{
+  from{opacity:0}
+  to{opacity:1}
+}
+@keyframes mvpCardEnter{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes mvpRosterEnter{
+  from{opacity:0;transform:translateY(7px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes mvpGoldEnter{
+  0%{transform:scale(.82);filter:brightness(1.35)}
+  65%{transform:scale(1.1);filter:brightness(1.1)}
+  100%{transform:scale(1);filter:brightness(1)}
+}
+@keyframes mvpNavActive{
+  0%{box-shadow:inset 0 -3px 0 transparent}
+  100%{box-shadow:inset 0 -3px 0 var(--orange,#e0a500)}
+}
+
+/* Page and dialog entrances */
+.main-workspace:not(.hidden)>.modal,
+#mainWorkspacePanel.team-profile-workspace,
+#mainWorkspacePanel.player-profile-modal{
+  animation:mvpPageEnter .38s cubic-bezier(.2,.72,.25,1) both;
+}
+#modalRoot>.modalback{
+  animation:mvpBackdropEnter .22s ease-out both;
+}
+#modalRoot .modalback>.modal,
+#modalRoot .modalback>.modal.modal-page{
+  animation:mvpDialogEnter .3s cubic-bezier(.2,.72,.25,1) both;
+}
+
+/* Lists and cards enter softly when a section is rendered or refreshed */
+#teams>.team-card,
+#teams>.team,
+.top-player-list>.top-player-row,
+.match-list>.match-card,
+.stream-grid>.stream-card,
+.news-hub-grid>.news-hub-card,
+.news-rail-list>.news-rail-item,
+.hltv-roster-list>.hltv-roster-row,
+.hltv-profile-rosterbar>.hltv-player-card,
+.profile-roster>li,
+.roster-expanded{
+  animation:mvpCardEnter .36s cubic-bezier(.2,.7,.25,1) both;
+}
+#teams>.team-card:nth-child(1),#teams>.team:nth-child(1),
+.top-player-list>.top-player-row:nth-child(1),
+.match-list>.match-card:nth-child(1),.stream-grid>.stream-card:nth-child(1),
+.news-hub-grid>.news-hub-card:nth-child(1),.hltv-roster-list>.hltv-roster-row:nth-child(1){animation-delay:.015s}
+#teams>.team-card:nth-child(2),#teams>.team:nth-child(2),
+.top-player-list>.top-player-row:nth-child(2),
+.match-list>.match-card:nth-child(2),.stream-grid>.stream-card:nth-child(2),
+.news-hub-grid>.news-hub-card:nth-child(2),.hltv-roster-list>.hltv-roster-row:nth-child(2){animation-delay:.045s}
+#teams>.team-card:nth-child(3),#teams>.team:nth-child(3),
+.top-player-list>.top-player-row:nth-child(3),
+.match-list>.match-card:nth-child(3),.stream-grid>.stream-card:nth-child(3),
+.news-hub-grid>.news-hub-card:nth-child(3),.hltv-roster-list>.hltv-roster-row:nth-child(3){animation-delay:.075s}
+#teams>.team-card:nth-child(4),#teams>.team:nth-child(4),
+.top-player-list>.top-player-row:nth-child(4),
+.match-list>.match-card:nth-child(4),.stream-grid>.stream-card:nth-child(4),
+.news-hub-grid>.news-hub-card:nth-child(4),.hltv-roster-list>.hltv-roster-row:nth-child(4){animation-delay:.105s}
+#teams>.team-card:nth-child(5),#teams>.team:nth-child(5),
+.top-player-list>.top-player-row:nth-child(5),
+.match-list>.match-card:nth-child(5),.stream-grid>.stream-card:nth-child(5),
+.news-hub-grid>.news-hub-card:nth-child(5),.hltv-roster-list>.hltv-roster-row:nth-child(5){animation-delay:.135s}
+#teams>.team-card:nth-child(6),#teams>.team:nth-child(6),
+.top-player-list>.top-player-row:nth-child(6),
+.match-list>.match-card:nth-child(6),.stream-grid>.stream-card:nth-child(6),
+.news-hub-grid>.news-hub-card:nth-child(6),.hltv-roster-list>.hltv-roster-row:nth-child(6){animation-delay:.165s}
+#teams>.team-card:nth-child(7),#teams>.team:nth-child(7),
+.top-player-list>.top-player-row:nth-child(7),
+.match-list>.match-card:nth-child(7),.hltv-roster-list>.hltv-roster-row:nth-child(7){animation-delay:.195s}
+#teams>.team-card:nth-child(8),#teams>.team:nth-child(8),
+.top-player-list>.top-player-row:nth-child(8),
+.match-list>.match-card:nth-child(8),.hltv-roster-list>.hltv-roster-row:nth-child(8){animation-delay:.225s}
+.hltv-profile-rosterbar>.hltv-player-card{animation-name:mvpRosterEnter}
+.player-kd-silhouette{animation:mvpGoldEnter .42s cubic-bezier(.2,.7,.25,1) both}
+
+/* Smooth, consistent hover/focus feedback */
+.btn,.nav-btn,.social-btn,.settings-trigger,.theme-choice,.news-hub-tab,
+.season-year-button,.top-player-nick,.player-profile-link,
+.hltv-profile-close,.hltv-profile-tabs button,.help-fab,
+#helpFab,.profile-actions button,.team-main,.team-card,
+.top-player-row,.match-card,.stream-card,.news-hub-card,
+.news-rail-section,.season-rail-section,.hltv-roster-row{
+  transition:
+    transform .2s cubic-bezier(.2,.7,.25,1),
+    box-shadow .2s ease,
+    border-color .2s ease,
+    background-color .2s ease,
+    color .2s ease,
+    filter .2s ease;
+}
+.nav-btn,.btn,.social-btn,.season-year-button,.news-hub-tab,
+.hltv-profile-close,.hltv-profile-tabs button,#helpFab{
+  position:relative;
+  overflow:hidden;
+}
+.nav-btn:focus-visible,.btn:focus-visible,.top-player-nick:focus-visible,
+.player-profile-link:focus-visible,.hltv-profile-close:focus-visible{
+  outline:2px solid #dfa900;
+  outline-offset:2px;
+}
+.nav-btn.active{animation:mvpNavActive .28s ease-out both}
+.top-player-kd-icon,.player-kd-silhouette{transform-origin:center}
+@media(hover:hover) and (pointer:fine){
+  .btn:hover,.nav-btn:hover,.social-btn:hover,.theme-choice:hover,
+  .season-year-button:hover,.news-hub-tab:hover,
+  .hltv-profile-close:hover,#helpFab:hover{
+    transform:translateY(-2px);
+    box-shadow:0 5px 14px rgba(25,36,52,.13);
+  }
+  .top-player-row:hover,.match-card:hover,.stream-card:hover,
+  .news-hub-card:hover,.hltv-roster-row:hover{
+    transform:translateY(-2px);
+    box-shadow:0 7px 18px rgba(20,32,48,.10);
+    border-color:rgba(190,145,47,.55);
+  }
+  .team-main:hover{transform:translateX(2px)}
+  .team-card:hover{border-color:rgba(190,145,47,.4)}
+  .news-rail-section:hover,.season-rail-section:hover{
+    box-shadow:0 5px 16px rgba(20,32,48,.13);
+  }
+  .top-player-avatar img,.team-logo img,.logo img,
+  .hltv-player-photo img,.hltv-roster-row>img{
+    transition:transform .3s cubic-bezier(.2,.7,.25,1),filter .3s ease;
+  }
+  .top-player-row:hover .top-player-avatar img,
+  .team-main:hover .logo img,
+  .hltv-roster-row:hover>img{
+    transform:scale(1.055);
+  }
+}
+
+/* DAY/NIGHT both inherit the same motion; use less movement when requested. */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    scroll-behavior:auto!important;
+    transition-duration:.01ms!important;
+  }
+}
+</style>
+
 </body></html>
