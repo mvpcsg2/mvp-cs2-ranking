@@ -913,6 +913,57 @@
 .theme-choice.active{border-color:#d9a32b;box-shadow:0 0 0 2px rgba(217,163,43,.16)}
 .theme-preview{height:38px;border-radius:5px;margin-bottom:9px;border:1px solid #dce0e5;background:linear-gradient(90deg,#f4f6f8 50%,#fff 50%)}
 .theme-preview.night{border-color:#414b58;background:linear-gradient(90deg,#171b21 50%,#252d37 50%)}
+/* AHLTV Dark design layer. It changes presentation only; all CSTT data stays shared. */
+body[data-design="ahltv"]{--orange:#f05a36;--ink:#eee9e6;--muted:#a9a09c;--line:#493a35;--bg:#171211;--soft:#241b18;background:#120e0d!important;background-image:radial-gradient(ellipse at 50% -18%,#503026 0%,#241815 42%,#120e0d 78%)!important;color:#eee9e6!important;font-family:Inter,Arial,Helvetica,sans-serif}
+body[data-design="ahltv"] .top{background:rgba(29,20,17,.96)!important;border-bottom:1px solid #57372c!important;box-shadow:0 8px 28px rgba(0,0,0,.28)!important;backdrop-filter:blur(14px)}
+body[data-design="ahltv"] .brand,body[data-design="ahltv"] .site-brand-name{color:#fff1e9!important}
+body[data-design="ahltv"] .top .nav-btn,body[data-design="ahltv"] .settings-trigger{color:#d7c5bc!important}
+body[data-design="ahltv"] .top .nav-btn:hover{background:#38251f!important}
+body[data-design="ahltv"] .top .nav-btn.active{background:#f05a36!important;border-color:#f05a36!important;color:#fff!important;box-shadow:0 5px 16px rgba(240,90,54,.23)}
+body[data-design="ahltv"] .settings-trigger,body[data-design="ahltv"] .social-btn{background:#30221d!important;border:1px solid #5b4035!important;color:#ffe9df!important;border-radius:10px}
+body[data-design="ahltv"] .wrap,body[data-design="ahltv"] .heading,body[data-design="ahltv"] .crumb{color:#f0e8e4!important}
+body[data-design="ahltv"] .sub,body[data-design="ahltv"] .players,body[data-design="ahltv"] .profile-team-tag,body[data-design="ahltv"] .page-intro,body[data-design="ahltv"] .notice{color:#b6a8a1!important}
+body[data-design="ahltv"] .panel,body[data-design="ahltv"] .site-footer,body[data-design="ahltv"] .news-rail-section,body[data-design="ahltv"] .news-hub-card,body[data-design="ahltv"] .news-card,body[data-design="ahltv"] .match-card,body[data-design="ahltv"] .stream-card,body[data-design="ahltv"] .help-card,body[data-design="ahltv"] .profile-stat,body[data-design="ahltv"] .player-profile-stat{background:rgba(35,26,23,.96)!important;border:1px solid #49372f!important;color:#f0e8e4!important;box-shadow:0 12px 32px rgba(0,0,0,.17)!important;border-radius:12px}
+body[data-design="ahltv"] .tablehead,body[data-design="ahltv"] .news-rail-head{background:#30231f!important;color:#c9b8af!important;border-color:#513a31!important}
+body[data-design="ahltv"] .team-card,body[data-design="ahltv"] .team-main,body[data-design="ahltv"] .team{background:#241b18!important;border-color:#46352e!important;color:#f1e9e5!important}
+body[data-design="ahltv"] .team-main:hover,body[data-design="ahltv"] .team-main[aria-expanded="true"]{background:#33231e!important}
+body[data-design="ahltv"] .roster-expanded{background:#1d1513!important;border-color:#49372f!important}
+body[data-design="ahltv"] .roster-player,body[data-design="ahltv"] .player-photo-edit,body[data-design="ahltv"] .top-player-row{background:#30231f!important;border-color:#594237!important;color:#f4eae5!important;border-radius:10px}
+body[data-design="ahltv"] .rank,body[data-design="ahltv"] .name,body[data-design="ahltv"] .points,body[data-design="ahltv"] .roster-player-name,body[data-design="ahltv"] .team-profile-btn{color:#fff0e9!important}
+body[data-design="ahltv"] .logo,body[data-design="ahltv"] .profile-logo,body[data-design="ahltv"] .roster-player-photo,body[data-design="ahltv"] .player-photo-preview{background:transparent!important;border-color:#5b463c!important}
+body[data-design="ahltv"] .modal,body[data-design="ahltv"] .modal-page{background:#251b18!important;color:#f2e9e4!important;border:1px solid #543d32!important;box-shadow:0 20px 70px rgba(0,0,0,.6)!important;border-radius:14px}
+body[data-design="ahltv"] .modal h2,body[data-design="ahltv"] .modal h3,body[data-design="ahltv"] .modal b,body[data-design="ahltv"] .modal strong{color:#fff1ea!important}
+body[data-design="ahltv"] .modal .field label,body[data-design="ahltv"] .modal .notice{color:#c0ada4!important}
+body[data-design="ahltv"] input,body[data-design="ahltv"] textarea,body[data-design="ahltv"] select,body[data-design="ahltv"] .field input,body[data-design="ahltv"] .field textarea,body[data-design="ahltv"] .field select{background:#17110f!important;color:#f1e8e3!important;border-color:#604438!important}
+body[data-design="ahltv"] .btn:not(.primary),body[data-design="ahltv"] .tiny{background:#392720!important;color:#f7e8e0!important;border-color:#624437!important;border-radius:8px}
+body[data-design="ahltv"] .btn.primary,body[data-design="ahltv"] .help-fab,body[data-design="ahltv"] .team-profile-btn{background:#f05a36!important;border-color:#f05a36!important;color:#fff!important;border-radius:8px}
+body[data-design="ahltv"] .tier-divider,body[data-design="ahltv"] .tier-divider-1,body[data-design="ahltv"] .tier-divider-2,body[data-design="ahltv"] .tier-divider-3{background:#30231f!important;color:#eadbd3!important;border-color:#594237!important}
+body[data-design="ahltv"] .tier-divider-badge,body[data-design="ahltv"] .tier-divider-1 .tier-divider-badge,body[data-design="ahltv"] .tier-divider-2 .tier-divider-badge,body[data-design="ahltv"] .tier-divider-3 .tier-divider-badge{background:#50352b!important;color:#ffe9df!important;border:1px solid #704839!important;box-shadow:none!important}
+body[data-design="ahltv"] .profile-hero,body[data-design="ahltv"] .profile-roster li,body[data-design="ahltv"] .match-list,body[data-design="ahltv"] .player-profile-layout{border-color:#4a382f!important}
+body[data-design="ahltv"] .news-rail-item,body[data-design="ahltv"] .news-all-entry{color:#e7d9d2!important;border-color:#4a382f!important}
+body[data-design="ahltv"] .news-rail-item strong,body[data-design="ahltv"] .news-rail-item a,body[data-design="ahltv"] .news-rail-item button,body[data-design="ahltv"] .news-hub-title,body[data-design="ahltv"] .news-article-body{color:#fff0e8!important}
+body[data-design="ahltv"] .news-hub-hero{background:linear-gradient(120deg,#38251e,#261916)!important;color:#fff0e8!important;border:1px solid #594035}
+body[data-design="ahltv"] .news-hub-hero h2,body[data-design="ahltv"] .news-hub-hero p,body[data-design="ahltv"] .news-hub-summary,body[data-design="ahltv"] .news-hub-meta{color:#f1e5df!important}
+body[data-design="ahltv"] .news-hub-category{background:#513026!important;color:#ffe6dc!important;border-color:#754633!important}
+body[data-design="ahltv"] .stream-card-info,body[data-design="ahltv"] .stream-card{background:#2e211d!important;color:#f0e5df!important;border-color:#523b31!important}
+body[data-design="ahltv"] .stream-title,body[data-design="ahltv"] .top-player-nick,body[data-design="ahltv"] .top-player-team,body[data-design="ahltv"] .top-player-metric{color:#f7ebe5!important}
+body[data-design="ahltv"] .adminbar{background:#3a2a1e!important;border-color:#81522d!important;color:#f9d9ab!important}
+body[data-design="ahltv"] .empty,body[data-design="ahltv"] .stream-empty,body[data-design="ahltv"] .help-empty,body[data-design="ahltv"] .news-hub-empty{color:#bdaea7!important}
+body[data-design="ahltv"] .settings-trigger:hover{color:#ff795b!important}
+body[data-design="ahltv"] .team-card.tier-1 .team-main,body[data-design="ahltv"] .team-card.tier-2 .team-main,body[data-design="ahltv"] .team-card.tier-3 .team-main{border-left-color:#f05a36!important}
+.theme-design-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.design-choice{border:1px solid #d7dce3;border-radius:10px;padding:10px;background:#fff;color:#29313a;text-align:left;cursor:pointer;font:inherit;transition:border-color .18s,transform .18s,box-shadow .18s}
+.design-choice:hover{transform:translateY(-2px)}
+.design-choice.active{border-color:#f05a36;box-shadow:0 0 0 2px rgba(240,90,54,.16)}
+.design-preview{height:72px;border-radius:7px;margin-bottom:9px;border:1px solid #dce0e5;background:linear-gradient(90deg,#eef1f5 33%,#fff 33% 100%);position:relative;overflow:hidden}
+.design-preview:after{content:"";position:absolute;left:9px;right:9px;top:39px;height:18px;border-radius:4px;background:#dce3eb;box-shadow:0 -25px 0 #f7f9fb,0 25px 0 #cbd5e1}
+.design-preview.ahltv{border-color:#674638;background:linear-gradient(110deg,#130f0e,#34221c)}
+.design-preview.ahltv:after{background:#4a2b21;box-shadow:0 -25px 0 #241815,0 25px 0 #f05a36;opacity:.9}
+body[data-design="ahltv"] .design-choice{background:#30231f;color:#f4eae5;border-color:#594237}
+body[data-design="ahltv"] .design-choice span{color:#c5b2a8}
+body[data-design="ahltv"] .design-choice.active{border-color:#f05a36}
+@media(max-width:560px){.theme-design-row{grid-template-columns:1fr 1fr}.design-choice{padding:8px}.design-preview{height:60px}}
+
 body[data-theme="night"]{--ink:#e7ebf0;--muted:#a2acb8;--line:#39424d;--bg:#20262e;--soft:#282f39;background:#171b21!important;background-image:none!important;color:#e7ebf0!important}
 body[data-theme="night"] .top{background:rgba(27,32,39,.97)!important;border-bottom-color:#39424d!important;box-shadow:0 3px 15px rgba(0,0,0,.24)!important}
 body[data-theme="night"] .brand{color:#f1f3f6}
@@ -2364,8 +2415,16 @@ let activeTournament = null, activeTournamentOrganizer = null, selectedTournamen
 function can(permission){const allowed=admin || (moderator && userPermissions?.[permission] === true);return permission==='manage_site_settings'?allowed:(!isSeasonReadOnly()&&allowed)}
 const MOD_PERMISSION_LABELS={manage_teams:'Управление командами и очками',manage_matches:'Создание и редактирование матчей',manage_players:'Управление профилями игроков',manage_trophies:'Выдача и удаление кубков',manage_streams:'Управление трансляциями',manage_support:'Ответы в чате помощи',manage_bans:'Блокировка игроков и команд',manage_news:'Публикация и редактирование новостей',manage_site_settings:'Изменение логотипа сайта'};
 const THEME_STORAGE_KEY='mvp_cs2_theme_mode_v2';
+const DESIGN_STORAGE_KEY='cstt_design_mode_v1';
 function getThemeMode(){try{const saved=localStorage.getItem(THEME_STORAGE_KEY);return saved==='day'?'day':'night'}catch(_){return 'night'}}
+function getDesignMode(){try{return localStorage.getItem(DESIGN_STORAGE_KEY)==='ahltv'?'ahltv':'classic'}catch(_){return 'classic'}}
 function applyThemeMode(mode){const theme=mode==='night'?'night':'day';document.body.dataset.theme=theme;try{localStorage.setItem(THEME_STORAGE_KEY,theme)}catch(_){}const btn=document.getElementById('settingsBtn');if(btn)btn.setAttribute('aria-label',theme==='night'?'Настройки · Ночная тема':'Настройки · Дневная тема');document.querySelectorAll('[data-theme-choice]').forEach(b=>b.classList.toggle('active',b.dataset.themeChoice===theme));}
+function applyDesignMode(mode){
+  const design=mode==='ahltv'?'ahltv':'classic';
+  document.body.dataset.design=design;
+  try{localStorage.setItem(DESIGN_STORAGE_KEY,design)}catch(_){}
+  document.querySelectorAll('[data-design-choice]').forEach(b=>b.classList.toggle('active',b.dataset.designChoice===design));
+}
 let currentSiteLogoUrl='/assets/cstt-logo.svg', currentSiteBackgroundUrl='';
 function renderSiteBrand(){
   const host=document.getElementById('siteBrandLogo');
@@ -2552,10 +2611,13 @@ async function openSettingsCenter(){
    <div class="notice">Фон появится за панелями сайта. Для удобной читаемости NIGHT автоматически затемняет изображение, DAY слегка осветляет его. Если убрать фон, останется базовый цвет темы.</div>
  </div>`:'<div class="notice">Управление логотипом и фоном доступно администраторам и модераторам с разрешением «Изменение настроек сайта».</div>';
  modal(`<div class="page-head"><div><h2>Настройки</h2><div class="page-intro">Выбери оформление сайта и настрой его внешний вид.</div></div><button class="btn" id="closeSettings">Закрыть</button></div>
- <div class="language-setting" style="display:block!important;visibility:visible!important;margin:0 0 18px"><label for="siteLanguageSelect" style="display:block;font-size:12px;font-weight:800;margin:0 0 7px">ЯЗЫК / LANGUAGE</label><select id="siteLanguageSelect" class="btn" style="width:100%;text-align:left" onchange="window.mvpSetLanguage(this.value)"><option value="en">🇬🇧 English</option><option value="ru">🇷🇺 Русский</option><option value="uk">🇺🇦 Українська</option><option value="de">🇩🇪 Deutsch</option></select><div class="notice">Язык интерфейса сохраняется на этом устройстве.</div></div><div class="roster-heading">ОФОРМЛЕНИЕ</div><div class="theme-choice-row">
- <button class="theme-choice ${current==='day'?'active':''}" data-theme-choice="day" type="button"><div class="theme-preview"></div><strong>DAY · Дневная</strong><span>Светлая тема</span></button>
+ <div class="language-setting" style="display:block!important;visibility:visible!important;margin:0 0 18px"><label for="siteLanguageSelect" style="display:block;font-size:12px;font-weight:800;margin:0 0 7px">ЯЗЫК / LANGUAGE</label><select id="siteLanguageSelect" class="btn" style="width:100%;text-align:left" onchange="window.mvpSetLanguage(this.value)"><option value="en">🇬🇧 English</option><option value="ru">🇷🇺 Русский</option><option value="uk">🇺🇦 Українська</option><option value="de">🇩🇪 Deutsch</option></select><div class="notice">Язык интерфейса сохраняется на этом устройстве.</div></div><div class="roster-heading">ДИЗАЙН САЙТА</div><div class="theme-design-row">
+ <button class="design-choice ${getDesignMode()==='classic'?'active':''}" data-design-choice="classic" type="button"><div class="design-preview"></div><strong>CSTT Classic</strong><span>Оригинальный сине-белый дизайн</span></button>
+ <button class="design-choice ${getDesignMode()==='ahltv'?'active':''}" data-design-choice="ahltv" type="button"><div class="design-preview ahltv"></div><strong>AHLTV Dark</strong><span>Графитовый фон и оранжевые акценты</span></button>
+ </div><div class="roster-heading" style="margin-top:18px">ЦВЕТОВОЙ РЕЖИМ CSTT CLASSIC</div><div class="theme-choice-row">
+ <button class="theme-choice ${current==='day'?'active':''}" data-theme-choice="day" type="button"><div class="theme-preview"></div><strong>DAY · Дневная</strong><span>Светлая палитра</span></button>
  <button class="theme-choice ${current==='night'?'active':''}" data-theme-choice="night" type="button"><div class="theme-preview night"></div><strong>NIGHT · Ночная</strong><span>Тёмно-серые панели</span></button>
- </div><div class="notice">Выбор темы сохраняется на этом устройстве. Логотип и фон сайта сохраняются в общей базе и видны всем посетителям.</div>${siteAdmin}${trophyAdmin}${seasonAdmin}`,false);
+ </div><div class="notice">Выбранный дизайн сохраняется на этом устройстве. Все данные и функции рейтинга общие для обеих тем.</div>${siteAdmin}${trophyAdmin}${seasonAdmin}`,false);
  document.getElementById('closeSettings').onclick=closeModal;
  const languageSelect=document.getElementById('siteLanguageSelect');
  if(languageSelect){
@@ -2608,6 +2670,7 @@ async function openSettingsCenter(){
    catch(error){alert('Не удалось выполнить годовой вайп: '+niceError(error));wipeBtn.disabled=false;wipeBtn.textContent=`Сохранить ${activeSeasonYear} и начать ${activeSeasonYear+1}`;}
  };
  document.querySelectorAll('[data-theme-choice]').forEach(b=>b.onclick=()=>applyThemeMode(b.dataset.themeChoice));
+  document.querySelectorAll('[data-design-choice]').forEach(b=>b.onclick=()=>applyDesignMode(b.dataset.designChoice));
  if(can('manage_site_settings')){
    const logoPreview=document.getElementById('siteLogoAdminPreview');
    const logoUrlInput=document.getElementById('siteLogoUrlInput');
@@ -4407,6 +4470,7 @@ document.querySelectorAll('[data-main-nav]').forEach(btn=>btn.addEventListener('
 document.getElementById('settingsBtn').onclick=openSettingsCenter;
 document.getElementById('adminUiToggle').onclick=()=>{if(!admin)return;adminUiEnabled=!adminUiEnabled;localStorage.setItem('mvpAdminUiEnabled',adminUiEnabled?'1':'0');render();};
 applyThemeMode(getThemeMode());
+ applyDesignMode(getDesignMode());
 document.getElementById('manageUsersBtn').onclick=()=>openSiteManagement(false);
 document.getElementById('manageBansBtn').onclick=()=>openSiteManagement(true);
 document.getElementById('loginBtn').onclick=()=>authModal('login');
