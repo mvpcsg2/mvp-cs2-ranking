@@ -2779,7 +2779,41 @@ function openTeamProfile(t){
   if(!t)return;
   const rank=[...teams].sort((a,b)=>Number(b.points)-Number(a.points)||Number(a.id)-Number(b.id)).findIndex(x=>String(x.id)===String(t.id))+1;
   const roster=getRoster(t),playerPhotos=getPlayerPhotos(t),wins=Math.max(0,Number(t.tournament_wins)||0);
-  modal(`<div class="profile-hero"><div class="profile-logo">${t.logo?`<img src="${esc(t.logo)}" alt="Логотип ${esc(t.name)}">`:esc(t.tag||t.name.slice(0,4).toUpperCase())}</div><div><div class="profile-team-name">${esc(t.name)}</div><div class="profile-team-tag">${esc(t.tag||'Команда CS2')}</div></div></div><div class="profile-stats"><div class="profile-stat"><small>МЕСТО В РЕЙТИНГЕ</small><strong>#${rank}</strong></div><div class="profile-stat"><small>MVP POINTS</small><strong>${Number(t.points).toLocaleString('ru-RU')}</strong></div></div><div class="team-profile-tournament"><span aria-hidden="true">🏆</span><span>Победы в турнирах</span><strong>${wins}</strong></div><div class="roster-heading">Состав команды · нажми на игрока для профиля</div>${roster.length?`<ol class="profile-roster">${roster.map((player,n)=>{const meta=getRosterPlayerMeta(player,playerPhotos[n]);const photo=meta.photo_url||playerPhotos[n]||'';return `<li>${photo?`<img src="${esc(photo)}" alt="Фото ${esc(player)}" style="width:68px;height:68px;flex:0 0 68px;border-radius:7px;object-fit:cover;background:transparent">`:`<span class="roster-number" style="position:static;flex:0 0 27px">${n+1}</span>`}<div class="roster-player-name-line">${countryFlagMarkup(meta.country_code,'roster-player-country-flag')}<button class="player-profile-link" data-player-profile-name="${esc(player)}" data-player-profile-photo="${esc(photo)}" type="button">${esc(player)}</button></div></li>`}).join('')}</ol>`:'<div class="help-empty">Состав пока не указан.</div>'}<div class="profile-actions"><button class="btn primary" id="openTeamMatchHistory">История боёв</button><button class="btn" id="closeTeamProfile">Закрыть профиль</button></div>`);
+  const playerCards=roster.map((player,n)=>{
+    const meta=getRosterPlayerMeta(player,playerPhotos[n]);
+    const photo=meta.photo_url||playerPhotos[n]||'';
+    return `<div class="hltv-player-card">
+      <div class="hltv-player-photo">${photo?`<img src="${esc(photo)}" alt="Фото ${esc(player)}">`:`<span>${esc(String(player).slice(0,2).toUpperCase())}</span>`}</div>
+      <div class="hltv-player-name">${countryFlagMarkup(meta.country_code,'roster-player-country-flag')}<button class="player-profile-link" data-player-profile-name="${esc(player)}" data-player-profile-photo="${esc(photo)}" type="button">${esc(player)}</button></div>
+    </div>`;
+  }).join('');
+  modal(`<section class="team-profile-view">
+    <button class="hltv-profile-close" id="closeTeamProfile" type="button" aria-label="Закрыть профиль">×</button>
+    <div class="hltv-profile-rosterbar">${playerCards||'<div class="hltv-empty-roster">Состав команды пока не указан</div>'}</div>
+    <div class="hltv-team-overview">
+      <div class="hltv-team-identity">
+        <div class="hltv-team-logo">${t.logo?`<img src="${esc(t.logo)}" alt="Логотип ${esc(t.name)}">`:esc(t.tag||t.name.slice(0,4).toUpperCase())}</div>
+        <div class="hltv-team-title"><div class="hltv-team-name">${esc(t.name)}</div><div class="hltv-team-tag">${esc(t.tag||'Команда CS2')}</div></div>
+      </div>
+      <div class="hltv-team-social" aria-label="Профиль команды"><span class="hltv-team-label">TEAM PROFILE</span></div>
+    </div>
+    <div class="hltv-team-ranking">
+      <div><span>МЕСТО В РЕЙТИНГЕ</span><strong>#${rank}</strong></div>
+      <div><span>MVP POINTS</span><strong>${Number(t.points).toLocaleString('ru-RU')}</strong></div>
+      <div><span>ИГРОКОВ</span><strong>${roster.length}</strong></div>
+    </div>
+    <div class="hltv-team-facts">
+      <div class="hltv-team-fact"><span class="hltv-fact-icon">🏆</span><span>Победы в турнирах</span><strong>${wins}</strong></div>
+      <div class="hltv-team-fact"><span class="hltv-fact-icon">👥</span><span>Состав команды</span><strong>${roster.length} ${roster.length===1?'игрок':roster.length>=2&&roster.length<=4?'игрока':'игроков'}</strong></div>
+    </div>
+    <div class="hltv-profile-tabs"><span class="active">Обзор</span><span>Состав</span><button id="openTeamMatchHistory" type="button">История боёв</button></div>
+    <div class="hltv-roster-caption">СОСТАВ КОМАНДЫ <span>Нажми на игрока, чтобы открыть профиль</span></div>
+    <div class="hltv-roster-list">${roster.length?roster.map((player,n)=>{
+      const meta=getRosterPlayerMeta(player,playerPhotos[n]);
+      const photo=meta.photo_url||playerPhotos[n]||'';
+      return `<div class="hltv-roster-row"><span class="hltv-roster-number">${String(n+1).padStart(2,'0')}</span>${photo?`<img src="${esc(photo)}" alt="Фото ${esc(player)}">`:'<span class="hltv-roster-placeholder">CS</span>'}<div class="hltv-roster-player-name">${countryFlagMarkup(meta.country_code,'roster-player-country-flag')}<button class="player-profile-link" data-player-profile-name="${esc(player)}" data-player-profile-photo="${esc(photo)}" type="button">${esc(player)}</button></div></div>`;
+    }).join(''):'<div class="hltv-roster-empty">Состав пока не указан.</div>'}</div>
+  </section>`,true);
   document.getElementById('closeTeamProfile').onclick=closeModal;
   document.getElementById('openTeamMatchHistory').onclick=()=>openTeamMatchHistory(t);
   wirePlayerProfileLinks();
@@ -6745,6 +6779,74 @@ body[data-theme="night"] #teams>.team-card>.roster-expanded .roster-player-photo
     margin-top:5px!important;
     padding-top:5px!important;
   }
+}
+
+/* HLTV-inspired team profile modal */
+#modalRoot .modal:has(.team-profile-view){position:relative;width:min(660px,calc(100vw - 28px));max-width:660px;max-height:min(88vh,900px);padding:0;background:#293541;color:#dce3eb;border:1px solid #435160;border-radius:3px;box-shadow:0 22px 70px #0009;overflow-y:auto;overflow-x:hidden}
+#modalRoot .modalback:has(.team-profile-view){background:rgba(5,10,16,.78);backdrop-filter:blur(4px);padding:22px}
+.team-profile-view{position:relative;background:#293541;color:#dce3eb;font-family:Arial,Helvetica,sans-serif}
+.hltv-profile-close{position:absolute;right:12px;top:12px;z-index:5;width:34px;height:34px;border:0;border-radius:3px;background:#111a23;color:#cbd5df;font-size:25px;line-height:1;cursor:pointer}
+.hltv-profile-close:hover{background:#e50968;color:white}
+.hltv-profile-rosterbar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;padding:22px 48px 0 18px;background:linear-gradient(180deg,#202b36,#344251);min-height:150px;align-items:end}
+.hltv-player-card{min-width:0;text-align:center;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.hltv-player-photo{width:100%;height:105px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.hltv-player-photo img{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 3px 4px #0005)}
+.hltv-player-photo>span{width:62px;height:76px;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#526476,#1a2530);color:#d9e2ec;font-weight:900;font-size:22px;border-radius:5px 5px 0 0}
+.hltv-player-name{width:100%;min-height:29px;display:flex;align-items:center;justify-content:center;gap:5px;padding:5px 2px;background:#17222d;border-top:2px solid #e5a900;white-space:nowrap;overflow:hidden}
+.hltv-player-name .roster-player-country-flag{width:17px;height:auto;flex:0 0 auto}
+.hltv-player-name .player-profile-link{font-size:12px;color:#f1f4f7;font-weight:800;overflow:hidden;text-overflow:ellipsis}
+.hltv-team-overview{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px 12px;border-bottom:1px solid #465361;background:#2d3946}
+.hltv-team-identity{display:flex;align-items:center;gap:12px;min-width:0}
+.hltv-team-logo{width:52px;height:52px;flex:0 0 52px;display:flex;align-items:center;justify-content:center;background:#f4f6f8;border:1px solid #697583;border-radius:2px;color:#273440;font-weight:900;font-size:13px;overflow:hidden}
+.hltv-team-logo img{width:100%;height:100%;object-fit:contain}
+.hltv-team-title{min-width:0}
+.hltv-team-name{font-size:25px;line-height:1.1;font-weight:900;color:#f4f6f8;overflow-wrap:anywhere}
+.hltv-team-tag{font-size:12px;color:#9eacba;margin-top:4px}
+.hltv-team-label{font-size:10px;font-weight:800;letter-spacing:1.2px;color:#8c9baa}
+.hltv-team-ranking{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:#25313d;padding:0 18px}
+.hltv-team-ranking>div{padding:12px 10px 13px 0;border-bottom:1px solid #465361;min-width:0}
+.hltv-team-ranking>div+div{padding-left:14px;border-left:1px solid #465361}
+.hltv-team-ranking span{display:block;font-size:9px;font-weight:800;letter-spacing:1px;color:#91a0af;margin-bottom:5px}
+.hltv-team-ranking strong{font-size:21px;color:#e4eaf0;font-weight:800}
+.hltv-team-facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#465361;border-bottom:1px solid #465361}
+.hltv-team-fact{display:flex;align-items:center;gap:9px;padding:11px 18px;background:#2d3946;font-size:12px;color:#b7c2cd}
+.hltv-team-fact strong{margin-left:auto;color:#edf2f6;font-size:13px}
+.hltv-fact-icon{font-size:16px}
+.hltv-profile-tabs{height:43px;display:flex;align-items:stretch;gap:0;background:#202b36;border-bottom:1px solid #465361;padding:0 12px}
+.hltv-profile-tabs>*{display:flex;align-items:center;justify-content:center;padding:0 15px;border:0;border-bottom:3px solid transparent;background:transparent;color:#9eacb9;font-size:12px;font-weight:800;text-decoration:none;white-space:nowrap}
+.hltv-profile-tabs .active{color:#f3f6f8;border-bottom-color:#e2a900}
+.hltv-profile-tabs button{cursor:pointer}
+.hltv-profile-tabs button:hover{color:#fff;background:#344251}
+.hltv-roster-caption{display:flex;justify-content:space-between;gap:10px;padding:13px 18px 8px;color:#e7edf2;font-size:10px;font-weight:900;letter-spacing:1.1px}
+.hltv-roster-caption span{font-size:10px;font-weight:400;letter-spacing:0;color:#8fa0af;text-align:right}
+.hltv-roster-list{display:grid;gap:1px;padding:0 18px 18px;background:#293541}
+.hltv-roster-row{min-height:62px;display:flex;align-items:center;gap:12px;padding:6px 10px;background:#344251;border:1px solid #435260}
+.hltv-roster-number{width:22px;flex:0 0 22px;color:#8796a5;font-size:11px;font-weight:800}
+.hltv-roster-row>img,.hltv-roster-placeholder{width:48px;height:48px;flex:0 0 48px;object-fit:cover;border-radius:2px;background:#26323e}
+.hltv-roster-placeholder{display:flex;align-items:center;justify-content:center;color:#9cabb8;font-size:13px;font-weight:900}
+.hltv-roster-player-name{display:flex;align-items:center;gap:7px;min-width:0}
+.hltv-roster-player-name .player-profile-link{font-size:14px;color:#f1f4f7;font-weight:800;text-align:left}
+.hltv-roster-player-name .player-profile-link:hover{color:#f2b400;text-decoration:underline}
+.hltv-roster-empty,.hltv-empty-roster{padding:24px 10px;color:#9eacb9;text-align:center;font-size:13px}
+@media(max-width:560px){
+ #modalRoot .modal:has(.team-profile-view){width:calc(100vw - 16px);max-height:92vh}
+ #modalRoot .modalback:has(.team-profile-view){padding:8px}
+ .hltv-profile-rosterbar{padding:42px 7px 0;min-height:118px;gap:1px}
+ .hltv-player-photo{height:76px}
+ .hltv-player-name{font-size:10px;min-height:27px;gap:3px}
+ .hltv-player-name .player-profile-link{font-size:10px}
+ .hltv-team-overview{padding:12px}
+ .hltv-team-name{font-size:21px}
+ .hltv-team-ranking{padding:0 12px}
+ .hltv-team-ranking>div+div{padding-left:8px}
+ .hltv-team-ranking strong{font-size:18px}
+ .hltv-team-fact{padding:10px 12px;font-size:11px}
+ .hltv-profile-tabs{padding:0 4px}
+ .hltv-profile-tabs>*{padding:0 10px;font-size:11px}
+ .hltv-roster-caption{padding:12px 12px 8px}
+ .hltv-roster-list{padding:0 10px 12px}
+ .hltv-roster-row{min-height:56px;gap:8px}
+ .hltv-roster-row>img,.hltv-roster-placeholder{width:42px;height:42px;flex-basis:42px}
 }
 </style>
 </body></html>
