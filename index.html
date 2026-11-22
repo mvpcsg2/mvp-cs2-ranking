@@ -2103,7 +2103,7 @@ body[data-theme="night"] .news-card:hover{
 </head><body data-theme="night">
 <header class="top">
   <nav class="main-nav" aria-label="Основная навигация">
-    <button class="nav-btn active" type="button" data-main-nav="ranking">Рейтинг</button>
+    <button class="nav-btn active" type="button" data-main-nav="ranking" aria-current="page">Рейтинг</button>
     <button class="nav-btn" type="button" data-main-nav="live">LIVE</button>
     <button class="nav-btn" type="button" data-main-nav="tournament">Турнир</button>
     <button class="nav-btn" type="button" data-main-nav="matches">Матчи</button>
@@ -3540,7 +3540,12 @@ function closeMainWorkspace(){
 }
 
 function setMainNavActive(name){
-  document.querySelectorAll('[data-main-nav]').forEach(btn=>btn.classList.toggle('active',btn.dataset.mainNav===name));
+  document.querySelectorAll('[data-main-nav]').forEach(btn=>{
+    const active=btn.dataset.mainNav===name;
+    btn.classList.toggle('active',active);
+    if(active)btn.setAttribute('aria-current','page');
+    else btn.removeAttribute('aria-current');
+  });
 }
 function youtubeVideoId(raw){
   try{
@@ -6957,4 +6962,61 @@ body[data-theme="day"] #mainWorkspacePanel.team-profile-workspace:has(.team-prof
 }
 
 </style>
+
+<style id="cstt-tournament-full-width-and-active-nav">
+/* Tournament pages expand across the full ranking layout, replacing both side rails. */
+.ranking-with-news:has(#mainWorkspacePanel.tourney-modal){
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:0!important;
+  align-items:stretch!important;
+}
+.ranking-with-news:has(#mainWorkspacePanel.tourney-modal)>.mvp-season-rail,
+.ranking-with-news:has(#mainWorkspacePanel.tourney-modal)>.mvp-news-rail{
+  display:none!important;
+}
+.ranking-with-news:has(#mainWorkspacePanel.tourney-modal)>.panel{
+  grid-column:1/-1!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+}
+.main-workspace:has(>.modal.tourney-modal){
+  width:100%!important;
+  min-width:0!important;
+}
+.main-workspace>.modal.modal-page.tourney-modal{
+  width:100%!important;
+  max-width:none!important;
+  min-height:620px!important;
+  padding:22px!important;
+  border-radius:9px!important;
+  box-sizing:border-box!important;
+}
+/* Keep the current section unmistakably marked in both DAY and NIGHT themes. */
+.top .nav-btn[aria-current="page"],
+.top .nav-btn.active{
+  font-weight:900!important;
+  box-shadow:inset 0 -3px 0 #e0a500,0 2px 7px rgba(20,35,55,.12)!important;
+}
+body[data-theme="day"] .top .nav-btn[aria-current="page"],
+body[data-theme="day"] .top .nav-btn.active{
+  color:#694700!important;
+  background:#fff0bc!important;
+  border-color:#e5c66f!important;
+}
+body[data-theme="night"] .top .nav-btn[aria-current="page"],
+body[data-theme="night"] .top .nav-btn.active{
+  color:#ffe08a!important;
+  background:rgba(217,163,43,.24)!important;
+  border-color:#b28736!important;
+}
+@media(max-width:760px){
+  .main-workspace>.modal.modal-page.tourney-modal{
+    padding:13px 10px!important;
+    min-height:480px!important;
+  }
+}
+</style>
+
 </body></html>
