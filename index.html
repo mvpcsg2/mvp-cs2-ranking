@@ -8326,4 +8326,71 @@ body[data-design="ahltv"] .design-choice[data-design-choice="classic"] .design-p
 body[data-design="ahltv"] .design-choice.active{border-color:#55d6d0!important;box-shadow:0 0 0 2px rgba(85,214,208,.2)!important}
 </style>
 
+
+<style id="cstt-beta-dark-panels-and-user-wallpaper">
+/* CSTT Beta: no stray white cards or rails; keep the user's uploaded wallpaper visible. */
+body[data-design="ahltv"] .site-brand-bar,
+body[data-design="ahltv"] .season-rail,
+body[data-design="ahltv"] .season-rail-list,
+body[data-design="ahltv"] .daily-date-nav,
+body[data-design="ahltv"] .daily-date-controls,
+body[data-design="ahltv"] .news-rail-section,
+body[data-design="ahltv"] .news-rail-head,
+body[data-design="ahltv"] .news-rail-footer,
+body[data-design="ahltv"] .news-rail-list,
+body[data-design="ahltv"] .news-rail-item,
+body[data-design="ahltv"] .news-kind-transfer,
+body[data-design="ahltv"] .news-kind-ban,
+body[data-design="ahltv"] .ban-news-item,
+body[data-design="ahltv"] .transfer-news-item {
+  background-color:rgba(15,29,44,.96)!important;
+  background-image:none!important;
+  color:#e7f1fb!important;
+  border-color:#2b465d!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.18)!important;
+}
+body[data-design="ahltv"] .site-brand-bar{
+  background:linear-gradient(135deg,rgba(17,34,51,.97),rgba(22,48,67,.97))!important;
+  border:1px solid #31536a!important;border-radius:12px!important;
+}
+body[data-design="ahltv"] .site-brand-logo{background:#0b1a29!important;border-color:#3b627b!important}
+body[data-design="ahltv"] .site-brand-name,
+body[data-design="ahltv"] .site-brand-caption,
+body[data-design="ahltv"] .site-brand-tagline{color:#dcebf8!important}
+body[data-design="ahltv"] .season-rail-list,
+body[data-design="ahltv"] .season-rail-list *{color:#dceaf6!important}
+body[data-design="ahltv"] .season-year-button{
+  background:#172c40!important;color:#e6f0f8!important;border:1px solid #34516a!important;
+}
+body[data-design="ahltv"] .season-year-button.active{
+  background:#203c52!important;border-color:#55d6d0!important;color:#f3fbff!important;
+}
+body[data-design="ahltv"] .daily-date-nav{
+  background:linear-gradient(110deg,#172b3f,#1c3349)!important;
+  border:1px solid #34516a!important;color:#eaf3fc!important;
+}
+body[data-design="ahltv"] .daily-date-nav button{
+  background:#20384e!important;color:#eaf3fc!important;border:1px solid #3a5871!important;
+}
+body[data-design="ahltv"] .news-rail-head,
+body[data-design="ahltv"] .news-rail-footer{background:#192f44!important;color:#eaf3fc!important}
+body[data-design="ahltv"] .news-rail-empty,
+body[data-design="ahltv"] .news-rail-meta,
+body[data-design="ahltv"] .news-rail-reason{color:#91a9bd!important}
+body[data-design="ahltv"] .news-rail-item:nth-child(odd),
+body[data-design="ahltv"] .news-kind-transfer:nth-child(odd){background:#13263a!important}
+body[data-design="ahltv"] .news-rail-footer button,
+body[data-design="ahltv"] #allTransfersBtn{background:#174b72!important;color:#f3f8ff!important;border-color:#39749b!important}
+/* The uploaded site background must win over the Beta theme's decorative gradient. */
+body[data-design="ahltv"][data-custom-background="true"]{
+  background-color:#09131f!important;
+  background-image:linear-gradient(rgba(5,9,15,.20),rgba(5,9,15,.20)),var(--mvp-site-bg-image)!important;
+  background-size:cover!important;background-position:center center!important;
+  background-repeat:no-repeat!important;background-attachment:fixed!important;
+}
+@media(max-width:700px){
+  body[data-design="ahltv"][data-custom-background="true"]{background-attachment:scroll!important}
+}
+</style>
+
 </body></html>
