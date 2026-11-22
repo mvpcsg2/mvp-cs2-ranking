@@ -8393,4 +8393,137 @@ body[data-design="ahltv"][data-custom-background="true"]{
 }
 </style>
 
+
+<style id="cstt-beta-followup-contrast-fix">
+/* Team profile workspace: darken every layer, including the newer HLTV-style profile. */
+body[data-design="ahltv"] #mainWorkspacePanel,
+body[data-design="ahltv"] .team-profile-view,
+body[data-design="ahltv"] .hltv-profile-rosterbar,
+body[data-design="ahltv"] .hltv-team-overview,
+body[data-design="ahltv"] .hltv-team-ranking,
+body[data-design="ahltv"] .hltv-team-facts,
+body[data-design="ahltv"] .hltv-profile-tabs,
+body[data-design="ahltv"] .hltv-roster-caption,
+body[data-design="ahltv"] .hltv-roster-list,
+body[data-design="ahltv"] .hltv-roster-row,
+body[data-design="ahltv"] .hltv-player-card,
+body[data-design="ahltv"] .hltv-player-name,
+body[data-design="ahltv"] .hltv-empty-roster,
+body[data-design="ahltv"] .hltv-roster-empty {
+  background:#102236!important;
+  background-image:none!important;
+  color:#e7f1fb!important;
+  border-color:#2d4a62!important;
+}
+body[data-design="ahltv"] .team-profile-view{
+  border:1px solid #34536b!important;border-radius:12px!important;
+  box-shadow:0 16px 44px rgba(0,0,0,.38)!important;overflow:hidden!important;
+}
+body[data-design="ahltv"] .hltv-profile-rosterbar{
+  background:#142a3e!important;border-bottom:1px solid #34536b!important;
+}
+body[data-design="ahltv"] .hltv-player-card{
+  background:#1a3045!important;border:1px solid #34536b!important;
+}
+body[data-design="ahltv"] .hltv-player-photo{background:#0b1927!important}
+body[data-design="ahltv"] .hltv-player-name,
+body[data-design="ahltv"] .hltv-team-name,
+body[data-design="ahltv"] .hltv-team-ranking strong,
+body[data-design="ahltv"] .hltv-team-fact strong,
+body[data-design="ahltv"] .hltv-roster-player-name,
+body[data-design="ahltv"] .hltv-roster-row .player-profile-link{
+  color:#f0f7ff!important;
+}
+body[data-design="ahltv"] .hltv-team-tag,
+body[data-design="ahltv"] .hltv-team-ranking span,
+body[data-design="ahltv"] .hltv-team-fact,
+body[data-design="ahltv"] .hltv-team-label,
+body[data-design="ahltv"] .hltv-roster-caption,
+body[data-design="ahltv"] .hltv-roster-caption span,
+body[data-design="ahltv"] .hltv-roster-number{
+  color:#9bb4c9!important;
+}
+body[data-design="ahltv"] .hltv-team-identity,
+body[data-design="ahltv"] .hltv-team-ranking>div,
+body[data-design="ahltv"] .hltv-team-fact,
+body[data-design="ahltv"] .hltv-profile-tabs,
+body[data-design="ahltv"] .hltv-roster-row{
+  border-color:#2d4a62!important;
+}
+body[data-design="ahltv"] .hltv-team-logo,
+body[data-design="ahltv"] .hltv-roster-row img,
+body[data-design="ahltv"] .hltv-roster-placeholder{
+  background:#0a1928!important;border-color:#35536b!important;color:#cce0ef!important;
+}
+body[data-design="ahltv"] .hltv-profile-tabs span,
+body[data-design="ahltv"] .hltv-profile-tabs button{
+  color:#a9bfd1!important;background:transparent!important;
+}
+body[data-design="ahltv"] .hltv-profile-tabs .active{
+  color:#72e4dc!important;border-bottom-color:#55d6d0!important;
+}
+body[data-design="ahltv"] .hltv-profile-close{
+  background:#1a344a!important;color:#eaf5ff!important;border:1px solid #3b5b73!important;
+}
+/* Date navigation and season rail: readable labels and controls. */
+body[data-design="ahltv"] .daily-date-nav,
+body[data-design="ahltv"] .daily-date-nav *{
+  color:#eaf3fc!important;
+}
+body[data-design="ahltv"] .daily-date-title strong{color:#f2f8ff!important}
+body[data-design="ahltv"] .daily-date-title small{color:#9bb2c6!important}
+body[data-design="ahltv"] .daily-date-today{
+  background:#20384e!important;color:#eaf3fc!important;border-color:#3a5871!important;
+}
+body[data-design="ahltv"] .season-rail-section{background:#102236!important;border-color:#2d4a62!important}
+body[data-design="ahltv"] .season-rail-head{
+  background:#1a3045!important;color:#b8cbd9!important;border-color:#2d4a62!important;
+}
+body[data-design="ahltv"] .mvp-season-rail,
+body[data-design="ahltv"] .mvp-season-rail *{scrollbar-color:#35536b #102236}
+/* Right rail and all transfer/ban cards, including nested headings and footers. */
+body[data-design="ahltv"] .mvp-news-rail,
+body[data-design="ahltv"] .news-rail-section,
+body[data-design="ahltv"] .news-rail-section> *,
+body[data-design="ahltv"] .news-rail-head,
+body[data-design="ahltv"] .news-rail-footer,
+body[data-design="ahltv"] .news-rail-list,
+body[data-design="ahltv"] .news-rail-item,
+body[data-design="ahltv"] .news-kind-transfer,
+body[data-design="ahltv"] .news-kind-ban,
+body[data-design="ahltv"] .ban-news-item,
+body[data-design="ahltv"] .transfer-news-item{
+  background-color:#102236!important;color:#e3eef8!important;border-color:#2d4a62!important;
+}
+body[data-design="ahltv"] .news-rail-head{background:#1a3045!important;color:#f0f7ff!important}
+body[data-design="ahltv"] .news-rail-item strong,
+body[data-design="ahltv"] .news-rail-item b,
+body[data-design="ahltv"] .news-kind-transfer strong,
+body[data-design="ahltv"] .news-kind-ban strong{color:#f0f7ff!important}
+body[data-design="ahltv"] .news-rail-item small,
+body[data-design="ahltv"] .news-rail-item p{color:#9bb2c6!important}
+/* Common overlooked surfaces inside dialogs and profile views. */
+body[data-design="ahltv"] .modal *,
+body[data-design="ahltv"] .player-profile-modal *,
+body[data-design="ahltv"] #mainWorkspacePanel .profile-stat,
+body[data-design="ahltv"] #mainWorkspacePanel .profile-stats,
+body[data-design="ahltv"] #mainWorkspacePanel .profile-hero{
+  border-color:#2d4a62;
+}
+body[data-design="ahltv"] .modal .profile-stat,
+body[data-design="ahltv"] .modal .profile-hero,
+body[data-design="ahltv"] .modal .profile-stats,
+body[data-design="ahltv"] .modal .profile-roster,
+body[data-design="ahltv"] .modal .profile-roster li,
+body[data-design="ahltv"] .player-profile-modal .player-profile-stat,
+body[data-design="ahltv"] .player-profile-modal .player-profile-awards,
+body[data-design="ahltv"] .player-profile-modal .player-role-editor{
+  background:#142a3e!important;color:#e7f1fb!important;border-color:#2d4a62!important;
+}
+body[data-design="ahltv"] .modal .profile-stat *,
+body[data-design="ahltv"] .player-profile-modal .player-profile-stat *{color:#dceaf6!important}
+body[data-design="ahltv"] .modal .profile-stat strong,
+body[data-design="ahltv"] .player-profile-modal .player-profile-stat strong{color:#f2f8ff!important}
+</style>
+
 </body></html>
