@@ -2859,9 +2859,10 @@ function safeFaceitProfileUrl(value){
 }
 function playerKdSilhouette(value){
  const n=Number(value)||0;
- if(n<1)return '/assets/kd-low-v2.webp';
- if(n<1.10)return '/assets/kd-medium-v2.webp';
- return '/assets/kd-high-v2.webp';
+ if(n>1.80)return '/assets/kd-gold-v1.webp';
+ if(n<1)return '/assets/kd-low-v3.webp';
+ if(n<1.10)return '/assets/kd-medium-v3.webp';
+ return '/assets/kd-high-v3.webp';
 }
 // Cache the active-player leaderboard briefly: opening several player profiles
 // must not download thousands of match-stat rows every time.
