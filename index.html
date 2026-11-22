@@ -3577,7 +3577,7 @@ function navigateAppRoute(path,{replace=false}={}){
 }
 function parseAppRoute(){
   const parts=String(window.location.pathname||'/').split('/').filter(Boolean).map(routeDecodePart);
-  if(!parts.length||parts[0]==='ranking')return {type:'ranking'};
+  if(!parts.length||(parts[0]==='ranking'&&parts.length===1))return {type:'ranking'};
   if(parts[0]==='teams'&&parts.length>=2){
     if(parts[3]==='matches')return {type:'team-matches',teamId:parts[1]};
     return {type:'team',teamId:parts[1]};
