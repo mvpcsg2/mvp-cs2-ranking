@@ -3405,7 +3405,7 @@ async function openCaptainPanel(){
    <input id="capPhoto${i}" type="file" accept="image/png,image/jpeg,image/webp">
    <button class="btn" type="button" data-cap-remove-photo="${i}">Убрать</button>
  </div>`).join('');
- modal(`<h2>Управление командой</h2>
+ showMainWorkspace(`<h2>Управление командой</h2>
  <div class="notice" style="margin:6px 0 12px;padding:8px 10px;font-size:13px">Меняй название, тег, состав и загружай изображения прямо с устройства. Очки и результаты турниров недоступны.</div>
  <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(110px,1fr);gap:8px">
   <div class="field" style="margin:0"><label>Название команды</label><input id="capName" maxlength="80"></div>
@@ -3429,7 +3429,7 @@ async function openCaptainPanel(){
  document.getElementById('capName').value=t.name||'';
  document.getElementById('capTag').value=t.tag||'';
  document.getElementById('capPlayers').value=t.players||'';
- document.getElementById('capCancel').onclick=closeModal;
+ document.getElementById('capCancel').onclick=closeMainWorkspace;
  document.getElementById('capLogoFile').onchange=async ev=>{
    const file=ev.target.files?.[0];if(!file)return;
    if(file.size>2*1024*1024){alert('Логотип должен быть меньше 2 МБ.');ev.target.value='';return}
@@ -3458,7 +3458,7 @@ async function openCaptainPanel(){
    for(let i=0;i<5;i++)if(String(photos[i]||'').startsWith('data:image/'))photos[i]=await uploadCaptainImage(photos[i],'team-players','player-'+(i+1));
    const saved=await client.rpc('captain_save_my_team',{p_name:document.getElementById('capName').value,p_tag:document.getElementById('capTag').value,p_players:document.getElementById('capPlayers').value,p_logo:logo,p_player_photos:photos.slice(0,5)});
    if(saved.error)throw saved.error;
-   closeModal();await loadTeams();alert('Команда обновлена.');
+   closeMainWorkspace();await loadTeams();alert('Команда обновлена.');
   }catch(err){alert('Не удалось сохранить команду: '+niceError(err));button.disabled=false;button.textContent='Сохранить'}
  };
 }
@@ -3509,6 +3509,8 @@ async function updatePoints(t,delta){if(!can('manage_teams'))return;const next=M
 
 
 function showMainWorkspace(content,wide=true,extraClass=''){
+  cleanupLiveCenter();
+  cleanupTournamentCenter();
   stopHelpPolling();
   activeHelpProfile=null;
   const ranking=document.getElementById('rankingPanelContent');
@@ -4652,6 +4654,7 @@ async function loadNewsRail(){
   wireNewsActions(transfersHost);wireNewsActions(bansHost);
 }
 async function openAllTransfers(){
+  setMainNavActive('news');
   const fields='id,event_type,player_id,player_name,player_photo_url,from_team_id,from_team_name,from_team_logo,from_team_snapshot_id,to_team_id,to_team_name,to_team_logo,to_team_snapshot_id,reason,created_at';
   let rows=[];
   if(isViewingHistoricalData())rows=snapshotRows('site_news');
