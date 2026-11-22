@@ -6672,4 +6672,79 @@ body[data-theme="night"] .roster-player{
 </style>
 
 
+
+<style id="mvp-roster-compact-tuned">
+/* Compact expanded team roster to the actual content; keep the five-column layout. */
+#teams>.team-card>.roster-expanded{
+  height:auto!important;
+  min-height:0!important;
+  padding:6px 10px 7px!important;
+  background:#eef1f4!important;
+}
+#teams>.team-card>.roster-expanded>.roster-heading{
+  margin:0 0 4px!important;
+  line-height:1.2!important;
+}
+#teams>.team-card>.roster-expanded>.roster-grid{
+  gap:5px!important;
+  align-items:start!important;
+}
+#teams>.team-card>.roster-expanded .roster-player{
+  min-height:0!important;
+  height:auto!important;
+  padding:0 2px!important;
+  gap:2px!important;
+}
+#teams>.team-card>.roster-expanded .roster-player-photo{
+  width:min(100%,136px)!important;
+  max-width:136px!important;
+  height:auto!important;
+  aspect-ratio:1/1!important;
+  flex:0 0 auto!important;
+  background:#dfe5eb!important;
+  background-color:#dfe5eb!important;
+  border:1px solid #cfd7e0!important;
+  border-radius:4px!important;
+}
+#teams>.team-card>.roster-expanded .roster-player-name-line{
+  min-height:18px!important;
+  top:-2px!important;
+  margin:0!important;
+}
+#teams>.team-card>.roster-expanded .roster-footer{
+  margin-top:4px!important;
+  padding-top:5px!important;
+}
+#teams>.team-card>.roster-expanded .roster-footer .btn{
+  padding:6px 12px!important;
+}
+body[data-theme="night"] #teams>.team-card>.roster-expanded{
+  background:#202730!important;
+}
+body[data-theme="night"] #teams>.team-card>.roster-expanded .roster-player-photo{
+  background:#303b48!important;
+  background-color:#303b48!important;
+  border-color:#465666!important;
+}
+@media(max-width:650px){
+  #teams>.team-card>.roster-expanded{
+    padding:5px 6px 7px!important;
+  }
+  #teams>.team-card>.roster-expanded>.roster-grid{
+    gap:3px!important;
+  }
+  #teams>.team-card>.roster-expanded .roster-player-photo{
+    width:100%!important;
+    max-width:none!important;
+  }
+  #teams>.team-card>.roster-expanded .roster-player-name-line{
+    min-height:15px!important;
+    top:0!important;
+  }
+  #teams>.team-card>.roster-expanded .roster-footer{
+    margin-top:5px!important;
+    padding-top:5px!important;
+  }
+}
+</style>
 </body></html>
