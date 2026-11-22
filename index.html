@@ -2707,15 +2707,6 @@ function render(){
   if(isFutureSeason()){host.innerHTML=`<div class="season-empty-state"><strong>Сезон ${selectedSeasonYear} ещё не начался</strong><span>Этот год пока пустой. Он станет активным после завершения сезона ${activeSeasonYear} и годового вайпа в настройках администратора.</span></div>`;return;}
   if(!teams.length){host.innerHTML=isViewingPastDay()&&!dailySnapshot&&!isViewingArchivedSeason()?`<div class="season-empty-state"><strong>Снимок за ${esc(formatDailyDate(selectedRankDate,false))} не найден</strong><span>Ежедневная история начинается с установки SQL-миграции. Более ранние дни восстановить задним числом нельзя.</span></div>`:isViewingArchivedSeason()?`<div class="season-empty-state"><strong>Архив ${selectedSeasonYear} года пуст</strong><span>Для этого года пока нет сохранённого рейтинга.</span></div>`:'<div class="empty">Пока нет команд в общей базе данных. Администратор может перенести сохранённые команды или добавить первую команду.</div>';return}
   teams.forEach((t,i)=>{
-    // Tier labels appear before ranks 1, 9 and 17.
-    if(i===0 || i===8 || i===16){
-      const tierNumber = i===0 ? 1 : i===8 ? 2 : 3;
-      const title = tierNumber===1 ? 'TOP 8 КОМАНД' : tierNumber===2 ? 'МЕСТА 9–16' : 'ОСТАЛЬНЫЕ КОМАНДЫ';
-      const divider=document.createElement('div');
-      divider.className=`tier-divider tier-divider-${tierNumber}`;
-      divider.innerHTML=`<span class="tier-divider-badge">TIER ${tierNumber}</span><span class="tier-divider-label">${title}</span>`;
-      host.appendChild(divider);
-    }
     const tierClass = i<8 ? '1' : i<16 ? '2' : '3';
     const isExpanded=String(expandedTeamId)===String(t.id);
     const roster=getRoster(t);
@@ -6680,8 +6671,5 @@ body[data-theme="night"] .roster-player{
 }
 </style>
 
-<style id="mvp-hide-tier-badges">
-/* Remove the full-width Tier section panels; keep the ranking column header and team cards. */
-.tier-divider{display:none!important}
-</style>
+
 </body></html>
