@@ -2689,6 +2689,8 @@ function applyInitialTeamExpansion(){
   }
 }
 function render(){
+  teams.sort((a,b)=>Number(b.points)-Number(a.points)||Number(a.id)-Number(b.id));
+  const pointsRank=new Map(teams.map((team,index)=>[String(team.id),index+1]));
   const orderedTeams=getTeamsInTierOrder(teams);
   const host=document.getElementById('teams'); host.innerHTML='';
   renderSeasonRail();
@@ -2725,7 +2727,7 @@ function render(){
     const movementMarkup=movement>0?`<span class="rank-movement up" title="Команда поднялась на ${movement} ${movement===1?'позицию':'позиции'}">▲ ${movement}</span>`:movement<0?`<span class="rank-movement down" title="Команда опустилась на ${Math.abs(movement)} ${Math.abs(movement)===1?'позицию':'позиции'}">▼ ${Math.abs(movement)}</span>`:'';
     const card=document.createElement('div'); card.className=`team-card tier-${tierClass}`;
     card.innerHTML=`<div class="team-main" data-expand-id="${esc(t.id)}" role="button" tabindex="0" aria-expanded="${isExpanded}" aria-label="${isExpanded?'Свернуть':'Раскрыть'} команду ${esc(t.name)}">
-      <div class="rank">#${i+1}</div>
+      <div class="rank">#${pointsRank.get(String(t.id))||i+1}</div>
       <div class="teaminfo"><div class="logo">${t.logo?`<img src="${esc(t.logo)}" alt="Лого команды">`:esc(t.tag||t.name.slice(0,3).toUpperCase())}</div><div class="team-details"><div class="team-name-points"><div class="name">${esc(t.name)}${t.is_banned&&(can('manage_teams')||can('manage_bans'))?' <span class="team-ban-tag">БАН</span>':''}${Number(t.hltv_rank)>0?'<span class="team-hltv-rank-pill">HLTV #'+Number(t.hltv_rank)+'</span>':''}</div><div class="points"><strong>${Number(t.points).toLocaleString('ru-RU')}</strong><small>MVP POINTS</small></div></div><div class="players">${esc(t.players||'Состав не указан')}</div></div></div>
       <div class="team-right-tools"><div class="team-rank-change">${movementMarkup}</div><div class="actions ${can('manage_teams')?'':'hidden'}" ${can('manage_teams')?'':'hidden'} style="${can('manage_teams')?'':'display:none!important'}"><button class="tiny" title="Отнять 100" data-act="minus" data-id="${esc(t.id)}">−</button><button class="tiny" title="Добавить 100" data-act="plus" data-id="${esc(t.id)}">+</button><button class="tiny" title="Редактировать" data-act="edit" data-id="${esc(t.id)}">✎</button><button class="tiny" title="Удалить" data-act="delete" data-id="${esc(t.id)}">×</button></div></div>
     </div>
@@ -2787,7 +2789,7 @@ function toggleTeam(id){
 }
 function openTeamProfile(t){
   if(!t)return;
-  const rank=getTeamsInTierOrder(teams).findIndex(x=>String(x.id)===String(t.id))+1;
+  const rank=[...teams].sort((a,b)=>Number(b.points)-Number(a.points)||Number(a.id)-Number(b.id)).findIndex(x=>String(x.id)===String(t.id))+1;
   const roster=getRoster(t),playerPhotos=getPlayerPhotos(t),wins=Math.max(0,Number(t.tournament_wins)||0);
   modal(`<div class="profile-hero"><div class="profile-logo">${t.logo?`<img src="${esc(t.logo)}" alt="Логотип ${esc(t.name)}">`:esc(t.tag||t.name.slice(0,4).toUpperCase())}</div><div><div class="profile-team-name">${esc(t.name)}</div><div class="profile-team-tag">${esc(t.tag||'Команда CS2')}</div></div></div><div class="profile-stats"><div class="profile-stat"><small>МЕСТО В РЕЙТИНГЕ</small><strong>#${rank}</strong></div><div class="profile-stat"><small>MVP POINTS</small><strong>${Number(t.points).toLocaleString('ru-RU')}</strong></div></div><div class="team-profile-tournament"><span aria-hidden="true">🏆</span><span>Победы в турнирах</span><strong>${wins}</strong></div><div class="roster-heading">Состав команды · нажми на игрока для профиля</div>${roster.length?`<ol class="profile-roster">${roster.map((player,n)=>{const meta=getRosterPlayerMeta(player,playerPhotos[n]);const photo=meta.photo_url||playerPhotos[n]||'';return `<li>${photo?`<img src="${esc(photo)}" alt="Фото ${esc(player)}" style="width:68px;height:68px;flex:0 0 68px;border-radius:7px;object-fit:cover;background:transparent">`:`<span class="roster-number" style="position:static;flex:0 0 27px">${n+1}</span>`}<div class="roster-player-name-line">${countryFlagMarkup(meta.country_code,'roster-player-country-flag')}<button class="player-profile-link" data-player-profile-name="${esc(player)}" data-player-profile-photo="${esc(photo)}" type="button">${esc(player)}</button></div></li>`}).join('')}</ol>`:'<div class="help-empty">Состав пока не указан.</div>'}<div class="profile-actions"><button class="btn primary" id="openTeamMatchHistory">История боёв</button><button class="btn" id="closeTeamProfile">Закрыть профиль</button></div>`);
   document.getElementById('closeTeamProfile').onclick=closeModal;
@@ -3309,7 +3311,7 @@ function getTeamsInTierOrder(list){
   return [...(list||[])].sort(compareTeamsByTier);
 }
 function getTeamRankPositions(list){
-  return new Map(getTeamsInTierOrder(list).map((team,index)=>[String(team.id),index+1]));
+  return new Map([...(list||[])].sort((a,b)=>Number(b.points)-Number(a.points)||Number(a.id)-Number(b.id)).map((team,index)=>[String(team.id),index+1]));
 }
 function calculateTeamRankMovement(beforeTeams,afterTeams){
   const before=getTeamRankPositions(beforeTeams||[]);
