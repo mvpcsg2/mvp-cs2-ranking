@@ -2859,9 +2859,9 @@ function safeFaceitProfileUrl(value){
 }
 function playerKdSilhouette(value){
  const n=Number(value)||0;
- if(n<1)return '/assets/kd-low.webp';
- if(n<1.10)return '/assets/kd-medium.webp';
- return '/assets/kd-high.webp';
+ if(n<1)return '/assets/kd-low-v2.webp';
+ if(n<1.10)return '/assets/kd-medium-v2.webp';
+ return '/assets/kd-high-v2.webp';
 }
 // Cache the active-player leaderboard briefly: opening several player profiles
 // must not download thousands of match-stat rows every time.
