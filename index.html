@@ -2683,13 +2683,13 @@ async function loadRosterPlayerDirectory(){
 }
 function applyInitialTeamExpansion(){
   if(!initialTeamExpansionDone && teams.length){
-    const first=[...teams].sort((a,b)=>Number(b.points)-Number(a.points)||Number(a.id)-Number(b.id))[0];
+    const first=getTeamsInTierOrder(teams)[0];
     if(first) expandedTeamId=String(first.id);
     initialTeamExpansionDone=true;
   }
 }
 function render(){
-  teams.sort((a,b)=>Number(b.points)-Number(a.points)||Number(a.id)-Number(b.id));
+  const orderedTeams=getTeamsInTierOrder(teams);
   const host=document.getElementById('teams'); host.innerHTML='';
   renderSeasonRail();
   renderDailyDateNavigator();
@@ -2706,17 +2706,18 @@ function render(){
   document.getElementById('logoutBtn').classList.toggle('hidden',!currentUser);
   if(isFutureSeason()){host.innerHTML=`<div class="season-empty-state"><strong>Сезон ${selectedSeasonYear} ещё не начался</strong><span>Этот год пока пустой. Он станет активным после завершения сезона ${activeSeasonYear} и годового вайпа в настройках администратора.</span></div>`;return;}
   if(!teams.length){host.innerHTML=isViewingPastDay()&&!dailySnapshot&&!isViewingArchivedSeason()?`<div class="season-empty-state"><strong>Снимок за ${esc(formatDailyDate(selectedRankDate,false))} не найден</strong><span>Ежедневная история начинается с установки SQL-миграции. Более ранние дни восстановить задним числом нельзя.</span></div>`:isViewingArchivedSeason()?`<div class="season-empty-state"><strong>Архив ${selectedSeasonYear} года пуст</strong><span>Для этого года пока нет сохранённого рейтинга.</span></div>`:'<div class="empty">Пока нет команд в общей базе данных. Администратор может перенести сохранённые команды или добавить первую команду.</div>';return}
-  teams.forEach((t,i)=>{
-    // Tier labels appear before ranks 1, 9 and 17.
-    if(i===0 || i===8 || i===16){
-      const tierNumber = i===0 ? 1 : i===8 ? 2 : 3;
-      const title = tierNumber===1 ? 'TOP 8 КОМАНД' : tierNumber===2 ? 'МЕСТА 9–16' : 'ОСТАЛЬНЫЕ КОМАНДЫ';
+  let lastRenderedTier=null;
+  orderedTeams.forEach((t,i)=>{
+    const tierNumber=getTeamTier(t);
+    if(tierNumber!==lastRenderedTier){
+      const title=tierNumber===1?'ЭЛИТА МИРОВОГО CS · HLTV TOP 10':tierNumber===2?'ВЫСОКИЙ ПРОФЕССИОНАЛЬНЫЙ УРОВЕНЬ · HLTV #11–40':'РАЗВИВАЮЩАЯСЯ СЦЕНА · HLTV #41+ / БЕЗ РЕЙТИНГА';
       const divider=document.createElement('div');
       divider.className=`tier-divider tier-divider-${tierNumber}`;
       divider.innerHTML=`<span class="tier-divider-badge">TIER ${tierNumber}</span><span class="tier-divider-label">${title}</span>`;
       host.appendChild(divider);
+      lastRenderedTier=tierNumber;
     }
-    const tierClass = i<8 ? '1' : i<16 ? '2' : '3';
+    const tierClass = String(tierNumber);
     const isExpanded=String(expandedTeamId)===String(t.id);
     const roster=getRoster(t);
     const playerPhotos=getPlayerPhotos(t);
@@ -2725,7 +2726,7 @@ function render(){
     const card=document.createElement('div'); card.className=`team-card tier-${tierClass}`;
     card.innerHTML=`<div class="team-main" data-expand-id="${esc(t.id)}" role="button" tabindex="0" aria-expanded="${isExpanded}" aria-label="${isExpanded?'Свернуть':'Раскрыть'} команду ${esc(t.name)}">
       <div class="rank">#${i+1}</div>
-      <div class="teaminfo"><div class="logo">${t.logo?`<img src="${esc(t.logo)}" alt="Лого команды">`:esc(t.tag||t.name.slice(0,3).toUpperCase())}</div><div class="team-details"><div class="team-name-points"><div class="name">${esc(t.name)}${t.is_banned&&(can('manage_teams')||can('manage_bans'))?' <span class="team-ban-tag">БАН</span>':''}</div><div class="points"><strong>${Number(t.points).toLocaleString('ru-RU')}</strong><small>MVP POINTS</small></div></div><div class="players">${esc(t.players||'Состав не указан')}</div></div></div>
+      <div class="teaminfo"><div class="logo">${t.logo?`<img src="${esc(t.logo)}" alt="Лого команды">`:esc(t.tag||t.name.slice(0,3).toUpperCase())}</div><div class="team-details"><div class="team-name-points"><div class="name">${esc(t.name)}${t.is_banned&&(can('manage_teams')||can('manage_bans'))?' <span class="team-ban-tag">БАН</span>':''}${Number(t.hltv_rank)>0?'<span class="team-hltv-rank-pill">HLTV #'+Number(t.hltv_rank)+'</span>':''}</div><div class="points"><strong>${Number(t.points).toLocaleString('ru-RU')}</strong><small>MVP POINTS</small></div></div><div class="players">${esc(t.players||'Состав не указан')}</div></div></div>
       <div class="team-right-tools"><div class="team-rank-change">${movementMarkup}</div><div class="actions ${can('manage_teams')?'':'hidden'}" ${can('manage_teams')?'':'hidden'} style="${can('manage_teams')?'':'display:none!important'}"><button class="tiny" title="Отнять 100" data-act="minus" data-id="${esc(t.id)}">−</button><button class="tiny" title="Добавить 100" data-act="plus" data-id="${esc(t.id)}">+</button><button class="tiny" title="Редактировать" data-act="edit" data-id="${esc(t.id)}">✎</button><button class="tiny" title="Удалить" data-act="delete" data-id="${esc(t.id)}">×</button></div></div>
     </div>
     ${isExpanded?`<div class="roster-expanded" id="roster-${esc(t.id)}"><div class="roster-heading">Состав команды · ${roster.length} ${roster.length===1?'игрок':roster.length>=2&&roster.length<=4?'игрока':'игроков'}</div>${roster.length?`<div class="roster-swipe-hint" aria-hidden="true">Проведите пальцем влево или вправо, чтобы посмотреть всех игроков <span>↔</span></div><div class="roster-grid roster-horizontal-scroll" tabindex="0" role="region" aria-label="Состав команды. Прокручивайте по горизонтали">${roster.map((player,n)=>rosterCardMarkup(player,n,playerPhotos[n])).join('')}</div>`:'<div class="empty" style="padding:14px">Состав пока не указан.</div>'}<div class="roster-footer"><button class="btn team-profile-btn" data-profile-id="${esc(t.id)}">Профиль команды</button></div></div>`:''}`;
@@ -2786,7 +2787,7 @@ function toggleTeam(id){
 }
 function openTeamProfile(t){
   if(!t)return;
-  const rank=[...teams].sort((a,b)=>Number(b.points)-Number(a.points)||Number(a.id)-Number(b.id)).findIndex(x=>String(x.id)===String(t.id))+1;
+  const rank=getTeamsInTierOrder(teams).findIndex(x=>String(x.id)===String(t.id))+1;
   const roster=getRoster(t),playerPhotos=getPlayerPhotos(t),wins=Math.max(0,Number(t.tournament_wins)||0);
   modal(`<div class="profile-hero"><div class="profile-logo">${t.logo?`<img src="${esc(t.logo)}" alt="Логотип ${esc(t.name)}">`:esc(t.tag||t.name.slice(0,4).toUpperCase())}</div><div><div class="profile-team-name">${esc(t.name)}</div><div class="profile-team-tag">${esc(t.tag||'Команда CS2')}</div></div></div><div class="profile-stats"><div class="profile-stat"><small>МЕСТО В РЕЙТИНГЕ</small><strong>#${rank}</strong></div><div class="profile-stat"><small>MVP POINTS</small><strong>${Number(t.points).toLocaleString('ru-RU')}</strong></div></div><div class="team-profile-tournament"><span aria-hidden="true">🏆</span><span>Победы в турнирах</span><strong>${wins}</strong></div><div class="roster-heading">Состав команды · нажми на игрока для профиля</div>${roster.length?`<ol class="profile-roster">${roster.map((player,n)=>{const meta=getRosterPlayerMeta(player,playerPhotos[n]);const photo=meta.photo_url||playerPhotos[n]||'';return `<li>${photo?`<img src="${esc(photo)}" alt="Фото ${esc(player)}" style="width:68px;height:68px;flex:0 0 68px;border-radius:7px;object-fit:cover;background:transparent">`:`<span class="roster-number" style="position:static;flex:0 0 27px">${n+1}</span>`}<div class="roster-player-name-line">${countryFlagMarkup(meta.country_code,'roster-player-country-flag')}<button class="player-profile-link" data-player-profile-name="${esc(player)}" data-player-profile-photo="${esc(photo)}" type="button">${esc(player)}</button></div></li>`}).join('')}</ol>`:'<div class="help-empty">Состав пока не указан.</div>'}<div class="profile-actions"><button class="btn primary" id="openTeamMatchHistory">История боёв</button><button class="btn" id="closeTeamProfile">Закрыть профиль</button></div>`);
   document.getElementById('closeTeamProfile').onclick=closeModal;
@@ -3294,8 +3295,21 @@ async function migrateLocalTeamsIfNeeded(){
   if(error){setStatus('Не удалось перенести старые команды: '+niceError(error),'error');return false}
   teams=data||[]; localStorage.setItem(LOCAL_STORE,JSON.stringify(teams)); setStatus('Команды перенесены в общую базу. Теперь рейтинг общий для посетителей.','success');return true;
 }
+function getTeamTier(team){
+  const rank=Number(team?.hltv_rank);
+  if(!Number.isInteger(rank)||rank<1)return 3;
+  if(rank<=10)return 1;
+  if(rank<=40)return 2;
+  return 3;
+}
+function compareTeamsByTier(a,b){
+  return getTeamTier(a)-getTeamTier(b)||Number(b.points)-Number(a.points)||Number(a.id)-Number(b.id);
+}
+function getTeamsInTierOrder(list){
+  return [...(list||[])].sort(compareTeamsByTier);
+}
 function getTeamRankPositions(list){
-  return new Map([...list].sort((a,b)=>Number(b.points)-Number(a.points)||Number(a.id)-Number(b.id)).map((team,index)=>[String(team.id),index+1]));
+  return new Map(getTeamsInTierOrder(list).map((team,index)=>[String(team.id),index+1]));
 }
 function calculateTeamRankMovement(beforeTeams,afterTeams){
   const before=getTeamRankPositions(beforeTeams||[]);
@@ -4232,13 +4246,13 @@ document.getElementById('teams').addEventListener('keydown',e=>{
 });
 async function editTeam(t=null){
   if(!can('manage_teams'))return;
-  const old=t||{name:'',tag:'',points:500,players:'',logo:'',player_photos:[],tournament_wins:0,is_banned:false,ban_reason:''};
+  const old=t||{name:'',tag:'',points:500,players:'',logo:'',player_photos:[],tournament_wins:0,hltv_rank:null,is_banned:false,ban_reason:''};
   let assignedCaptainEmail='';if(admin&&t){try{const cap=await client.rpc('admin_get_team_captain',{p_team_id:Number(t.id)});assignedCaptainEmail=cap.data?.email||'';}catch(_){}}
   const oldRoster=getRoster(old),oldPlayerPhotos=getPlayerPhotos(old);
   let knownPlayers=[];if(oldRoster.length){const {data,error}=await client.from('cs2_players').select('id,nickname').in('nickname',oldRoster);if(!error)knownPlayers=data||[]}
   const idInfo=oldRoster.map(n=>{const p=knownPlayers.find(x=>x.nickname.toLowerCase()===n.toLowerCase());return `<span class="player-id-chip">${esc(n)} · ID ${p?'#'+p.id:'будет создан'}</span>`}).join('');
   const playerPhotoRows=Array.from({length:5},(_,i)=>`<div class="player-photo-edit"><label for="playerPhoto${i}">Фото игрока ${i+1}</label><div class="player-photo-preview" id="playerPhotoPreview${i}">${oldPlayerPhotos[i]?`<img src="${esc(oldPlayerPhotos[i])}" alt="Фото игрока ${i+1}">`:esc(playerInitials(oldRoster[i]))}</div><input id="playerPhoto${i}" type="file" accept="image/png,image/jpeg,image/webp"><button class="btn remove-player-photo" type="button" data-remove-player-photo="${i}">Убрать фото</button></div>`).join('');
-  modal(`<h2>${t?'Редактировать команду':'Добавить команду'}</h2>${admin?`<div class="field"><label>Email капитана (только подтверждённый аккаунт)</label><input id="teamCaptainEmail" type="email" maxlength="254" value="${esc(assignedCaptainEmail)}" placeholder="captain@example.com"><small>Пустое поле снимает назначение.</small></div>`:'' }<div class="field"><label>Название команды *</label><input id="teamName" maxlength="70" value="${esc(old.name)}" placeholder="Например, MVP Academy"></div><div class="formrow"><div class="field"><label>Тег команды</label><input id="teamTag" maxlength="12" value="${esc(old.tag)}" placeholder="MVP"></div><div class="field"><label>MVP Points</label><input id="teamPoints" type="number" min="0" max="1000000" value="${Number(old.points)}"></div></div><div class="field"><label>Победы в турнирах</label><input id="teamTournamentWins" type="number" min="0" max="9999" value="${Number(old.tournament_wins)||0}"></div><div class="field"><label>Игроки состава (через запятую, максимум 5)</label><textarea id="teamPlayers" maxlength="300" placeholder="Игрок1, Игрок2, Игрок3, Игрок4, Игрок5">${esc(old.players)}</textarea><div class="notice">Чтобы оформить переход: сначала удали игрока из старой команды и сохрани её, затем добавь его в новую команду и сохрани. Новость об исключении автоматически превратится в новость о трансфере.</div><div class="player-id-list">${idInfo||'Постоянные ID появятся после первого сохранения игроков. Переименовывай через профиль игрока — K/D и матчи сохранятся.'}</div></div><div class="field"><label>Фотографии игроков</label><div class="notice">Загрузи фото для каждого игрока. Изображения автоматически уменьшаются и сохраняются в общей базе, так что их увидят все посетители. Разрешены PNG, JPG и WEBP; исходный файл до 4 МБ.</div><div class="player-photo-editor">${playerPhotoRows}</div></div>${can('manage_bans')?`<div class="field ban-team-field"><label><input type="checkbox" id="teamIsBanned" ${old.is_banned?'checked':''}> Заблокировать команду и скрыть её из публичного рейтинга</label><input id="teamBanReason" maxlength=200 value="${esc(old.ban_reason||'')}" placeholder="Причина блокировки"></div>`:''}<div class="field"><label>Логотип команды (PNG, JPG, WEBP)</label><input id="teamLogo" type="file" accept="image/png,image/jpeg,image/webp"><div class="notice">Логотип сохранится в общей базе для всех посетителей. Файл — до 2 МБ.</div><div id="logoPreview" class="logo" style="margin-top:6px">${old.logo?`<img src="${esc(old.logo)}" alt="Лого">`:'Лого'}</div><button class="btn" type="button" id="removeLogo" style="margin-top:8px">Убрать логотип</button></div><div class="modalfoot"><button class="btn" id="cancelTeam">Отмена</button><button class="btn primary" id="saveTeam">Сохранить</button></div>`,true);
+  modal(`<h2>${t?'Редактировать команду':'Добавить команду'}</h2>${admin?`<div class="field"><label>Email капитана (только подтверждённый аккаунт)</label><input id="teamCaptainEmail" type="email" maxlength="254" value="${esc(assignedCaptainEmail)}" placeholder="captain@example.com"><small>Пустое поле снимает назначение.</small></div>`:'' }<div class="field"><label>Название команды *</label><input id="teamName" maxlength="70" value="${esc(old.name)}" placeholder="Например, MVP Academy"></div><div class="formrow"><div class="field"><label>Тег команды</label><input id="teamTag" maxlength="12" value="${esc(old.tag)}" placeholder="MVP"></div><div class="field"><label>MVP Points</label><input id="teamPoints" type="number" min="0" max="1000000" value="${Number(old.points)}"></div></div><div class="field"><label>Победы в турнирах</label><input id="teamTournamentWins" type="number" min="0" max="9999" value="${Number(old.tournament_wins)||0}"></div><div class="field"><label>Место в мировом рейтинге HLTV</label><input id="teamHltvRank" type="number" min="1" max="9999" step="1" value="${Number(old.hltv_rank)>0?Number(old.hltv_rank):''}" placeholder="Например, 8"><div class="notice">Позиция определяет тир автоматически: #1–10 — Tier 1, #11–40 — Tier 2, #41+ или без позиции — Tier 3. Обновляй позицию по актуальному рейтингу HLTV. <a href="https://www.hltv.org/ranking/teams" target="_blank" rel="noopener noreferrer">Открыть рейтинг HLTV</a>.</div></div><div class="field"><label>Игроки состава (через запятую, максимум 5)</label><textarea id="teamPlayers" maxlength="300" placeholder="Игрок1, Игрок2, Игрок3, Игрок4, Игрок5">${esc(old.players)}</textarea><div class="notice">Чтобы оформить переход: сначала удали игрока из старой команды и сохрани её, затем добавь его в новую команду и сохрани. Новость об исключении автоматически превратится в новость о трансфере.</div><div class="player-id-list">${idInfo||'Постоянные ID появятся после первого сохранения игроков. Переименовывай через профиль игрока — K/D и матчи сохранятся.'}</div></div><div class="field"><label>Фотографии игроков</label><div class="notice">Загрузи фото для каждого игрока. Изображения автоматически уменьшаются и сохраняются в общей базе, так что их увидят все посетители. Разрешены PNG, JPG и WEBP; исходный файл до 4 МБ.</div><div class="player-photo-editor">${playerPhotoRows}</div></div>${can('manage_bans')?`<div class="field ban-team-field"><label><input type="checkbox" id="teamIsBanned" ${old.is_banned?'checked':''}> Заблокировать команду и скрыть её из публичного рейтинга</label><input id="teamBanReason" maxlength=200 value="${esc(old.ban_reason||'')}" placeholder="Причина блокировки"></div>`:''}<div class="field"><label>Логотип команды (PNG, JPG, WEBP)</label><input id="teamLogo" type="file" accept="image/png,image/jpeg,image/webp"><div class="notice">Логотип сохранится в общей базе для всех посетителей. Файл — до 2 МБ.</div><div id="logoPreview" class="logo" style="margin-top:6px">${old.logo?`<img src="${esc(old.logo)}" alt="Лого">`:'Лого'}</div><button class="btn" type="button" id="removeLogo" style="margin-top:8px">Убрать логотип</button></div><div class="modalfoot"><button class="btn" id="cancelTeam">Отмена</button><button class="btn primary" id="saveTeam">Сохранить</button></div>`,true);
   let logo=old.logo||'';
   let playerPhotos=[...oldPlayerPhotos];
   document.getElementById('cancelTeam').onclick=closeModal;
@@ -4278,12 +4292,14 @@ async function editTeam(t=null){
     if(!name)return alert('Введи название команды.');
     if(!Number.isFinite(points)||points<0||points>1000000)return alert('Укажи корректное число очков.');
     const tournament_wins=Number(document.getElementById('teamTournamentWins').value);if(!Number.isInteger(tournament_wins)||tournament_wins<0||tournament_wins>9999)return alert('Укажи корректное количество побед в турнирах.');
+    const hltvRankValue=document.getElementById('teamHltvRank').value.trim(),hltv_rank=hltvRankValue===''?null:Number(hltvRankValue);
+    if(hltv_rank!==null&&(!Number.isInteger(hltv_rank)||hltv_rank<1||hltv_rank>9999))return alert('Укажи корректное место HLTV от 1 до 9999 или оставь поле пустым.');
     const rawRoster=document.getElementById('teamPlayers').value.trim(),newRoster=getRoster({players:rawRoster});
      if(newRoster.length>5)return alert('В команде может быть максимум 5 игроков.');
      const seenRoster=new Set();for(const nick of newRoster){const key=nick.toLowerCase();if(seenRoster.has(key))return alert(`Ник «${nick}» указан дважды в этой команде.`);seenRoster.add(key);const other=teams.find(x=>String(x.id)!==String(t?.id||'')&&getRoster(x).some(n=>n.toLowerCase()===key));if(other)return alert(`Ошибка: игрок «${nick}» уже состоит в команде «${other.name}». Один игрок не может находиться в двух командах одновременно.`)}
      const is_banned=can('manage_bans')?Boolean(document.getElementById('teamIsBanned')?.checked):Boolean(old.is_banned);
      const ban_reason=can('manage_bans')?(is_banned?(document.getElementById('teamBanReason')?.value.trim()||old.ban_reason||'Подозрение на использование читов'):''):String(old.ban_reason||'');
-     const payload={p_team_id:t?Number(t.id):null,p_name:name,p_tag:document.getElementById('teamTag').value.trim()||name.slice(0,4).toUpperCase(),p_points:Math.floor(points),p_players:rawRoster,p_logo:logo||'',p_player_photos:playerPhotos.some(photo=>typeof photo==='string'&&photo.trim())?Array.from({length:5},(_,i)=>String(playerPhotos[i]||'').trim()||null):[],p_tournament_wins:tournament_wins,p_is_banned:is_banned,p_ban_reason:ban_reason};
+     const payload={p_team_id:t?Number(t.id):null,p_name:name,p_tag:document.getElementById('teamTag').value.trim()||name.slice(0,4).toUpperCase(),p_points:Math.floor(points),p_players:rawRoster,p_logo:logo||'',p_player_photos:playerPhotos.some(photo=>typeof photo==='string'&&photo.trim())?Array.from({length:5},(_,i)=>String(playerPhotos[i]||'').trim()||null):[],p_tournament_wins:tournament_wins,p_hltv_rank:hltv_rank,p_is_banned:is_banned,p_ban_reason:ban_reason};
     const btn=document.getElementById('saveTeam');busy=true;btn.disabled=true;btn.textContent='Сохраняю…';
     try{
       const {data,error}=await client.rpc('admin_save_team',payload);if(error)throw error;
@@ -6640,5 +6656,11 @@ body[data-theme="night"] .roster-player{
     background:linear-gradient(to bottom,#242f3a 0 calc(100% - 31px),transparent calc(100% - 31px))!important;
   }
 }
+</style>
+
+<style id="mvp-hltv-tier-system">
+.team-hltv-rank-pill{display:inline-flex;align-items:center;vertical-align:middle;margin-left:7px;padding:2px 5px;border:1px solid #cbd1d9;border-radius:3px;background:#f1f3f6;color:#5a6470;font-size:9px;font-weight:900;letter-spacing:.35px;white-space:nowrap}
+body[data-theme="night"] .team-hltv-rank-pill{background:#303b48!important;color:#d9e1ea!important;border-color:#566271!important}
+.tier-divider-label{font-size:10px}
 </style>
 </body></html>
