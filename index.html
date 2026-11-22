@@ -2122,12 +2122,12 @@ body[data-theme="night"] .news-card:hover{
     <div class="site-brand-caption">COUNTER-STRIKE ESPORTS COMMUNITY</div>
   </div>
 </div>
-<main class="wrap"><div class="crumb">COUNTER-STRIKE 2 · TEAM RANKING</div><div class="heading"><div><h1>Рейтинг команд</h1><div class="sub">Собственный рейтинг киберспортивных команд</div></div><div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><button class="btn hidden" id="adminUiToggle" type="button">Скрыть админку</button><button class="btn primary hidden" id="addBtn">＋ Добавить команду</button></div></div>
+<main class="wrap"><div class="crumb" id="rankingCrumb">COUNTER-STRIKE 2 · TEAM RANKING</div><div class="heading" id="rankingHeading"><div><h1>Рейтинг команд</h1><div class="sub">Собственный рейтинг киберспортивных команд</div></div><div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><button class="btn hidden" id="adminUiToggle" type="button">Скрыть админку</button><button class="btn primary hidden" id="addBtn">＋ Добавить команду</button></div></div>
 <div id="adminBar" class="adminbar hidden"><strong id="staffBarText">Режим управления включён.</strong><div class="adminbar-actions"><button class="btn hidden" id="manageUsersBtn" type="button">Управление доступом</button><button class="btn hidden" id="manageBansBtn" type="button">Блокировки</button><button class="btn" id="logoutBtn">Выйти</button></div></div>
 <div id="dbStatus" class="hidden" style="margin:0 0 14px;padding:10px 13px;border:1px solid #dfe3e8;border-radius:6px;font-size:13px"></div>
 <div class="ranking-with-news">
 <aside class="mvp-season-rail" aria-label="Архив сезонов"><section class="season-rail-section"><div class="season-rail-head"><span>SEASONS · ГОДЫ</span></div><div id="seasonYearsList" class="season-rail-list"><button class="season-year-button active" type="button"><strong>${new Date().getFullYear()}</strong><small>ТЕКУЩИЙ</small></button><button class="season-year-button future" type="button"><strong>${new Date().getFullYear()+1}</strong><small>СКОРО</small></button></div><div id="seasonRailNote" class="season-rail-note">Выбери год статистики.</div></section></aside>
-<section class="panel"><div id="dailyDateNav" class="daily-date-nav" aria-label="Выбор дня рейтинга"></div><div class="tablehead"><div>Место</div><div>Команда · MVP POINTS</div><div style="text-align:right">Изменение</div></div><div id="teams"></div></section>
+<section class="panel" id="rankingPanel"><div id="rankingPanelContent"><div id="dailyDateNav" class="daily-date-nav" aria-label="Выбор дня рейтинга"></div><div class="tablehead"><div>Место</div><div>Команда · MVP POINTS</div><div style="text-align:right">Изменение</div></div><div id="teams"></div></div><div id="mainWorkspace" class="main-workspace hidden"><div id="mainWorkspacePanel" class="modal modal-page"></div></div></section>
 <aside class="mvp-news-rail" aria-label="Новости трансферов и блокировок">
   <section class="news-rail-section"><div class="news-rail-head"><span>ТРАНСФЕРЫ</span></div><div id="transferNews" class="news-rail-list"><div class="news-rail-empty">Загрузка трансферов…</div></div><div class="news-rail-footer"><button id="allTransfersBtn" type="button">Все трансферы</button></div></section>
   <section class="news-rail-section"><div class="news-rail-head"><span>БЛОКИРОВКИ</span><span aria-hidden="true">●</span></div><div id="banNews" class="news-rail-list"><div class="news-rail-empty">Загрузка…</div></div></section>
@@ -2819,7 +2819,7 @@ function openTeamProfile(t){
   wirePlayerProfileLinks();
 }
 function wirePlayerProfileLinks(){
-  document.querySelectorAll('#modalRoot [data-player-profile-name]').forEach(btn=>{
+  document.querySelectorAll('#modalRoot [data-player-profile-name], #mainWorkspacePanel [data-player-profile-name]').forEach(btn=>{
     btn.onclick=()=>openPlayerProfile(btn.dataset.playerProfileName||'',btn.dataset.playerProfilePhoto||'');
   });
 }
@@ -3507,6 +3507,36 @@ function authModal(mode='login'){
 }
 async function updatePoints(t,delta){if(!can('manage_teams'))return;const next=Math.max(0,Number(t.points)+delta);const {error}=await client.from('teams').update({points:next}).eq('id',t.id).select('id').single();if(error){alert('Не удалось сохранить очки: '+niceError(error));return}await loadTeams()}
 
+
+function showMainWorkspace(content,wide=true,extraClass=''){
+  stopHelpPolling();
+  activeHelpProfile=null;
+  const ranking=document.getElementById('rankingPanelContent');
+  const workspace=document.getElementById('mainWorkspace');
+  const panel=document.getElementById('mainWorkspacePanel');
+  if(!ranking||!workspace||!panel)return null;
+  document.getElementById('modalRoot').innerHTML='';
+  ranking.classList.add('hidden');
+  workspace.classList.remove('hidden');
+  document.getElementById('rankingCrumb')?.classList.add('hidden');
+  document.getElementById('rankingHeading')?.classList.add('hidden');
+  panel.className='modal'+(wide?' modal-page':'')+(extraClass?' '+extraClass:'');
+  panel.innerHTML=content;
+  if(window.mvpApplyLanguage)window.mvpApplyLanguage();
+  return panel;
+}
+function closeMainWorkspace(){
+  cleanupLiveCenter();
+  cleanupTournamentCenter();
+  stopHelpPolling();
+  activeHelpProfile=null;
+  document.getElementById('mainWorkspace')?.classList.add('hidden');
+  document.getElementById('rankingPanelContent')?.classList.remove('hidden');
+  document.getElementById('rankingCrumb')?.classList.remove('hidden');
+  document.getElementById('rankingHeading')?.classList.remove('hidden');
+  setMainNavActive('ranking');
+}
+
 function setMainNavActive(name){
   document.querySelectorAll('[data-main-nav]').forEach(btn=>btn.classList.toggle('active',btn.dataset.mainNav===name));
 }
@@ -3533,9 +3563,8 @@ function cleanupLiveCenter(){
 async function openLiveCenter(){
   cleanupLiveCenter();
   setMainNavActive('live');
-  modal(`<div class="page-head"><div><h2><span style="display:inline-block;background:#c62828;color:#fff;border-radius:4px;padding:3px 7px;font-size:11px;vertical-align:middle;margin-right:6px">LIVE</span>Матчи MVP CS2</h2><div class="page-intro">Счёт и K/D/A поступают с локального сервера во время игры.</div></div><button class="btn" id="closeLiveCenter">Закрыть</button></div><div id="liveMatchesContent"><div class="stream-empty">Подключаемся к live-данным…</div></div><div class="notice" style="margin-top:12px">Если матч не появляется, проверь, что сервер запущен, плагин MVPStats загружен и настроено подключение сервера статистики.</div>`,true);
-  document.querySelector('#modalRoot .modal').classList.add('modal-page');
-  document.getElementById('closeLiveCenter').onclick=()=>{closeModal();setMainNavActive('ranking')};
+  showMainWorkspace(`<div class="page-head"><div><h2><span style="display:inline-block;background:#c62828;color:#fff;border-radius:4px;padding:3px 7px;font-size:11px;vertical-align:middle;margin-right:6px">LIVE</span>Матчи MVP CS2</h2><div class="page-intro">Счёт и K/D/A поступают с локального сервера во время игры.</div></div><button class="btn" id="closeLiveCenter">Закрыть</button></div><div id="liveMatchesContent"><div class="stream-empty">Подключаемся к live-данным…</div></div><div class="notice" style="margin-top:12px">Если матч не появляется, проверь, что сервер запущен, плагин MVPStats загружен и настроено подключение сервера статистики.</div>`,true);
+  document.getElementById('closeLiveCenter').onclick=()=>{closeMainWorkspace()};
   await loadLiveMatchesIntoModal();
   // Poll the Neon Worker API; no Neon Realtime subscription is required.
   liveRefreshTimer=setInterval(()=>loadLiveMatchesIntoModal(),20000);
@@ -3774,13 +3803,12 @@ async function openTournamentOrganizerPage(id){
  cleanupTournamentCenter();activeTournamentOrganizer=tournamentOrganizers.find(x=>String(x.id)===String(id))||null;
  if(!activeTournamentOrganizer){try{tournamentOrganizers=await mvpApiGet('/api/tournament-organizers')||[];activeTournamentOrganizer=tournamentOrganizers.find(x=>String(x.id)===String(id))||null;}catch(_){}}
  if(!activeTournamentOrganizer)return alert('Компания не найдена.');selectedTournamentId=null;
- modal(`<div class="page-head tourney-page-toolbar"><div><div class="tourney-kicker">CSTT · TOURNAMENT NETWORK</div><h2>${esc(activeTournamentOrganizer.name)}</h2><div class="page-intro">Турниры, расписание и история соревнований.</div></div><div class="tourney-toolbar-actions"><button class="btn" id="backTournamentOrganizers">← Компании</button><button class="btn" id="closeTournamentCenter">Закрыть</button></div></div><div id="tournamentContent">Загружаем турниры…</div>`,true);
- document.querySelector('#modalRoot .modal').classList.add('modal-page','tourney-modal');document.getElementById('backTournamentOrganizers').onclick=()=>openTournamentCenter(true);document.getElementById('closeTournamentCenter').onclick=()=>{closeModal();setMainNavActive('ranking');};await loadTournamentEventsPage();
+ showMainWorkspace(`<div class="page-head tourney-page-toolbar"><div><div class="tourney-kicker">CSTT · TOURNAMENT NETWORK</div><h2>${esc(activeTournamentOrganizer.name)}</h2><div class="page-intro">Турниры, расписание и история соревнований.</div></div><div class="tourney-toolbar-actions"><button class="btn" id="backTournamentOrganizers">← Компании</button><button class="btn" id="closeTournamentCenter">Закрыть</button></div></div><div id="tournamentContent">Загружаем турниры…</div>`,true,'tourney-modal');document.getElementById('backTournamentOrganizers').onclick=()=>openTournamentCenter(true);document.getElementById('closeTournamentCenter').onclick=()=>{closeMainWorkspace();};await loadTournamentEventsPage();
 }
 async function openTournamentApplications(){
  if(!admin)return;
- modal('<h2>Управление командами и заявками</h2><div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0"><button class="btn primary" id="adminAddTeam">＋ Добавить команду</button><button class="btn" id="adminReloadTeams">Обновить список</button></div><h3>Команды рейтинга</h3><div id="adminTeamsList">Загружаем…</div><hr style="margin:18px 0"><h3>Заявки на турниры</h3><div id="tourneyApplicationsList">Загружаем…</div><div class="modalfoot"><button class="btn" id="closeTourneyApplications">Закрыть</button></div>',true);
- document.getElementById('closeTourneyApplications').onclick=closeModal;
+ showMainWorkspace('<h2>Управление командами и заявками</h2><div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0"><button class="btn primary" id="adminAddTeam">＋ Добавить команду</button><button class="btn" id="adminReloadTeams">Обновить список</button></div><h3>Команды рейтинга</h3><div id="adminTeamsList">Загружаем…</div><hr style="margin:18px 0"><h3>Заявки на турниры</h3><div id="tourneyApplicationsList">Загружаем…</div><div class="modalfoot"><button class="btn" id="closeTourneyApplications">Закрыть</button></div>',true);
+ document.getElementById('closeTourneyApplications').onclick=closeMainWorkspace;
  document.getElementById('adminAddTeam').onclick=()=>editTeam();
  document.getElementById('adminReloadTeams').onclick=loadAdminTeamList;
  await Promise.all([loadAdminTeamList(),loadAdminApplicationsList()]);
@@ -3876,8 +3904,7 @@ async function saveTournamentEvent(event){
   }
 } async function openTournamentBracket(id){
  if(!activeTournamentOrganizer)return;selectedTournamentId=String(id);cleanupTournamentCenter();
- modal(`<div class="page-head tourney-page-toolbar"><div><div class="tourney-kicker">${esc(activeTournamentOrganizer.name.toUpperCase())} · BRACKET</div><h2>Турнирная сетка</h2><div class="page-intro">Составы, матчи и результаты соревнования.</div></div><div class="tourney-toolbar-actions"><button class="btn" id="backToOrganizerEvents">← К турнирам</button><button class="btn" id="closeTournamentBracket">Закрыть</button></div></div><div id="tournamentContent">Загружаем сетку…</div>`,true);
- document.querySelector('#modalRoot .modal').classList.add('modal-page','tourney-modal');document.getElementById('backToOrganizerEvents').onclick=()=>openTournamentOrganizerPage(activeTournamentOrganizer.id);document.getElementById('closeTournamentBracket').onclick=()=>{closeModal();setMainNavActive('ranking');};await loadTournamentIntoModal(true);if(!isSeasonReadOnly())tournamentRefreshTimer=setInterval(()=>loadTournamentIntoModal(),30000);
+ showMainWorkspace(`<div class="page-head tourney-page-toolbar"><div><div class="tourney-kicker">${esc(activeTournamentOrganizer.name.toUpperCase())} · BRACKET</div><h2>Турнирная сетка</h2><div class="page-intro">Составы, матчи и результаты соревнования.</div></div><div class="tourney-toolbar-actions"><button class="btn" id="backToOrganizerEvents">← К турнирам</button><button class="btn" id="closeTournamentBracket">Закрыть</button></div></div><div id="tournamentContent">Загружаем сетку…</div>`,true,'tourney-modal');document.getElementById('backToOrganizerEvents').onclick=()=>openTournamentOrganizerPage(activeTournamentOrganizer.id);document.getElementById('closeTournamentBracket').onclick=()=>{closeMainWorkspace();};await loadTournamentIntoModal(true);if(!isSeasonReadOnly())tournamentRefreshTimer=setInterval(()=>loadTournamentIntoModal(),30000);
 }
 
 function tournamentMarkup(tournament){
@@ -3905,8 +3932,7 @@ async function loadTournamentIntoModal(force=false){
 
 async function openTournamentCenter(){
  cleanupLiveCenter();cleanupTournamentCenter();activeTournamentOrganizer=null;selectedTournamentId=null;setMainNavActive('tournament');
- modal(`<div class="page-head tourney-page-toolbar"><div><div class="tourney-kicker">CSTT · TOURNAMENT NETWORK</div><h2>Турнирная платформа</h2><div class="page-intro">Выбери компанию-организатора, чтобы открыть её соревнования.</div></div><button class="btn" id="closeTournamentCenter">Закрыть</button></div><div id="tournamentContent">Загружаем компании…</div>`,true);
- document.querySelector('#modalRoot .modal').classList.add('modal-page','tourney-modal');document.getElementById('closeTournamentCenter').onclick=()=>{closeModal();setMainNavActive('ranking');};await loadTournamentOrganizersPage();
+ showMainWorkspace(`<div class="page-head tourney-page-toolbar"><div><div class="tourney-kicker">CSTT · TOURNAMENT NETWORK</div><h2>Турнирная платформа</h2><div class="page-intro">Выбери компанию-организатора, чтобы открыть её соревнования.</div></div><button class="btn" id="closeTournamentCenter">Закрыть</button></div><div id="tournamentContent">Загружаем компании…</div>`,true,'tourney-modal');document.getElementById('closeTournamentCenter').onclick=()=>{closeMainWorkspace();};await loadTournamentOrganizersPage();
 }
 
 function bindTournamentControls(host){
@@ -4059,9 +4085,8 @@ async function clearTournamentScore(key){
 async function openStreamsCenter(){
   cleanupLiveCenter();
   setMainNavActive('streams');
-  modal(`<div class="page-head"><div><h2>Трансляции CS2</h2><div class="page-intro">YouTube-эфиры и записи, добавленные администрацией CSTT.</div></div><button class="btn" id="closeStreams">Закрыть</button></div>${can('manage_streams')?`<form id="streamAddForm" class="stream-admin-form"><div class="field"><label>Название трансляции</label><input id="streamTitle" maxlength="100" placeholder="Например, MVP CS2 — турнирный эфир" required></div><div class="field"><label>Ссылка YouTube (видео или эфир)</label><input id="streamUrl" type="url" maxlength="500" placeholder="https://www.youtube.com/live/VIDEO_ID" required></div><button class="btn primary" type="submit">＋ Добавить эфир</button></form>`:''}<div id="streamContent" class="stream-grid"><div class="stream-empty">Загружаем трансляции…</div></div>`,true);
-  document.querySelector('#modalRoot .modal').classList.add('modal-page');
-  document.getElementById('closeStreams').onclick=()=>{closeModal();setMainNavActive('ranking')};
+  showMainWorkspace(`<div class="page-head"><div><h2>Трансляции CS2</h2><div class="page-intro">YouTube-эфиры и записи, добавленные администрацией CSTT.</div></div><button class="btn" id="closeStreams">Закрыть</button></div>${can('manage_streams')?`<form id="streamAddForm" class="stream-admin-form"><div class="field"><label>Название трансляции</label><input id="streamTitle" maxlength="100" placeholder="Например, MVP CS2 — турнирный эфир" required></div><div class="field"><label>Ссылка YouTube (видео или эфир)</label><input id="streamUrl" type="url" maxlength="500" placeholder="https://www.youtube.com/live/VIDEO_ID" required></div><button class="btn primary" type="submit">＋ Добавить эфир</button></form>`:''}<div id="streamContent" class="stream-grid"><div class="stream-empty">Загружаем трансляции…</div></div>`,true);
+  document.getElementById('closeStreams').onclick=()=>{closeMainWorkspace()};
   if(can('manage_streams')){
     document.getElementById('streamAddForm').addEventListener('submit',async e=>{
       e.preventDefault();const title=document.getElementById('streamTitle').value.trim(),youtube_url=document.getElementById('streamUrl').value.trim();
@@ -4098,9 +4123,8 @@ async function loadStreamsIntoModal(){
 async function openTopPlayersCenter(){
   cleanupLiveCenter();
   setMainNavActive('players');
-  modal(`<div class="page-head"><div><h2>Топ игроков</h2><div class="page-intro">Игроки из составов команд · рейтинг по среднему K/D за записанные матчи.</div></div><button class="btn" id="closeTopPlayers">Закрыть</button></div><div id="topPlayerContent" class="top-player-list" dir="ltr"><div class="stream-empty">Собираем статистику игроков…</div></div>`,true);
-  document.querySelector('#modalRoot .modal').classList.add('modal-page');
-  document.getElementById('closeTopPlayers').onclick=()=>{closeModal();setMainNavActive('ranking')};
+  showMainWorkspace(`<div class="page-head"><div><h2>Топ игроков</h2><div class="page-intro">Игроки из составов команд · рейтинг по среднему K/D за записанные матчи.</div></div><button class="btn" id="closeTopPlayers">Закрыть</button></div><div id="topPlayerContent" class="top-player-list" dir="ltr"><div class="stream-empty">Собираем статистику игроков…</div></div>`,true);
+  document.getElementById('closeTopPlayers').onclick=()=>{closeMainWorkspace()};
   const host=document.getElementById('topPlayerContent');
   try{
     let dbPlayers=[],stats=[];
@@ -4158,9 +4182,8 @@ async function openTopPlayersCenter(){
 async function openMatchesCenter(){
   cleanupLiveCenter();
   setMainNavActive('matches');
-  modal(`<div class="page-head"><div><h2>Матчи MVP CS2</h2><div class="page-intro">Расписание и результаты матчей команд.</div></div><button class="btn" id="closeMatches">Закрыть</button></div>${can('manage_matches')?'<div class="matches-admin-tools"><button class="btn primary" id="createGlobalMatch">＋ Создать матч</button></div>':''}<div id="globalMatchesList" class="match-list"><div class="stream-empty">Загружаем матчи…</div></div>`,true);
-  document.querySelector('#modalRoot .modal').classList.add('modal-page');
-  document.getElementById('closeMatches').onclick=()=>{closeModal();setMainNavActive('ranking')};
+  showMainWorkspace(`<div class="page-head"><div><h2>Матчи MVP CS2</h2><div class="page-intro">Расписание и результаты матчей команд.</div></div><button class="btn" id="closeMatches">Закрыть</button></div>${can('manage_matches')?'<div class="matches-admin-tools"><button class="btn primary" id="createGlobalMatch">＋ Создать матч</button></div>':''}<div id="globalMatchesList" class="match-list"><div class="stream-empty">Загружаем матчи…</div></div>`,true);
+  document.getElementById('closeMatches').onclick=()=>{closeMainWorkspace()};
   if(can('manage_matches')&&document.getElementById('createGlobalMatch'))document.getElementById('createGlobalMatch').onclick=()=>editGlobalMatch(null);
   await loadGlobalMatches();
 }
@@ -4210,7 +4233,7 @@ async function editGlobalMatch(match=null){
 }
 document.querySelectorAll('[data-main-nav]').forEach(btn=>btn.addEventListener('click',()=>{
   const page=btn.dataset.mainNav;
-  if(page==='ranking'){closeModal();setMainNavActive('ranking');window.scrollTo({top:0,behavior:'smooth'});}
+  if(page==='ranking'){closeMainWorkspace();closeModal();setMainNavActive('ranking');window.scrollTo({top:0,behavior:'smooth'});}
   else if(page==='matches')openMatchesCenter();
   else if(page==='live')openLiveCenter();
   else if(page==='tournament')openTournamentCenter();
@@ -4404,11 +4427,10 @@ async function openSiteManagement(banOnly=false){
     <section class="moderation-section"><h3>Назначить модератора</h3><form id="newModeratorForm"><div class="field"><label>Email зарегистрированного пользователя</label><input id="moderatorEmail" type="email" required placeholder="user@example.com"></div><div class="moderator-permissions">${permissionBoxes}</div><button class="btn primary" type="submit">Назначить модератором</button></form><div class="notice">Сначала пользователь должен зарегистрироваться на сайте. По умолчанию все разрешения выключены.</div></section>
     <section class="moderation-section"><h3>Заблокировать email</h3><form id="banEmailForm"><div class="field"><label>Email</label><input id="banEmailValue" type="email" required placeholder="user@example.com"></div><div class="field"><label>Причина</label><input id="banEmailReason" maxlength="200" placeholder="Причина блокировки"></div><button class="btn" type="submit">Заблокировать email</button></form><div class="moderation-subhead">Список заблокированных email</div><div id="moderationEmailBans" class="moderation-list">Загружаем…</div></section>
     <section class="moderation-section"><h3>Аккаунты и права</h3><div id="moderationAccounts" class="moderation-list">Загружаем аккаунты…</div></section>`:'';
-  modal(`<div class="help-header"><div><h2>${admin?'Управление доступом':'Блокировки игроков и команд'}</h2><div class="notice">${admin?'Модераторы, разрешения и блокировки.':'Доступны только выданные тебе разрешения на блокировки.'}</div></div><button class="btn" id="closeSiteManagement">Закрыть</button></div>
+  showMainWorkspace(`<div class="help-header"><div><h2>${admin?'Управление доступом':'Блокировки игроков и команд'}</h2><div class="notice">${admin?'Модераторы, разрешения и блокировки.':'Доступны только выданные тебе разрешения на блокировки.'}</div></div><button class="btn" id="closeSiteManagement">Закрыть</button></div>
     ${adminSections}
-    ${mayManageBans?`<section class="moderation-section"><h3>Блокировки команд</h3><div id="moderationTeams" class="moderation-list"></div><div class="moderation-subhead">Поиск и блокировка игроков</div><input id="moderationPlayerSearch" placeholder="Поиск игрока по нику или ID"><div id="moderationPlayers" class="moderation-list">Загружаем игроков…</div></section>`:''}`,true);
-  document.querySelector('#modalRoot .modal').classList.add('modal-page','moderation-modal');
-  document.getElementById('closeSiteManagement').onclick=closeModal;
+    ${mayManageBans?`<section class="moderation-section"><h3>Блокировки команд</h3><div id="moderationTeams" class="moderation-list"></div><div class="moderation-subhead">Поиск и блокировка игроков</div><input id="moderationPlayerSearch" placeholder="Поиск игрока по нику или ID"><div id="moderationPlayers" class="moderation-list">Загружаем игроков…</div></section>`:''}`,true,'moderation-modal');
+  document.getElementById('closeSiteManagement').onclick=closeMainWorkspace;
   if(admin){
     document.getElementById('newModeratorForm').onsubmit=async e=>{
       e.preventDefault();const email=document.getElementById('moderatorEmail').value.trim().toLowerCase();
@@ -4635,14 +4657,14 @@ async function openAllTransfers(){
   if(isViewingHistoricalData())rows=snapshotRows('site_news');
   else if(!isFutureSeason()){
     try{rows=(await mvpApiGet('/api/site-news')||[]).filter(row=>['player_released','player_transfer','player_rejoined','player_joined'].includes(row.event_type)).slice(0,500);}
-    catch(error){modal(`<h2>Все трансферы</h2><div class="help-empty">Не удалось загрузить новости из Neon API.<br>${esc(niceError(error))}</div><div class="modalfoot"><button class="btn primary" id="closeAllTransfers">Закрыть</button></div>`,true);document.getElementById('closeAllTransfers').onclick=closeModal;return;}
+    catch(error){showMainWorkspace(`<h2>Все трансферы</h2><div class="help-empty">Не удалось загрузить новости из Neon API.<br>${esc(niceError(error))}</div><div class="modalfoot"><button class="btn primary" id="closeAllTransfers">Закрыть</button></div>`,true);document.getElementById('closeAllTransfers').onclick=closeMainWorkspace;return;}
   }
   rows=rows.filter(row=>['player_released','player_transfer','player_rejoined','player_joined'].includes(row.event_type)&&(!row.created_at||new Date(row.created_at).getFullYear()===Number(selectedSeasonYear)));
   if(isViewingPastDay())rows=rows.filter(row=>String(row.created_at||'').slice(0,10)===selectedRankDate);
   const body=rows.map(row=>`<article class="news-all-entry">${transferHeadline(row)}<small>${esc(newsDate(row.created_at))}</small></article>`).join('')||'<div class="help-empty">Трансферов за этот год пока нет.</div>';
-  modal(`<div class="help-header"><h2>Трансферы ${selectedSeasonYear}</h2><button class="btn" id="closeAllTransfers">Закрыть</button></div><div class="news-all-modal">${body}</div>`,true);
-  document.getElementById('closeAllTransfers').onclick=closeModal;
-  wireNewsActions(document.querySelector('#modalRoot .news-all-modal'));
+  showMainWorkspace(`<div class="help-header"><h2>Трансферы ${selectedSeasonYear}</h2><button class="btn" id="closeAllTransfers">Закрыть</button></div><div class="news-all-modal">${body}</div>`,true);
+  document.getElementById('closeAllTransfers').onclick=closeMainWorkspace;
+  wireNewsActions(document.querySelector('#mainWorkspacePanel .news-all-modal'));
 }
 document.getElementById('allTransfersBtn')?.addEventListener('click',openAllTransfers);
 function startNewsRail(){
@@ -4678,7 +4700,7 @@ function newsPageCard(item){return item.kind==='editorial'?newsEditorialCard(ite
 async function openNewsCenter(filter='all'){
   newsCenterFilter=filter;setMainNavActive('news');
   const canPublish=can('manage_news');
-  modal(`<div class="news-hub">
+  showMainWorkspace(`<div class="news-hub">
     <div class="news-hub-hero"><div><div class="crumb" style="color:#d9b967">CSTT · MEDIA</div><h2>Новости</h2><p>Трансферы, блокировки, объявления и события киберспортивного сообщества.</p></div>${canPublish?'<button class="btn primary" id="createEditorialNews">＋ Опубликовать новость</button>':''}</div>
     <div class="news-hub-toolbar"><div class="news-hub-tabs">
       <button class="news-hub-tab ${filter==='all'?'active':''}" data-news-filter="all" type="button">Все</button>
@@ -4688,8 +4710,7 @@ async function openNewsCenter(filter='all'){
     </div><button class="btn" id="closeNewsCenter" type="button">Закрыть</button></div>
     <div id="newsHubContent"><div class="news-hub-empty">Загружаем публикации…</div></div>
   </div>`,true);
-  const root=document.querySelector('#modalRoot .modal');if(root)root.classList.add('modal-page');
-  document.getElementById('closeNewsCenter').onclick=()=>{closeModal();setMainNavActive('ranking')};
+  document.getElementById('closeNewsCenter').onclick=()=>{closeMainWorkspace()};
   document.querySelectorAll('[data-news-filter]').forEach(b=>b.onclick=()=>openNewsCenter(b.dataset.newsFilter));
   if(canPublish)document.getElementById('createEditorialNews').onclick=()=>openEditorialNewsEditor();
   await loadNewsHubItems(filter);
@@ -4732,7 +4753,7 @@ async function loadNewsHubItems(filter=newsCenterFilter){
 function openEditorialNewsEditor(article=null){
   if(!can('manage_news'))return;
   const row=article||{};
-  modal(`<div class="page-head"><div><h2>${article?'Редактировать новость':'Новая публикация'}</h2><div class="page-intro">Создай оформленную новость для читателей CSTT.</div></div><button class="btn" id="cancelEditorialNews">Назад</button></div>
+  showMainWorkspace(`<div class="page-head"><div><h2>${article?'Редактировать новость':'Новая публикация'}</h2><div class="page-intro">Создай оформленную новость для читателей CSTT.</div></div><button class="btn" id="cancelEditorialNews">Назад</button></div>
     <div class="news-editor-grid"><div>
       <div class="field"><label for="editorialTitle">Заголовок *</label><input id="editorialTitle" maxlength="140" value="${esc(row.title||'')}" placeholder="Например: Новое обновление рейтинга"></div>
       <div class="field"><label for="editorialCategory">Категория</label><select id="editorialCategory"><option value="news" ${row.category==='news'?'selected':''}>Новость</option><option value="announcement" ${row.category==='announcement'?'selected':''}>Объявление</option><option value="tournament" ${row.category==='tournament'?'selected':''}>Турнир</option><option value="update" ${row.category==='update'?'selected':''}>Обновление сайта</option></select></div>
@@ -4744,7 +4765,6 @@ function openEditorialNewsEditor(article=null){
       <div class="news-editor-preview"><b>Подсказка по оформлению</b><div class="notice">Используй короткие абзацы. Заголовок, изображение, категория и дата будут красиво оформлены автоматически. HTML-код вставлять не нужно.</div></div>
     </div></div>
     <div class="modalfoot"><button class="btn" id="cancelEditorialNews2">Отмена</button><button class="btn primary" id="saveEditorialNews">${article?'Сохранить изменения':'Опубликовать'}</button></div>`,true);
-  document.querySelector('#modalRoot .modal').classList.add('modal-page');
   const goBack=()=>openNewsCenter(newsCenterFilter);
   document.getElementById('cancelEditorialNews').onclick=goBack;document.getElementById('cancelEditorialNews2').onclick=goBack;
   document.getElementById('saveEditorialNews').onclick=async()=>{
@@ -4765,12 +4785,11 @@ function openEditorialNewsEditor(article=null){
 function openEditorialNewsArticle(row){
   if(!row)return;
   const image=newsValidWebUrl(row.image_url),external=newsValidWebUrl(row.external_url);
-  modal(`<div class="page-head"><div><span class="news-hub-category">${NEWS_CATEGORY_LABELS[row.category]||'НОВОСТЬ'}</span><h2 style="margin:8px 0 0">${esc(row.title)}</h2><div class="page-intro">${esc(newsDate(row.created_at))} · ${esc(row.author_name||'MVP CS2')}</div></div><button class="btn" id="closeEditorialArticle">Закрыть</button></div>
+  showMainWorkspace(`<div class="page-head"><div><span class="news-hub-category">${NEWS_CATEGORY_LABELS[row.category]||'НОВОСТЬ'}</span><h2 style="margin:8px 0 0">${esc(row.title)}</h2><div class="page-intro">${esc(newsDate(row.created_at))} · ${esc(row.author_name||'MVP CS2')}</div></div><button class="btn" id="closeEditorialArticle">Закрыть</button></div>
     ${image?`<img class="news-article-cover" src="${esc(image)}" alt="${esc(row.title)}">`:''}
     ${row.summary?`<p class="news-hub-summary" style="font-size:14px;margin:0 0 14px;font-weight:700">${esc(row.summary)}</p>`:''}
     <div class="news-article-body">${newsFormatBody(row.body)}</div>
     ${external?`<div class="modalfoot"><a class="btn primary" href="${esc(external)}" target="_blank" rel="noopener noreferrer">Открыть материал</a></div>`:''}`,true);
-  document.querySelector('#modalRoot .modal').classList.add('modal-page');
   document.getElementById('closeEditorialArticle').onclick=()=>openNewsCenter(newsCenterFilter);
 }
 
@@ -6902,6 +6921,20 @@ body[data-theme="day"] .hltv-roster-player-name .player-profile-link{color:#2631
 body[data-theme="day"] .hltv-roster-player-name .player-profile-link:hover{color:#a56e00!important}
 body[data-theme="day"] .hltv-roster-empty,
 body[data-theme="day"] .hltv-empty-roster{color:#7d8996!important}
+
+
+/* Navigation pages live inside the central workspace, replacing the ranking table rather than opening an overlay. */
+.main-workspace{width:100%;min-width:0;min-height:540px}
+.main-workspace>.modal.modal-page{width:100%;max-width:none;min-height:540px;max-height:none;margin:0;padding:18px 20px;border:0;border-radius:0;box-shadow:none;overflow:visible;background:#fff}
+.main-workspace>.modal.modal-page.tourney-modal{width:100%;max-width:none!important;min-height:540px;background:#f4f6fa!important}
+.main-workspace .page-head{flex-wrap:wrap}
+.main-workspace .stream-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:760px){
+ .main-workspace{min-height:420px}
+ .main-workspace>.modal.modal-page{min-height:420px;padding:13px 11px}
+ .main-workspace .page-head{align-items:flex-start}
+ .main-workspace .stream-grid{grid-template-columns:1fr}
+}
 
 </style>
 </body></html>
