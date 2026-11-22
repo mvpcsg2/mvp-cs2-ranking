@@ -2777,6 +2777,7 @@ function toggleTeam(id){
 }
 function openTeamProfile(t){
   if(!t)return;
+  navigateAppRoute(teamRoutePath(t));
   const rank=[...teams].sort((a,b)=>Number(b.points)-Number(a.points)||Number(a.id)-Number(b.id)).findIndex(x=>String(x.id)===String(t.id))+1;
   const roster=getRoster(t),playerPhotos=getPlayerPhotos(t),wins=Math.max(0,Number(t.tournament_wins)||0);
   const playerCards=roster.map((player,n)=>{
@@ -2909,6 +2910,7 @@ async function getPlayerTopPosition(playerId){
 }
 async function openPlayerProfile(nickname,fallbackPhoto=''){
   nickname=String(nickname||'').trim();if(!nickname||nickname==='Игрок не указан')return;
+  navigateAppRoute(playerRoutePath(nickname));
   const fallback=fallbackPhoto||defaultPlayerPhoto(nickname);
   showMainWorkspace(`<h2>Профиль игрока</h2><div class="help-empty">Загружаем статистику игрока…</div>`,true);
   try{
@@ -3159,6 +3161,7 @@ async function openAwardPrizeMoney(nickname,photo,teamId){
 
 async function openTeamMatchHistory(t){
   if(!t)return;
+  navigateAppRoute(teamRoutePath(t,'matches'));
   showMainWorkspace(`<div class="help-header"><div><h2>История боёв</h2><div class="notice">${esc(t.name)}</div></div><button class="btn" id="backTeamProfile">Профиль команды</button></div>${can('manage_matches')?'<div style="margin-bottom:12px"><button class="btn primary" id="addTeamMatch">＋ Добавить бой</button></div>':''}<div id="teamMatchList" class="match-list"><div class="help-empty">Загружаем матчи…</div></div><div class="modalfoot"><button class="btn" id="closeMatchHistory">Закрыть</button></div>`,true);
   document.getElementById('backTeamProfile').onclick=()=>openTeamProfile(t);
   document.getElementById('closeMatchHistory').onclick=closeMainWorkspace;
@@ -3385,6 +3388,7 @@ async function openCaptainPanel(){
  if(r.error)return alert(niceError(r.error));
  const t=r.data;
  if(!t)return alert('Администратор ещё не назначил тебе команду.');
+ navigateAppRoute('/my-team');
  const roster=getRoster(t),photos=Array.isArray(t.player_photos)?[...t.player_photos]:[];
  while(photos.length<5)photos.push('');
  let logo=String(t.logo||'');
@@ -3541,13 +3545,157 @@ function closeMainWorkspace(){
   setMainNavActive('ranking');
 }
 
-function setMainNavActive(name){
+let appRouterReady=false;
+let appRouterApplying=false;
+const APP_NAV_ROUTES={
+  ranking:'/ranking',matches:'/matches',live:'/live',tournament:'/tournaments',
+  streams:'/streams',players:'/players',news:'/news'
+};
+function routeDecodePart(value){
+  try{return decodeURIComponent(String(value||''));}catch(_){return String(value||'');}
+}
+function routeSlug(value){
+  return String(value||'team').trim().toLowerCase()
+    .replace(/[^a-z0-9а-яё]+/gi,'-').replace(/^-+|-+$/g,'')||'team';
+}
+function teamRoutePath(team,suffix=''){
+  if(!team)return '/ranking';
+  const base='/teams/'+encodeURIComponent(String(team.id))+'/'+encodeURIComponent(routeSlug(team.tag||team.name));
+  return suffix?base+'/'+suffix:base;
+}
+function playerRoutePath(nickname){
+  return '/players/'+encodeURIComponent(String(nickname||'').trim());
+}
+function navigateAppRoute(path,{replace=false}={}){
+  if(!appRouterReady||appRouterApplying||!path)return;
+  let next=String(path);
+  if(!next.startsWith('/'))next='/'+next;
+  next=next.replace(/\/{2,}/g,'/').replace(/\/+$/,'')||'/';
+  if(next==='/')next='/ranking';
+  if(window.location.pathname===next&&!window.location.search)return;
+  window.history[replace?'replaceState':'pushState']({csttRoute:true},'',next);
+}
+function parseAppRoute(){
+  const parts=String(window.location.pathname||'/').split('/').filter(Boolean).map(routeDecodePart);
+  if(!parts.length||parts[0]==='ranking')return {type:'ranking'};
+  if(parts[0]==='teams'&&parts.length>=2){
+    if(parts[3]==='matches')return {type:'team-matches',teamId:parts[1]};
+    return {type:'team',teamId:parts[1]};
+  }
+  if(parts[0]==='players'){
+    if(parts.length===1)return {type:'players'};
+    return {type:'player',nickname:parts.slice(1).join('/')};
+  }
+  if(parts[0]==='matches')return {type:'matches'};
+  if(parts[0]==='live')return {type:'live'};
+  if(parts[0]==='tournaments'){
+    if(parts[1]==='applications')return {type:'tournament-applications'};
+    if(parts[1]==='organizers'&&parts[2]&&parts[3]==='events'&&parts[4])
+      return {type:'tournament-event',organizerId:parts[2],eventId:parts[4]};
+    if(parts[1]==='organizers'&&parts[2])return {type:'tournament-organizer',organizerId:parts[2]};
+    return {type:'tournaments'};
+  }
+  if(parts[0]==='streams')return {type:'streams'};
+  if(parts[0]==='transfers')return {type:'transfers'};
+  if(parts[0]==='news'){
+    if(parts[1]==='article'&&parts[2])return {type:'news-article',articleId:parts[2]};
+    if(parts[1]==='edit')return {type:'news-editor',articleId:parts[2]||'new'};
+    const filter=['all','editorial','transfer','ban'].includes(parts[1])?parts[1]:'all';
+    return {type:'news',filter};
+  }
+  if(parts[0]==='management')return {type:'management'};
+  if(parts[0]==='moderation'&&parts[1]==='bans')return {type:'moderation-bans'};
+  if(parts[0]==='my-team')return {type:'my-team'};
+  return {type:'not-found'};
+}
+async function openNewsArticleByRoute(articleId){
+  let rows=[];
+  try{
+    rows=isViewingHistoricalData()?snapshotRows('editorial_news').filter(row=>row.published):(await mvpApiGet('/api/editorial-news')||[]);
+  }catch(error){console.warn('Не удалось открыть новость по адресу:',error);}
+  const article=rows.find(row=>String(row.id)===String(articleId));
+  if(article){openEditorialNewsArticle(article);return true;}
+  await openNewsCenter('all');
+  return false;
+}
+async function openNewsEditorByRoute(articleId){
+  if(!can('manage_news')){await openNewsCenter('all');return;}
+  if(!articleId||articleId==='new'){openEditorialNewsEditor();return;}
+  try{
+    const rows=isViewingHistoricalData()?snapshotRows('editorial_news'):(await mvpApiGet('/api/editorial-news')||[]);
+    const article=rows.find(row=>String(row.id)===String(articleId));
+    if(article)openEditorialNewsEditor(article);
+    else await openNewsCenter('all');
+  }catch(_){await openNewsCenter('all');}
+}
+async function renderAppRoute(){
+  const route=parseAppRoute();
+  appRouterApplying=true;
+  try{
+    if(route.type==='ranking'){
+      closeModal();closeMainWorkspace();
+      if(window.location.pathname!=='/ranking')window.history.replaceState({csttRoute:true},'','/ranking');
+      return;
+    }
+    if(route.type==='team'||route.type==='team-matches'){
+      const team=teams.find(row=>String(row.id)===String(route.teamId));
+      if(!team)throw new Error('Команда из этой ссылки не найдена.');
+      setMainNavActive('ranking');
+      if(route.type==='team-matches')await openTeamMatchHistory(team);
+      else openTeamProfile(team);
+      return;
+    }
+    if(route.type==='player'){
+      setMainNavActive('players');await openPlayerProfile(route.nickname);return;
+    }
+    if(route.type==='players'){await openTopPlayersCenter();return;}
+    if(route.type==='matches'){await openMatchesCenter();return;}
+    if(route.type==='live'){await openLiveCenter();return;}
+    if(route.type==='tournaments'){await openTournamentCenter();return;}
+    if(route.type==='tournament-applications'){await openTournamentApplications();return;}
+    if(route.type==='tournament-organizer'){
+      await openTournamentCenter();await openTournamentOrganizerPage(route.organizerId);return;
+    }
+    if(route.type==='tournament-event'){
+      await openTournamentCenter();
+      await openTournamentOrganizerPage(route.organizerId);
+      await openTournamentBracket(route.eventId);
+      return;
+    }
+    if(route.type==='streams'){await openStreamsCenter();return;}
+    if(route.type==='transfers'){await openAllTransfers();return;}
+    if(route.type==='news'){await openNewsCenter(route.filter);return;}
+    if(route.type==='news-article'){await openNewsArticleByRoute(route.articleId);return;}
+    if(route.type==='news-editor'){await openNewsEditorByRoute(route.articleId);return;}
+    if(route.type==='management'){
+      if(!admin)throw new Error('Для этой страницы нужен доступ администратора.');
+      await openSiteManagement(false);return;
+    }
+    if(route.type==='moderation-bans'){
+      if(!admin&&!can('manage_bans'))throw new Error('Для этой страницы нет разрешения на управление блокировками.');
+      await openSiteManagement(true);return;
+    }
+    if(route.type==='my-team'){
+      if(!currentUser)throw new Error('Войди в аккаунт, чтобы открыть управление командой.');
+      await openCaptainPanel();return;
+    }
+    throw new Error('Страница по этому адресу не найдена.');
+  }catch(error){
+    console.warn('Не удалось открыть маршрут CSTT:',error);
+    closeModal();closeMainWorkspace();
+    window.history.replaceState({csttRoute:true},'','/ranking');
+    if(route.type!=='not-found')setStatus(niceError(error),'error');
+  }finally{appRouterApplying=false;}
+}
+window.addEventListener('popstate',()=>{if(appRouterReady)renderAppRoute();});
+function setMainNavActive(name,routeOverride=null){
   document.querySelectorAll('[data-main-nav]').forEach(btn=>{
     const active=btn.dataset.mainNav===name;
     btn.classList.toggle('active',active);
     if(active)btn.setAttribute('aria-current','page');
     else btn.removeAttribute('aria-current');
   });
+  navigateAppRoute(routeOverride||APP_NAV_ROUTES[name]||'');
 }
 function youtubeVideoId(raw){
   try{
@@ -3811,11 +3959,14 @@ async function loadTournamentOrganizersPage(){
 async function openTournamentOrganizerPage(id){
  cleanupTournamentCenter();activeTournamentOrganizer=tournamentOrganizers.find(x=>String(x.id)===String(id))||null;
  if(!activeTournamentOrganizer){try{tournamentOrganizers=await mvpApiGet('/api/tournament-organizers')||[];activeTournamentOrganizer=tournamentOrganizers.find(x=>String(x.id)===String(id))||null;}catch(_){}}
- if(!activeTournamentOrganizer)return alert('Компания не найдена.');selectedTournamentId=null;
+ if(!activeTournamentOrganizer)return alert('Компания не найдена.');
+ navigateAppRoute('/tournaments/organizers/'+encodeURIComponent(String(id)));
+ selectedTournamentId=null;
  showMainWorkspace(`<div class="page-head tourney-page-toolbar"><div><div class="tourney-kicker">CSTT · TOURNAMENT NETWORK</div><h2>${esc(activeTournamentOrganizer.name)}</h2><div class="page-intro">Турниры, расписание и история соревнований.</div></div><div class="tourney-toolbar-actions"><button class="btn" id="backTournamentOrganizers">← Компании</button><button class="btn" id="closeTournamentCenter">Закрыть</button></div></div><div id="tournamentContent">Загружаем турниры…</div>`,true,'tourney-modal');document.getElementById('backTournamentOrganizers').onclick=()=>openTournamentCenter(true);document.getElementById('closeTournamentCenter').onclick=()=>{closeMainWorkspace();};await loadTournamentEventsPage();
 }
 async function openTournamentApplications(){
  if(!admin)return;
+ navigateAppRoute('/tournaments/applications');
  showMainWorkspace('<h2>Управление командами и заявками</h2><div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0"><button class="btn primary" id="adminAddTeam">＋ Добавить команду</button><button class="btn" id="adminReloadTeams">Обновить список</button></div><h3>Команды рейтинга</h3><div id="adminTeamsList">Загружаем…</div><hr style="margin:18px 0"><h3>Заявки на турниры</h3><div id="tourneyApplicationsList">Загружаем…</div><div class="modalfoot"><button class="btn" id="closeTourneyApplications">Закрыть</button></div>',true);
  document.getElementById('closeTourneyApplications').onclick=closeMainWorkspace;
  document.getElementById('adminAddTeam').onclick=()=>editTeam();
@@ -3912,7 +4063,10 @@ async function saveTournamentEvent(event){
     if(btn&&btn.isConnected){btn.disabled=false;btn.textContent=id?'Сохранить изменения':'＋ Создать турнир';}
   }
 } async function openTournamentBracket(id){
- if(!activeTournamentOrganizer)return;selectedTournamentId=String(id);cleanupTournamentCenter();
+ if(!activeTournamentOrganizer)return;
+ selectedTournamentId=String(id);
+ navigateAppRoute('/tournaments/organizers/'+encodeURIComponent(String(activeTournamentOrganizer.id))+'/events/'+encodeURIComponent(String(id)));
+ cleanupTournamentCenter();
  showMainWorkspace(`<div class="page-head tourney-page-toolbar"><div><div class="tourney-kicker">${esc(activeTournamentOrganizer.name.toUpperCase())} · BRACKET</div><h2>Турнирная сетка</h2><div class="page-intro">Составы, матчи и результаты соревнования.</div></div><div class="tourney-toolbar-actions"><button class="btn" id="backToOrganizerEvents">← К турнирам</button><button class="btn" id="closeTournamentBracket">Закрыть</button></div></div><div id="tournamentContent">Загружаем сетку…</div>`,true,'tourney-modal');document.getElementById('backToOrganizerEvents').onclick=()=>openTournamentOrganizerPage(activeTournamentOrganizer.id);document.getElementById('closeTournamentBracket').onclick=()=>{closeMainWorkspace();};await loadTournamentIntoModal(true);if(!isSeasonReadOnly())tournamentRefreshTimer=setInterval(()=>loadTournamentIntoModal(),30000);
 }
 
@@ -4431,6 +4585,7 @@ function compressImage(file,maxSide=320,quality=0.88){
 async function openSiteManagement(banOnly=false){
   const mayManageBans=can('manage_bans');
   if(!admin && !(banOnly && mayManageBans))return;
+  navigateAppRoute(banOnly?'/moderation/bans':'/management');
   const permissionBoxes=Object.entries(MOD_PERMISSION_LABELS).map(([key,label])=>`<label class="permission-check"><input type="checkbox" data-new-permission="${key}"> ${esc(label)}</label>`).join('');
   const adminSections=admin?`
     <section class="moderation-section"><h3>Назначить модератора</h3><form id="newModeratorForm"><div class="field"><label>Email зарегистрированного пользователя</label><input id="moderatorEmail" type="email" required placeholder="user@example.com"></div><div class="moderator-permissions">${permissionBoxes}</div><button class="btn primary" type="submit">Назначить модератором</button></form><div class="notice">Сначала пользователь должен зарегистрироваться на сайте. По умолчанию все разрешения выключены.</div></section>
@@ -4661,7 +4816,7 @@ async function loadNewsRail(){
   wireNewsActions(transfersHost);wireNewsActions(bansHost);
 }
 async function openAllTransfers(){
-  setMainNavActive('news');
+  setMainNavActive('news','/transfers');
   const fields='id,event_type,player_id,player_name,player_photo_url,from_team_id,from_team_name,from_team_logo,from_team_snapshot_id,to_team_id,to_team_name,to_team_logo,to_team_snapshot_id,reason,created_at';
   let rows=[];
   if(isViewingHistoricalData())rows=snapshotRows('site_news');
@@ -4708,7 +4863,7 @@ function newsAutomaticCard(row){
 }
 function newsPageCard(item){return item.kind==='editorial'?newsEditorialCard(item.row):newsAutomaticCard(item.row)}
 async function openNewsCenter(filter='all'){
-  newsCenterFilter=filter;setMainNavActive('news');
+  newsCenterFilter=filter;setMainNavActive('news',filter==='all'?'/news':'/news/'+encodeURIComponent(filter));
   const canPublish=can('manage_news');
   showMainWorkspace(`<div class="news-hub">
     <div class="news-hub-hero"><div><div class="crumb" style="color:#d9b967">CSTT · MEDIA</div><h2>Новости</h2><p>Трансферы, блокировки, объявления и события киберспортивного сообщества.</p></div>${canPublish?'<button class="btn primary" id="createEditorialNews">＋ Опубликовать новость</button>':''}</div>
@@ -4762,6 +4917,7 @@ async function loadNewsHubItems(filter=newsCenterFilter){
 }
 function openEditorialNewsEditor(article=null){
   if(!can('manage_news'))return;
+  navigateAppRoute('/news/edit/'+encodeURIComponent(article?.id||'new'));
   const row=article||{};
   showMainWorkspace(`<div class="page-head"><div><h2>${article?'Редактировать новость':'Новая публикация'}</h2><div class="page-intro">Создай оформленную новость для читателей CSTT.</div></div><button class="btn" id="cancelEditorialNews">Назад</button></div>
     <div class="news-editor-grid"><div>
@@ -4794,6 +4950,7 @@ function openEditorialNewsEditor(article=null){
 }
 function openEditorialNewsArticle(row){
   if(!row)return;
+  navigateAppRoute('/news/article/'+encodeURIComponent(row.id));
   const image=newsValidWebUrl(row.image_url),external=newsValidWebUrl(row.external_url);
   showMainWorkspace(`<div class="page-head"><div><span class="news-hub-category">${NEWS_CATEGORY_LABELS[row.category]||'НОВОСТЬ'}</span><h2 style="margin:8px 0 0">${esc(row.title)}</h2><div class="page-intro">${esc(newsDate(row.created_at))} · ${esc(row.author_name||'MVP CS2')}</div></div><button class="btn" id="closeEditorialArticle">Закрыть</button></div>
     ${image?`<img class="news-article-cover" src="${esc(image)}" alt="${esc(row.title)}">`:''}
@@ -4819,6 +4976,8 @@ async function init(){
   await loadSiteBrand();
   startNewsRail();
   if(!teams.length && !admin) setStatus('Общая база подключена. Команды появятся после их переноса администратором.');
+  appRouterReady=true;
+  await renderAppRoute();
 }
 init();
 </script>
