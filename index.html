@@ -6623,7 +6623,10 @@ body.admin-ui-hidden [data-tourney-clear]{
 <style id="mvp-roster-photo-only-panel">
 /* Keep player names and card geometry unchanged; stop the night-theme panel at the portrait bottom. */
 .roster-grid .roster-player{gap:9px!important;}
-.roster-grid .roster-player-name-line{margin-top:-9px!important;}
+.roster-grid .roster-player-name-line{position:relative!important;top:-9px!important;margin-top:0!important;}
+@media(max-width:650px){
+  .roster-grid.roster-horizontal-scroll .roster-player-name-line{top:-5px!important;}
+}
 @media(max-width:650px){
   .roster-grid.roster-horizontal-scroll>.roster-player .roster-player-name-line{margin-top:-5px!important;}
 }
