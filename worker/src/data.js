@@ -3,8 +3,8 @@ import { getSessionUser } from "./auth.js";
 
 const TABLES = {
   teams: {
-    read: ["id","name","tag","points","players","logo","created_at","player_photos","tournament_wins","is_banned","ban_reason"],
-    write: ["name","tag","points","players","logo","player_photos","tournament_wins","created_at"],
+    read: ["id","name","tag","points","players","logo","created_at","player_photos","tournament_wins","hltv_rank","is_banned","ban_reason"],
+    write: ["name","tag","points","players","logo","player_photos","tournament_wins","hltv_rank","created_at"],
     permission: "manage_teams",
   },
   cs2_players: {
