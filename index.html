@@ -2787,7 +2787,7 @@ function openTeamProfile(t){
       <div class="hltv-player-name">${countryFlagMarkup(meta.country_code,'roster-player-country-flag')}<button class="player-profile-link" data-player-profile-name="${esc(player)}" data-player-profile-photo="${esc(photo)}" type="button">${esc(player)}</button></div>
     </div>`;
   }).join('');
-  modal(`<section class="team-profile-view">
+  showMainWorkspace(`<section class="team-profile-view">
     <button class="hltv-profile-close" id="closeTeamProfile" type="button" aria-label="Закрыть профиль">×</button>
     <div class="hltv-profile-rosterbar">${playerCards||'<div class="hltv-empty-roster">Состав команды пока не указан</div>'}</div>
     <div class="hltv-team-overview">
@@ -2813,8 +2813,8 @@ function openTeamProfile(t){
       const photo=meta.photo_url||playerPhotos[n]||'';
       return `<div class="hltv-roster-row"><span class="hltv-roster-number">${String(n+1).padStart(2,'0')}</span>${photo?`<img src="${esc(photo)}" alt="Фото ${esc(player)}">`:'<span class="hltv-roster-placeholder">CS</span>'}<div class="hltv-roster-player-name">${countryFlagMarkup(meta.country_code,'roster-player-country-flag')}<button class="player-profile-link" data-player-profile-name="${esc(player)}" data-player-profile-photo="${esc(photo)}" type="button">${esc(player)}</button></div></div>`;
     }).join(''):'<div class="hltv-roster-empty">Состав пока не указан.</div>'}</div>
-  </section>`,true);
-  document.getElementById('closeTeamProfile').onclick=closeModal;
+  </section>`,true,'team-profile-workspace');
+  document.getElementById('closeTeamProfile').onclick=closeMainWorkspace;
   document.getElementById('openTeamMatchHistory').onclick=()=>openTeamMatchHistory(t);
   wirePlayerProfileLinks();
 }
@@ -2909,7 +2909,7 @@ async function getPlayerTopPosition(playerId){
 async function openPlayerProfile(nickname,fallbackPhoto=''){
   nickname=String(nickname||'').trim();if(!nickname||nickname==='Игрок не указан')return;
   const fallback=fallbackPhoto||defaultPlayerPhoto(nickname);
-  modal(`<h2>Профиль игрока</h2><div class="help-empty">Загружаем статистику игрока…</div>`,true);
+  showMainWorkspace(`<h2>Профиль игрока</h2><div class="help-empty">Загружаем статистику игрока…</div>`,true);
   try{
     let player;
     if(isFutureSeason())player=null;
@@ -2962,7 +2962,7 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
     const playerAdminEditor=player&&can('manage_players')?`<div class="player-admin-editor"><div class="notice">Постоянный ID игрока: <b>#${player.id}</b>. Переименование не сбрасывает K/D и историю матчей.</div><div class="field"><label for="renamePlayerNick">Изменить ник игрока</label><input id="renamePlayerNick" maxlength=50 value="${esc(player.nickname)}"></div><button class="btn primary" id="savePlayerNickname" type="button">Сохранить новый ник</button><div class="player-links-editor"><div class="field"><label for="playerFaceitUrl">Ссылка на профиль FACEIT</label><input id="playerFaceitUrl" type="url" maxlength="300" value="${esc(faceitAdminValue)}" placeholder="https://www.faceit.com/ru/players/username"></div><div class="field"><label for="playerSteamId">SteamID64 (17 цифр)</label><input id="playerSteamId" inputmode="numeric" maxlength="17" value="${esc(player.steam_id64||'')}" placeholder="7656119…"></div><div class="field"><label for="playerCountryCode">Страна игрока (ISO, 2 буквы)</label><input id="playerCountryCode" maxlength="2" value="${esc(player.country_code||'')}" placeholder="DE, RU, PL, UA…" autocapitalize="characters"><button class="btn" id="savePlayerCountryCode" type="button">Сохранить флаг страны</button></div></div><button class="btn" id="savePlayerExternalLinks" type="button">Сохранить ссылки FACEIT и Steam</button>${faceitUrl?`<button class="btn faceit-sync-btn" id="syncFaceitElo" type="button">↻ Обновить FACEIT Elo</button>`:''}</div>`:'';
     const playerBanButton=player&&can('manage_bans')?`<button class="btn" id="togglePlayerBan" type="button">${player.is_banned?'Разблокировать игрока':'Заблокировать игрока'}</button>`:'';
     const bannedPlayerNotice=player?.is_banned?`<div class="notice" style="color:#a12b2b;font-weight:800">ИГРОК ЗАБЛОКИРОВАН · ${esc(player.ban_reason||'Причина не указана')}</div>`:'';
-    modal(`<section class="player-hltv-hero" aria-label="Основная статистика игрока">
+    showMainWorkspace(`<section class="player-hltv-hero" aria-label="Основная статистика игрока">
       ${photo?`<img class="player-hltv-hero-image" src="${esc(photo)}" alt="" aria-hidden="true">`:''}
       <div class="player-hltv-hero-shade"></div>
       <div class="player-hltv-hero-content">
@@ -3006,8 +3006,8 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
     </div>
     <div class="roster-heading">История матчей игрока</div><div class="match-list">${historyHtml}</div>
     <div class="modalfoot"><button class="btn primary" id="closePlayerProfile">Закрыть профиль</button></div>`,true);
-    document.querySelector('#modalRoot .modal').classList.add('player-profile-modal');
-    document.getElementById('closePlayerProfile').onclick=closeModal;
+    document.getElementById('mainWorkspacePanel').classList.add('player-profile-modal');
+    document.getElementById('closePlayerProfile').onclick=closeMainWorkspace;
     if(can('manage_trophies')&&document.getElementById('givePlayerTrophy')){document.getElementById('givePlayerTrophy').onclick=()=>openAwardTrophy(nickname,photo,team?.id||null)}
     if(admin&&!isSeasonReadOnly()&&document.getElementById('addPlayerPrizeMoney')){document.getElementById('addPlayerPrizeMoney').onclick=()=>openAwardPrizeMoney(nickname,photo,team?.id||null)}
     if(can('manage_players')&&document.getElementById('savePlayerRole')){
@@ -3094,7 +3094,7 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
     if(can('manage_bans')&&document.getElementById('togglePlayerBan')){document.getElementById('togglePlayerBan').onclick=async()=>{const next=!player.is_banned;const reason=next?(prompt('Причина блокировки игрока:','Подозрение на использование читов')||''):'';if(next&&!reason)return;const {error}=await client.rpc('admin_set_player_ban',{p_player_id:player.id,p_banned:next,p_reason:reason});if(error){alert('Не удалось изменить блокировку: '+niceError(error));return}await loadTeams();openPlayerProfile(nickname,photo)}}
     document.querySelectorAll('[data-delete-trophy]').forEach(btn=>btn.onclick=async()=>{if(!can('manage_trophies')||!confirm('Убрать эту награду?'))return;const {error}=await client.from('player_trophies').delete().eq('id',btn.dataset.deleteTrophy);if(error){alert('Не удалось удалить награду: '+niceError(error));return}openPlayerProfile(nickname,photo)});
     document.querySelectorAll('[data-delete-prize-money]').forEach(btn=>btn.onclick=async()=>{if(!admin||isSeasonReadOnly()||!confirm('Удалить эту запись о призовых?'))return;btn.disabled=true;const {error}=await client.from('player_prize_money').delete().eq('id',btn.dataset.deletePrizeMoney);if(error){alert('Не удалось удалить запись о призовых: '+niceError(error));btn.disabled=false;return}await openPlayerProfile(nickname,photo)});
-  }catch(err){modal(`<h2>Профиль игрока</h2><div class="help-empty">Не удалось загрузить профиль, статистику или награды. Проверь SQL-миграции игрока и матчей. Ошибка: ${esc(niceError(err))}</div><div class="modalfoot"><button class="btn primary" id="closePlayerProfile">Закрыть</button></div>`,true);document.getElementById('closePlayerProfile').onclick=closeModal;}
+  }catch(err){showMainWorkspace(`<h2>Профиль игрока</h2><div class="help-empty">Не удалось загрузить профиль, статистику или награды. Проверь SQL-миграции игрока и матчей. Ошибка: ${esc(niceError(err))}</div><div class="modalfoot"><button class="btn primary" id="closePlayerProfile">Закрыть</button></div>`,true);document.getElementById('closePlayerProfile').onclick=closeModal;}
 }
 async function openAwardTrophy(nickname,photo,teamId){
   if(!can('manage_trophies'))return;
@@ -3158,9 +3158,9 @@ async function openAwardPrizeMoney(nickname,photo,teamId){
 
 async function openTeamMatchHistory(t){
   if(!t)return;
-  modal(`<div class="help-header"><div><h2>История боёв</h2><div class="notice">${esc(t.name)}</div></div><button class="btn" id="backTeamProfile">Профиль команды</button></div>${can('manage_matches')?'<div style="margin-bottom:12px"><button class="btn primary" id="addTeamMatch">＋ Добавить бой</button></div>':''}<div id="teamMatchList" class="match-list"><div class="help-empty">Загружаем матчи…</div></div><div class="modalfoot"><button class="btn" id="closeMatchHistory">Закрыть</button></div>`,true);
+  showMainWorkspace(`<div class="help-header"><div><h2>История боёв</h2><div class="notice">${esc(t.name)}</div></div><button class="btn" id="backTeamProfile">Профиль команды</button></div>${can('manage_matches')?'<div style="margin-bottom:12px"><button class="btn primary" id="addTeamMatch">＋ Добавить бой</button></div>':''}<div id="teamMatchList" class="match-list"><div class="help-empty">Загружаем матчи…</div></div><div class="modalfoot"><button class="btn" id="closeMatchHistory">Закрыть</button></div>`,true);
   document.getElementById('backTeamProfile').onclick=()=>openTeamProfile(t);
-  document.getElementById('closeMatchHistory').onclick=closeModal;
+  document.getElementById('closeMatchHistory').onclick=closeMainWorkspace;
   if(can('manage_matches')&&document.getElementById('addTeamMatch'))document.getElementById('addTeamMatch').onclick=()=>editTeamMatch(t,null);
   const list=document.getElementById('teamMatchList');
   let matches=[],statRows=[],players=[];
@@ -6937,6 +6937,23 @@ body[data-theme="day"] .hltv-empty-roster{color:#7d8996!important}
  .main-workspace>.modal.modal-page{min-height:420px;padding:13px 11px}
  .main-workspace .page-head{align-items:flex-start}
  .main-workspace .stream-grid{grid-template-columns:1fr}
+}
+
+
+/* Profiles and match history are section content too; render them in the central workspace. */
+#mainWorkspacePanel.team-profile-workspace:has(.team-profile-view){
+  width:100%!important;max-width:none!important;min-height:0!important;max-height:none!important;
+  padding:0!important;background:#293541!important;color:#dce3eb!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important;overflow:hidden!important;
+}
+body[data-theme="day"] #mainWorkspacePanel.team-profile-workspace:has(.team-profile-view){
+  background:#fff!important;color:#26313c!important;border-color:#d9e0e7!important;
+}
+#mainWorkspacePanel.player-profile-modal{
+  width:100%!important;max-width:none!important;min-height:0!important;max-height:none!important;
+}
+@media(max-width:560px){
+  #mainWorkspacePanel.team-profile-workspace:has(.team-profile-view){width:100%!important;max-height:none!important}
 }
 
 </style>
