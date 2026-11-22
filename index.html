@@ -6641,4 +6641,42 @@ body[data-theme="night"] .roster-player{
   }
 }
 </style>
+
+<style id="mvp-compact-team-panels">
+/* Tighten each team row to the content bounds marked in the reference screenshot. */
+#teams>.team-card>.team-main{
+  box-sizing:border-box!important;
+  height:44px!important;
+  min-height:44px!important;
+  padding:3px 12px!important;
+  align-items:center!important;
+}
+#teams>.team-card>.team-main .teaminfo .logo{
+  width:37px!important;
+  height:37px!important;
+  min-width:37px!important;
+  flex:0 0 37px!important;
+}
+#teams>.team-card>.team-main .rank{
+  line-height:1!important;
+  padding:0!important;
+}
+#teams>.team-card>.team-main .team-right-tools,
+#teams>.team-card>.team-main .actions{
+  align-items:center!important;
+}
+@media(max-width:650px){
+  #teams>.team-card>.team-main{
+    height:auto!important;
+    min-height:42px!important;
+    padding:3px 6px!important;
+  }
+  #teams>.team-card>.team-main .teaminfo .logo{
+    width:30px!important;
+    height:30px!important;
+    min-width:30px!important;
+    flex-basis:30px!important;
+  }
+}
+</style>
 </body></html>
