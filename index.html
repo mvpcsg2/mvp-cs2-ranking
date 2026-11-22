@@ -1366,6 +1366,13 @@ body[data-theme="day"] .settings-trigger:hover{
 }
 body[data-theme="day"] .nav-btn.active{background:#174987!important;border-color:#174987!important;color:#fff!important}
 body[data-theme="day"] .help-fab-icon{background:#fff!important;color:#00276b!important}
+
+/* Multi-role player badges and checkbox editor. */
+.player-profile-photo .player-profile-markers{align-items:flex-start!important;gap:5px!important}
+.player-profile-photo .player-profile-markers .player-role-awper{display:inline-flex!important;align-items:center;justify-content:center;width:29px!important;height:29px!important;border-radius:6px!important;background:linear-gradient(145deg,#f0c35b,#a96a16)!important;color:#1a2632!important;font:bold 9px Arial,sans-serif!important;letter-spacing:-.4px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.75))}
+.player-role-checkboxes{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.player-role-checkboxes label{display:inline-flex;align-items:center;gap:4px;padding:6px 9px;border:1px solid #d7dce2;border-radius:6px;background:#fff;color:#303740;font-size:12px;font-weight:700;cursor:pointer}
+.player-role-checkboxes input{margin:0;accent-color:#19a6a3}
 </style>
 <style>
 /* Transparent photo/logo holders: never paint a white #fff tile behind cut-out assets. */
@@ -2896,18 +2903,22 @@ function defaultPlayerPhoto(name){
   return '';
 }
 const TROPHY_IMAGES={1:'https://i.imgur.com/GWb74I3.png',2:'https://i.imgur.com/KkMEfXD.png',3:'https://i.imgur.com/xT29TJ0.png'};
-// В профиле поддерживаются только две графические роли: капитан и снайпер.
-const PLAYER_ROLE_LABELS={captain:'Капитан',sniper:'Снайпер'};
+// Игрок может иметь несколько ролей одновременно; старые одиночные значения остаются совместимыми.
+const PLAYER_ROLE_LABELS={captain:'Капитан',sniper:'Снайпер',awper:'АВПЕР'};
 const PLAYER_ROLE_ICONS={captain:'https://i.imgur.com/m6xutaW.png',sniper:'https://i.imgur.com/QDVtKiG.png'};
-function playerRoleMarkup(role){
-  const icon=PLAYER_ROLE_ICONS[role];
-  if(!icon)return '';
-  const label=PLAYER_ROLE_LABELS[role];
-  return `<img class="player-role-marker" src="${icon}" alt="${esc(label)}" title="${esc(label)}">`;
+function parsePlayerRoles(value){
+  if(Array.isArray(value))return value.filter(role=>Object.prototype.hasOwnProperty.call(PLAYER_ROLE_LABELS,role));
+  return String(value||'').split(/[,+;|]/).map(role=>role.trim()).filter(role=>Object.prototype.hasOwnProperty.call(PLAYER_ROLE_LABELS,role));
 }
-function playerRoleOptions(selected=''){
-  const safeSelected=Object.prototype.hasOwnProperty.call(PLAYER_ROLE_LABELS,selected)?selected:'';
-  return `<option value="" ${!safeSelected?'selected':''}>Без значка роли</option>${Object.entries(PLAYER_ROLE_LABELS).map(([value,label])=>`<option value="${value}" ${safeSelected===value?'selected':''}>${label}</option>`).join('')}`;
+function playerRoleMarkup(roles){
+  return parsePlayerRoles(roles).map(role=>{
+    const label=PLAYER_ROLE_LABELS[role],icon=PLAYER_ROLE_ICONS[role];
+    return icon?`<img class="player-role-marker" src="${icon}" alt="${esc(label)}" title="${esc(label)}">`:`<span class="player-role-marker player-role-awper" title="${esc(label)}" aria-label="${esc(label)}">AWP</span>`;
+  }).join('');
+}
+function playerRoleOptions(selected=[]){
+  const safeSelected=parsePlayerRoles(selected);
+  return `<div class="player-role-checkboxes">${Object.entries(PLAYER_ROLE_LABELS).map(([value,label])=>`<label><input type="checkbox" name="playerRoleOption" value="${value}" ${safeSelected.includes(value)?'checked':''}> ${label}</label>`).join('')}</div>`;
 }
 function findPlayerTeam(nickname){
   const key=String(nickname||'').trim().toLowerCase();
@@ -3003,12 +3014,12 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
         trophies=trophyRows||[];prizeRows=prizeRowsData||[];
       }
     }
-    const photo=player?.photo_url||fallback,role=PLAYER_ROLE_ICONS[player?.role]?player.role:'',avg=stats.length?stats.reduce((sum,x)=>sum+Number(x.kd||0),0)/stats.length:0;
+    const photo=player?.photo_url||fallback,role=parsePlayerRoles(player?.role),avg=stats.length?stats.reduce((sum,x)=>sum+Number(x.kd||0),0)/stats.length:0;
     const kills=stats.reduce((sum,x)=>sum+Number(x.kills||0),0),deaths=stats.reduce((sum,x)=>sum+Number(x.deaths||0),0),latest=history[0];
     const playerTopPosition=player?await getPlayerTopPosition(player.id):null;
     const team=findPlayerTeam(nickname)||teams.find(t=>String(t.id)===String(stats[0]?.team_id||''))||null;
     const avatar=photo?`<img class="player-main-avatar" src="${esc(photo)}" alt="Фото ${esc(nickname)}">`:`<span class="player-main-avatar-fallback">${esc(playerInitials(nickname))}</span>`;
-    const hasRoleBadge=Boolean(PLAYER_ROLE_ICONS[role]);
+    const hasRoleBadge=role.length>0;
     const teamMarker=team?.logo?`<img class="player-team-marker${hasRoleBadge?' has-role':' no-role'}" src="${esc(team.logo)}" alt="Логотип команды ${esc(team.name)}" title="${esc(team.name)}">`:'';
     const roleMarker=playerRoleMarkup(role);
     const countryMarker=countryFlagMarkup(player?.country_code,'player-country-marker');
@@ -3019,7 +3030,7 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
     const prizeTotal=prizeRows.reduce((sum,row)=>sum+Math.max(0,Number(row.amount)||0),0);
     const prizeMoneyHtml=`<section class="player-prize-money"><div class="player-prize-total"><div><small>ПРИЗОВЫЕ ЗА ВЫБРАННЫЙ СЕЗОН</small><strong>${formatPrizeMoney(prizeTotal)}</strong></div>${admin&&!isSeasonReadOnly()?'<button class="btn primary" id="addPlayerPrizeMoney" type="button">＋ Добавить призовые</button>':''}</div>${prizeRows.length?`<div class="player-prize-records">${prizeRows.map(row=>`<div class="player-prize-record"><div class="player-prize-record-info"><strong>${esc(row.tournament_name||'Турнир')}</strong><small>${esc(fmtDate(row.awarded_at))}${row.team_id?` · ${esc(teams.find(t=>String(t.id)===String(row.team_id))?.name||'Команда')}`:''}</small></div><b>${formatPrizeMoney(row.amount)}</b>${admin&&!isSeasonReadOnly()?`<button class="btn player-prize-remove" type="button" data-delete-prize-money="${row.id}" aria-label="Удалить запись о призовых">×</button>`:''}</div>`).join('')}</div>`:'<div class="player-prize-empty">Пока нет записей о призовых за турниры.</div>'}</section>`;
     const historyHtml=history.length?history.slice(0,30).map(x=>{const isHome=String(x.team_id||x.match.team_id)===String(x.match.team_id);const own=teams.find(t=>String(t.id)===String(x.team_id||x.match.team_id));const opp=teams.find(t=>String(t.id)===String(isHome?x.match.opponent_team_id:x.match.team_id));const leftScore=isHome?x.match.team_score:x.match.opponent_score,rightScore=isHome?x.match.opponent_score:x.match.team_score;return `<div class="match-card"><div class="match-card-head"><div><div class="match-opponent">${esc(own?.name||'Команда')} vs ${esc(opp?.name||x.match.opponent_name||'Соперник')}</div><div class="match-meta">${esc(fmtDate(x.match.played_at))}${x.match.map_name?' · '+esc(x.match.map_name):''}</div></div><div class="match-score">${Number(leftScore)}<span class="score-dash">:</span>${Number(rightScore)}</div></div><div class="match-card-body"><strong>K/D за матч: ${formatKD(x.kd)}</strong><span class="match-meta"> · ${Number(x.kills)} убийств / ${Number(x.deaths)} смертей</span></div></div>`}).join(''):'<div class="help-empty">Матчей пока нет. После записи боёв здесь появится история игрока.</div>';
-    const roleEditor=can('manage_players')?`<div class="player-role-editor"><label for="playerRoleSelect">Игровая роль</label><div class="player-role-edit-row"><select id="playerRoleSelect">${playerRoleOptions(role)}</select><button class="btn primary" id="savePlayerRole" type="button">Сохранить роль</button></div></div>`:'';
+    const roleEditor=can('manage_players')?`<div class="player-role-editor"><label>Игровые роли (можно выбрать несколько)</label><div class="player-role-edit-row">${playerRoleOptions(role)}<button class="btn primary" id="savePlayerRole" type="button">Сохранить роли</button></div></div>`:'';
     const legacyFaceitUrl=player?.faceit_nickname?`https://www.faceit.com/en/players/${encodeURIComponent(player.faceit_nickname)}`:'';
     const faceitUrl=safeFaceitProfileUrl(player?.faceit_profile_url)||safeFaceitProfileUrl(legacyFaceitUrl);
     const steamUrl=player?.steam_id64?`https://steamcommunity.com/profiles/${encodeURIComponent(player.steam_id64)}`:'';
@@ -3080,7 +3091,7 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
     if(admin&&!isSeasonReadOnly()&&document.getElementById('addPlayerPrizeMoney')){document.getElementById('addPlayerPrizeMoney').onclick=()=>openAwardPrizeMoney(nickname,photo,team?.id||null)}
     if(can('manage_players')&&document.getElementById('savePlayerRole')){
       document.getElementById('savePlayerRole').onclick=async()=>{
-        const newRole=document.getElementById('playerRoleSelect').value;
+        const newRole=Array.from(document.querySelectorAll('input[name="playerRoleOption"]:checked')).map(input=>input.value).join(',');
         const saveBtn=document.getElementById('savePlayerRole');saveBtn.disabled=true;saveBtn.textContent='Сохраняю…';
         try{
           let result;
@@ -3088,7 +3099,7 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
           else{result=await client.from('cs2_players').insert({nickname,photo_url:photo||'',role:newRole})}
           if(result.error)throw result.error;
           await openPlayerProfile(nickname,photo);
-        }catch(err){alert('Не удалось сохранить игровую роль. Выполни SQL-миграцию player_roles_profile_migration.sql. Ошибка: '+niceError(err));saveBtn.disabled=false;saveBtn.textContent='Сохранить роль'}
+        }catch(err){alert('Не удалось сохранить игровую роль. Выполни SQL-миграцию player_roles_profile_migration.sql. Ошибка: '+niceError(err));saveBtn.disabled=false;saveBtn.textContent='Сохранить роли'}
       };
     }
     if(can('manage_players')&&document.getElementById('savePlayerNickname')){document.getElementById('savePlayerNickname').onclick=async()=>{const newNick=document.getElementById('renamePlayerNick').value.trim();if(!newNick)return alert('Введи новый ник.');if(newNick.toLowerCase()===nickname.toLowerCase())return alert('Ник не изменился.');const btn=document.getElementById('savePlayerNickname');btn.disabled=true;const {error}=await client.rpc('admin_rename_player',{p_player_id:player.id,p_new_nickname:newNick});if(error){alert('Не удалось изменить ник: '+niceError(error));btn.disabled=false;return}await loadTeams();openPlayerProfile(newNick,photo)}}
