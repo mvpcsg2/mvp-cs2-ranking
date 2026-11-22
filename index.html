@@ -8650,4 +8650,154 @@ body[data-design="ahltv"] .mvp-news-rail .news-rail-footer #allTransfersBtn{
 }
 </style>
 
+
+<style id="cstt-beta-transfer-rail-redesign">
+/* Complete component-level redesign of the ranking roster and right news rail. */
+body[data-design="ahltv"] .ranking-with-news #teams .roster-expanded{
+  padding:14px 16px 16px!important;
+  background:linear-gradient(145deg,#102236 0%,#142b40 100%)!important;
+  border-top:1px solid #35556e!important;
+  color:#eaf4fc!important;
+}
+body[data-design="ahltv"] .ranking-with-news #teams .roster-heading{
+  color:#72d8d4!important;letter-spacing:1.35px!important;font-size:10px!important;
+}
+body[data-design="ahltv"] .ranking-with-news #teams .roster-grid{
+  gap:8px!important;
+}
+body[data-design="ahltv"] .ranking-with-news #teams .roster-player{
+  min-height:160px!important;padding:9px 7px 8px!important;gap:7px!important;
+  background:linear-gradient(180deg,#1b354b 0%,#12283c 100%)!important;
+  border:1px solid #3a5b74!important;border-radius:9px!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.035),0 5px 12px rgba(0,0,0,.18)!important;
+}
+body[data-design="ahltv"] .ranking-with-news #teams .roster-player-photo{
+  width:100%!important;height:112px!important;max-width:112px!important;flex:0 0 112px!important;
+  background:#0b1a29!important;border:1px solid #35566f!important;border-radius:7px!important;
+}
+body[data-design="ahltv"] .ranking-with-news #teams .roster-player-name-line{
+  display:flex!important;align-items:center!important;justify-content:center!important;gap:4px!important;
+  width:100%!important;min-height:18px!important;
+}
+body[data-design="ahltv"] .ranking-with-news #teams .roster-player-name{
+  color:#eaf5ff!important;text-decoration:none!important;font-weight:800!important;
+}
+body[data-design="ahltv"] .ranking-with-news #teams .roster-number{
+  left:6px!important;top:6px!important;width:20px!important;height:20px!important;
+  background:#4bd2cc!important;color:#09202d!important;border:1px solid #7de8e1!important;
+  border-radius:5px!important;font-size:10px!important;
+}
+body[data-design="ahltv"] .ranking-with-news #teams .roster-footer{
+  border-top:1px solid #35536b!important;padding-top:10px!important;
+}
+body[data-design="ahltv"] .ranking-with-news #teams .roster-footer .team-profile-btn{
+  background:linear-gradient(135deg,#176078,#167f85)!important;color:#f3ffff!important;
+  border:1px solid #4aafb2!important;border-radius:8px!important;
+  box-shadow:0 5px 14px rgba(0,0,0,.2)!important;
+}
+/* News rail: coherent dark cards, not pale alternating rows. */
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail{
+  gap:10px!important;scrollbar-color:#41647c #0d1d2d!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-rail-section{
+  background:#0e2031!important;border:1px solid #3a5b74!important;border-radius:11px!important;
+  overflow:hidden!important;box-shadow:0 12px 26px rgba(0,0,0,.3)!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-rail-head{
+  min-height:35px!important;padding:9px 11px!important;
+  background:linear-gradient(110deg,#1c3a52,#142b40)!important;
+  color:#eaf6ff!important;border:0!important;border-bottom:1px solid #3b5e78!important;
+  font-size:10px!important;letter-spacing:1px!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-rail-head span,
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-rail-head button{
+  color:#dff4ff!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-rail-list{
+  padding:6px!important;background:#0e2031!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail #transferNews>.news-rail-item,
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail #banNews>.news-rail-item{
+  display:block!important;position:relative!important;margin:0 0 6px!important;padding:9px 8px 8px!important;
+  background:linear-gradient(145deg,#19334a,#13283c)!important;
+  color:#e6f1fa!important;border:1px solid #34536b!important;border-left:3px solid #43bfc1!important;
+  border-radius:8px!important;box-shadow:0 4px 10px rgba(0,0,0,.18)!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail #banNews>.news-rail-item{
+  border-left-color:#d46b78!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail #transferNews>.news-rail-item:last-child,
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail #banNews>.news-rail-item:last-child{
+  margin-bottom:0!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-transfer-title{
+  margin:0 0 7px!important;color:#65d8d5!important;font-size:8px!important;
+  font-weight:900!important;letter-spacing:1px!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-transfer-visual{
+  display:grid!important;grid-template-columns:42px minmax(0,1fr)!important;gap:5px!important;
+  align-items:center!important;margin:0!important;padding:0!important;background:transparent!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-player-chip{
+  width:40px!important;gap:3px!important;background:transparent!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-player-chip img,
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-player-fallback{
+  width:34px!important;height:34px!important;border-radius:8px!important;
+  background:#0a1b2a!important;border:1px solid #42637b!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-team-path{
+  grid-template-columns:minmax(0,1fr) 14px minmax(0,1fr)!important;gap:3px!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-team-chip,
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-no-team-chip{
+  min-width:0!important;padding:3px 1px!important;border:1px solid #34536b!important;
+  border-radius:7px!important;background:#10263a!important;gap:3px!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-team-chip img,
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-no-team-chip img,
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-team-fallback{
+  width:28px!important;height:28px!important;border:1px solid #3c5e76!important;
+  border-radius:6px!important;background:#0a1b2a!important;padding:2px!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-player-chip span:last-child,
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-team-chip span:last-child,
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-no-team-chip span:last-child{
+  max-width:58px!important;color:#c5d9e8!important;font-size:7px!important;font-weight:800!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-transfer-arrow{
+  color:#59d7d1!important;font-size:15px!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-rail-meta{
+  display:block!important;margin-top:7px!important;padding-top:5px!important;
+  color:#819db3!important;border-top:1px solid rgba(90,130,158,.25)!important;font-size:8px!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-rail-reason{
+  color:#f2a0a8!important;font-size:9px!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-ban-visual{
+  display:flex!important;align-items:center!important;gap:6px!important;margin:7px 0 2px!important;
+  background:transparent!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-banned-label{
+  padding:4px 6px!important;background:#522d3a!important;color:#ffdce3!important;
+  border:1px solid #a75b6a!important;border-radius:5px!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-rail-empty{
+  padding:12px!important;background:#142b40!important;color:#9bb4c8!important;border-radius:7px!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-rail-footer{
+  padding:8px!important;background:#10263a!important;border:0!important;border-top:1px solid #34536b!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-rail-footer #allTransfersBtn{
+  width:100%!important;min-height:38px!important;background:linear-gradient(110deg,#15517a,#17618c)!important;
+  color:#f4fbff!important;border:1px solid #397da4!important;border-radius:8px!important;
+  font-size:10px!important;font-weight:900!important;letter-spacing:.2px!important;
+  box-shadow:0 5px 12px rgba(0,0,0,.22)!important;
+}
+body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-rail-footer #allTransfersBtn:hover{
+  background:linear-gradient(110deg,#1b688f,#19819a)!important;
+}
+</style>
+
 </body></html>
