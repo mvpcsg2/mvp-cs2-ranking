@@ -3533,6 +3533,7 @@ function closeMainWorkspace(){
   stopHelpPolling();
   activeHelpProfile=null;
   document.getElementById('mainWorkspace')?.classList.add('hidden');
+  document.getElementById('mainWorkspacePanel')?.classList.remove('tourney-modal');
   document.getElementById('rankingPanelContent')?.classList.remove('hidden');
   document.getElementById('rankingCrumb')?.classList.remove('hidden');
   document.getElementById('rankingHeading')?.classList.remove('hidden');
