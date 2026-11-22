@@ -4182,7 +4182,7 @@ async function openTopPlayersCenter(){
       const roleTag='';
       const playerFlag=countryFlagMarkup(player.country_code,'top-player-country-flag');
       const teamBadge=team?`<span class="top-player-team-logo">${team.logo?`<img src="${esc(team.logo)}" alt="">`:esc(team.tag||team.name.slice(0,3))}</span><span>${esc(team.name)}${player.teams.length>1?` +${player.teams.length-1}`:''}</span>`:'<span class="top-player-team-logo">CS2</span><span>Команда не указана</span>';
-      return `<div class="top-player-row" dir="ltr"><div class="top-player-rank">#${index+1}</div><div class="top-player-avatar">${avatar}</div><div style="min-width:0"><div class="top-player-name-line">${playerFlag}<button type="button" class="top-player-nick" data-player-profile-name="${esc(player.nickname)}" data-player-profile-photo="${esc(player.photo||'')}">${esc(player.nickname)}</button></div>${roleTag}<div class="top-player-team">${teamBadge}</div></div><div class="top-player-metric"><strong>${formatKD(player.average)}</strong><small>AVG K/D</small></div><div class="top-player-metric"><strong>${player.kills}</strong><small>KILLS</small></div><div class="top-player-metric matches-metric"><strong>${player.matches}</strong><small>МАТЧИ</small></div></div>`;
+      return `<div class="top-player-row" dir="ltr"><div class="top-player-rank">#${index+1}</div><div class="top-player-avatar">${avatar}</div><div style="min-width:0"><div class="top-player-name-line">${playerFlag}<button type="button" class="top-player-nick" data-player-profile-name="${esc(player.nickname)}" data-player-profile-photo="${esc(player.photo||'')}">${esc(player.nickname)}</button></div>${roleTag}<div class="top-player-team">${teamBadge}</div></div><div class="top-player-metric"><strong class="player-kd-rating">${formatKD(player.average)}<img class="player-kd-silhouette top-player-kd-icon" src="${playerKdSilhouette(player.average)}" alt="Категория K/D" title="Категория по среднему K/D" loading="lazy"></strong><small>AVG K/D</small></div><div class="top-player-metric"><strong>${player.kills}</strong><small>KILLS</small></div><div class="top-player-metric matches-metric"><strong>${player.matches}</strong><small>МАТЧИ</small></div></div>`;
     }).join('');
     wirePlayerProfileLinks();
   }catch(err){host.className='stream-empty';host.innerHTML=`Не удалось загрузить топ игроков. Убедись, что выполнена миграция <b>match_history_players_setup.sql</b>. Ошибка: ${esc(niceError(err))}`;}
@@ -7018,6 +7018,34 @@ body[data-theme="night"] .top .nav-btn.active{
     min-height:480px!important;
   }
 }
+
+/* K/D tier indicators are visible next to AVG K/D in the Top Players list. */
+.top-player-metric .player-kd-rating{
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ gap:5px;
+ min-height:27px;
+ line-height:1;
+ white-space:nowrap;
+}
+.top-player-metric .player-kd-silhouette.top-player-kd-icon{
+ width:24px;
+ height:24px;
+ flex:0 0 24px;
+ object-fit:contain;
+ background:transparent!important;
+ border:0!important;
+ padding:0!important;
+ box-shadow:none!important;
+}
+@media(max-width:650px){
+ .top-player-metric .player-kd-silhouette.top-player-kd-icon{
+  width:19px;height:19px;flex-basis:19px;
+ }
+ .top-player-metric .player-kd-rating{gap:3px}
+}
+
 </style>
 
 </body></html>
