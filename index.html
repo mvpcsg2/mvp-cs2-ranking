@@ -913,7 +913,7 @@
 .theme-choice.active{border-color:#d9a32b;box-shadow:0 0 0 2px rgba(217,163,43,.16)}
 .theme-preview{height:38px;border-radius:5px;margin-bottom:9px;border:1px solid #dce0e5;background:linear-gradient(90deg,#f4f6f8 50%,#fff 50%)}
 .theme-preview.night{border-color:#414b58;background:linear-gradient(90deg,#171b21 50%,#252d37 50%)}
-/* AHLTV Dark design layer. It changes presentation only; all CSTT data stays shared. */
+/* CSTT Beta design layer. It changes presentation only; all CSTT data stays shared. */
 body[data-design="ahltv"]{--orange:#f05a36;--ink:#eee9e6;--muted:#a9a09c;--line:#493a35;--bg:#171211;--soft:#241b18;background:#120e0d!important;background-image:radial-gradient(ellipse at 50% -18%,#503026 0%,#241815 42%,#120e0d 78%)!important;color:#eee9e6!important;font-family:Inter,Arial,Helvetica,sans-serif}
 body[data-design="ahltv"] .top{background:rgba(29,20,17,.96)!important;border-bottom:1px solid #57372c!important;box-shadow:0 8px 28px rgba(0,0,0,.28)!important;backdrop-filter:blur(14px)}
 body[data-design="ahltv"] .brand,body[data-design="ahltv"] .site-brand-name{color:#fff1e9!important}
@@ -2613,7 +2613,7 @@ async function openSettingsCenter(){
  modal(`<div class="page-head"><div><h2>Настройки</h2><div class="page-intro">Выбери оформление сайта и настрой его внешний вид.</div></div><button class="btn" id="closeSettings">Закрыть</button></div>
  <div class="language-setting" style="display:block!important;visibility:visible!important;margin:0 0 18px"><label for="siteLanguageSelect" style="display:block;font-size:12px;font-weight:800;margin:0 0 7px">ЯЗЫК / LANGUAGE</label><select id="siteLanguageSelect" class="btn" style="width:100%;text-align:left" onchange="window.mvpSetLanguage(this.value)"><option value="en">🇬🇧 English</option><option value="ru">🇷🇺 Русский</option><option value="uk">🇺🇦 Українська</option><option value="de">🇩🇪 Deutsch</option></select><div class="notice">Язык интерфейса сохраняется на этом устройстве.</div></div><div class="roster-heading">ДИЗАЙН САЙТА</div><div class="theme-design-row">
  <button class="design-choice ${getDesignMode()==='classic'?'active':''}" data-design-choice="classic" type="button"><div class="design-preview"></div><strong>CSTT Classic</strong><span>Оригинальный сине-белый дизайн</span></button>
- <button class="design-choice ${getDesignMode()==='ahltv'?'active':''}" data-design-choice="ahltv" type="button"><div class="design-preview ahltv"></div><strong>AHLTV Dark</strong><span>Графитовый фон и оранжевые акценты</span></button>
+ <button class="design-choice ${getDesignMode()==='ahltv'?'active':''}" data-design-choice="ahltv" type="button"><div class="design-preview ahltv"></div><strong>CSTT Beta</strong><span>Новая цельная тёмно-синяя тема с бирюзовыми акцентами</span></button>
  </div><div class="roster-heading" style="margin-top:18px">ЦВЕТОВОЙ РЕЖИМ CSTT CLASSIC</div><div class="theme-choice-row">
  <button class="theme-choice ${current==='day'?'active':''}" data-theme-choice="day" type="button"><div class="theme-preview"></div><strong>DAY · Дневная</strong><span>Светлая палитра</span></button>
  <button class="theme-choice ${current==='night'?'active':''}" data-theme-choice="night" type="button"><div class="theme-preview night"></div><strong>NIGHT · Ночная</strong><span>Тёмно-серые панели</span></button>
@@ -8161,6 +8161,169 @@ body[data-theme="day"] .mvp-news-rail .news-rail-section:first-child #allTransfe
   color:#fff!important;
   border-color:#174987!important;
 }
+</style>
+
+
+<style id="cstt-beta-full-redesign">
+/* CSTT BETA — original full-interface visual system. Scoped so Classic is untouched. */
+body[data-design="ahltv"]{
+ --orange:#55d6d0!important;--ink:#eaf2fb!important;--muted:#91a6ba!important;
+ --line:#263b50!important;--bg:#0b1420!important;--soft:#132235!important;
+ --cstt-surface:#111f2e;--cstt-surface-2:#172a3d;--cstt-accent:#55d6d0;
+ --cstt-accent-2:#a6ed86;--cstt-text:#eaf2fb;--cstt-muted:#91a6ba;
+ background:#09131f!important;
+ background-image:radial-gradient(ellipse at 12% 0%,rgba(40,111,132,.23),transparent 36%),radial-gradient(ellipse at 92% 12%,rgba(63,103,154,.18),transparent 34%),linear-gradient(180deg,#0b1724 0%,#09131f 60%,#0d1927 100%)!important;
+ color:var(--cstt-text)!important;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif!important;
+ color-scheme:dark;
+}
+body[data-design="ahltv"] *{scrollbar-color:#38536b #101d2a}
+body[data-design="ahltv"] .top{
+ background:rgba(10,23,36,.96)!important;border:0!important;border-bottom:1px solid #29445a!important;
+ box-shadow:0 10px 34px rgba(0,0,0,.28)!important;backdrop-filter:blur(18px)!important;
+}
+body[data-design="ahltv"] .brand,body[data-design="ahltv"] .site-brand-name{color:#f4fbff!important;letter-spacing:-.7px}
+body[data-design="ahltv"] .brand b,body[data-design="ahltv"] .site-footer-brand b{background:#55d6d0!important;color:#09202a!important;border-radius:5px}
+body[data-design="ahltv"] .main-nav{gap:5px}
+body[data-design="ahltv"] .nav-btn{
+ color:#a9bdcf!important;border:1px solid transparent!important;border-radius:8px!important;
+ padding:9px 13px!important;transition:all .16s ease!important
+}
+body[data-design="ahltv"] .nav-btn:hover{background:#172d40!important;color:#fff!important;border-color:#29485f!important}
+body[data-design="ahltv"] .nav-btn.active{background:linear-gradient(135deg,#1d5664,#173d55)!important;border:1px solid #397c88!important;color:#8df0e7!important;box-shadow:inset 0 -2px #55d6d0!important}
+body[data-design="ahltv"] .topright .btn,body[data-design="ahltv"] .settings-trigger,body[data-design="ahltv"] .social-btn{
+ background:#14283a!important;color:#d9e8f5!important;border:1px solid #2b465d!important;border-radius:9px!important
+}
+body[data-design="ahltv"] .topright .btn:hover,body[data-design="ahltv"] .settings-trigger:hover,body[data-design="ahltv"] .social-btn:hover{background:#1c3850!important;border-color:#4d8992!important}
+body[data-design="ahltv"] .wrap{max-width:1180px!important}
+body[data-design="ahltv"] .crumb{color:#8ca9bf!important;text-shadow:none!important;letter-spacing:1.7px}
+body[data-design="ahltv"] .heading h1,body[data-design="ahltv"] .page-head h2,body[data-design="ahltv"] h1,body[data-design="ahltv"] h2,body[data-design="ahltv"] h3{color:#f0f7ff!important;letter-spacing:-.35px}
+body[data-design="ahltv"] .sub,body[data-design="ahltv"] .players,body[data-design="ahltv"] .profile-team-tag,body[data-design="ahltv"] .page-intro,body[data-design="ahltv"] .notice,body[data-design="ahltv"] .foot{color:#91a6ba!important;text-shadow:none!important}
+body[data-design="ahltv"] .panel,body[data-design="ahltv"] .site-footer,body[data-design="ahltv"] .news-rail-section,
+body[data-design="ahltv"] .news-hub-card,body[data-design="ahltv"] .news-card,body[data-design="ahltv"] .match-card,
+body[data-design="ahltv"] .stream-card,body[data-design="ahltv"] .help-card,body[data-design="ahltv"] .global-match-card,
+body[data-design="ahltv"] .news-hub,body[data-design="ahltv"] .news-editor-preview,body[data-design="ahltv"] .player-profile-stat,
+body[data-design="ahltv"] .profile-stat,body[data-design="ahltv"] .top-player-row,body[data-design="ahltv"] .player-trophy,
+body[data-design="ahltv"] .stream-empty,body[data-design="ahltv"] .match-player-row{
+ background:linear-gradient(145deg,rgba(23,42,61,.98),rgba(15,30,45,.98))!important;
+ color:#e4eef8!important;border:1px solid #294258!important;border-radius:12px!important;
+ box-shadow:0 8px 24px rgba(0,0,0,.13)!important
+}
+body[data-design="ahltv"] .panel{overflow-x:auto!important}
+body[data-design="ahltv"] .tablehead{background:#1a3045!important;color:#8daec5!important;border-bottom:1px solid #35536b!important}
+body[data-design="ahltv"] .team-card,body[data-design="ahltv"] .team{background:transparent!important;border-color:#263d52!important}
+body[data-design="ahltv"] .team-main{background:rgba(16,32,48,.72)!important;border-bottom:1px solid #243b50!important;transition:background .16s ease}
+body[data-design="ahltv"] .team-main:hover,body[data-design="ahltv"] .team-main:focus-visible,body[data-design="ahltv"] .team-main[aria-expanded="true"]{background:#1b354b!important}
+body[data-design="ahltv"] .team-main .name,body[data-design="ahltv"] .name,body[data-design="ahltv"] .points{color:#eaf4ff!important}
+body[data-design="ahltv"] .rank{color:#6f91aa!important}
+body[data-design="ahltv"] .logo,body[data-design="ahltv"] .profile-logo,body[data-design="ahltv"] .top-player-avatar,
+body[data-design="ahltv"] .roster-player-photo,body[data-design="ahltv"] .player-profile-photo{
+ background:#0b1825!important;border:1px solid #34516a!important;border-radius:10px!important
+}
+body[data-design="ahltv"] .roster-expanded{background:#102033!important;border-top:1px solid #29445a!important}
+body[data-design="ahltv"] .roster-player,body[data-design="ahltv"] .player-photo-edit,body[data-design="ahltv"] .profile-roster li{
+ background:#172b40!important;border:1px solid #2c485f!important;border-radius:10px!important;color:#e6f0f8!important
+}
+body[data-design="ahltv"] .roster-heading,body[data-design="ahltv"] .profile-stat small,body[data-design="ahltv"] .player-profile-stat small,
+body[data-design="ahltv"] .player-profile-awards-head{color:#8eabc1!important}
+body[data-design="ahltv"] .roster-number{background:#55d6d0!important;color:#09202a!important;border-radius:6px!important}
+body[data-design="ahltv"] .team-profile-btn{background:#1a5260!important;border:1px solid #39818b!important;color:#e8fffc!important}
+body[data-design="ahltv"] .team-profile-btn:hover{background:#216a74!important}
+body[data-design="ahltv"] .btn,body[data-design="ahltv"] button.tiny,body[data-design="ahltv"] .theme-choice,
+body[data-design="ahltv"] .design-choice,body[data-design="ahltv"] .news-hub-tab,body[data-design="ahltv"] .help-user-row{
+ background:#172c40!important;color:#dceaf6!important;border:1px solid #34516a!important;border-radius:8px!important;
+ box-shadow:none!important;transition:background .16s ease,border-color .16s ease,transform .16s ease
+}
+body[data-design="ahltv"] .btn:hover,body[data-design="ahltv"] button.tiny:hover,body[data-design="ahltv"] .theme-choice:hover,
+body[data-design="ahltv"] .design-choice:hover,body[data-design="ahltv"] .news-hub-tab:hover,body[data-design="ahltv"] .help-user-row:hover{
+ background:#203d55!important;border-color:#4b8291!important;color:#fff!important
+}
+body[data-design="ahltv"] .btn.primary,body[data-design="ahltv"] .primary,body[data-design="ahltv"] .help-send button,
+body[data-design="ahltv"] .news-hub-tab.active{
+ background:linear-gradient(135deg,#55d6d0,#3bb5b8)!important;color:#08232b!important;border:1px solid #70e8df!important;font-weight:850!important
+}
+body[data-design="ahltv"] .btn.primary:hover,body[data-design="ahltv"] .primary:hover{filter:brightness(1.08)}
+body[data-design="ahltv"] .modalback{background:rgba(2,8,14,.78)!important;backdrop-filter:blur(8px)!important}
+body[data-design="ahltv"] .modal,body[data-design="ahltv"] .modal.modal-page,body[data-design="ahltv"] .modal.modal-help{
+ background:#102033!important;color:#e7f0f8!important;border:1px solid #35536b!important;border-radius:16px!important;
+ box-shadow:0 28px 90px rgba(0,0,0,.55)!important
+}
+body[data-design="ahltv"] .modal h2{color:#f2f8ff!important}
+body[data-design="ahltv"] .field label{color:#a8bfd1!important}
+body[data-design="ahltv"] input,body[data-design="ahltv"] textarea,body[data-design="ahltv"] select,
+body[data-design="ahltv"] .field input,body[data-design="ahltv"] .field textarea,body[data-design="ahltv"] .help-send textarea,
+body[data-design="ahltv"] .global-match-form input,body[data-design="ahltv"] .global-match-form select,
+body[data-design="ahltv"] .player-role-edit-row select{
+ background:#0b1927!important;color:#eaf3fc!important;border:1px solid #35536b!important;border-radius:8px!important
+}
+body[data-design="ahltv"] input::placeholder,body[data-design="ahltv"] textarea::placeholder{color:#6f899e!important}
+body[data-design="ahltv"] input:focus,body[data-design="ahltv"] textarea:focus,body[data-design="ahltv"] select:focus{outline:2px solid rgba(85,214,208,.28)!important;border-color:#55d6d0!important}
+body[data-design="ahltv"] .adminbar,body[data-design="ahltv"] .stream-admin-form,body[data-design="ahltv"] .team-profile-tournament{
+ background:#1d3446!important;border:1px solid #49647a!important;color:#dceaf5!important;border-radius:10px!important
+}
+body[data-design="ahltv"] .tier-divider{background:#14283a!important;color:#91b3c8!important;border-color:#2d4b62!important}
+body[data-design="ahltv"] .tier-divider-1{background:linear-gradient(90deg,#3b3b2d,#233746)!important;color:#d5e5a3!important}
+body[data-design="ahltv"] .tier-divider-1 .tier-divider-badge{background:#a6ed86!important;color:#10251c!important}
+body[data-design="ahltv"] .tier-divider-2{background:#263748!important;color:#c0d0df!important}
+body[data-design="ahltv"] .tier-divider-2 .tier-divider-badge{background:#a9c0d3!important;color:#142536!important}
+body[data-design="ahltv"] .team-card.tier-1 .team-main{background:linear-gradient(90deg,rgba(57,67,47,.8),rgba(19,39,51,.7))!important;border-left-color:#a6ed86!important}
+body[data-design="ahltv"] .team-card.tier-2 .team-main{background:linear-gradient(90deg,rgba(48,63,79,.85),rgba(19,39,51,.7))!important;border-left-color:#83a9c8!important}
+body[data-design="ahltv"] .team-card.tier-3 .team-main{background:rgba(16,32,48,.72)!important}
+body[data-design="ahltv"] .top-player-row,body[data-design="ahltv"] .top-player-list .top-player-row{background:#14283a!important;border-color:#2b465d!important}
+body[data-design="ahltv"] .top-player-nick,body[data-design="ahltv"] .top-player-metric strong,body[data-design="ahltv"] .top-player-team{color:#e6f1fb!important}
+body[data-design="ahltv"] .top-player-rank,body[data-design="ahltv"] .top-player-metric small{color:#8fa9bf!important}
+body[data-design="ahltv"] .match-card-head,body[data-design="ahltv"] .global-match-info{background:#14283a!important;color:#a9bfd1!important;border-color:#2a4359!important}
+body[data-design="ahltv"] .match-card-body,body[data-design="ahltv"] .match-card-actions{background:#102033!important;color:#dceaf6!important}
+body[data-design="ahltv"] .match-stats,body[data-design="ahltv"] .match-stats th,body[data-design="ahltv"] .match-stats td{color:#dceaf6!important;border-color:#2c465c!important}
+body[data-design="ahltv"] .match-stats th{background:#1b3348!important}
+body[data-design="ahltv"] .help-fab{background:#55d6d0!important;color:#09232b!important;box-shadow:0 12px 30px rgba(0,0,0,.35)!important}
+body[data-design="ahltv"] .help-thread{background:#0b1927!important;border-color:#2c465c!important}
+body[data-design="ahltv"] .help-message{background:#1b3044!important;color:#e5eff8!important;border-color:#35516a!important}
+body[data-design="ahltv"] .help-message.mine{background:#1d4a53!important;color:#eafffc!important;border-color:#4b9a9a!important}
+body[data-design="ahltv"] .site-footer{background:#102033!important;border-color:#29445a!important;color:#a9bfd1!important}
+body[data-design="ahltv"] .site-footer-brand,body[data-design="ahltv"] .site-footer h2{color:#eaf4fc!important}
+body[data-design="ahltv"] .site-footer-copy{border-color:#29445a!important;color:#8099ae!important}
+body[data-design="ahltv"] .news-hub-hero{background:linear-gradient(120deg,#16384a,#17283e)!important;border:1px solid #315a70!important;border-radius:14px!important;color:#eaf7ff!important}
+body[data-design="ahltv"] .news-hub-hero h2,body[data-design="ahltv"] .news-hub-hero p{color:#eaf7ff!important}
+body[data-design="ahltv"] .news-hub-toolbar{border-color:#2b465d!important}
+body[data-design="ahltv"] .news-hub-event,body[data-design="ahltv"] .news-all-entry{background:#14283a!important;color:#e4eef8!important;border-color:#2b465d!important}
+body[data-design="ahltv"] .news-hub-image,body[data-design="ahltv"] .news-article-cover{border-radius:10px!important}
+body[data-design="ahltv"] .news-hub-summary,body[data-design="ahltv"] .news-article-body{color:#c5d5e3!important}
+body[data-design="ahltv"] .news-hub-category{background:#1d4b57!important;color:#8df0e7!important;border:1px solid #34717b!important;border-radius:5px!important}
+body[data-design="ahltv"] .news-rail-section,body[data-design="ahltv"] .mvp-news-rail{background:#102033!important;border-color:#29445a!important}
+body[data-design="ahltv"] .news-rail-head,body[data-design="ahltv"] .news-rail-footer{background:#172d41!important;color:#dceaf6!important;border-color:#2b465d!important}
+body[data-design="ahltv"] .news-rail-item,body[data-design="ahltv"] .news-kind-transfer,body[data-design="ahltv"] .news-kind-ban{background:#102033!important;color:#dceaf6!important;border-color:#263f55!important}
+body[data-design="ahltv"] .news-rail-meta,body[data-design="ahltv"] .news-rail-reason{color:#91a9bd!important}
+body[data-design="ahltv"] .profile-hero{border-color:#2c465c!important}
+body[data-design="ahltv"] .profile-team-name,body[data-design="ahltv"] .player-profile-name{color:#f0f7ff!important}
+body[data-design="ahltv"] .player-profile-teamline,body[data-design="ahltv"] .player-profile-roleline{color:#afc2d2!important}
+body[data-design="ahltv"] .player-profile-roleline strong{color:#e8f4fc!important}
+body[data-design="ahltv"] .player-role-editor{border-color:#2b465d!important}
+body[data-design="ahltv"] .player-role-editor label{color:#b5c8d8!important}
+body[data-design="ahltv"] .player-trophy{background:#172b40!important;border-color:#304d63!important}
+body[data-design="ahltv"] .player-trophy small{color:#a6bbcd!important}
+body[data-design="ahltv"] .player-profile-photo .player-main-avatar-fallback{background:linear-gradient(145deg,#294a60,#0b1825)!important;color:#55d6d0!important}
+body[data-design="ahltv"] .empty,body[data-design="ahltv"] .news-hub-empty{color:#91a6ba!important}
+body[data-design="ahltv"] a{color:#72ddd7}
+body[data-design="ahltv"] .site-footer a{color:#72ddd7!important}
+body[data-design="ahltv"] .hidden{display:none!important}
+@media(max-width:900px){
+ body[data-design="ahltv"] .top{background:rgba(10,23,36,.98)!important}
+ body[data-design="ahltv"] .main-nav{scrollbar-width:none}
+}
+@media(max-width:650px){
+ body[data-design="ahltv"] .wrap{padding-left:10px!important;padding-right:10px!important}
+ body[data-design="ahltv"] .heading h1{font-size:25px!important}
+ body[data-design="ahltv"] .nav-btn{border-radius:7px!important}
+ body[data-design="ahltv"] .panel,body[data-design="ahltv"] .modal{border-radius:11px!important}
+ body[data-design="ahltv"] .roster-player{padding:8px 5px!important}
+}
+body[data-design="ahltv"] .design-choice[data-design-choice="ahltv"] .design-preview{
+ background:linear-gradient(135deg,#0b1724 0 48%,#1d5261 48% 100%)!important;border:1px solid #55d6d0!important
+}
+body[data-design="ahltv"] .design-choice[data-design-choice="classic"] .design-preview{
+ background:linear-gradient(135deg,#f4f7fa 0 48%,#dce8f0 48% 100%)!important
+}
+body[data-design="ahltv"] .design-choice.active{border-color:#55d6d0!important;box-shadow:0 0 0 2px rgba(85,214,208,.2)!important}
 </style>
 
 </body></html>
