@@ -4764,7 +4764,8 @@ function newsPlayerChip(row){
 }
 function newsTeamChip(id,name,logo){
   const teamName=String(name||'Команда'),image=newsSafeImage(logo);
-  if(!id && (!name || String(name).toUpperCase()==='NOTEAM'))return `<span class="news-no-team-chip" title="Игрок без команды"><img src="${NOTEAM_LOGO_URL}" alt="NOTEAM"><span>NOTEAM</span></span>`;
+  const isNoTeam=/^no[\\s_-]?team$/i.test(teamName.trim())||(!id&&!name);
+  if(isNoTeam)return `<span class="news-no-team-chip" title="Игрок без команды"><img src="${NOTEAM_LOGO_URL}" alt="NO TEAM"><span>NO TEAM</span></span>`;
   const pic=image?`<img src="${esc(image)}" alt="Логотип ${esc(teamName)}" loading="lazy">`:`<span class="news-team-fallback">${esc(teamName.slice(0,4).toUpperCase())}</span>`;
   return `<button type="button" class="news-team-chip news-clickable-badge" data-news-team-id="${esc(id||'')}" data-news-team-name="${esc(teamName)}" data-news-team-logo="${esc(image)}" title="Открыть профиль ${esc(teamName)}">${pic}<span>${esc(teamName)}</span></button>`;
 }
@@ -7369,4 +7370,183 @@ body[data-theme="night"] .top .nav-btn.active{
 }
 </style>
 
+
+<style id="mvp-hltv-transfer-feed-refresh">
+/* Compact HLTV-like transfer rail: player portrait -> source badge -> arrow -> destination badge. */
+.mvp-news-rail #transferNews{
+  padding:0!important;
+  background:#293744!important;
+}
+.mvp-news-rail #transferNews .news-rail-item,
+.mvp-news-rail #transferNews .news-kind-transfer{
+  display:block!important;
+  margin:0!important;
+  padding:7px 7px!important;
+  min-height:58px;
+  border:0!important;
+  border-bottom:1px solid rgba(164,182,198,.22)!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.mvp-news-rail #transferNews .news-rail-item:nth-child(odd){
+  background:rgba(255,255,255,.035)!important;
+}
+.mvp-news-rail #transferNews .news-rail-item:last-child{border-bottom:0!important}
+.mvp-news-rail #transferNews .news-transfer-title,
+.mvp-news-rail #transferNews>.news-rail-item>.news-rail-meta{
+  display:none!important;
+}
+.mvp-news-rail #transferNews .news-transfer-visual{
+  display:grid!important;
+  grid-template-columns:39px minmax(0,1fr)!important;
+  gap:7px!important;
+  align-items:center!important;
+  width:100%;
+  min-width:0;
+  margin:0!important;
+}
+.mvp-news-rail #transferNews .news-player-chip{
+  width:39px!important;
+  min-width:39px!important;
+  max-width:39px!important;
+  gap:2px!important;
+  align-self:center!important;
+}
+.mvp-news-rail #transferNews .news-player-chip img,
+.mvp-news-rail #transferNews .news-player-chip .news-player-fallback{
+  display:flex!important;
+  width:36px!important;
+  height:36px!important;
+  border:0!important;
+  border-radius:50%!important;
+  padding:0!important;
+  background:#3b4c5c!important;
+  box-shadow:none!important;
+  object-fit:cover!important;
+}
+.mvp-news-rail #transferNews .news-player-chip span:last-child{
+  display:block!important;
+  max-width:42px!important;
+  color:#d5dee7!important;
+  font-size:7px!important;
+  font-weight:700!important;
+  line-height:1.05!important;
+  text-align:center!important;
+}
+.mvp-news-rail #transferNews .news-team-path{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 15px minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:3px!important;
+  min-width:0!important;
+}
+.mvp-news-rail #transferNews .news-team-chip,
+.mvp-news-rail #transferNews .news-no-team-chip{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:2px!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  outline-offset:2px;
+  background:transparent!important;
+  box-shadow:none!important;
+  text-align:center!important;
+}
+.mvp-news-rail #transferNews .news-team-chip img,
+.mvp-news-rail #transferNews .news-team-fallback{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:32px!important;
+  height:32px!important;
+  max-width:32px!important;
+  max-height:32px!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  object-fit:contain!important;
+}
+.mvp-news-rail #transferNews .news-no-team-chip img{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:32px!important;
+  height:32px!important;
+  max-width:32px!important;
+  max-height:32px!important;
+  padding:5px!important;
+  border:0!important;
+  border-radius:50%!important;
+  background:#40576b!important;
+  box-shadow:none!important;
+  object-fit:contain!important;
+}
+.mvp-news-rail #transferNews .news-team-chip span:last-child,
+.mvp-news-rail #transferNews .news-no-team-chip span:last-child{
+  display:block!important;
+  width:100%!important;
+  max-width:58px!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  color:#d4dde6!important;
+  font-size:7px!important;
+  font-weight:800!important;
+  line-height:1.05!important;
+  text-align:center!important;
+  background:transparent!important;
+}
+.mvp-news-rail #transferNews .news-no-team-chip span:last-child{
+  color:#a9bfd2!important;
+  letter-spacing:.15px;
+}
+.mvp-news-rail #transferNews .news-transfer-arrow{
+  display:block!important;
+  color:#a8b7c5!important;
+  font-size:15px!important;
+  font-weight:500!important;
+  line-height:1!important;
+  text-align:center!important;
+}
+.mvp-news-rail #transferNews .news-player-chip:hover img,
+.mvp-news-rail #transferNews .news-team-chip:hover img{
+  border:0!important;
+  box-shadow:none!important;
+  filter:brightness(1.12);
+}
+body[data-theme="night"] .mvp-news-rail #transferNews{
+  background:#293744!important;
+}
+body[data-theme="night"] .mvp-news-rail #transferNews .news-no-team-chip img{
+  background:#40576b!important;
+  border:0!important;
+}
+body[data-theme="night"] .mvp-news-rail #transferNews .news-player-chip span:last-child,
+body[data-theme="night"] .mvp-news-rail #transferNews .news-team-chip span:last-child{
+  color:#d4dde6!important;
+}
+body[data-theme="night"] .mvp-news-rail #transferNews .news-no-team-chip span:last-child{
+  color:#a9bfd2!important;
+}
+@media(max-width:650px){
+  .mvp-news-rail #transferNews .news-transfer-visual{
+    grid-template-columns:42px minmax(0,1fr)!important;
+    gap:5px!important;
+  }
+  .mvp-news-rail #transferNews .news-player-chip{width:42px!important;min-width:42px!important}
+  .mvp-news-rail #transferNews .news-player-chip img,
+  .mvp-news-rail #transferNews .news-player-chip .news-player-fallback{width:36px!important;height:36px!important}
+}
+</style>
 </body></html>
