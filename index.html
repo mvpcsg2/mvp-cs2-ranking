@@ -3953,7 +3953,9 @@ function tournamentTeamLine(team,score,isWinner){
   return `<div class="tourney-teamline ${isWinner?'winner':''}">${team?(logo?`<img class="tourney-team-logo" src="${esc(logo)}" alt="">`:`<span class="tourney-team-logo" aria-hidden="true"></span>`):`<span class="tourney-team-logo" aria-hidden="true"></span>`}<span class="tourney-team-name ${team?'':'tbd'}">${team?esc(team.name):'Ожидает команду'}</span><span class="tourney-team-score">${score===null?'—':score}</span></div>`;
 }
 function tournamentMatchCard(game,tournament){
-  const manager=can('manage_matches');
+  // Use the same page-level staff role for every match card. Keep historical-season
+  // protection, but do not let per-card rendering accidentally suppress controls.
+  const manager=!isSeasonReadOnly() && Boolean(admin || (moderator && userPermissions?.manage_matches === true));
   const played=!!game.winner;
   const matchBestOf=tournamentMatchBestOf(game.key,tournament),target=tournamentWinTarget(matchBestOf);
   const hasPair=Boolean(game.a&&game.b);
