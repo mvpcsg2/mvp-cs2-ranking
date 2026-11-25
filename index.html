@@ -710,7 +710,7 @@
 .tourney-rounds{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,1fr);gap:13px;overflow-x:auto;padding:14px;align-items:start;scrollbar-width:thin}
 .tourney-round{min-width:0}
 .tourney-round-title{height:42px;display:flex;align-items:center;justify-content:center;text-align:center;padding:6px;border:1px solid #c18b37;border-radius:5px;background:linear-gradient(180deg,#201a11,#08090b);color:#f4d28d;font-size:10px;font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
-.tourney-match{position:relative;border:1px solid #c7a05c;border-radius:7px;background:linear-gradient(145deg,#17191d,#0d0e10);color:#fff;margin:0 0 12px;overflow:hidden;box-shadow:0 2px 7px rgba(0,0,0,.09)}
+.tourney-match{position:relative;border:1px solid #c7a05c;border-radius:7px;background:linear-gradient(145deg,#17191d,#0d0e10);color:#fff;margin:0 0 12px;overflow:hidden;box-shadow:0 2px 7px rgba(0,0,0,.09)}.tourney-match-editable{cursor:pointer;transition:border-color .15s,box-shadow .15s}.tourney-match-editable:hover{border-color:#f2ce82;box-shadow:0 0 0 2px rgba(242,206,130,.18),0 3px 12px rgba(0,0,0,.2)}.tourney-match-admin{display:none}.tourney-match-admin[open]{display:block}
 .tourney-match:before{content:"";position:absolute;inset:3px;border:1px solid rgba(225,183,100,.17);border-radius:4px;pointer-events:none}
 .tourney-match-top{display:flex;align-items:center;justify-content:space-between;padding:6px 8px 4px;color:#c7ad7c;font-size:9px;letter-spacing:.7px;position:relative}
 .tourney-match-top .played{color:#8ed8a2;font-weight:900}
@@ -3953,15 +3953,16 @@ function tournamentTeamLine(team,score,isWinner){
   return `<div class="tourney-teamline ${isWinner?'winner':''}">${team?(logo?`<img class="tourney-team-logo" src="${esc(logo)}" alt="">`:`<span class="tourney-team-logo" aria-hidden="true"></span>`):`<span class="tourney-team-logo" aria-hidden="true"></span>`}<span class="tourney-team-name ${team?'':'tbd'}">${team?esc(team.name):'Ожидает команду'}</span><span class="tourney-team-score">${score===null?'—':score}</span></div>`;
 }
 function tournamentMatchCard(game,tournament){
-  // Use the same page-level staff role for every match card. Keep historical-season
-  // protection, but do not let per-card rendering accidentally suppress controls.
-  const manager=!isSeasonReadOnly() && Boolean(admin || (moderator && userPermissions?.manage_matches === true));
+  const manager=can('manage_matches');
   const played=!!game.winner;
   const matchBestOf=tournamentMatchBestOf(game.key,tournament),target=tournamentWinTarget(matchBestOf);
   const hasPair=Boolean(game.a&&game.b);
-  const adminForm=manager?`<details class="tourney-match-admin" ${hasPair?'':'data-score-unavailable'}><summary class="tourney-score-toggle" ${hasPair?'':'title="Кнопка станет доступна после определения обеих команд"'}>${played?'Изменить счёт':'Внести счёт'}${hasPair?'':' · ожидание'}</summary>${hasPair?`<form class="tourney-score-form" data-tourney-score="${game.key}"><label>${esc(game.a.name)}<input name="scoreA" type="number" min="0" max="${target}" step="1" value="${game.score?game.score.a:''}" required></label><span class="tourney-score-sep">:</span><label>${esc(game.b.name)}<input name="scoreB" type="number" min="0" max="${target}" step="1" value="${game.score?game.score.b:''}" required></label><div class="tourney-score-actions"><button type="submit">Сохранить</button>${game.raw?`<button type="button" data-tourney-clear="${game.key}">Сбросить</button>`:''}</div></form>`:''}</details>`:'';
-  const hint=game.stale?'<div class="tourney-match-hint">Состав участников изменился. Введите результат заново.</div>':(!game.a||!game.b?'<div class="tourney-match-hint">Ожидает результатов предыдущего этапа.</div>':(!played?'<div class="tourney-match-hint">Введите счёт серии, чтобы продвинуть победителя.</div>':''));
-  return `<article class="tourney-match"><div class="tourney-match-top"><span>${esc(game.label)}</span><span class="${played?'played':''}">${played?'ЗАВЕРШЁН':game.a&&game.b?'ОЖИДАЕТ РЕЗУЛЬТАТА':'ОЖИДАНИЕ'}</span></div>${tournamentTeamLine(game.a,game.score?game.score.a:null,!!(game.winner&&String(game.winner.id)===String(game.a?.id)))}${tournamentTeamLine(game.b,game.score?game.score.b:null,!!(game.winner&&String(game.winner.id)===String(game.b?.id)))}${hint}${adminForm}</article>`;
+  // Always render a visible control on every match card. Only authorized staff
+  // with two resolved teams receive an editable score form; save endpoint checks again.
+  // Admins edit a match by clicking its card; no separate score button.
+  const adminForm=manager&&hasPair?`<details class="tourney-match-admin"><form class="tourney-score-form" data-tourney-score="${game.key}"><label>${esc(game.a.name)}<input name="scoreA" type="number" min="0" max="${target}" step="1" value="${game.score?game.score.a:''}" required></label><span class="tourney-score-sep">:</span><label>${esc(game.b.name)}<input name="scoreB" type="number" min="0" max="${target}" step="1" value="${game.score?game.score.b:''}" required></label><div class="tourney-score-actions"><button type="submit">Сохранить</button>${game.raw?`<button type="button" data-tourney-clear="${game.key}">Сбросить</button>`:''}</div></form></details>`:'';
+  const hint=game.stale?'<div class="tourney-match-hint">Состав участников изменился. Введите результат заново.</div>':(!game.a||!game.b?'<div class="tourney-match-hint">Ожидает результатов предыдущего этапа.</div>':(!played?'<div class="tourney-match-hint">Нажмите на карточку матча, чтобы внести счёт.</div>':''));
+  return `<article class="tourney-match ${manager&&hasPair?'tourney-match-editable':''}" ${manager&&hasPair?'data-tourney-match-editable':''}><div class="tourney-match-top"><span>${esc(game.label)}</span><span class="${played?'played':''}">${played?'ЗАВЕРШЁН':game.a&&game.b?'ОЖИДАЕТ РЕЗУЛЬТАТА':'ОЖИДАНИЕ'}</span></div>${tournamentTeamLine(game.a,game.score?game.score.a:null,!!(game.winner&&String(game.winner.id)===String(game.a?.id)))}${tournamentTeamLine(game.b,game.score?game.score.b:null,!!(game.winner&&String(game.winner.id)===String(game.b?.id)))}${hint}${adminForm}</article>`;
 }
 function tournamentRoundHtml(round,tournament,roundIndex=0,baseSlots=null){
   const slots=baseSlots||round.keys.length;
@@ -4188,8 +4189,9 @@ function bindTournamentControls(host){
   if(deleteBtn)deleteBtn.onclick=deleteActiveTournament;
   const lowerSeedsForm=host.querySelector('#tourneyLowerSeedsForm');
   if(lowerSeedsForm)lowerSeedsForm.addEventListener('submit',saveTournamentLowerSeeds);
+  host.querySelectorAll('[data-tourney-match-editable]').forEach(card=>card.addEventListener('click',event=>{if(event.target.closest('form,button,input,select,textarea,a'))return;const editor=card.querySelector('.tourney-match-admin');if(editor)editor.open=!editor.open;}));
   host.querySelectorAll('[data-tourney-score]').forEach(form=>form.addEventListener('submit',saveTournamentScore));
-  host.querySelectorAll('[data-tourney-clear]').forEach(button=>button.addEventListener('click',()=>clearTournamentScore(button.dataset.tourneyClear)));
+  host.querySelectorAll('[data-tourney-clear]').forEach(button=>button.addEventListener('click',event=>{event.stopPropagation();clearTournamentScore(button.dataset.tourneyClear);}));
 }
 async function saveTournamentLowerSeeds(event){
   event.preventDefault();
@@ -6897,7 +6899,6 @@ body.admin-ui-hidden .tourney-admin-actions,
 body.admin-ui-hidden #newTournamentOrganizer,
 body.admin-ui-hidden [data-edit-organizer],
 body.admin-ui-hidden .tourney-create,
-body.admin-ui-hidden .tourney-match-admin,
 body.admin-ui-hidden .matches-admin-tools,
 body.admin-ui-hidden .global-match-actions,
 body.admin-ui-hidden .stream-admin-form,
