@@ -8900,3 +8900,18 @@ body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-rail-section .
 </style>
 
 </body></html>
+<style id="cstt-tournament-panel-full-height">
+/* Keep the tournament page in normal document flow: the full bracket grows downward instead of creating an inner vertical scrollbar. */
+.main-workspace>.modal.modal-page.tourney-modal{
+  height:auto!important;min-height:0!important;max-height:none!important;
+  overflow:visible!important;overflow-y:visible!important;
+}
+.main-workspace>.modal.modal-page.tourney-modal .tourney-section:has(.tourney-rounds){
+  height:auto!important;min-height:0!important;max-height:none!important;
+  overflow:visible!important;overflow-y:visible!important;
+}
+.main-workspace>.modal.modal-page.tourney-modal .tourney-section:has(.tourney-rounds)>.tourney-rounds{
+  height:auto!important;max-height:none!important;overflow-y:visible!important;
+  align-items:stretch!important;
+}
+</style>
