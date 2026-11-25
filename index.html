@@ -5963,10 +5963,15 @@ body[data-theme="night"] .tourney-modal .tourney-section{background:#1c2836!impo
   box-shadow:inset 0 1px rgba(255,255,255,.09)!important;
 }
 .tourney-round-matches{
-  display:grid!important;grid-template-rows:repeat(var(--bracket-slots),minmax(78px,auto))!important;
-  height:calc(var(--bracket-slots) * 104px)!important;min-height:104px!important;
-  position:relative!important;
+  display:grid!important;grid-template-rows:repeat(var(--bracket-slots),minmax(104px,auto))!important;
+  height:auto!important;min-height:calc(var(--bracket-slots) * 104px)!important;
+  position:relative!important;align-content:start!important;
 }
+.tourney-match-slot:has(.tourney-match-admin[open]){align-self:stretch!important;z-index:3!important}
+.tourney-match-slot:has(.tourney-match-admin[open]) .tourney-match{align-self:center!important}
+.tourney-match-admin[open]{position:relative!important;z-index:5!important}
+.tourney-section:has(.tourney-rounds){overflow:visible!important}
+.tourney-section:has(.tourney-rounds) .tourney-rounds{overflow-x:auto!important;overflow-y:visible!important}
 .tourney-match-slot{
   min-width:0;min-height:0;align-self:center;position:relative;
   display:flex;align-items:center;
