@@ -3953,13 +3953,13 @@ function tournamentTeamLine(team,score,isWinner){
   return `<div class="tourney-teamline ${isWinner?'winner':''}">${team?(logo?`<img class="tourney-team-logo" src="${esc(logo)}" alt="">`:`<span class="tourney-team-logo" aria-hidden="true"></span>`):`<span class="tourney-team-logo" aria-hidden="true"></span>`}<span class="tourney-team-name ${team?'':'tbd'}">${team?esc(team.name):'Ожидает команду'}</span><span class="tourney-team-score">${score===null?'—':score}</span></div>`;
 }
 function tournamentMatchCard(game,tournament){
-  // Use the same page-level staff role for every match card. Keep historical-season
-  // protection, but do not let per-card rendering accidentally suppress controls.
-  const manager=!isSeasonReadOnly() && Boolean(admin || (moderator && userPermissions?.manage_matches === true));
+  const manager=can('manage_matches');
   const played=!!game.winner;
   const matchBestOf=tournamentMatchBestOf(game.key,tournament),target=tournamentWinTarget(matchBestOf);
   const hasPair=Boolean(game.a&&game.b);
-  const adminForm=manager?`<details class="tourney-match-admin" ${hasPair?'':'data-score-unavailable'}><summary class="tourney-score-toggle" ${hasPair?'':'title="Кнопка станет доступна после определения обеих команд"'}>${played?'Изменить счёт':'Внести счёт'}${hasPair?'':' · ожидание'}</summary>${hasPair?`<form class="tourney-score-form" data-tourney-score="${game.key}"><label>${esc(game.a.name)}<input name="scoreA" type="number" min="0" max="${target}" step="1" value="${game.score?game.score.a:''}" required></label><span class="tourney-score-sep">:</span><label>${esc(game.b.name)}<input name="scoreB" type="number" min="0" max="${target}" step="1" value="${game.score?game.score.b:''}" required></label><div class="tourney-score-actions"><button type="submit">Сохранить</button>${game.raw?`<button type="button" data-tourney-clear="${game.key}">Сбросить</button>`:''}</div></form>`:''}</details>`:'';
+  // Always render a visible control on every match card. Only authorized staff
+  // with two resolved teams receive an editable score form; save endpoint checks again.
+  const adminForm=`<details class="tourney-match-admin" ${manager&&hasPair?'':'data-score-unavailable'}><summary class="tourney-score-toggle" ${manager&&hasPair?'':'title="Ввод счёта станет доступен после определения команд и наличия прав"'}>${played?'Изменить счёт':'Внести счёт'}${hasPair?'':' · ожидание'}</summary>${manager&&hasPair?`<form class="tourney-score-form" data-tourney-score="${game.key}"><label>${esc(game.a.name)}<input name="scoreA" type="number" min="0" max="${target}" step="1" value="${game.score?game.score.a:''}" required></label><span class="tourney-score-sep">:</span><label>${esc(game.b.name)}<input name="scoreB" type="number" min="0" max="${target}" step="1" value="${game.score?game.score.b:''}" required></label><div class="tourney-score-actions"><button type="submit">Сохранить</button>${game.raw?`<button type="button" data-tourney-clear="${game.key}">Сбросить</button>`:''}</div></form>`:''}</details>`;
   const hint=game.stale?'<div class="tourney-match-hint">Состав участников изменился. Введите результат заново.</div>':(!game.a||!game.b?'<div class="tourney-match-hint">Ожидает результатов предыдущего этапа.</div>':(!played?'<div class="tourney-match-hint">Введите счёт серии, чтобы продвинуть победителя.</div>':''));
   return `<article class="tourney-match"><div class="tourney-match-top"><span>${esc(game.label)}</span><span class="${played?'played':''}">${played?'ЗАВЕРШЁН':game.a&&game.b?'ОЖИДАЕТ РЕЗУЛЬТАТА':'ОЖИДАНИЕ'}</span></div>${tournamentTeamLine(game.a,game.score?game.score.a:null,!!(game.winner&&String(game.winner.id)===String(game.a?.id)))}${tournamentTeamLine(game.b,game.score?game.score.b:null,!!(game.winner&&String(game.winner.id)===String(game.b?.id)))}${hint}${adminForm}</article>`;
 }
@@ -6897,7 +6897,6 @@ body.admin-ui-hidden .tourney-admin-actions,
 body.admin-ui-hidden #newTournamentOrganizer,
 body.admin-ui-hidden [data-edit-organizer],
 body.admin-ui-hidden .tourney-create,
-body.admin-ui-hidden .tourney-match-admin,
 body.admin-ui-hidden .matches-admin-tools,
 body.admin-ui-hidden .global-match-actions,
 body.admin-ui-hidden .stream-admin-form,
