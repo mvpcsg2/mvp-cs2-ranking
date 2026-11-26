@@ -4036,6 +4036,16 @@ async function loadTournamentOrganizersPage(){
 
  }catch(e){host.innerHTML=`<div class="tourney-empty"><b>Не удалось загрузить компании.</b><br>${esc(niceError(e))}<br><small>Сначала выполни SQL-миграцию CSTT Tournament Platform.</small></div>`;}
 }
+async function loadTournamentOrganizerOwners(){
+ const host=document.getElementById('organizerOwnersPanel');if(!host||!activeTournamentOrganizer)return;
+ host.innerHTML='<div class="tourney-editor-note">Загружаем владельцев компании…</div>';
+ const result=await client.rpc('organizer_get_owners',{p_organizer_id:activeTournamentOrganizer.id});
+ if(result.error){host.innerHTML='<div class="tourney-empty">'+esc(result.error.message||'Не удалось загрузить владельцев.')+'</div>';return;}
+ const owners=Array.isArray(result.data)?result.data:[];
+ host.innerHTML=`<section class="tourney-editor-form" style="margin:0 0 18px"><h3 style="margin:0 0 10px">Владельцы компании</h3><div>${owners.map(owner=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(owner.username)}</b><span>Владелец</span></div>`).join('')||'<p>Владельцы ещё не добавлены.</p>'}</div><form id="addTournamentOwnerForm" style="margin-top:14px"><label for="newTournamentOwnerEmail">Добавить совладельца по email</label><div class="tourney-input-inline"><input id="newTournamentOwnerEmail" type="email" maxlength="254" placeholder="user@example.com" required><button class="btn primary" type="submit">Добавить</button></div><small>Укажи email, с которым человек зарегистрировался на CSTT. Его аккаунт должен быть подтверждён.</small></form></section>`;
+ const form=host.querySelector('#addTournamentOwnerForm');
+ if(form)form.addEventListener('submit',async event=>{event.preventDefault();const input=host.querySelector('#newTournamentOwnerEmail'),button=form.querySelector('button');button.disabled=true;button.textContent='Добавляем…';const added=await client.rpc('organizer_add_owner',{p_organizer_id:activeTournamentOrganizer.id,p_email:input.value.trim()});if(added.error){alert(added.error.message||'Не удалось добавить владельца.');button.disabled=false;button.textContent='Добавить';return;}await loadTournamentOrganizerOwners();});
+}
 async function openTournamentOrganizerPage(id){
  cleanupTournamentCenter();activeTournamentOrganizer=tournamentOrganizers.find(x=>String(x.id)===String(id))||null;
  if(!activeTournamentOrganizer){try{tournamentOrganizers=await mvpApiGet('/api/tournament-organizers')||[];activeTournamentOrganizer=tournamentOrganizers.find(x=>String(x.id)===String(id))||null;}catch(_){}}
