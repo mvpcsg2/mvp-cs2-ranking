@@ -4137,6 +4137,7 @@ async function saveTournamentEvent(event){
   if(btn){btn.disabled=true;btn.textContent='Сохраняем…';}
   try{
     const p={name,prize_pool:prize,prize_currency,team_count,best_of,event_status,description,start_date,end_date,allow_captain_registration:allowCaptainRegistration,organizer_id:activeTournamentOrganizer.id,updated_at:new Date().toISOString()};
+    if(id)delete p.organizer_id;
     const r=id
       ?await client.from('mvp_tournaments').update(p).eq('id',id).select('id').single()
       :await client.from('mvp_tournaments').insert({...p,status:'registration',is_active:false,bracket_data:{version:2,teams:[],lower_teams:[],scores:{}},created_by:currentUser.id}).select('id').single();
