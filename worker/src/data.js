@@ -211,7 +211,8 @@ async function runQuery(sql, body, user, cors) {
       if(body.action==="upsert")return fail("Для турниров компании используй обычное создание записи.",403,cors);
       const organizerIds=[...new Set(rows.map(row=>String(row.organizer_id||"")))];
       if(!organizerIds.length||organizerIds.some(id=>!/^[0-9]+$/.test(id)))return fail("Укажи турнирную компанию.",400,cors);
-      const owned=await sql.query("SELECT organizer_id::text AS organizer_id FROM public.mvp_tournament_organizer_owners WHERE user_id=$1::uuid AND organizer_id=ANY($2::bigint[])",[user.id,organizerIds]);
+      const organizerMarks=organizerIds.map((_,i)=>"$"+(i+2)).join(",");
+      const owned=await sql.query("SELECT organizer_id::text AS organizer_id FROM public.mvp_tournament_organizer_owners WHERE user_id=$1::uuid AND organizer_id IN ("+organizerMarks+")",[user.id,...organizerIds]);
       if(owned.length!==organizerIds.length)return fail("Создавать турниры можно только в своей компании.",403,cors);
     }
     if(body.action==="upsert"&&!Array.isArray(body.conflictColumns))return fail("Для upsert требуется ключ конфликта.",400,cors);
@@ -243,7 +244,8 @@ async function runQuery(sql, body, user, cors) {
       const affected=await sql.query("SELECT DISTINCT organizer_id::text AS organizer_id FROM public.mvp_tournaments"+where,params);
       if(!affected.length)return fail("Турнир не найден или у тебя нет прав на него.",403,cors);
       const ids=[...new Set(affected.map(row=>String(row.organizer_id||"")))];
-      const owned=await sql.query("SELECT organizer_id::text AS organizer_id FROM public.mvp_tournament_organizer_owners WHERE user_id=$1::uuid AND organizer_id=ANY($2::bigint[])",[user.id,ids]);
+      const organizerMarks=ids.map((_,i)=>"$"+(i+2)).join(",");
+      const owned=await sql.query("SELECT organizer_id::text AS organizer_id FROM public.mvp_tournament_organizer_owners WHERE user_id=$1::uuid AND organizer_id IN ("+organizerMarks+")",[user.id,...ids]);
       if(owned.length!==ids.length)return fail("Управлять можно только турнирами своей компании.",403,cors);
     }
     let query;
