@@ -80,6 +80,97 @@ async function runRpc(sql,user,name,args,env){
       return saved;
     }
 
+    case "organizer_create": {
+      if(!isAdmin(user))throw new Error("Создавать турнирные компании и назначать лидеров может только администратор.");
+      const name=String(p.p_name||"").trim();
+      const slug=String(p.p_slug||"").trim().toLowerCase();
+      const description=String(p.p_description||"").trim().slice(0,800);
+      const logo=String(p.p_logo_url||"").trim().slice(0,2000);
+      const email=String(p.p_leader_email||"").trim().toLowerCase();
+      if(name.length<2||name.length>80)throw new Error("Название компании должно содержать от 2 до 80 символов.");
+      if(!/^[a-z0-9-]{2,80}$/.test(slug))throw new Error("Короткий код: только латинские буквы, цифры и дефис (2–80 символов).");
+      if(!/^\S+@\S+\.\S+$/.test(email)||email.length>254)throw new Error("Укажи email будущего лидера компании.");
+      if(logo&&!/^https:\/\//i.test(logo))throw new Error("Ссылка на логотип должна начинаться с https://.");
+      const target=await sql`SELECT id FROM public.mvp_auth_users WHERE lower(email)=${email} AND email_verified_at IS NOT NULL AND is_banned=false LIMIT 1`;
+      if(!target.length)throw new Error("Лидер не найден. Укажи email подтверждённого аккаунта CSTT без блокировки.");
+      const rows=await sql`
+        WITH created AS (
+          INSERT INTO public.mvp_tournament_organizers(name,slug,logo_url,description,is_active,sort_order,created_by)
+          VALUES(${name},${slug},${logo},${description},true,100,${user.id}::uuid)
+          RETURNING id,name,slug,logo_url,description,is_active,sort_order,created_at,updated_at
+        ), membership AS (
+          INSERT INTO public.mvp_tournament_organizer_owners(organizer_id,user_id,assigned_by)
+          SELECT id,${target[0].id}::uuid,${user.id}::uuid FROM created
+          RETURNING organizer_id
+        )
+        SELECT created.*,true AS is_owner FROM created JOIN membership ON membership.organizer_id=created.id
+      `;
+      if(!rows.length)throw new Error("Не удалось создать турнирную компанию и назначить лидера.");
+      return rows[0];
+    }
+
+    case "admin_organizer_set_leader": {
+      if(!isAdmin(user))throw new Error("Только администратор может назначать лидера компании.");
+      const id=String(p.p_organizer_id||"");
+      const email=String(p.p_email||"").trim().toLowerCase();
+      if(!/^\d+$/.test(id)||!/^\S+@\S+\.\S+$/.test(email)||email.length>254)throw new Error("Укажи корректные компанию и email лидера.");
+      const target=await sql`SELECT id,username FROM public.mvp_auth_users WHERE lower(email)=${email} AND email_verified_at IS NOT NULL AND is_banned=false LIMIT 1`;
+      if(!target.length)throw new Error("Пользователь не найден. Нужен подтверждённый аккаунт CSTT без блокировки.");
+      const rows=await sql`
+        WITH removed AS (
+          DELETE FROM public.mvp_tournament_organizer_owners
+          WHERE organizer_id=${id}::bigint AND user_id<>${target[0].id}::uuid
+          RETURNING organizer_id
+        ), assigned AS (
+          INSERT INTO public.mvp_tournament_organizer_owners(organizer_id,user_id,assigned_by)
+          SELECT o.id,${target[0].id}::uuid,${user.id}::uuid
+          FROM public.mvp_tournament_organizers o
+          WHERE o.id=${id}::bigint
+          ON CONFLICT(organizer_id,user_id) DO UPDATE SET assigned_by=EXCLUDED.assigned_by
+          RETURNING organizer_id
+        )
+        SELECT u.id,u.username FROM public.mvp_auth_users u JOIN assigned a ON true
+        WHERE u.id=${target[0].id}::uuid
+      `;
+      if(!rows.length)throw new Error("Компания не найдена или лидер не назначен.");
+      return rows[0];
+    }
+
+    case "organizer_get_owners": {
+      if(!user)throw new Error("Требуется вход.");
+      const id=String(p.p_organizer_id||"");
+      if(!/^\d+$/.test(id))throw new Error("Некорректная компания.");
+      const access=await sql`SELECT 1 FROM public.mvp_tournament_organizer_owners WHERE organizer_id=${id}::bigint AND user_id=${user.id}::uuid LIMIT 1`;
+      if(!access.length&&!hasPermission(user,"manage_matches"))throw new Error("Управлять владельцами может только владелец компании.");
+      return await sql`
+        SELECT u.id,u.username,o.created_at
+        FROM public.mvp_tournament_organizer_owners o
+        JOIN public.mvp_auth_users u ON u.id=o.user_id
+        WHERE o.organizer_id=${id}::bigint
+        ORDER BY o.created_at ASC
+      `;
+    }
+
+    case "organizer_add_owner": {
+      throw new Error("Совладельцев добавлять нельзя. Назначить или заменить единственного лидера может только администратор.");
+    }
+
+    case "organizer_update": {
+      if(!user)throw new Error("Требуется вход.");
+      const id=String(p.p_organizer_id||"");
+      const name=String(p.p_name||"").trim();
+      const slug=String(p.p_slug||"").trim().toLowerCase();
+      const description=String(p.p_description||"").trim().slice(0,800);
+      const logo=String(p.p_logo_url||"").trim().slice(0,2000);
+      if(!/^\d+$/.test(id)||name.length<2||name.length>80||! /^[a-z0-9-]{2,80}$/.test(slug))throw new Error("Проверь название компании и короткий код.");
+      const access=await sql`SELECT 1 FROM public.mvp_tournament_organizer_owners WHERE organizer_id=${id}::bigint AND user_id=${user.id}::uuid LIMIT 1`;
+      if(!access.length&&!hasPermission(user,"manage_matches"))throw new Error("Изменять компанию может только её владелец.");
+      if(logo&&!/^https:\/\//i.test(logo))throw new Error("Ссылка на логотип должна начинаться с https://.");
+      const rows=await sql`UPDATE public.mvp_tournament_organizers SET name=${name},slug=${slug},logo_url=${logo},description=${description},updated_at=now() WHERE id=${id}::bigint RETURNING id,name,slug,logo_url,description,is_active,sort_order,created_at,updated_at`;
+      if(!rows.length)throw new Error("Компания не найдена.");
+      return rows[0];
+    }
+
     case "admin_get_team_captain": {
       if(!isAdmin(user))throw new Error("Только администратор.");const id=String(p.p_team_id||"");if(!/^[0-9]+$/.test(id))throw new Error("Некорректная команда.");
       const rows=await sql`SELECT u.email,u.username FROM public.mvp_team_captains c JOIN public.mvp_auth_users u ON u.id=c.user_id WHERE c.team_id=${id}::bigint LIMIT 1`;return rows[0]||null;
