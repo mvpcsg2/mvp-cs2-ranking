@@ -1,5 +1,5 @@
 -- CSTT tournament company co-owners.
--- Run once in Neon SQL Editor after 2026-11-15-cstt-tournament-platform.sql.
+-- Run once in Neon SQL Editor after 2026-11-13-neon-auth.sql and 2026-11-15-cstt-tournament-platform.sql.
 
 BEGIN;
 
