@@ -2,7 +2,7 @@ import { handleFaceitRequest } from "./faceit.js";
 import { handleStorageRequest } from "./storage.js";
 import { handleRpcRequest } from "./rpc.js";
 import { handleDataRequest } from "./data.js";
-import { handleAuthRequest } from "./auth.js";
+import { handleAuthRequest, getSessionUser } from "./auth.js";
 import { handleMyhudRequest } from "./myhud.js";
 import { neon } from "@neondatabase/serverless";
 
@@ -223,7 +223,10 @@ export default {
 
     if (url.pathname === "/api/tournament-organizers") {
       try {
-        const rows = await sql`SELECT id, name, slug, logo_url, description, is_active, sort_order, created_at, updated_at FROM public.mvp_tournament_organizers WHERE is_active = true ORDER BY sort_order ASC, name ASC LIMIT 100`;
+        const user = await getSessionUser(sql, request);
+        const rows = user
+          ? await sql`SELECT o.id, o.name, o.slug, o.logo_url, o.description, o.is_active, o.sort_order, o.created_at, o.updated_at, EXISTS(SELECT 1 FROM public.mvp_tournament_organizer_owners own WHERE own.organizer_id=o.id AND own.user_id=${user.id}::uuid) AS is_owner FROM public.mvp_tournament_organizers o WHERE o.is_active = true ORDER BY o.sort_order ASC, o.name ASC LIMIT 100`
+          : await sql`SELECT id, name, slug, logo_url, description, is_active, sort_order, created_at, updated_at, false AS is_owner FROM public.mvp_tournament_organizers WHERE is_active = true ORDER BY sort_order ASC, name ASC LIMIT 100`;
         return json({ ok: true, data: rows }, 200, cors);
       } catch (error) {
         console.error("Tournament organizers query failed", error);
