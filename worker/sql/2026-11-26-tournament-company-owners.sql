@@ -16,9 +16,10 @@ CREATE INDEX IF NOT EXISTS idx_mvp_tournament_organizer_owners_user
 
 -- Preserve access for accounts that originally created existing companies.
 INSERT INTO public.mvp_tournament_organizer_owners (organizer_id, user_id, assigned_by)
-SELECT id, created_by, created_by
-FROM public.mvp_tournament_organizers
-WHERE created_by IS NOT NULL
+SELECT o.id, o.created_by, o.created_by
+FROM public.mvp_tournament_organizers o
+JOIN public.mvp_auth_users u ON u.id=o.created_by
+WHERE o.created_by IS NOT NULL
 ON CONFLICT (organizer_id, user_id) DO NOTHING;
 
 REVOKE ALL ON public.mvp_tournament_organizer_owners FROM PUBLIC;
