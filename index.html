@@ -4312,7 +4312,9 @@ async function saveTournamentScore(event){
   if(!match?.a||!match?.b){alert('Обе команды ещё не определены.');return;}
   const newWinner=a>b?match.a:match.b;
   scores[key]={a,b,team_a_id:String(match.a.id),team_b_id:String(match.b.id),saved_at:new Date().toISOString()};
-  if(String(before.winner?.id||'')!==String(newWinner.id))clearDownstreamScores(scores,key);
+  // A newly recorded result must not erase results from other independent matches.
+  // Clear dependent results only when an already-saved winner is actually changed.
+  if(before?.winner && String(before.winner.id)!==String(newWinner.id))clearDownstreamScores(scores,key);
   const next={...current,scores};
   const submit=form.querySelector('button[type="submit"]');submit.disabled=true;submit.textContent='Сохраняем…';
   try{await persistTournamentData(next);await loadTournamentIntoModal(true);}
