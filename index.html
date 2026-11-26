@@ -3122,12 +3122,39 @@ async function loadTournamentIntoModal(force=false){
     bindTournamentControls(host);
   }finally{tournamentLoadBusy=false;}
 }
+
+function tournamentCompanySlug(value){const map={а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'yo',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'ts',ч:'ch',ш:'sh',щ:'shch',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya'};return String(value||'').toLowerCase().replace(/[а-яё]/g,ch=>map[ch]??'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,80);}
+async function loadTournamentOrganizerManager(){
+ const host=document.getElementById('tournamentOrganizerManager');if(!host)return;host.innerHTML='<div class="tourney-empty">Загружаем компании…</div>';
+ try{const rows=await mvpApiGet('/api/tournament-organizers')||[];
+ host.innerHTML='<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0"><div><b>Турнирные компании</b><div class="tourney-public-note">Создавай компанию и добавляй совладельцев по подтверждённому email.</div></div>'+(currentUser?'<button class="btn primary" id="createTournamentCompanyBtn" type="button">＋ Создать компанию</button>':'')+'</div><div id="tournamentCompanyCreateHost"></div><div style="display:grid;gap:12px">'+(rows.length?rows.map(org=>'<article class="tourney-create" style="padding:14px"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><div><b>'+esc(org.name||'Компания')+'</b><div class="tourney-public-note">/'+esc(org.slug||'')+' · '+esc(org.description||'')+'</div></div>'+(org.is_owner||can('manage_matches')?'<button class="btn" type="button" data-company-manage="'+esc(org.id)+'">Владельцы и настройки</button>':'')+'</div><div id="companyManage-'+esc(org.id)+'"></div></article>').join(''):'<div class="tourney-empty">Компаний пока нет. Ты можешь создать первую.</div>')+'</div>';
+ const create=host.querySelector('#createTournamentCompanyBtn');if(create)create.onclick=()=>renderTournamentCompanyForm(host,null);
+ host.querySelectorAll('[data-company-manage]').forEach(btn=>btn.onclick=()=>renderTournamentCompanyDetails(host,rows.find(x=>String(x.id)===String(btn.dataset.companyManage))));
+ }catch(e){host.innerHTML='<div class="tourney-empty">Не удалось загрузить компании: '+esc(niceError(e))+'</div>';}
+}
+function renderTournamentCompanyForm(host,org){
+ const target=host.querySelector('#tournamentCompanyCreateHost');if(!target)return;
+ target.innerHTML='<form id="tournamentCompanyForm" class="tourney-create" style="padding:14px"><div class="field"><label>Название компании</label><input id="companyName" maxlength="80" value="'+esc(org?.name||'')+'" required></div><div class="field"><label>Короткий код</label><input id="companySlug" maxlength="80" pattern="[a-z0-9-]{2,80}" value="'+esc(org?.slug||'')+'" required></div><div class="field"><label>Описание</label><textarea id="companyDescription" maxlength="800" rows="3">'+esc(org?.description||'')+'</textarea></div><div class="field"><label>Ссылка на логотип</label><input id="companyLogo" type="url" value="'+esc(org?.logo_url||'')+'" placeholder="https://..."></div><div class="tourney-score-actions"><button class="btn primary" type="submit">'+(org?'Сохранить':'Создать компанию')+'</button><button class="btn" type="button" id="cancelCompanyForm">Отмена</button></div></form>';
+ const name=target.querySelector('#companyName'),slug=target.querySelector('#companySlug');if(name&&slug&&!slug.value)name.addEventListener('input',()=>{slug.value=tournamentCompanySlug(name.value);});
+ target.querySelector('#cancelCompanyForm').onclick=()=>{target.innerHTML='';};
+ target.querySelector('#tournamentCompanyForm').onsubmit=async e=>{e.preventDefault();const btn=e.currentTarget.querySelector('[type="submit"]');btn.disabled=true;btn.textContent='Сохраняем…';const args={p_organizer_id:org?.id||null,p_name:name.value.trim(),p_slug:slug.value.trim().toLowerCase(),p_description:target.querySelector('#companyDescription').value.trim(),p_logo_url:target.querySelector('#companyLogo').value.trim()};try{const r=await client.rpc(org?'organizer_update':'organizer_create',args);if(r.error)throw new Error(r.error.message);await loadTournamentOrganizerManager();}catch(err){alert('Не удалось сохранить компанию: '+niceError(err));btn.disabled=false;btn.textContent=org?'Сохранить':'Создать компанию';}};
+}
+async function renderTournamentCompanyDetails(host,org){
+ if(!org)return;const target=host.querySelector('#companyManage-'+CSS.escape(String(org.id)));if(!target)return;target.innerHTML='<div class="tourney-public-note">Загружаем владельцев…</div>';
+ try{const r=await client.rpc('organizer_get_owners',{p_organizer_id:org.id});if(r.error)throw new Error(r.error.message);const owners=Array.isArray(r.data)?r.data:[];
+ target.innerHTML='<div style="margin-top:12px;display:grid;gap:10px"><div><b>Совладельцы</b><div class="tourney-public-note">'+(owners.map(x=>esc(x.username||'Пользователь')).join(' · ')||'Пока нет владельцев')+'</div></div><form data-company-add-owner="'+esc(org.id)+'" class="tourney-score-actions"><input type="email" name="email" placeholder="email совладельца" required style="min-width:220px;flex:1"><button class="btn primary" type="submit">Добавить совладельца</button></form><button class="btn" type="button" data-company-edit="'+esc(org.id)+'">Редактировать компанию</button></div>';
+ target.querySelector('[data-company-add-owner]').onsubmit=async e=>{e.preventDefault();const form=e.currentTarget,btn=form.querySelector('button');btn.disabled=true;btn.textContent='Добавляем…';try{const a=await client.rpc('organizer_add_owner',{p_organizer_id:org.id,p_email:form.elements.email.value.trim()});if(a.error)throw new Error(a.error.message);await renderTournamentCompanyDetails(host,org);}catch(err){alert('Не удалось добавить совладельца: '+niceError(err));btn.disabled=false;btn.textContent='Добавить совладельца';}};
+ target.querySelector('[data-company-edit]').onclick=()=>renderTournamentCompanyForm(host,org);
+ }catch(err){target.innerHTML='<div class="tourney-public-note">Не удалось загрузить владельцев: '+esc(niceError(err))+'</div>';}
+}
+
 async function openTournamentCenter(){
   cleanupLiveCenter();cleanupTournamentCenter();
   setMainNavActive('tournament');
-  modal(`<div class="page-head"><div><h2>Турнирная сетка MVP CS2</h2><div class="tourney-page-intro">Настраиваемые верхняя и нижняя сетки по 8 команд · отдельное управление составами · общий гранд-финал.</div></div><button class="btn" id="closeTournamentCenter">Закрыть</button></div><div id="tournamentContent"><div class="tourney-empty">Загружаем турнир…</div></div>`,true);
+  modal(`<div class="page-head"><div><h2>Турнирная сетка MVP CS2</h2><div class="tourney-page-intro">Настраиваемые верхняя и нижняя сетки по 8 команд · отдельное управление составами · общий гранд-финал.</div></div><button class="btn" id="closeTournamentCenter">Закрыть</button></div><section class="tourney-section" style="margin-bottom:18px"><div id="tournamentOrganizerManager"><div class="tourney-empty">Загружаем турнирные компании…</div></div></section><div id="tournamentContent"><div class="tourney-empty">Загружаем турнир…</div></div>`,true);
   document.querySelector('#modalRoot .modal').classList.add('modal-page');
   document.getElementById('closeTournamentCenter').onclick=()=>{closeModal();setMainNavActive('ranking')};
+  await loadTournamentOrganizerManager();
   await loadTournamentIntoModal();
   if(!isSeasonReadOnly()){
     // Tournament updates are polled from the Neon-backed API.
