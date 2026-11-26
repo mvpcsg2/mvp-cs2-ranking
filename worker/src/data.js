@@ -171,7 +171,7 @@ async function runQuery(sql, body, user, cors) {
     }else if(!hasPermission(user,"manage_support") && !(body.filters||[]).some(f=>f.column==="user_id"&&f.op==="eq"&&String(f.value)===String(user.id))){
       return fail("Нет доступа к этому чату.",403,cors);
     }
-  }else if(!isRead && !hasPermission(user,config.permission)){
+  }else if(!isRead && !hasPermission(user,config.permission) && !(requestedTable==="mvp_tournaments"&&user)){
     return fail("Недостаточно прав для изменения данных.",403,cors);
   }
 
@@ -203,10 +203,17 @@ async function runQuery(sql, body, user, cors) {
 
   if(!user)return fail("Требуется вход в аккаунт.",401,cors);
   if(config.special && !["support","editorial"].includes(config.special))return fail("Операция запрещена.",403,cors);
-  if(!config.special && !hasPermission(user,config.permission))return fail("Недостаточно прав для изменения данных.",403,cors);
+  if(!config.special && !hasPermission(user,config.permission) && !(requestedTable==="mvp_tournaments"&&user))return fail("Недостаточно прав для изменения данных.",403,cors);
   if(config.special==="support" && body.action!=="insert" && !hasPermission(user,"manage_support"))return fail("Изменение сообщений доступно только службе поддержки.",403,cors);
   if(body.action==="insert"||body.action==="upsert"){
     const {rows,columns}=validatePayload(body.values,config.write);
+    if(requestedTable==="mvp_tournaments"&&!hasPermission(user,config.permission)){
+      if(body.action==="upsert")return fail("Для турниров компании используй обычное создание записи.",403,cors);
+      const organizerIds=[...new Set(rows.map(row=>String(row.organizer_id||"")))];
+      if(!organizerIds.length||organizerIds.some(id=>!/^[0-9]+$/.test(id)))return fail("Укажи турнирную компанию.",400,cors);
+      const owned=await sql.query("SELECT organizer_id::text AS organizer_id FROM public.mvp_tournament_organizer_owners WHERE user_id=$1::uuid AND organizer_id=ANY($2::bigint[])",[user.id,organizerIds]);
+      if(owned.length!==organizerIds.length)return fail("Создавать турниры можно только в своей компании.",403,cors);
+    }
     if(body.action==="upsert"&&!Array.isArray(body.conflictColumns))return fail("Для upsert требуется ключ конфликта.",400,cors);
     const params=[];
     const valuesSql=rows.map(row=>"("+columns.map(column=>{
@@ -231,6 +238,14 @@ async function runQuery(sql, body, user, cors) {
     const params=[];
     const where=buildWhere(body.filters,body.orFilters,params,config.read);
     if(!where)return fail("Массовое изменение без фильтра запрещено.",400,cors);
+    if(requestedTable==="mvp_tournaments"&&!hasPermission(user,config.permission)){
+      if(body.action==="update"&&Object.hasOwn(body.values||{},"organizer_id"))return fail("Нельзя переносить турнир в другую компанию.",403,cors);
+      const affected=await sql.query("SELECT DISTINCT organizer_id::text AS organizer_id FROM public.mvp_tournaments"+where,params);
+      if(!affected.length)return fail("Турнир не найден или у тебя нет прав на него.",403,cors);
+      const ids=[...new Set(affected.map(row=>String(row.organizer_id||"")))];
+      const owned=await sql.query("SELECT organizer_id::text AS organizer_id FROM public.mvp_tournament_organizer_owners WHERE user_id=$1::uuid AND organizer_id=ANY($2::bigint[])",[user.id,ids]);
+      if(owned.length!==ids.length)return fail("Управлять можно только турнирами своей компании.",403,cors);
+    }
     let query;
     if(body.action==="update"){
       const payload=body.values;
