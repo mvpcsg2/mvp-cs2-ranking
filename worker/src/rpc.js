@@ -108,7 +108,7 @@ async function runRpc(sql,user,name,args,env){
     case "organizer_get_owners": {
       if(!user)throw new Error("Требуется вход.");
       const id=String(p.p_organizer_id||"");
-      if(!/^\\d+$/.test(id))throw new Error("Некорректная компания.");
+      if(!/^\d+$/.test(id))throw new Error("Некорректная компания.");
       const access=await sql`SELECT 1 FROM public.mvp_tournament_organizer_owners WHERE organizer_id=${id}::bigint AND user_id=${user.id}::uuid LIMIT 1`;
       if(!access.length&&!hasPermission(user,"manage_matches"))throw new Error("Управлять владельцами может только владелец компании.");
       return await sql`
@@ -124,7 +124,7 @@ async function runRpc(sql,user,name,args,env){
       if(!user)throw new Error("Требуется вход.");
       const id=String(p.p_organizer_id||"");
       const email=String(p.p_email||"").trim().toLowerCase();
-      if(!/^\\d+$/.test(id)||!/^\\S+@\\S+\\.\\S+$/.test(email)||email.length>254)throw new Error("Укажи корректный email и компанию.");
+      if(!/^\d+$/.test(id)||!/^\S+@\S+\.\S+$/.test(email)||email.length>254)throw new Error("Укажи корректный email и компанию.");
       const access=await sql`SELECT 1 FROM public.mvp_tournament_organizer_owners WHERE organizer_id=${id}::bigint AND user_id=${user.id}::uuid LIMIT 1`;
       if(!access.length&&!hasPermission(user,"manage_matches"))throw new Error("Добавлять владельцев может только владелец компании.");
       const target=await sql`SELECT id,username FROM public.mvp_auth_users WHERE lower(email)=${email} AND email_verified_at IS NOT NULL AND is_banned=false LIMIT 1`;
@@ -148,7 +148,7 @@ async function runRpc(sql,user,name,args,env){
       const slug=String(p.p_slug||"").trim().toLowerCase();
       const description=String(p.p_description||"").trim().slice(0,800);
       const logo=String(p.p_logo_url||"").trim().slice(0,2000);
-      if(!/^\\d+$/.test(id)||name.length<2||name.length>80||! /^[a-z0-9-]{2,80}$/.test(slug))throw new Error("Проверь название компании и короткий код.");
+      if(!/^\d+$/.test(id)||name.length<2||name.length>80||! /^[a-z0-9-]{2,80}$/.test(slug))throw new Error("Проверь название компании и короткий код.");
       const access=await sql`SELECT 1 FROM public.mvp_tournament_organizer_owners WHERE organizer_id=${id}::bigint AND user_id=${user.id}::uuid LIMIT 1`;
       if(!access.length&&!hasPermission(user,"manage_matches"))throw new Error("Изменять компанию может только её владелец.");
       if(logo&&!/^https:\/\//i.test(logo))throw new Error("Ссылка на логотип должна начинаться с https://.");
