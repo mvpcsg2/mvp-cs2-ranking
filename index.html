@@ -4287,9 +4287,9 @@ async function createTournamentFromForm(event){
   const submit=form.querySelector('button[type="submit"]');submit.disabled=true;submit.textContent='Создаём…';
   try{
     const bracket_data=compactTournamentData({version:2,teams:picked.map(t=>({id:String(t.id),name:String(t.name||''),tag:String(t.tag||''),logo:String(t.logo||'')})),lower_teams:[],scores:{}});
-    const {data:created,error:insertError}=await client.from('mvp_tournaments').insert({name,best_of:bestOf,team_count:teamCount,status:'registration',is_active:false,bracket_data,created_by:currentUser.id}).select('id').single();
+    const {data:created,error:insertError}=await client.from('mvp_tournaments').insert({name,best_of:bestOf,team_count:teamCount,status:'registration',is_active:false,bracket_data,created_by:currentUser.id,organizer_id:activeTournamentOrganizer.id}).select('id').single();
     if(insertError)throw insertError;
-    const {error:archiveError}=await client.from('mvp_tournaments').update({is_active:false}).eq('is_active',true);
+    const {error:archiveError}=await client.from('mvp_tournaments').update({is_active:false}).eq('organizer_id',activeTournamentOrganizer.id).eq('is_active',true);
     if(archiveError)throw archiveError;
     const {error:activateError}=await client.from('mvp_tournaments').update({is_active:true,status:'registration'}).eq('id',created.id);
     if(activateError)throw activateError;
