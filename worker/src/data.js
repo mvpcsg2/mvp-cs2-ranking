@@ -171,7 +171,7 @@ async function runQuery(sql, body, user, cors) {
     }else if(!hasPermission(user,"manage_support") && !(body.filters||[]).some(f=>f.column==="user_id"&&f.op==="eq"&&String(f.value)===String(user.id))){
       return fail("Нет доступа к этому чату.",403,cors);
     }
-  }else if(!isRead && !hasPermission(user,config.permission) && !(requestedTable==="mvp_tournaments"&&user){
+  }else if(!isRead && !hasPermission(user,config.permission) && !(requestedTable==="mvp_tournaments"&&user)){
     return fail("Недостаточно прав для изменения данных.",403,cors);
   }
 
