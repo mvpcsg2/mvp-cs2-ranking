@@ -1,4 +1,4 @@
-import { neon } from "@neondatabase/serverless";
+import { getSql } from "./db.js";
 import { getSessionUser } from "./auth.js";
 
 const json=(data,status=200,cors={})=>new Response(JSON.stringify(data),{status,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store",...cors}});
@@ -347,12 +347,12 @@ export async function handleRpcRequest(request,env,cors){
   const url=new URL(request.url);
   if(url.pathname!=="/api/data/rpc")return null;
   if(request.method!=="POST")return fail("Method not allowed",405,cors);
-  if(!env.DATABASE_URL)return fail("DATABASE_URL secret is missing",500,cors);
+  if (!env.HYPERDRIVE?.connectionString && !env.DATABASE_URL)return fail("Database connection is not configured",500,cors);
   try{
     const body=await request.json();
     const name=String(body.name||"");
     if(!/^[a-z_]{2,80}$/.test(name))return fail("Некорректное имя операции.",400,cors);
-    const sql=neon(env.DATABASE_URL);
+    const sql=getSql(env);
     const user=await getSessionUser(sql,request);
     const data=await runRpc(sql,user,name,body.args||{},env);
     return json({ok:true,data},200,cors);
