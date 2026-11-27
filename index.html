@@ -9268,4 +9268,32 @@ body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) .theme-choi
  .modal.player-profile-modal .player-profile-markers .player-country-marker{width:21px!important;height:14px!important}
  .modal.player-profile-modal .player-profile-photo{width:112px!important;max-width:112px!important;height:154px!important}
 }
+</style><style id="cstt-portrait-align-to-stat-panel">
+/* Match the player portrait's vertical position and height to the analytics panel (red guide lines in reference). */
+.modal.player-profile-modal .player-profile-layout{align-items:start!important}
+.modal.player-profile-modal .player-profile-portrait{
+  margin-top:89px!important;
+  height:312px!important;
+  align-self:start!important;
+  align-items:stretch!important;
+}
+.modal.player-profile-modal .player-profile-photo{
+  height:312px!important;
+  min-height:312px!important;
+  max-height:312px!important;
+  aspect-ratio:auto!important;
+  align-self:stretch!important;
+}
+.modal.player-profile-modal .player-profile-photo .player-main-avatar{
+  width:100%!important;height:100%!important;
+  object-fit:contain!important;object-position:center center!important;
+}
+@media(max-width:700px){
+ .modal.player-profile-modal .player-profile-portrait{
+   margin-top:75px!important;height:250px!important;
+ }
+ .modal.player-profile-modal .player-profile-photo{
+   height:250px!important;min-height:250px!important;max-height:250px!important;
+ }
+}
 </style>
