@@ -2207,7 +2207,7 @@ body[data-theme="night"] .news-card:hover{
 if (window.__MVP_SITE_DOMAIN_OK__ !== true) { throw new Error('CSTT: unauthorized domain'); }
 const LOCAL_STORE = 'mvp_cs2_ranking_v3';
 // Preview pages use the matching Preview Worker deployment; production uses the canonical production API.
-const MVP_API_URL = (location.hostname.endsWith('.mvp-cs2-ranking.pages.dev') && location.hostname !== 'mvp-cs2-ranking.pages.dev') ? 'https://8c995920-mvp-cs2-api.mvpcsgo2.workers.dev' : 'https://mvp-cs2-api.mvpcsgo2.workers.dev';
+const MVP_API_URL = (location.hostname.endsWith('.mvp-cs2-ranking.pages.dev') && location.hostname !== 'mvp-cs2-ranking.pages.dev') ? 'https://feature-admin-single-tournament-leader-mvp-cs2-api.mvpcsgo2.workers.dev' : 'https://mvp-cs2-api.mvpcsgo2.workers.dev';
 const AUTH_TOKEN_KEY = 'mvp_neon_access_token_v1';
 const SAVED_ACCOUNTS_KEY = 'mvp_saved_accounts_v1';
 function getSavedAccounts(){try{const rows=JSON.parse(localStorage.getItem(SAVED_ACCOUNTS_KEY)||'[]');return Array.isArray(rows)?rows.filter(x=>x&&typeof x.token==='string'&&x.token):[];}catch(_){return [];}}
