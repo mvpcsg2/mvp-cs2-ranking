@@ -1,4 +1,4 @@
-import { neon } from "@neondatabase/serverless";
+import { getSql } from "./db.js";
 import { getSessionUser } from "./auth.js";
 
 const TABLES = {
@@ -272,12 +272,12 @@ export async function handleDataRequest(request, env, cors) {
   const url=new URL(request.url);
   if(url.pathname!=="/api/data/query")return null;
   if(request.method!=="POST")return fail("Method not allowed",405,cors);
-  if(!env.DATABASE_URL)return fail("DATABASE_URL secret is missing",500,cors);
+  if (!env.HYPERDRIVE?.connectionString && !env.DATABASE_URL)return fail("Database connection is not configured",500,cors);
   try{
     const text=await request.text();
     if(text.length>250000)return fail("Слишком большой запрос.",413,cors);
     const body=JSON.parse(text||"{}");
-    const sql=neon(env.DATABASE_URL);
+    const sql=getSql(env);
     const user=await getSessionUser(sql,request);
     return await runQuery(sql,body,user,cors);
   }catch(error){
