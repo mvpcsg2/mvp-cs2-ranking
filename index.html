@@ -3065,7 +3065,7 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
       }
     }
     const photo=player?.photo_url||fallback,role=parsePlayerRoles(player?.role),avg=stats.length?stats.reduce((sum,x)=>sum+Number(x.kd||0),0)/stats.length:0;
-    const kills=stats.reduce((sum,x)=>sum+Number(x.kills||0),0),deaths=stats.reduce((sum,x)=>sum+Number(x.deaths||0),0),latest=history[0];
+    const kills=stats.reduce((sum,x)=>sum+Number(x.kills||0),0),deaths=stats.reduce((sum,x)=>sum+Number(x.deaths||0),0),assists=stats.reduce((sum,x)=>sum+Number(x.assists||0),0),csttRating=deaths>0?(kills+assists*0.35)/deaths:kills+assists*0.35,latest=history[0];
     const playerTopPosition=player?await getPlayerTopPosition(player.id):null;
     const team=findPlayerTeam(nickname)||teams.find(t=>String(t.id)===String(stats[0]?.team_id||''))||null;
     const avatar=photo?`<img class="player-main-avatar" src="${esc(photo)}" alt="Фото ${esc(nickname)}">`:`<span class="player-main-avatar-fallback">${esc(playerInitials(nickname))}</span>`;
@@ -3097,10 +3097,12 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
       <div class="player-hltv-hero-content">
         <div class="player-hltv-identity">${countryMarker}<div><div class="player-hltv-kicker">COUNTER-STRIKE 2 · PLAYER PROFILE</div><h2>${esc(player?.nickname||nickname)}</h2><div class="player-hltv-team">${esc(team?.name||'Команда не указана')}</div></div></div>
         <div class="player-hltv-metrics">
+          <div><small>CSTT RATING</small><strong>${csttRating.toFixed(2)}</strong></div>
           <div><small>K/D RATIO</small><strong>${deaths>0?(kills/deaths).toFixed(2):kills>0?'—':'0.00'}</strong></div>
           <div><small>AVG K/D</small><strong>${formatKD(avg)}</strong></div>
           <div><small>KILLS</small><strong>${kills.toLocaleString('ru-RU')}</strong></div>
           <div><small>DEATHS</small><strong>${deaths.toLocaleString('ru-RU')}</strong></div>
+          <div><small>ASSISTS</small><strong>${assists.toLocaleString('ru-RU')}</strong></div>
           <div><small>MATCHES</small><strong>${stats.length}</strong></div>
           <div><small>LAST K/D</small><strong>${latest?formatKD(latest.kd):'0.00'}</strong></div>
         </div>
@@ -3122,6 +3124,7 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
         ${playerExternalLinks}
         ${roleLine}
         <div class="player-profile-stats">
+          <div class="player-profile-stat"><small>CSTT RATING</small><strong>${csttRating.toFixed(2)}</strong></div>
           <div class="player-profile-stat"><small>СРЕДНИЙ K/D</small><strong class="player-kd-rating">${formatKD(avg)}<img class="player-kd-silhouette" src="${playerKdSilhouette(avg)}" alt="Категория K/D" title="Категория по среднему K/D"></strong></div>
           <div class="player-profile-stat"><small>ПОСЛЕДНИЙ K/D</small><strong>${latest?formatKD(latest.kd):'0.00'}</strong></div>
           <div class="player-profile-stat"><small>УБИЙСТВА</small><strong>${kills}</strong></div>
