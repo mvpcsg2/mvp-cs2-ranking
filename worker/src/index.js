@@ -114,6 +114,31 @@ export default {
       }
     }
 
+    if (url.pathname === "/api/preview/data-check") {
+      try {
+        const [teams, players, organizers, tournaments, season] = await Promise.all([
+          sql`SELECT count(*)::int AS count FROM public.teams`,
+          sql`SELECT count(*)::int AS count FROM public.cs2_players`,
+          sql`SELECT count(*)::int AS count FROM public.mvp_tournament_organizers`,
+          sql`SELECT count(*)::int AS count FROM public.mvp_tournaments`,
+          sql`SELECT active_year FROM public.mvp_season_state WHERE id = 1 LIMIT 1`,
+        ]);
+        return json({
+          ok: true,
+          data: {
+            teams: Number(teams?.[0]?.count || 0),
+            players: Number(players?.[0]?.count || 0),
+            organizers: Number(organizers?.[0]?.count || 0),
+            tournaments: Number(tournaments?.[0]?.count || 0),
+            active_season: season?.[0]?.active_year ?? null,
+          },
+        }, 200, cors);
+      } catch (error) {
+        console.error("Preview data check failed", error?.message || error);
+        return json({ ok: false, error: "Preview data query failed" }, 503, cors);
+      }
+    }
+
     // Public, read-only ranking data. Never expose profiles or support messages here.
     if (url.pathname === "/api/teams") {
       try {
