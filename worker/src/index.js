@@ -342,7 +342,7 @@ export default {
 
     if (url.pathname === "/api/site-brand") {
       try {
-        const rows = await sql`SELECT setting_key, setting_value FROM public.mvp_site_settings WHERE setting_key IN ('site_logo_url', 'site_background_url')`;
+        const rows = await sql`SELECT setting_key, setting_value FROM public.mvp_site_settings WHERE setting_key IN ('site_logo_url', 'site_background_url', 'site_ad_left_url', 'site_ad_right_url')`;
         return json({ ok: true, data: rows }, 200, cors);
       } catch (error) {
         console.error("Site brand query failed", error);
