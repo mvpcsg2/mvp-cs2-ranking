@@ -2760,7 +2760,8 @@ function applyInitialTeamExpansion(){
 function render(){
   teams.sort((a,b)=>Number(b.points)-Number(a.points)||Number(a.id)-Number(b.id));
   // Public ranking hides teams without any real roster members; administrators retain the full list.
-  const visibleTeams=admin?teams:teams.filter(team=>getRoster(team).length>0);
+  // Do not hide valid database teams just because their roster is empty or incomplete.
+  const visibleTeams=teams;
   const host=document.getElementById('teams'); host.innerHTML='';
   renderSeasonRail();
   renderDailyDateNavigator();
