@@ -105,7 +105,9 @@ export default {
     if (url.pathname === "/api/db-check") {
       try {
         const rows = await sql`SELECT 1 AS ok`;
-        return json({ ok: Number(rows?.[0]?.ok) === 1, database: "connected" }, 200, cors);
+        const queryRows = await sql.query("SELECT $1::int AS ok", [1]);
+        const connected = Number(rows?.[0]?.ok) === 1 && Number(queryRows?.[0]?.ok) === 1;
+        return json({ ok: connected, database: connected ? "connected" : "check_failed" }, 200, cors);
       } catch (error) {
         console.error("Neon connectivity check failed", error);
         return json({ ok: false, error: "Database connection failed" }, 503, cors);
