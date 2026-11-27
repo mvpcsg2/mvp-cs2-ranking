@@ -2187,7 +2187,7 @@ body[data-theme="night"] .news-card:hover{
 <div id="adminBar" class="adminbar hidden"><strong id="staffBarText">Режим управления включён.</strong><div class="adminbar-actions"><button class="btn hidden" id="manageUsersBtn" type="button">Управление доступом</button><button class="btn hidden" id="manageBansBtn" type="button">Блокировки</button><button class="btn" id="logoutBtn">Выйти</button></div></div>
 <div id="dbStatus" class="hidden" style="margin:0 0 14px;padding:10px 13px;border:1px solid #dfe3e8;border-radius:6px;font-size:13px"></div>
 <div class="ranking-with-news">
-<aside class="mvp-season-rail" aria-label="Архив сезонов"><section class="season-rail-section"><div class="season-rail-head"><span>SEASONS · ГОДЫ</span></div><div id="seasonYearsList" class="season-rail-list"><button class="season-year-button active" type="button"><strong>${new Date().getFullYear()}</strong><small>ТЕКУЩИЙ</small></button><button class="season-year-button future" type="button"><strong>${new Date().getFullYear()+1}</strong><small>СКОРО</small></button></div><div id="seasonRailNote" class="season-rail-note">Выбери год статистики.</div></section></aside>
+<aside class="mvp-season-rail" aria-label="Архив сезонов"><section class="season-rail-section"><div class="season-rail-head"><span>SEASONS · ГОДЫ</span></div><div id="seasonYearsList" class="season-rail-list"><button class="season-year-button active" type="button"><strong>2026</strong><small>ТЕКУЩИЙ</small></button><button class="season-year-button future" type="button"><strong>2027</strong><small>СКОРО</small></button></div><div id="seasonRailNote" class="season-rail-note">Выбери год статистики.</div></section></aside>
 <section class="panel" id="rankingPanel"><div id="rankingPanelContent"><div id="dailyDateNav" class="daily-date-nav" aria-label="Выбор дня рейтинга"></div><div class="tablehead"><div>Место</div><div>Команда · CSTT POINTS</div><div style="text-align:right">Изменение</div></div><div id="teams"></div></div><div id="mainWorkspace" class="main-workspace hidden"><div id="mainWorkspacePanel" class="modal modal-page"></div></div></section>
 <aside class="mvp-news-rail" aria-label="Новости трансферов и блокировок">
   <section class="news-rail-section"><div class="news-rail-head"><span>ТРАНСФЕРЫ</span></div><div id="transferNews" class="news-rail-list"><div class="news-rail-empty">Загрузка трансферов…</div></div><div class="news-rail-footer"><button id="allTransfersBtn" type="button">Все трансферы</button></div></section>
@@ -9188,5 +9188,33 @@ body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) .theme-choi
 }
 @media(max-width:700px){
  body[data-design="ahltv"] .modal.player-profile-modal .player-profile-photo{max-width:104px!important;max-height:156px!important}
+}
+</style>
+<style id="cstt-profile-alignment-final-fix">
+/* Align portrait, player name and analytics on one clean top baseline. */
+.modal.player-profile-modal .player-profile-layout{
+ display:grid!important;grid-template-columns:160px minmax(0,1fr)!important;
+ gap:20px!important;align-items:start!important;
+}
+.modal.player-profile-modal .player-profile-photo{
+ width:160px!important;max-width:160px!important;height:220px!important;
+ min-height:0!important;aspect-ratio:auto!important;align-self:start!important;
+ justify-self:start!important;margin:0!important;padding:0!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ overflow:hidden!important;background:#101d2a!important;
+ border:1px solid #334b60!important;border-radius:8px!important;
+}
+.modal.player-profile-modal .player-profile-photo .player-main-avatar{
+ width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;
+ object-fit:contain!important;object-position:center center!important;
+ display:block!important;margin:0!important;padding:0!important;
+}
+.modal.player-profile-modal .player-profile-info{
+ min-width:0!important;align-self:start!important;margin:0!important;padding:0!important;
+}
+.modal.player-profile-modal .player-profile-name{margin:0!important;padding:0!important;line-height:1.15!important}
+@media(max-width:700px){
+ .modal.player-profile-modal .player-profile-layout{grid-template-columns:104px minmax(0,1fr)!important;gap:12px!important}
+ .modal.player-profile-modal .player-profile-photo{width:104px!important;height:146px!important;max-width:104px!important}
 }
 </style>
