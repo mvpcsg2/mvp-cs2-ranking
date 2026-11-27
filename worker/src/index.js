@@ -472,6 +472,11 @@ export default {
                  AVG(COALESCE(s.kd, 0))::float8 AS average,
                  SUM(COALESCE(s.kills, 0))::int AS kills,
                  SUM(COALESCE(s.deaths, 0))::int AS deaths,
+                 SUM(COALESCE(s.assists, 0))::int AS assists,
+                 CASE WHEN SUM(COALESCE(s.deaths, 0)) > 0
+                   THEN ((SUM(COALESCE(s.kills, 0)) + SUM(COALESCE(s.assists, 0)) * 0.35) / SUM(COALESCE(s.deaths, 0)))::float8
+                   ELSE (SUM(COALESCE(s.kills, 0)) + SUM(COALESCE(s.assists, 0)) * 0.35)::float8
+                 END AS rating,
                  COUNT(*)::int AS matches,
                  ARRAY_REMOVE(ARRAY_AGG(DISTINCT s.team_id::text), NULL) AS team_ids
           FROM public.match_player_stats s
