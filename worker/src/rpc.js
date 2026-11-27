@@ -9,6 +9,7 @@ const isAdmin=user=>Boolean(user&&user.role==="admin");
 const cleanPermissions=value=>Object.fromEntries(PERMISSIONS.map(key=>[key,value?.[key]===true]));
 
 function parseBool(value){return value===true||value===1||value==="true";}
+// Production RPC dispatcher: keep this file in the Worker deployment path.
 async function runRpc(sql,user,name,args,env){
   const p=args||{};
   switch(name){
