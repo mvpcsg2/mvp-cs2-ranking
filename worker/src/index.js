@@ -4,7 +4,7 @@ import { handleRpcRequest } from "./rpc.js";
 import { handleDataRequest } from "./data.js";
 import { handleAuthRequest, getSessionUser } from "./auth.js";
 import { handleMyhudRequest } from "./myhud.js";
-import { neon } from "@neondatabase/serverless";
+import { getSql } from "./db.js";
 
 const json = (data, status = 200, headers = {}) =>
   new Response(JSON.stringify(data), {
@@ -45,8 +45,8 @@ function getCors(request, env) {
 }
 
 async function captureDailyArchive(env) {
-  if (!env.DATABASE_URL) throw new Error("DATABASE_URL secret is missing");
-  const sql = neon(env.DATABASE_URL);
+  if (!env.HYPERDRIVE?.connectionString && !env.DATABASE_URL) throw new Error("Database connection is not configured");
+  const sql = getSql(env);
   const rows = await sql`SELECT public.mvp_capture_completed_daily_snapshot() AS result`;
   return rows?.[0]?.result ?? null;
 }
@@ -90,13 +90,13 @@ export default {
       return json({ ok: true, service: "mvp-cs2-api" }, 200, cors);
     }
 
-    if (!env.DATABASE_URL) {
-      return json({ ok: false, error: "DATABASE_URL secret is missing" }, 500, cors);
+    if (!env.HYPERDRIVE?.connectionString && !env.DATABASE_URL) {
+      return json({ ok: false, error: "Database connection is not configured" }, 500, cors);
     }
 
     let sql;
     try {
-      sql = neon(env.DATABASE_URL);
+      sql = getSql(env);
     } catch (error) {
       console.error("Neon client initialization failed", error);
       return json({ ok: false, error: "Database client initialization failed" }, 500, cors);
