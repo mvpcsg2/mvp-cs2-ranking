@@ -9651,3 +9651,154 @@ body[data-design="ahltv"] .modal.player-profile-modal .cstt-stat-totals .faceit-
 body[data-design="ahltv"] .modal.player-profile-modal .cstt-stat-totals small{color:#7d8995!important}
 body[data-design="ahltv"] .modal.player-profile-modal .cstt-stat-totals strong{color:#24394b!important}
 </style>
+
+
+<style id="cstt-beta-profile-layout-match-light">
+/* CSTT Beta uses the exact same profile geometry as the light/Classic layout.
+   Only the palette differs; all panel widths, gaps, heights and breakpoints match. */
+body[data-design="ahltv"] .modal.player-profile-modal{
+  width:min(1080px,calc(100vw - 48px))!important;
+  max-width:1080px!important;
+  padding:20px!important;
+  box-sizing:border-box!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .player-profile-layout{
+  display:grid!important;
+  grid-template-columns:230px minmax(0,1fr)!important;
+  gap:10px!important;
+  align-items:start!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .player-profile-portrait{
+  position:relative!important;
+  display:block!important;
+  width:230px!important;
+  min-width:0!important;
+  margin:0!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .player-profile-photo{
+  position:relative!important;
+  display:flex!important;
+  box-sizing:border-box!important;
+  width:230px!important;
+  max-width:230px!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  aspect-ratio:auto!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .player-profile-photo .player-main-avatar{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .player-profile-info{
+  min-width:0!important;
+  align-self:start!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-player-analytics{
+  display:grid!important;
+  grid-template-columns:minmax(190px,.78fr) minmax(0,1.7fr)!important;
+  gap:10px!important;
+  margin:14px 0 17px!important;
+  padding:12px!important;
+  box-sizing:border-box!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-rating-card{
+  min-width:0!important;
+  gap:10px!important;
+  padding:13px 10px!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-rating-gauge{
+  width:100px!important;height:100px!important;flex:0 0 100px!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-metric-grid{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-metric-card{
+  min-width:0!important;padding:11px 12px 9px!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-stat-totals{
+  grid-column:1/-1!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-stat-totals>div{
+  min-width:0!important;padding:9px 10px!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .player-profile-stats{
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  gap:7px!important;margin:12px 0 16px!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .player-profile-stat{
+  min-width:0!important;padding:10px 9px!important;
+}
+@media(max-width:1100px){
+  body[data-design="ahltv"] .modal.player-profile-modal .player-profile-stats{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+}
+@media(max-width:900px){
+  body[data-design="ahltv"] .modal.player-profile-modal{
+    width:min(940px,calc(100vw - 24px))!important;
+  }
+}
+@media(max-width:850px){
+  body[data-design="ahltv"] .modal.player-profile-modal .cstt-player-analytics{
+    grid-template-columns:1fr!important;
+  }
+  body[data-design="ahltv"] .modal.player-profile-modal .cstt-rating-card{
+    justify-content:space-between!important;padding:12px 18px!important;
+  }
+  body[data-design="ahltv"] .modal.player-profile-modal .cstt-stat-totals{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+}
+@media(max-width:700px){
+  body[data-design="ahltv"] .modal.player-profile-modal{
+    padding:13px!important;
+  }
+  body[data-design="ahltv"] .modal.player-profile-modal .player-profile-layout{
+    grid-template-columns:118px minmax(0,1fr)!important;gap:10px!important;
+  }
+  body[data-design="ahltv"] .modal.player-profile-modal .player-profile-portrait,
+  body[data-design="ahltv"] .modal.player-profile-modal .player-profile-photo{
+    width:118px!important;max-width:118px!important;
+  }
+  body[data-design="ahltv"] .modal.player-profile-modal .player-profile-photo{
+    height:100%!important;max-height:none!important;
+  }
+  body[data-design="ahltv"] .modal.player-profile-modal .player-profile-stats{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;
+  }
+  body[data-design="ahltv"] .modal.player-profile-modal .player-profile-stat{padding:8px!important}
+}
+@media(max-width:560px){
+  body[data-design="ahltv"] .modal.player-profile-modal .cstt-player-analytics{
+    padding:8px!important;gap:8px!important;
+  }
+  body[data-design="ahltv"] .modal.player-profile-modal .cstt-rating-gauge{
+    width:78px!important;height:78px!important;flex-basis:78px!important;
+  }
+  body[data-design="ahltv"] .modal.player-profile-modal .cstt-metric-grid{gap:6px!important}
+  body[data-design="ahltv"] .modal.player-profile-modal .cstt-metric-card{padding:8px!important}
+  body[data-design="ahltv"] .modal.player-profile-modal .cstt-metric-head{
+    align-items:flex-start!important;flex-direction:column!important;gap:3px!important;margin-bottom:7px!important;
+  }
+  body[data-design="ahltv"] .modal.player-profile-modal .cstt-metric-head strong{font-size:17px!important}
+  body[data-design="ahltv"] .modal.player-profile-modal .cstt-stat-totals{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  body[data-design="ahltv"] .modal.player-profile-modal .cstt-stat-totals>div{padding:8px!important}
+}
+</style>
