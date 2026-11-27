@@ -9534,3 +9534,120 @@ body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) .theme-choi
   }
 }
 </style>
+
+
+<style id="cstt-player-profile-theme-contrast-final">
+/* Classic dark theme: keep the player profile readable on the charcoal site background. */
+body[data-theme="night"] #mainWorkspacePanel.player-profile-modal,
+body[data-theme="night"] .modal.player-profile-modal{
+  background:linear-gradient(145deg,#242d37,#1d252e)!important;
+  color:#eaf0f6!important;
+  border:1px solid #465361!important;
+}
+body[data-theme="night"] .modal.player-profile-modal .player-profile-name,
+body[data-theme="night"] .modal.player-profile-modal .player-profile-teamline,
+body[data-theme="night"] .modal.player-profile-modal .player-profile-info,
+body[data-theme="night"] .modal.player-profile-modal .player-profile-info strong,
+body[data-theme="night"] .modal.player-profile-modal .player-profile-awards-head,
+body[data-theme="night"] .modal.player-profile-modal .player-hltv-details-label,
+body[data-theme="night"] .modal.player-profile-modal .roster-heading{
+  color:#edf3f8!important;
+}
+body[data-theme="night"] .modal.player-profile-modal .player-profile-note,
+body[data-theme="night"] .modal.player-profile-modal .player-profile-teamline.muted,
+body[data-theme="night"] .modal.player-profile-modal .player-prize-record small,
+body[data-theme="night"] .modal.player-profile-modal .player-profile-awards-head,
+body[data-theme="night"] .modal.player-profile-modal .player-hltv-details-label,
+body[data-theme="night"] .modal.player-profile-modal .roster-heading{
+  color:#aebbc8!important;
+}
+body[data-theme="night"] .modal.player-profile-modal .cstt-player-analytics{
+  background:linear-gradient(145deg,#303b47,#27323d)!important;
+  border:1px solid #4a5866!important;
+  box-shadow:0 5px 18px rgba(0,0,0,.22)!important;
+}
+body[data-theme="night"] .modal.player-profile-modal .cstt-rating-card{
+  background:linear-gradient(145deg,#172d40,#203b50)!important;
+  border-color:#47647a!important;color:#f5f8fb!important;
+}
+body[data-theme="night"] .modal.player-profile-modal .cstt-rating-copy small,
+body[data-theme="night"] .modal.player-profile-modal .cstt-rating-copy span{
+  color:#c1d0dd!important;
+}
+body[data-theme="night"] .modal.player-profile-modal .cstt-metric-card,
+body[data-theme="night"] .modal.player-profile-modal .cstt-stat-totals>div,
+body[data-theme="night"] .modal.player-profile-modal .cstt-stat-totals .faceit-elo-stat{
+  background:#35414d!important;border-color:#52606e!important;color:#edf3f8!important;
+}
+body[data-theme="night"] .modal.player-profile-modal .cstt-metric-head span,
+body[data-theme="night"] .modal.player-profile-modal .cstt-stat-totals small,
+body[data-theme="night"] .modal.player-profile-modal .cstt-metric-card>small{
+  color:#b9c6d2!important;
+}
+body[data-theme="night"] .modal.player-profile-modal .cstt-metric-head strong,
+body[data-theme="night"] .modal.player-profile-modal .cstt-stat-totals strong{
+  color:#f5f8fb!important;
+}
+body[data-theme="night"] .modal.player-profile-modal .cstt-meter{background:#566371!important}
+body[data-theme="night"] .modal.player-profile-modal .cstt-meter i{
+  background:linear-gradient(90deg,#3b91c5,#62c4e8)!important;
+}
+body[data-theme="night"] .modal.player-profile-modal .player-prize-money,
+body[data-theme="night"] .modal.player-profile-modal .player-prize-total,
+body[data-theme="night"] .modal.player-profile-modal .player-prize-record{
+  background:#303b47!important;border-color:#4a5866!important;color:#edf3f8!important;
+}
+body[data-theme="night"] .modal.player-profile-modal .player-prize-total strong,
+body[data-theme="night"] .modal.player-profile-modal .player-prize-record b{
+  color:#f0c15b!important;
+}
+body[data-theme="night"] .modal.player-profile-modal .player-profile-photo{
+  background:#111c27!important;border-color:#4a5a69!important;
+}
+body[data-theme="night"] .modal.player-profile-modal .player-role-editor,
+body[data-theme="night"] .modal.player-profile-modal .player-admin-editor,
+body[data-theme="night"] .modal.player-profile-modal .player-profile-admin-actions{
+  background:#2c3742!important;border-color:#4a5866!important;color:#edf3f8!important;
+}
+
+/* CSTT Beta: make the player statistics dashboard use the clean light panel
+   treatment from Classic/white mode while retaining Beta's dark blue rating card
+   and turquoise data accents. */
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-player-analytics{
+  background:linear-gradient(145deg,#f3f6f8,#e8edf1)!important;
+  border:1px solid #d6dfe6!important;
+  box-shadow:0 5px 18px rgba(4,18,30,.16)!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-rating-card{
+  background:linear-gradient(145deg,#17344a,#214b61)!important;
+  border:1px solid #37647b!important;color:#f5f9fc!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-rating-copy small{color:#c1d9e7!important}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-rating-copy span{color:#b4cbd9!important}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-rating-gauge{
+  background:conic-gradient(#43c5d7 var(--rating-progress),#d5e0e7 var(--rating-progress) 100%)!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-rating-gauge:before{
+  background:#17344a!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-metric-card{
+  background:#fff!important;border:1px solid #dce3e9!important;
+  color:#263746!important;box-shadow:0 1px 3px rgba(25,40,55,.05)!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-metric-head span{color:#657586!important}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-metric-head strong{color:#1c3042!important}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-metric-card>small{color:#82909d!important}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-meter{background:#e0e6eb!important}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-meter i{
+  background:linear-gradient(90deg,#2685b5,#43c5d7)!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-stat-totals{
+  background:#dce3e9!important;border-color:#dce3e9!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-stat-totals>div,
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-stat-totals .faceit-elo-stat{
+  background:#fff!important;color:#526273!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-stat-totals small{color:#7d8995!important}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-stat-totals strong{color:#24394b!important}
+</style>
