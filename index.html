@@ -3124,8 +3124,8 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
         ${playerExternalLinks}
         ${roleLine}
         <section class="cstt-player-analytics" aria-label="Расширенная статистика игрока">
-          <div class="cstt-rating-card"><div class="cstt-rating-copy"><small>ОБЩИЙ РЕЙТИНГ CSTT</small><strong>${csttRating.toFixed(2)}</strong><span>Формула CSTT</span></div>
-            <div class="cstt-rating-gauge" style="--rating-progress:${Math.min(100,Math.max(0,csttRating/2*100))}%"><div><strong>${csttRating.toFixed(2)}</strong><small>RATING</small></div></div>
+          <div class="cstt-rating-card"><div class="cstt-rating-copy"><small>ОБЩИЙ РЕЙТИНГ CSTT</small><span>Рейтинг игрока</span></div>
+            <div class="cstt-rating-gauge" style="--rating-progress:${Math.min(100,Math.max(0,csttRating/2*100))}%"><div><strong>${csttRating.toFixed(2)}</strong><small>CSTT</small></div></div>
           </div>
           <div class="cstt-metric-grid">
             <div class="cstt-metric-card"><div class="cstt-metric-head"><span>K/D RATIO</span><strong>${deaths>0?(kills/deaths).toFixed(2):kills>0?'—':'0.00'}</strong></div><div class="cstt-meter"><i style="--meter-value:${Math.min(100,Math.max(0,(deaths>0?kills/deaths:0)/2*100))}%"></i></div><small>Шкала 0–2.00</small></div>
@@ -9296,4 +9296,10 @@ body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) .theme-choi
    height:250px!important;min-height:250px!important;max-height:250px!important;
  }
 }
+</style><style id="cstt-single-rating-value">
+.modal.player-profile-modal .cstt-rating-card{justify-content:space-between!important;gap:8px!important}
+.modal.player-profile-modal .cstt-rating-copy{max-width:105px!important}
+.modal.player-profile-modal .cstt-rating-copy small{line-height:1.35!important}
+.modal.player-profile-modal .cstt-rating-copy span{font-size:10px!important;color:#a9bdce!important}
+.modal.player-profile-modal .cstt-rating-gauge{flex:0 0 100px!important}
 </style>
