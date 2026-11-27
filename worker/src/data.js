@@ -18,8 +18,8 @@ const TABLES = {
     permission: "manage_matches",
   },
   match_player_stats: {
-    read: ["id","match_id","team_id","player_id","kills","deaths","kd","created_at"],
-    write: ["match_id","team_id","player_id","kills","deaths","kd","created_at"],
+    read: ["id","match_id","team_id","player_id","kills","deaths","assists","kd","created_at"],
+    write: ["match_id","team_id","player_id","kills","deaths","assists","kd","created_at"],
     permission: "manage_matches",
   },
   mvp_tournament_organizers: {
