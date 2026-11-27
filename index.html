@@ -3143,6 +3143,34 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
     <div class="roster-heading">История матчей игрока</div><div class="match-list">${historyHtml}</div>
     <div class="modalfoot"><button class="btn primary" id="closePlayerProfile">Закрыть профиль</button></div>`,true);
     document.getElementById('mainWorkspacePanel').classList.add('player-profile-modal');
+    // Keep the portrait exactly aligned to the analytics panel, regardless of the
+    // amount of player metadata above it or the current viewport width.
+    const syncPlayerPortrait = () => {
+      const panel = document.querySelector('.modal.player-profile-modal');
+      const portrait = panel?.querySelector('.player-profile-portrait');
+      const photo = portrait?.querySelector('.player-profile-photo');
+      const info = panel?.querySelector('.player-profile-info');
+      const analytics = info?.querySelector('.cstt-player-analytics');
+      if (!portrait || !photo || !info || !analytics) return;
+      const top = analytics.getBoundingClientRect().top - info.getBoundingClientRect().top;
+      const height = analytics.getBoundingClientRect().height;
+      portrait.style.setProperty('margin-top', Math.max(0, top) + 'px', 'important');
+      portrait.style.setProperty('height', height + 'px', 'important');
+      portrait.style.setProperty('min-height', height + 'px', 'important');
+      portrait.style.setProperty('max-height', height + 'px', 'important');
+      photo.style.setProperty('height', height + 'px', 'important');
+      photo.style.setProperty('min-height', height + 'px', 'important');
+      photo.style.setProperty('max-height', height + 'px', 'important');
+    };
+    requestAnimationFrame(() => requestAnimationFrame(syncPlayerPortrait));
+    if (window.ResizeObserver) {
+      const portraitPanel = document.querySelector('.modal.player-profile-modal .cstt-player-analytics');
+      if (portraitPanel) {
+        const portraitObserver = new ResizeObserver(syncPlayerPortrait);
+        portraitObserver.observe(portraitPanel);
+      }
+    }
+    window.addEventListener('resize', syncPlayerPortrait);
     document.getElementById('closePlayerProfile').onclick=closeMainWorkspace;
     if(can('manage_trophies')&&document.getElementById('givePlayerTrophy')){document.getElementById('givePlayerTrophy').onclick=()=>openAwardTrophy(nickname,photo,team?.id||null)}
     if(admin&&!isSeasonReadOnly()&&document.getElementById('addPlayerPrizeMoney')){document.getElementById('addPlayerPrizeMoney').onclick=()=>openAwardPrizeMoney(nickname,photo,team?.id||null)}
@@ -9332,59 +9360,70 @@ body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) .theme-choi
 </style>
 
 <style id="cstt-portrait-compact-flag-overlay">
-/* Compact portrait aligned exactly with the analytics panel; country flag overlays its upper-left corner. */
+/* Portrait occupies the same vertical bounds as the analytics card; JS measures the exact height. */
 .modal.player-profile-modal .player-profile-layout{
   grid-template-columns:186px minmax(0,1fr)!important;
   gap:20px!important;
+  align-items:start!important;
 }
 .modal.player-profile-modal .player-profile-portrait{
+  display:grid!important;
   grid-template-columns:30px 140px!important;
+  gap:9px!important;
   width:179px!important;
-  margin-top:155px!important;
-  height:300px!important;
-  min-height:300px!important;
+  min-width:0!important;
+  margin-top:0!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  align-items:stretch!important;
 }
 .modal.player-profile-modal .player-profile-photo{
   position:relative!important;
   width:140px!important;
   max-width:140px!important;
-  height:300px!important;
-  min-height:300px!important;
-  max-height:300px!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
   aspect-ratio:auto!important;
+  align-self:stretch!important;
+  justify-self:start!important;
+  overflow:hidden!important;
+}
+.modal.player-profile-modal .player-profile-photo .player-main-avatar{
+  display:block!important;width:100%!important;height:100%!important;
+  object-fit:contain!important;object-position:center center!important;
 }
 .modal.player-profile-modal .player-profile-photo .player-country-marker{
-  position:absolute!important;
-  top:10px!important;
-  left:10px!important;
-  right:auto!important;
-  bottom:auto!important;
-  z-index:6!important;
-  display:block!important;
-  width:27px!important;
-  height:18px!important;
-  max-width:27px!important;
-  max-height:18px!important;
-  object-fit:cover!important;
-  object-position:center!important;
-  border:1px solid rgba(255,255,255,.9)!important;
-  border-radius:2px!important;
-  box-shadow:0 2px 6px rgba(0,0,0,.55)!important;
-  background:transparent!important;
+  position:absolute!important;top:10px!important;left:10px!important;
+  right:auto!important;bottom:auto!important;z-index:6!important;
+  display:block!important;width:27px!important;height:18px!important;
+  max-width:27px!important;max-height:18px!important;
+  object-fit:cover!important;object-position:center!important;
+  border:1px solid rgba(255,255,255,.9)!important;border-radius:2px!important;
+  box-shadow:0 2px 6px rgba(0,0,0,.55)!important;background:transparent!important;
+}
+.modal.player-profile-modal .player-profile-markers{
+  display:flex!important;flex-direction:column!important;align-items:center!important;
+  justify-content:flex-start!important;gap:9px!important;width:30px!important;
+  margin:4px 0 0!important;padding:0!important;pointer-events:none!important;
 }
 .modal.player-profile-modal .player-profile-markers .player-role-marker{
-  position:relative!important;
+  position:relative!important;inset:auto!important;display:block!important;
+  width:27px!important;height:27px!important;max-width:27px!important;max-height:27px!important;
+  object-fit:contain!important;margin:0!important;padding:0!important;border:0!important;
+  background:transparent!important;box-shadow:none!important;
 }
 @media(max-width:700px){
   .modal.player-profile-modal .player-profile-layout{grid-template-columns:133px minmax(0,1fr)!important;gap:12px!important}
   .modal.player-profile-modal .player-profile-portrait{
-    grid-template-columns:22px 104px!important;width:132px!important;
-    margin-top:75px!important;height:250px!important;min-height:250px!important;
+    grid-template-columns:22px 104px!important;gap:6px!important;width:132px!important;
   }
-  .modal.player-profile-modal .player-profile-photo{
-    width:104px!important;max-width:104px!important;height:250px!important;
-    min-height:250px!important;max-height:250px!important;
+  .modal.player-profile-modal .player-profile-markers{width:22px!important;gap:7px!important}
+  .modal.player-profile-modal .player-profile-markers .player-role-marker{
+    width:21px!important;height:21px!important;max-width:21px!important;max-height:21px!important;
   }
+  .modal.player-profile-modal .player-profile-photo{width:104px!important;max-width:104px!important}
   .modal.player-profile-modal .player-profile-photo .player-country-marker{
     top:8px!important;left:8px!important;width:23px!important;height:15px!important;
     max-width:23px!important;max-height:15px!important;
