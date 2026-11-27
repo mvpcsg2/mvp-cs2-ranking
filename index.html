@@ -3114,7 +3114,7 @@ async function openPlayerProfile(nickname,fallbackPhoto=''){
     </section>
     <div class="player-hltv-details-label">Профиль и дополнительные данные</div>
     <div class="player-profile-layout">
-      <div class="player-profile-portrait"><div class="player-profile-markers">${roleMarker}${countryMarker}</div><div class="player-profile-photo">${avatar}</div></div>
+      <div class="player-profile-portrait"><div class="player-profile-markers">${roleMarker}</div><div class="player-profile-photo">${countryMarker}${avatar}</div></div>
       <div class="player-profile-info">
         <div class="player-profile-name">${esc(player?.nickname||nickname)}</div>
         ${player?`<div class="player-profile-note">PLAYER ID #${player.id}</div>`:''}
@@ -9328,5 +9328,66 @@ body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) .theme-choi
   width:112px!important;max-width:112px!important;height:250px!important;
   min-height:250px!important;max-height:250px!important;
  }
+}
+</style>
+
+<style id="cstt-portrait-compact-flag-overlay">
+/* Compact portrait aligned exactly with the analytics panel; country flag overlays its upper-left corner. */
+.modal.player-profile-modal .player-profile-layout{
+  grid-template-columns:186px minmax(0,1fr)!important;
+  gap:20px!important;
+}
+.modal.player-profile-modal .player-profile-portrait{
+  grid-template-columns:30px 140px!important;
+  width:179px!important;
+  margin-top:155px!important;
+  height:300px!important;
+  min-height:300px!important;
+}
+.modal.player-profile-modal .player-profile-photo{
+  position:relative!important;
+  width:140px!important;
+  max-width:140px!important;
+  height:300px!important;
+  min-height:300px!important;
+  max-height:300px!important;
+  aspect-ratio:auto!important;
+}
+.modal.player-profile-modal .player-profile-photo .player-country-marker{
+  position:absolute!important;
+  top:10px!important;
+  left:10px!important;
+  right:auto!important;
+  bottom:auto!important;
+  z-index:6!important;
+  display:block!important;
+  width:27px!important;
+  height:18px!important;
+  max-width:27px!important;
+  max-height:18px!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  border:1px solid rgba(255,255,255,.9)!important;
+  border-radius:2px!important;
+  box-shadow:0 2px 6px rgba(0,0,0,.55)!important;
+  background:transparent!important;
+}
+.modal.player-profile-modal .player-profile-markers .player-role-marker{
+  position:relative!important;
+}
+@media(max-width:700px){
+  .modal.player-profile-modal .player-profile-layout{grid-template-columns:133px minmax(0,1fr)!important;gap:12px!important}
+  .modal.player-profile-modal .player-profile-portrait{
+    grid-template-columns:22px 104px!important;width:132px!important;
+    margin-top:75px!important;height:250px!important;min-height:250px!important;
+  }
+  .modal.player-profile-modal .player-profile-photo{
+    width:104px!important;max-width:104px!important;height:250px!important;
+    min-height:250px!important;max-height:250px!important;
+  }
+  .modal.player-profile-modal .player-profile-photo .player-country-marker{
+    top:8px!important;left:8px!important;width:23px!important;height:15px!important;
+    max-width:23px!important;max-height:15px!important;
+  }
 }
 </style>
