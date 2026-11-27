@@ -9097,3 +9097,96 @@ body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-rail-section .
  .modal.player-profile-modal .player-profile-name{font-size:19px!important}
 }
 </style>
+<style id="cstt-beta-profile-and-settings-polish">
+/* CSTT Beta: coherent dark surfaces for player profile and settings dialog. */
+body[data-design="ahltv"] .modal.player-profile-modal{
+  background:linear-gradient(145deg,#101e2c 0%,#0d1926 100%)!important;
+  color:#eaf2fb!important;border:1px solid #294258!important;
+  box-shadow:0 20px 60px rgba(0,0,0,.48)!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .player-profile-layout,
+body[data-design="ahltv"] .modal.player-profile-modal .player-profile-info{
+  background:transparent!important;color:#eaf2fb!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .player-profile-photo{
+  width:100%!important;max-width:160px!important;height:auto!important;
+  aspect-ratio:3/4!important;max-height:240px!important;
+  justify-self:start!important;align-self:start!important;
+  background:transparent!important;border:1px solid #34516a!important;
+  border-radius:8px!important;overflow:hidden!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .player-profile-photo .player-main-avatar{
+  width:100%!important;height:100%!important;object-fit:contain!important;
+  object-position:center center!important;background:transparent!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-player-analytics{
+  background:linear-gradient(145deg,#13263a,#0e1d2c)!important;
+  border:1px solid #294258!important;box-shadow:0 8px 24px rgba(0,0,0,.2)!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-rating-card{
+  background:linear-gradient(145deg,#102b3d,#163b50)!important;
+  border-color:#326078!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-rating-gauge{
+  background:conic-gradient(#55d6d0 var(--rating-progress),#30485a var(--rating-progress) 100%)!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-rating-gauge:before{background:#10283a!important}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-metric-card,
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-stat-totals>div{
+  background:linear-gradient(145deg,#1a3044,#14283a)!important;
+  border-color:#2d4a61!important;color:#eaf2fb!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-metric-head span,
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-stat-totals small{color:#9bb2c6!important}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-metric-head strong,
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-stat-totals strong{color:#f0f7ff!important}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-meter{background:#263d50!important}
+body[data-design="ahltv"] .modal.player-profile-modal .cstt-meter i{background:linear-gradient(90deg,#2485a2,#55d6d0)!important}
+body[data-design="ahltv"] .modal.player-profile-modal .player-prize-money,
+body[data-design="ahltv"] .modal.player-profile-modal .player-prize-total,
+body[data-design="ahltv"] .modal.player-profile-modal .player-prize-record{
+  background:#14283a!important;border-color:#31516a!important;color:#eaf2fb!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .player-prize-total strong,
+body[data-design="ahltv"] .modal.player-profile-modal .player-prize-record b{color:#e5bd65!important}
+body[data-design="ahltv"] .modal.player-profile-modal .player-profile-awards-head,
+body[data-design="ahltv"] .modal.player-profile-modal .player-hltv-details-label,
+body[data-design="ahltv"] .modal.player-profile-modal .roster-heading{color:#9bb2c6!important}
+body[data-design="ahltv"] .modal.player-profile-modal .player-role-editor,
+body[data-design="ahltv"] .modal.player-profile-modal .player-admin-editor,
+body[data-design="ahltv"] .modal.player-profile-modal .player-profile-admin-actions{
+  background:#13263a!important;border-color:#2d4a61!important;color:#eaf2fb!important;
+}
+body[data-design="ahltv"] .modal.player-profile-modal .player-role-editor label{color:#a9bfd2!important}
+body[data-design="ahltv"] .modal.player-profile-modal .player-role-edit-row label,
+body[data-design="ahltv"] .modal.player-profile-modal .player-role-edit-row .role-option{
+  background:#1a3044!important;border-color:#36536a!important;color:#eaf2fb!important;
+}
+/* Settings dialog and all its controls follow the selected CSTT Beta palette. */
+body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect){
+  background:linear-gradient(145deg,#14283a,#0e1d2c)!important;
+  color:#eaf2fb!important;border:1px solid #31516a!important;
+  box-shadow:0 20px 60px rgba(0,0,0,.5)!important;
+}
+body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) h2,
+body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) h3,
+body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) label,
+body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) p{color:#dceaf5!important}
+body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) input,
+body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) select,
+body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) textarea{
+  background:#0b1927!important;color:#eaf2fb!important;border-color:#36536a!important;
+}
+body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) .design-choice,
+body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) .theme-choice,
+body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) .settings-card{
+  background:#172d42!important;color:#eaf2fb!important;border-color:#34516a!important;
+}
+body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) .design-choice.active,
+body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) .theme-choice.active{
+  border-color:#55d6d0!important;box-shadow:0 0 0 1px #55d6d0!important;
+}
+@media(max-width:700px){
+ body[data-design="ahltv"] .modal.player-profile-modal .player-profile-photo{max-width:104px!important;max-height:156px!important}
+}
+</style>
