@@ -4,7 +4,7 @@ import { handleRpcRequest } from "./rpc.js";
 import { handleDataRequest } from "./data.js";
 import { handleAuthRequest, getSessionUser } from "./auth.js";
 import { handleMyhudRequest } from "./myhud.js";
-import { neon } from "@neondatabase/serverless";
+import { getSql } from "./db.js";
 
 const json = (data, status = 200, headers = {}) =>
   new Response(JSON.stringify(data), {
@@ -45,8 +45,8 @@ function getCors(request, env) {
 }
 
 async function captureDailyArchive(env) {
-  if (!env.DATABASE_URL) throw new Error("DATABASE_URL secret is missing");
-  const sql = neon(env.DATABASE_URL);
+  if (!env.HYPERDRIVE?.connectionString && !env.DATABASE_URL) throw new Error("Database connection is not configured");
+  const sql = getSql(env);
   const rows = await sql`SELECT public.mvp_capture_completed_daily_snapshot() AS result`;
   return rows?.[0]?.result ?? null;
 }
@@ -90,13 +90,13 @@ export default {
       return json({ ok: true, service: "mvp-cs2-api" }, 200, cors);
     }
 
-    if (!env.DATABASE_URL) {
-      return json({ ok: false, error: "DATABASE_URL secret is missing" }, 500, cors);
+    if (!env.HYPERDRIVE?.connectionString && !env.DATABASE_URL) {
+      return json({ ok: false, error: "Database connection is not configured" }, 500, cors);
     }
 
     let sql;
     try {
-      sql = neon(env.DATABASE_URL);
+      sql = getSql(env);
     } catch (error) {
       console.error("Neon client initialization failed", error);
       return json({ ok: false, error: "Database client initialization failed" }, 500, cors);
@@ -105,10 +105,37 @@ export default {
     if (url.pathname === "/api/db-check") {
       try {
         const rows = await sql`SELECT 1 AS ok`;
-        return json({ ok: Number(rows?.[0]?.ok) === 1, database: "connected" }, 200, cors);
+        const queryRows = await sql.query("SELECT $1::int AS ok", [1]);
+        const connected = Number(rows?.[0]?.ok) === 1 && Number(queryRows?.[0]?.ok) === 1;
+        return json({ ok: connected, database: connected ? "connected" : "check_failed" }, 200, cors);
       } catch (error) {
         console.error("Neon connectivity check failed", error);
         return json({ ok: false, error: "Database connection failed" }, 503, cors);
+      }
+    }
+
+    if (url.pathname === "/api/preview/data-check") {
+      try {
+        const [teams, players, organizers, tournaments, season] = await Promise.all([
+          sql`SELECT count(*)::int AS count FROM public.teams`,
+          sql`SELECT count(*)::int AS count FROM public.cs2_players`,
+          sql`SELECT count(*)::int AS count FROM public.mvp_tournament_organizers`,
+          sql`SELECT count(*)::int AS count FROM public.mvp_tournaments`,
+          sql`SELECT active_year FROM public.mvp_season_state WHERE id = 1 LIMIT 1`,
+        ]);
+        return json({
+          ok: true,
+          data: {
+            teams: Number(teams?.[0]?.count || 0),
+            players: Number(players?.[0]?.count || 0),
+            organizers: Number(organizers?.[0]?.count || 0),
+            tournaments: Number(tournaments?.[0]?.count || 0),
+            active_season: season?.[0]?.active_year ?? null,
+          },
+        }, 200, cors);
+      } catch (error) {
+        console.error("Preview data check failed", error?.message || error);
+        return json({ ok: false, error: "Preview data query failed" }, 503, cors);
       }
     }
 
@@ -237,9 +264,17 @@ export default {
     if (url.pathname === "/api/tournaments") {
       try {
         const organizerId = url.searchParams.get("organizer_id");
-        const rows = organizerId && /^\d+$/.test(organizerId)
-          ? await sql`SELECT id, name, best_of, status, is_active, bracket_data, created_at, updated_at, organizer_id, prize_pool, prize_currency, team_count, description, start_date, end_date, event_status, allow_captain_registration FROM public.mvp_tournaments WHERE organizer_id = ${organizerId}::bigint ORDER BY CASE WHEN event_status = 'completed' THEN 1 ELSE 0 END, start_date ASC NULLS LAST, updated_at DESC LIMIT 500`
-          : await sql`SELECT id, name, best_of, status, is_active, bracket_data, created_at, updated_at, organizer_id, prize_pool, prize_currency, team_count, description, start_date, end_date, event_status, allow_captain_registration FROM public.mvp_tournaments ORDER BY updated_at DESC LIMIT 500`;
+        let rows;
+        try {
+          rows = organizerId && /^\d+$/.test(organizerId)
+            ? await sql`SELECT id, name, best_of, status, is_active, bracket_data, created_at, updated_at, organizer_id, prize_pool, prize_currency, team_count, description, start_date, end_date, event_status, allow_captain_registration FROM public.mvp_tournaments WHERE organizer_id = ${organizerId}::bigint ORDER BY CASE WHEN event_status = 'completed' THEN 1 ELSE 0 END, start_date ASC NULLS LAST, updated_at DESC LIMIT 500`
+            : await sql`SELECT id, name, best_of, status, is_active, bracket_data, created_at, updated_at, organizer_id, prize_pool, prize_currency, team_count, description, start_date, end_date, event_status, allow_captain_registration FROM public.mvp_tournaments ORDER BY updated_at DESC LIMIT 500`;
+        } catch (optionalColumnError) {
+          // Backward compatibility if the optional captain-registration migration is not installed.
+          rows = organizerId && /^\d+$/.test(organizerId)
+            ? await sql`SELECT id, name, best_of, status, is_active, bracket_data, created_at, updated_at, organizer_id, prize_pool, prize_currency, team_count, description, start_date, end_date, event_status, FALSE AS allow_captain_registration FROM public.mvp_tournaments WHERE organizer_id = ${organizerId}::bigint ORDER BY CASE WHEN event_status = 'completed' THEN 1 ELSE 0 END, start_date ASC NULLS LAST, updated_at DESC LIMIT 500`
+            : await sql`SELECT id, name, best_of, status, is_active, bracket_data, created_at, updated_at, organizer_id, prize_pool, prize_currency, team_count, description, start_date, end_date, event_status, FALSE AS allow_captain_registration FROM public.mvp_tournaments ORDER BY updated_at DESC LIMIT 500`;
+        }
         return json({ ok: true, data: rows }, 200, cors);
       } catch (error) {
         console.error("Tournaments query failed", error);

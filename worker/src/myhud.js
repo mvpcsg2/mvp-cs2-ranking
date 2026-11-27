@@ -1,4 +1,4 @@
-import { neon } from '@neondatabase/serverless';
+import { getSql } from "./db.js";
 import { getSessionUser } from './auth.js';
 
 const reply = (data, status = 200, cors = {}) => new Response(JSON.stringify(data), {status, headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store',...cors}});
@@ -12,10 +12,10 @@ function normalize(body) {
 export async function handleMyhudRequest(request,env,cors) {
   const path = new URL(request.url).pathname;
   if (!path.startsWith('/api/myhud/')) return null;
-  if (!env.DATABASE_URL) return reply({ok:false,error:'DATABASE_URL missing'},503,cors);
+  if (!env.HYPERDRIVE?.connectionString && !env.DATABASE_URL) return reply({ok:false,error:'Database connection is not configured'},503,cors);
   if (!['GET','POST'].includes(request.method)) return reply({ok:false,error:'Method not allowed'},405,cors);
   try {
-    const sql=neon(env.DATABASE_URL);
+    const sql=getSql(env);
     const user=await getSessionUser(sql,request);
     if (!user) return reply({ok:false,error:'Требуется вход в аккаунт сайта'},401,cors);
     if (path==='/api/myhud/live' && request.method==='POST') {

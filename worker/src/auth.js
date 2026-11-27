@@ -1,4 +1,4 @@
-import { neon } from "@neondatabase/serverless";
+import { getSql } from "./db.js";
 
 const json = (data, status = 200, cors = {}) => new Response(JSON.stringify(data), {
   status,
@@ -168,9 +168,9 @@ export async function handleAuthRequest(request, env, cors) {
   const url = new URL(request.url);
   if (!url.pathname.startsWith("/api/auth/")) return null;
   if (request.method !== "GET" && request.method !== "POST") return json({ ok: false, error: "Method not allowed" }, 405, cors);
-  if (!env.DATABASE_URL) return json({ ok: false, error: "DATABASE_URL secret is missing" }, 500, cors);
+  if (!env.HYPERDRIVE?.connectionString && !env.DATABASE_URL) return json({ ok: false, error: "Database connection is not configured" }, 500, cors);
 
-  const sql = neon(env.DATABASE_URL);
+  const sql = getSql(env);
   const path = url.pathname;
 
   try {
