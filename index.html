@@ -3305,7 +3305,7 @@ async function openTeamMatchHistory(t){
     if(error){list.innerHTML=`<div class="help-empty">Не удалось загрузить историю боёв. Проверь подключение Neon API. Ошибка: ${esc(niceError(error))}</div>`;return}
     matches=matchData||[];
     const matchIds=matches.map(m=>m.id);
-    const {data:statsData,error:statsError}=await client.from('match_player_stats').select('id,match_id,team_id,player_id,kills,deaths,kd').in('match_id',matchIds);
+    const {data:statsData,error:statsError}=await client.from('match_player_stats').select('id,match_id,team_id,player_id,kills,deaths,assists,kd').in('match_id',matchIds);
     if(statsError){list.innerHTML=`<div class="help-empty">Не удалось загрузить статистику матчей: ${esc(niceError(statsError))}</div>`;return}
     statRows=statsData||[];
     const playerIds=[...new Set(statRows.map(st=>st.player_id))];
@@ -3332,7 +3332,7 @@ async function editTeamMatch(team,match=null){
   if(!can('manage_matches'))return;
   let existing=[];
   if(match){
-    const {data:stats,error}=await client.from('match_player_stats').select('player_id,team_id,kills,deaths,kd').eq('match_id',match.id);
+    const {data:stats,error}=await client.from('match_player_stats').select('player_id,team_id,kills,deaths,assists,kd').eq('match_id',match.id);
     if(error){alert('Не удалось загрузить статистику боя: '+niceError(error));return}
     const ids=(stats||[]).map(st=>st.player_id);let plist=[];
     if(ids.length){const {data,error:perr}=await client.from('cs2_players').select('id,nickname,photo_url').in('id',ids);if(perr){alert('Не удалось загрузить игроков: '+niceError(perr));return}plist=data||[]}
@@ -3349,8 +3349,8 @@ async function editTeamMatch(team,match=null){
     const roster=getRoster(sideTeam),photos=getPlayerPhotos(sideTeam);
     const name=old.nickname||(sideExisting.length===0?(roster[i]||''):'');
     const photo=old.photo_url||photos[i]||'';
-    const kills=Number(old.kills??0),deaths=Number(old.deaths??0),kd=deaths>0?kills/deaths:(kills>0?kills:0);
-    return `<div class="match-player-row"><div class="match-player-row-title">Игрок ${i+1}</div><div class="match-edit-players"><div class="field"><label>Ник</label><input id="${side}Player${i}Name" maxlength="50" value="${esc(name)}" placeholder="Ник игрока"><input id="${side}Player${i}Photo" type="hidden" value="${esc(photo)}"></div><div class="field"><label>Убийства</label><input id="${side}Player${i}Kills" type="number" min="0" max="999" value="${kills}"></div><div class="field"><label>Смерти</label><input id="${side}Player${i}Deaths" type="number" min="0" max="999" value="${deaths}"></div><div class="field"><label>K/D (авто)</label><output id="${side}Player${i}KD" class="match-kd-output">${kd.toFixed(2)}</output></div></div></div>`;
+    const kills=Number(old.kills??0),deaths=Number(old.deaths??0),assists=Number(old.assists??0),kd=deaths>0?kills/deaths:(kills>0?kills:0);
+    return `<div class="match-player-row"><div class="match-player-row-title">Игрок ${i+1}</div><div class="match-edit-players"><div class="field"><label>Ник</label><input id="${side}Player${i}Name" maxlength="50" value="${esc(name)}" placeholder="Ник игрока"><input id="${side}Player${i}Photo" type="hidden" value="${esc(photo)}"></div><div class="field"><label>Убийства</label><input id="${side}Player${i}Kills" type="number" min="0" max="999" value="${kills}"></div><div class="field"><label>Смерти</label><input id="${side}Player${i}Deaths" type="number" min="0" max="999" value="${deaths}"></div><div class="field"><label>Помощь</label><input id="${side}Player${i}Assists" type="number" min="0" max="999" value="${assists}"></div><div class="field"><label>K/D (авто)</label><output id="${side}Player${i}KD" class="match-kd-output">${kd.toFixed(2)}</output></div></div></div>`;
   }).join('');
   const dateVal=match?.played_at?(()=>{const d=new Date(match.played_at);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)})():(()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)})();
   const awayTeam=teams.find(x=>String(x.id)===selectedOpponentId)||opponentTeams[0];
@@ -3361,7 +3361,7 @@ async function editTeamMatch(team,match=null){
     <div class="match-score-inputs"><div class="field"><label>${esc(team.name)} — раунды</label><input id="matchOurScore" type="number" min="0" max="99" value="${match?.team_score??13}" required></div><div class="field"><label>Соперник — раунды</label><input id="matchOpponentScore" type="number" min="0" max="99" value="${match?.opponent_score??11}" required></div></div>
     <div class="formrow"><div class="field"><label>Карта (необязательно)</label><input id="matchMap" maxlength="50" value="${esc(match?.map_name||'')}" placeholder="Mirage"></div><div class="field"><label>Дата и время</label><input id="matchPlayedAt" type="datetime-local" value="${dateVal}"></div></div>
     <div class="match-lineups"><section class="match-lineup-side"><h3>${esc(team.name)} · состав на матч</h3>${oldHome}</section><section class="match-lineup-side" id="awayLineupSection"><h3 id="awayLineupTitle">${esc(awayTeam.name)} · состав на матч</h3><div id="awayLineupRows">${oldAway}</div></section></div>
-    <div class="notice">Укажи фактически игравших игроков отдельно для обеих команд. Пустые ники пропускаются. K/D рассчитывается автоматически из убийств и смертей; если оба значения равны нулю, K/D будет 0.00.</div>
+    <div class="notice">Укажи фактически игравших игроков отдельно для обеих команд. Заполни убийства, смерти и помощь. K/D рассчитывается автоматически. CSTT Rating учитывает K/D и помощь.</div>
     <div class="modalfoot"><button class="btn" id="cancelMatchEdit">Отмена</button><button class="btn primary" id="saveMatchEdit">Сохранить бой и статистику</button></div>`,true);
   document.querySelector('#modalRoot .modal').classList.add('match-editor-modal');
   document.getElementById('cancelMatchEdit').onclick=()=>openTeamMatchHistory(team);
@@ -3387,10 +3387,10 @@ async function editTeamMatch(team,match=null){
     for(const [side,sideTeam] of [['home',team],['away',opponentTeam]]){
       for(let i=0;i<5;i++){
         const nickname=document.getElementById(`${side}Player${i}Name`).value.trim();if(!nickname)continue;
-        const kills=Number(document.getElementById(`${side}Player${i}Kills`).value),deaths=Number(document.getElementById(`${side}Player${i}Deaths`).value);
-        if(!Number.isInteger(kills)||kills<0||kills>999||!Number.isInteger(deaths)||deaths<0||deaths>999)return alert(`Проверь убийства и смерти игрока ${nickname}.`);
+        const kills=Number(document.getElementById(`${side}Player${i}Kills`).value),deaths=Number(document.getElementById(`${side}Player${i}Deaths`).value),assists=Number(document.getElementById(`${side}Player${i}Assists`).value);
+        if(!Number.isInteger(kills)||kills<0||kills>999||!Number.isInteger(deaths)||deaths<0||deaths>999||!Number.isInteger(assists)||assists<0||assists>999)return alert(`Проверь убийства, смерти и помощь игрока ${nickname}.`);
         const kd=deaths>0?kills/deaths:(kills>0?kills:0);
-        rowsToSave.push({nickname,kills,deaths,kd:Math.round(kd*100)/100,photo_url:document.getElementById(`${side}Player${i}Photo`).value||'',team_id:sideTeam.id});
+        rowsToSave.push({nickname,kills,deaths,assists,kd:Math.round(kd*100)/100,photo_url:document.getElementById(`${side}Player${i}Photo`).value||'',team_id:sideTeam.id});
       }
     }
     if(!rowsToSave.some(x=>String(x.team_id)===String(team.id)))return alert('Укажи хотя бы одного игрока первой команды.');
@@ -3411,7 +3411,7 @@ async function editTeamMatch(team,match=null){
         const {data:found,error:findError}=await client.from('cs2_players').select('id,photo_url').eq('nickname',row.nickname).maybeSingle();if(findError)throw findError;
         if(found){playerRow=found;if(row.photo_url&&row.photo_url!==found.photo_url){const {data:updated,error:updateError}=await client.from('cs2_players').update({photo_url:row.photo_url}).eq('id',found.id).select('id,photo_url').single();if(updateError)throw updateError;playerRow=updated}}
         else{const {data:inserted,error:insertError}=await client.from('cs2_players').insert({nickname:row.nickname,photo_url:row.photo_url}).select('id,photo_url').single();if(insertError)throw insertError;playerRow=inserted}
-        statsPayload.push({match_id:newMatchId,team_id:row.team_id,player_id:playerRow.id,kills:row.kills,deaths:row.deaths,kd:row.kd});
+        statsPayload.push({match_id:newMatchId,team_id:row.team_id,player_id:playerRow.id,kills:row.kills,deaths:row.deaths,assists:row.assists,kd:row.kd});
       }
       const {error:statsInsertError}=await client.from('match_player_stats').insert(statsPayload);if(statsInsertError)throw statsInsertError;
       setStatus('Матч и статистика обеих команд сохранены. K/D рассчитан по убийствам и смертям.','success');await openTeamMatchHistory(team);
@@ -4438,7 +4438,7 @@ async function loadStreamsIntoModal(){
 async function openTopPlayersCenter(){
   cleanupLiveCenter();
   setMainNavActive('players');
-  showMainWorkspace(`<div class="page-head"><div><h2>Топ игроков</h2><div class="page-intro">Игроки из составов команд · рейтинг по среднему K/D за записанные матчи.</div></div><button class="btn" id="closeTopPlayers">Закрыть</button></div><div id="topPlayerContent" class="top-player-list" dir="ltr"><div class="stream-empty">Собираем статистику игроков…</div></div>`,true);
+  showMainWorkspace(`<div class="page-head"><div><h2>Топ игроков</h2><div class="page-intro">Игроки из составов команд · CSTT Rating по убийствам, смертям и помощи.</div></div><button class="btn" id="closeTopPlayers">Закрыть</button></div><div id="topPlayerContent" class="top-player-list" dir="ltr"><div class="stream-empty">Собираем статистику игроков…</div></div>`,true);
   document.getElementById('closeTopPlayers').onclick=()=>{closeMainWorkspace()};
   const host=document.getElementById('topPlayerContent');
   try{
@@ -4450,7 +4450,7 @@ async function openTopPlayersCenter(){
         mvpApiGet('/api/player-stats')
       ]);
       dbPlayers=playersData||[];
-      stats=(statsData||[]).map(row=>({player_id:row.player_id,kills:row.kills,deaths:row.deaths,kd:row.average,team_ids:row.team_ids,matches:row.matches}));
+      stats=(statsData||[]).map(row=>({player_id:row.player_id,kills:row.kills,deaths:row.deaths,assists:row.assists,rating:row.rating,team_ids:row.team_ids,matches:row.matches}));
     }
     const dbByNick=new Map((dbPlayers||[]).map(p=>[String(p.nickname).toLowerCase(),p]));
     const members=new Map();
@@ -4474,14 +4474,14 @@ async function openTopPlayersCenter(){
     const statMap=new Map();
     (stats||[]).forEach(st=>{
       const key=String(st.player_id);
-      statMap.set(key,{average:Number(st.kd)||0,kills:Number(st.kills)||0,deaths:Number(st.deaths)||0,matches:Number(st.matches)||0,teamIds:Array.isArray(st.team_ids)?st.team_ids.map(String):[]});
+      statMap.set(key,{average:Number(st.kd)||0,rating:Number(st.rating)||0,kills:Number(st.kills)||0,deaths:Number(st.deaths)||0,assists:Number(st.assists)||0,matches:Number(st.matches)||0,teamIds:Array.isArray(st.team_ids)?st.team_ids.map(String):[]});
     });
     const rows=[...members.values()].map(member=>{
       const aggregate=member.dbPlayer?statMap.get(String(member.dbPlayer.id)):null;
-      const average=aggregate?.average||0;
+      const average=aggregate?.average||0;const rating=aggregate?.rating??((aggregate?.deaths||0)>0?((aggregate?.kills||0)+(aggregate?.assists||0)*0.35)/(aggregate?.deaths||1):(aggregate?.kills||0)+(aggregate?.assists||0)*0.35);
       const statsTeams=(aggregate?.teamIds||[]).map(id=>teams.find(t=>String(t.id)===id)).filter(Boolean);
-      return {...member,teams:member.teams.length?member.teams:statsTeams,average,kills:aggregate?.kills||0,deaths:aggregate?.deaths||0,matches:aggregate?.matches||0};
-    }).sort((a,b)=>b.average-a.average||b.kills-a.kills||a.nickname.localeCompare(b.nickname));
+      return {...member,teams:member.teams.length?member.teams:statsTeams,average,rating,kills:aggregate?.kills||0,deaths:aggregate?.deaths||0,assists:aggregate?.assists||0,matches:aggregate?.matches||0};
+    }).sort((a,b)=>b.rating-a.rating||b.kills-a.kills||a.nickname.localeCompare(b.nickname));
     if(!rows.length){host.className='stream-empty';host.textContent='В составах команд пока нет игроков. Добавь ники через админку.';return;}
     host.innerHTML=rows.slice(0,100).map((player,index)=>{
       const avatar=player.photo?`<img src="${esc(player.photo)}" alt="${esc(player.nickname)}" loading="lazy">`:esc(playerInitials(player.nickname));
@@ -4489,7 +4489,7 @@ async function openTopPlayersCenter(){
       const roleTag='';
       const playerFlag=countryFlagMarkup(player.country_code,'top-player-country-flag');
       const teamBadge=team?`<span class="top-player-team-logo">${team.logo?`<img src="${esc(team.logo)}" alt="">`:esc(team.tag||team.name.slice(0,3))}</span><span>${esc(team.name)}${player.teams.length>1?` +${player.teams.length-1}`:''}</span>`:'<span class="top-player-team-logo">CS2</span><span>Команда не указана</span>';
-      return `<div class="top-player-row" dir="ltr"><div class="top-player-rank">#${index+1}</div><div class="top-player-avatar">${avatar}</div><div style="min-width:0"><div class="top-player-name-line">${playerFlag}<button type="button" class="top-player-nick" data-player-profile-name="${esc(player.nickname)}" data-player-profile-photo="${esc(player.photo||'')}">${esc(player.nickname)}</button></div>${roleTag}<div class="top-player-team">${teamBadge}</div></div><div class="top-player-metric"><strong class="player-kd-rating">${formatKD(player.average)}<img class="player-kd-silhouette top-player-kd-icon" src="${playerKdSilhouette(player.average)}" alt="Категория K/D" title="Категория по среднему K/D" loading="lazy"></strong><small>AVG K/D</small></div><div class="top-player-metric"><strong>${player.kills}</strong><small>KILLS</small></div><div class="top-player-metric matches-metric"><strong>${player.matches}</strong><small>МАТЧИ</small></div></div>`;
+      return `<div class="top-player-row" dir="ltr"><div class="top-player-rank">#${index+1}</div><div class="top-player-avatar">${avatar}</div><div style="min-width:0"><div class="top-player-name-line">${playerFlag}<button type="button" class="top-player-nick" data-player-profile-name="${esc(player.nickname)}" data-player-profile-photo="${esc(player.photo||'')}">${esc(player.nickname)}</button></div>${roleTag}<div class="top-player-team">${teamBadge}</div></div><div class="top-player-metric"><strong>${player.rating.toFixed(2)}</strong><small>CSTT RATING</small></div><div class="top-player-metric"><strong>${player.kills}</strong><small>KILLS</small></div><div class="top-player-metric"><strong>${player.assists}</strong><small>ASSISTS</small></div><div class="top-player-metric matches-metric"><strong>${player.matches}</strong><small>МАТЧИ</small></div></div>`;
     }).join('');
     wirePlayerProfileLinks();
   }catch(err){host.className='stream-empty';host.innerHTML=`Не удалось загрузить топ игроков. Убедись, что выполнена миграция <b>match_history_players_setup.sql</b>. Ошибка: ${esc(niceError(err))}`;}
