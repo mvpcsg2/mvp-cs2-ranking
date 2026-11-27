@@ -16,10 +16,6 @@ MAIL_RELAY_URL = "https://script.google.com/macros/s/AKfycbwP4-YQVLw_4RHiiqowK9m
 [triggers]
 crons = ["*/15 * * * *"]
 
-# Preview deployments require an explicit Hyperdrive preview binding.
-[[previews.hyperdrive]]
-binding = "HYPERDRIVE"
-id = "c42cf984d5374843ac9fda902c9a4c99"
 
 # Create this bucket once in Cloudflare R2 before deploying the Worker.
 [[r2_buckets]]
