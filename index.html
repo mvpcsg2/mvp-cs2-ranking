@@ -9430,3 +9430,107 @@ body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) .theme-choi
   }
 }
 </style>
+
+<style id="cstt-portrait-final-width-fill">
+/* Use the entire marked portrait column; no empty badge rail beside a narrow photo. */
+.modal.player-profile-modal .player-profile-layout{
+  display:grid!important;
+  grid-template-columns:230px minmax(0,1fr)!important;
+  gap:10px!important;
+  align-items:start!important;
+}
+.modal.player-profile-modal .player-profile-portrait{
+  position:relative!important;
+  display:block!important;
+  width:230px!important;
+  min-width:0!important;
+  margin-top:0!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+}
+.modal.player-profile-modal .player-profile-photo{
+  position:relative!important;
+  display:flex!important;
+  box-sizing:border-box!important;
+  width:230px!important;
+  max-width:230px!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  aspect-ratio:auto!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+  border-radius:8px!important;
+}
+.modal.player-profile-modal .player-profile-photo .player-main-avatar{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+}
+.modal.player-profile-modal .player-profile-markers{
+  position:absolute!important;
+  top:8px!important;
+  right:8px!important;
+  left:auto!important;
+  z-index:8!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  gap:6px!important;
+  width:auto!important;
+  margin:0!important;
+  padding:0!important;
+  pointer-events:none!important;
+}
+.modal.player-profile-modal .player-profile-markers .player-role-marker{
+  position:static!important;
+  display:block!important;
+  width:27px!important;
+  height:27px!important;
+  max-width:27px!important;
+  max-height:27px!important;
+  object-fit:contain!important;
+  margin:0!important;
+}
+.modal.player-profile-modal .player-profile-photo .player-country-marker{
+  position:absolute!important;
+  top:10px!important;
+  left:10px!important;
+  right:auto!important;
+  bottom:auto!important;
+  z-index:7!important;
+  width:29px!important;
+  height:19px!important;
+  max-width:29px!important;
+  max-height:19px!important;
+  object-fit:cover!important;
+  border:1px solid rgba(255,255,255,.9)!important;
+  border-radius:2px!important;
+  box-shadow:0 2px 6px rgba(0,0,0,.55)!important;
+}
+@media(max-width:700px){
+  .modal.player-profile-modal .player-profile-layout{
+    grid-template-columns:118px minmax(0,1fr)!important;
+    gap:10px!important;
+  }
+  .modal.player-profile-modal .player-profile-portrait,
+  .modal.player-profile-modal .player-profile-photo{
+    width:118px!important;
+    max-width:118px!important;
+  }
+  .modal.player-profile-modal .player-profile-photo .player-country-marker{
+    top:7px!important;left:7px!important;width:23px!important;height:15px!important;
+    max-width:23px!important;max-height:15px!important;
+  }
+  .modal.player-profile-modal .player-profile-markers{top:7px!important;right:7px!important}
+  .modal.player-profile-modal .player-profile-markers .player-role-marker{
+    width:21px!important;height:21px!important;max-width:21px!important;max-height:21px!important;
+  }
+}
+</style>
