@@ -9987,3 +9987,78 @@ body[data-design="ahltv"] #teams>.team-card>.roster-expanded .roster-player-phot
 
 
 
+
+
+<style id="cstt-settings-contrast-palette">
+/* Settings window only: keep every settings surface readable in both light and dark appearances. */
+body[data-design="classic"][data-theme="day"] #modalRoot .modal:has(#siteLanguageSelect){
+  --settings-panel:#f4f6f9;--settings-card:#ffffff;--settings-text:#202a36;
+  --settings-muted:#5d6876;--settings-border:#d5dce5;--settings-input:#ffffff;
+  background:#ffffff!important;color:var(--settings-text)!important;border-color:var(--settings-border)!important;
+}
+body[data-design="classic"][data-theme="night"] #modalRoot .modal:has(#siteLanguageSelect){
+  --settings-panel:#202a34;--settings-card:#283442;--settings-text:#edf3fa;
+  --settings-muted:#aebdcb;--settings-border:#405266;--settings-input:#121e2a;
+  background:#172331!important;color:var(--settings-text)!important;border-color:var(--settings-border)!important;
+}
+body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect){
+  --settings-panel:#142a3e;--settings-card:#1a3045;--settings-text:#eaf3fc;
+  --settings-muted:#a8bfd1;--settings-border:#34536b;--settings-input:#0b1927;
+  background:#102033!important;color:var(--settings-text)!important;border-color:var(--settings-border)!important;
+}
+#modalRoot .modal:has(#siteLanguageSelect) .site-logo-admin,
+#modalRoot .modal:has(#siteLanguageSelect) .season-admin-card,
+#modalRoot .modal:has(#siteLanguageSelect) .trophy-catalog-admin{
+  background:var(--settings-panel)!important;color:var(--settings-text)!important;
+  border:1px solid var(--settings-border)!important;
+}
+#modalRoot .modal:has(#siteLanguageSelect) .roster-heading,
+#modalRoot .modal:has(#siteLanguageSelect) h2,
+#modalRoot .modal:has(#siteLanguageSelect) h3,
+#modalRoot .modal:has(#siteLanguageSelect) strong{
+  color:var(--settings-text)!important;
+}
+#modalRoot .modal:has(#siteLanguageSelect) p,
+#modalRoot .modal:has(#siteLanguageSelect) .notice,
+#modalRoot .modal:has(#siteLanguageSelect) .page-intro,
+#modalRoot .modal:has(#siteLanguageSelect) .field label,
+#modalRoot .modal:has(#siteLanguageSelect) .theme-choice span,
+#modalRoot .modal:has(#siteLanguageSelect) .design-choice span{
+  color:var(--settings-muted)!important;
+}
+#modalRoot .modal:has(#siteLanguageSelect) input:not([type="file"]),
+#modalRoot .modal:has(#siteLanguageSelect) textarea,
+#modalRoot .modal:has(#siteLanguageSelect) select{
+  background:var(--settings-input)!important;color:var(--settings-text)!important;
+  border:1px solid var(--settings-border)!important;
+}
+#modalRoot .modal:has(#siteLanguageSelect) input::placeholder,
+#modalRoot .modal:has(#siteLanguageSelect) textarea::placeholder{
+  color:var(--settings-muted)!important;opacity:.82;
+}
+#modalRoot .modal:has(#siteLanguageSelect) .theme-choice,
+#modalRoot .modal:has(#siteLanguageSelect) .design-choice{
+  background:var(--settings-card)!important;color:var(--settings-text)!important;
+  border:1px solid var(--settings-border)!important;
+}
+#modalRoot .modal:has(#siteLanguageSelect) .theme-choice.active,
+#modalRoot .modal:has(#siteLanguageSelect) .design-choice.active{
+  border-color:#d9a32b!important;box-shadow:0 0 0 2px rgba(217,163,43,.2)!important;
+}
+body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) .theme-choice.active,
+body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) .design-choice.active{
+  border-color:#55d6d0!important;box-shadow:0 0 0 1px #55d6d0!important;
+}
+#modalRoot .modal:has(#siteLanguageSelect) .site-logo-admin-preview,
+#modalRoot .modal:has(#siteLanguageSelect) .site-background-preview,
+#modalRoot .modal:has(#siteLanguageSelect) .side-ad-admin-preview,
+#modalRoot .modal:has(#siteLanguageSelect) .custom-trophy-form-preview{
+  border-color:var(--settings-border)!important;background-color:var(--settings-input)!important;
+}
+body[data-design="classic"][data-theme="night"] #modalRoot .modal:has(#siteLanguageSelect) .btn:not(.primary){
+  background:#303e4d!important;color:#edf3fa!important;border-color:#52667b!important;
+}
+body[data-design="ahltv"] #modalRoot .modal:has(#siteLanguageSelect) .btn:not(.primary){
+  background:#172d42!important;color:#eaf3fc!important;border-color:#34516a!important;
+}
+</style>
