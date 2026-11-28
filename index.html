@@ -9803,3 +9803,55 @@ body[data-design="ahltv"] .modal.player-profile-modal .player-profile-stat{
   body[data-design="ahltv"] .modal.player-profile-modal .cstt-stat-totals>div{padding:8px!important}
 }
 </style>
+
+<style id="mvp-roster-photo-fill-panel">
+/* Let cut-out player portraits fill the whole roster photo panel without a solid tile behind them. */
+#teams>.team-card>.roster-expanded .roster-player{
+  overflow:visible!important;
+}
+#teams>.team-card>.roster-expanded .roster-player-photo{
+  position:relative!important;
+  display:block!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  max-width:none!important;
+  height:auto!important;
+  aspect-ratio:1/1!important;
+  flex:0 0 auto!important;
+  padding:0!important;
+  overflow:hidden!important;
+  background:rgba(35,55,74,.16)!important;
+  background-color:rgba(35,55,74,.16)!important;
+  border:1px solid rgba(142,170,192,.32)!important;
+  border-radius:5px!important;
+}
+#teams>.team-card>.roster-expanded .roster-player-photo img{
+  position:absolute!important;
+  inset:0!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  object-position:center bottom!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+}
+#teams>.team-card>.roster-expanded .roster-player-photo:has(img){
+  color:transparent!important;
+}
+#teams>.team-card>.roster-expanded .roster-number{
+  z-index:3!important;
+}
+body[data-design="ahltv"] #teams>.team-card>.roster-expanded .roster-player-photo{
+  background:rgba(8,25,40,.22)!important;
+  border-color:rgba(83,139,168,.38)!important;
+}
+@media(max-width:650px){
+  #teams>.team-card>.roster-expanded .roster-player-photo{
+    width:100%!important;max-width:none!important;aspect-ratio:1/1!important;
+  }
+}
+</style>
