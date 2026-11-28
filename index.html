@@ -9879,14 +9879,17 @@ body[data-design="ahltv"] #teams>.team-card>.roster-expanded .roster-player-phot
     display:flex!important;
     top:300px!important;
     bottom:22px!important;
-    width:clamp(150px,9vw,178px)!important;
+    width:min(280px,calc((100vw - 1260px)/2 - 28px))!important;
+    max-width:none!important;
   }
-  .side-ad-slot.left{left: max(18px,calc((100vw - 1260px)/2 - 198px))!important}
-  .side-ad-slot.right{right:max(18px,calc((100vw - 1260px)/2 - 198px))!important}
+  .side-ad-slot.left{left:14px!important}
+  .side-ad-slot.right{right:14px!important}
+  .side-ad-slot a{width:100%!important;height:auto!important;align-items:flex-start!important}
   .side-ad-slot img{
+    display:block!important;
     width:100%!important;
-    height:100%!important;
-    max-height:100%!important;
+    height:auto!important;
+    max-height:calc(100vh - 322px)!important;
     object-fit:contain!important;
     object-position:center top!important;
   }
