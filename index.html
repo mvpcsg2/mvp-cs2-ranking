@@ -9944,8 +9944,11 @@ body[data-design="ahltv"] #teams>.team-card>.roster-expanded .roster-player-phot
     const workspaceRect=workspace.getBoundingClientRect();
     // The marked area runs from the viewport edge to the adjacent rail.
     const top=Math.max(0,Math.round(workspaceRect.top));
-    const leftWidth=Math.max(0,Math.round(seasonRect.left));
-    const rightWidth=Math.max(0,Math.round(window.innerWidth-transfersRect.right));
+    // Keep a real gutter between ads and content rails; never let artwork overlap panel borders.
+    const railGap=18;
+    const leftWidth=Math.max(0,Math.floor(seasonRect.left-railGap));
+    const rightStart=Math.ceil(transfersRect.right+railGap);
+    const rightWidth=Math.max(0,Math.floor(window.innerWidth-rightStart));
     for(const [slot,side,width] of [[left,'left',leftWidth],[right,'right',rightWidth]]){
       const adHeight=Math.round(width*1.25);
       slot.style.setProperty('position','fixed','important');
