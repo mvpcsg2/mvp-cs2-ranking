@@ -9907,18 +9907,18 @@ body[data-design="ahltv"] #teams>.team-card>.roster-expanded .roster-player-phot
 
 <style id="mvp-side-ads-user-marked-bounds">
 @media(min-width:1651px){
-  #siteAdLeft,#siteAdRight{
+  body[data-side-ads-ranking="1"] #siteAdLeft,body[data-side-ads-ranking="1"] #siteAdRight{
     position:fixed!important;z-index:2!important;display:block!important;
     box-sizing:border-box!important;margin:0!important;padding:0!important;
     border:0!important;border-radius:0!important;box-shadow:none!important;
     overflow:hidden!important;background:transparent!important;
   }
-  #siteAdLeft>a,#siteAdRight>a{
+  body[data-side-ads-ranking="1"] #siteAdLeft>a,body[data-side-ads-ranking="1"] #siteAdRight>a{
     display:block!important;box-sizing:border-box!important;
     width:100%!important;height:100%!important;min-width:0!important;
     margin:0!important;padding:0!important;line-height:0!important;
   }
-  #siteAdLeft img,#siteAdRight img{
+  body[data-side-ads-ranking="1"] #siteAdLeft img,body[data-side-ads-ranking="1"] #siteAdRight img{
     display:block!important;box-sizing:border-box!important;
     width:100%!important;height:100%!important;
     min-width:0!important;max-width:none!important;
@@ -9927,14 +9927,23 @@ body[data-design="ahltv"] #teams>.team-card>.roster-expanded .roster-player-phot
     object-fit:fill!important;object-position:center!important;filter:none!important;
   }
 }
-@media(max-width:1650px){#siteAdLeft,#siteAdRight{display:none!important}}
+body:not([data-side-ads-ranking="1"]) #siteAdLeft,body:not([data-side-ads-ranking="1"]) #siteAdRight{display:none!important}
 </style>
 <script id="mvp-side-ads-user-marked-bounds-measure">
 (function(){
   function positionAds(){
-    if(window.innerWidth<1651)return;
+    const route=window.location.pathname||'/';
+    const isRanking=route==='/'||route==='/ranking';
     const left=document.getElementById('siteAdLeft');
     const right=document.getElementById('siteAdRight');
+    if(!isRanking){
+      document.body.removeAttribute('data-side-ads-ranking');
+      if(left)left.style.cssText='';
+      if(right)right.style.cssText='';
+      return;
+    }
+    document.body.setAttribute('data-side-ads-ranking','1');
+    if(window.innerWidth<1651)return;
     const season=document.querySelector('.mvp-season-rail');
     const transfers=document.querySelector('.mvp-news-rail');
     const workspace=document.querySelector('.ranking-with-news');
@@ -9976,6 +9985,7 @@ body[data-design="ahltv"] #teams>.team-card>.roster-expanded .roster-player-phot
       }
     }
   }
+  window.__csttPositionSideAds=positionAds;
   let frame=0;
   function schedule(){cancelAnimationFrame(frame);frame=requestAnimationFrame(positionAds)}
   window.addEventListener('resize',schedule,{passive:true});
@@ -9990,5 +10000,28 @@ body[data-design="ahltv"] #teams>.team-card>.roster-expanded .roster-player-phot
   schedule();
   setTimeout(schedule,250);
   setTimeout(schedule,900);
+})();
+</script>
+
+<script id="mvp-side-ads-route-guard">
+(function(){
+  function sync(){
+    if(window.__csttPositionSideAds)window.__csttPositionSideAds();
+    else {
+      const ranking=location.pathname==='/'||location.pathname==='/ranking';
+      if(ranking)document.body.setAttribute('data-side-ads-ranking','1');
+      else {
+        document.body.removeAttribute('data-side-ads-ranking');
+        ['siteAdLeft','siteAdRight'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.cssText=''});
+      }
+    }
+  }
+  const push=history.pushState,replace=history.replaceState;
+  history.pushState=function(){const r=push.apply(this,arguments);setTimeout(sync,0);return r};
+  history.replaceState=function(){const r=replace.apply(this,arguments);setTimeout(sync,0);return r};
+  window.addEventListener('popstate',sync);
+  document.addEventListener('DOMContentLoaded',sync);
+  window.addEventListener('load',sync);
+  setTimeout(sync,0);setTimeout(sync,300);
 })();
 </script>
