@@ -9030,11 +9030,14 @@ body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-rail-section .
     const sharedWidth=Math.max(MIN,Math.min(MAX,leftSpace,rightSpace));
     const leftX=EDGE+(leftSpace-sharedWidth)/2;
     const rightX=shellRect.right+GAP+(rightSpace-sharedWidth)/2;
-    for(const [slot,x,top] of [[left,leftX,seasonRect.top],[right,rightX,transferRect.top]]){
+    // Both ads share one vertical anchor: the lower top edge of the two side rails.
+    // This prevents the left and right panels drifting apart when their rail contents differ.
+    const sharedTop=Math.max(seasonRect.top,transferRect.top);
+    for(const [slot,x] of [[left,leftX],[right,rightX]]){
       slot.style.setProperty('--side-ad-width',sharedWidth+'px');
       slot.style.left=x+'px';
       slot.style.right='auto';
-      slot.style.top=Math.max(0,top)+'px';
+      slot.style.top=Math.max(0,sharedTop)+'px';
       slot.style.height=(sharedWidth*1.5)+'px';
       slot.style.display=sharedWidth>40?'flex':'none';
     }
