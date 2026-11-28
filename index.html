@@ -9074,7 +9074,7 @@ body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-rail-section .
   });
 
   const observer=new MutationObserver(schedule);
-  observer.observe(document.body,{childList:true,subtree:true});
+  observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
   if('ResizeObserver' in window){
     const shell=document.querySelector('.ranking-with-news');
     if(shell)new ResizeObserver(schedule).observe(shell);
