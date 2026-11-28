@@ -10044,3 +10044,35 @@ body[data-design="ahltv"] #teams>.team-card>.roster-expanded .roster-player-phot
   setTimeout(schedule,1000);
 })();
 </script>
+
+<style id="mvp-hltv-light-workspace-backplate">
+/* HLTV-like shared light surface behind the season, ranking and transfers columns. */
+@media(min-width:901px){
+  .ranking-with-news{
+    box-sizing:border-box!important;
+    padding:12px!important;
+    border:1px solid rgba(214,221,229,.96)!important;
+    border-radius:10px!important;
+    background:rgba(244,247,250,.97)!important;
+    box-shadow:0 5px 22px rgba(10,22,36,.16),inset 0 1px 0 rgba(255,255,255,.9)!important;
+    align-items:stretch!important;
+    isolation:isolate;
+  }
+  .ranking-with-news>.panel,
+  .ranking-with-news>.mvp-season-rail,
+  .ranking-with-news>.mvp-news-rail{
+    position:relative;
+    z-index:1;
+  }
+}
+@media(max-width:900px){
+  .ranking-with-news{
+    box-sizing:border-box!important;
+    padding:8px!important;
+    border:1px solid rgba(214,221,229,.9)!important;
+    border-radius:9px!important;
+    background:rgba(244,247,250,.96)!important;
+    box-shadow:0 3px 14px rgba(10,22,36,.12)!important;
+  }
+}
+</style>
