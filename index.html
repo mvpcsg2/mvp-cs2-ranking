@@ -9012,39 +9012,35 @@ body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-rail-section .
   const left=document.getElementById('siteAdLeft');
   const right=document.getElementById('siteAdRight');
   if(!left||!right)return;
-  const EDGE=30,GAP=14,MAX=200,MIN=0,TOP=232;
+  const EDGE=30,GAP=14,MAX=200,MIN=0;
   function measure(){
+    const shell=document.querySelector('.ranking-with-news');
     const season=document.querySelector('.mvp-season-rail');
     const transfers=document.querySelector('.mvp-news-rail');
-    const layout=document.querySelector('.ranking-with-news');
-    const content=layout||document.querySelector('main')||document.querySelector('.wrap');
-    let leftLimit=season?.getBoundingClientRect().left;
-    let rightLimit=transfers?.getBoundingClientRect().right;
-    if(!Number.isFinite(leftLimit)||leftLimit<=0){
-      const rect=content?.getBoundingClientRect();
-      if(rect)leftLimit=rect.left;
+    if(!shell||!season||!transfers){
+      left.style.display='none';
+      right.style.display='none';
+      return;
     }
-    if(!Number.isFinite(rightLimit)||rightLimit<=0){
-      const rect=content?.getBoundingClientRect();
-      if(rect)rightLimit=rect.right;
+    const shellRect=shell.getBoundingClientRect();
+    const seasonRect=season.getBoundingClientRect();
+    const transferRect=transfers.getBoundingClientRect();
+    const leftWidth=Math.max(MIN,Math.min(MAX,Math.floor(shellRect.left-EDGE-GAP)));
+    const rightWidth=Math.max(MIN,Math.min(MAX,Math.floor(window.innerWidth-EDGE-GAP-shellRect.right)));
+    const alignedTop=Math.max(seasonRect.top,transferRect.top);
+    for(const [slot,width] of [[left,leftWidth],[right,rightWidth]]){
+      slot.style.setProperty('--side-ad-width',width+'px');
+      slot.style.top=Math.max(0,alignedTop)+'px';
+      slot.style.height=(width*1.5)+'px';
+      slot.style.display=width>40?'flex':'none';
     }
-    const leftWidth=Number.isFinite(leftLimit)?Math.max(MIN,Math.min(MAX,Math.floor(leftLimit-EDGE-GAP))):MAX;
-    const rightWidth=Number.isFinite(rightLimit)?Math.max(MIN,Math.min(MAX,Math.floor(window.innerWidth-EDGE-GAP-rightLimit))):MAX;
-    left.style.setProperty('--side-ad-width',leftWidth+'px');
-    right.style.setProperty('--side-ad-width',rightWidth+'px');
-    left.style.top=TOP+'px';
-    right.style.top=TOP+'px';
-    left.style.height=(leftWidth*1.5)+'px';
-    right.style.height=(rightWidth*1.5)+'px';
-    left.style.display=leftWidth>40?'flex':'none';
-    right.style.display=rightWidth>40?'flex':'none';
   }
   let raf=0;
   function schedule(){cancelAnimationFrame(raf);raf=requestAnimationFrame(measure)}
   window.addEventListener('resize',schedule,{passive:true});
   window.addEventListener('load',schedule);
   window.addEventListener('pageshow',schedule);
-  document.addEventListener('click',e=>{if(e.target.closest('[data-main-nav]'))setTimeout(schedule,80)});
+  document.addEventListener('click',e=>{if(e.target.closest('[data-main-nav]'))setTimeout(schedule,100)});
   const observer=new MutationObserver(schedule);
   observer.observe(document.body,{childList:true,subtree:true});
   schedule();setTimeout(schedule,150);setTimeout(schedule,600);
