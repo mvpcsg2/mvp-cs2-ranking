@@ -9944,14 +9944,14 @@ body[data-design="ahltv"] #teams>.team-card>.roster-expanded .roster-player-phot
     const workspaceRect=workspace.getBoundingClientRect();
     // The marked area runs from the viewport edge to the adjacent rail.
     const top=Math.max(0,Math.round(workspaceRect.top));
-    const bottom=Math.max(0,Math.round(window.innerHeight-top-16));
     const leftWidth=Math.max(0,Math.round(seasonRect.left));
     const rightWidth=Math.max(0,Math.round(window.innerWidth-transfersRect.right));
     for(const [slot,side,width] of [[left,'left',leftWidth],[right,'right',rightWidth]]){
+      const adHeight=Math.round(width*1.25);
       slot.style.setProperty('position','fixed','important');
       slot.style.setProperty('top',top+'px','important');
       slot.style.setProperty('bottom','auto','important');
-      slot.style.setProperty('height',bottom+'px','important');
+      slot.style.setProperty('height',adHeight+'px','important');
       slot.style.setProperty('width',width+'px','important');
       slot.style.setProperty('max-width','none','important');
       slot.style.setProperty(side,'0px','important');
