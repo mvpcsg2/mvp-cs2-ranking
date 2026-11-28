@@ -9946,7 +9946,7 @@ body[data-design="ahltv"] #teams>.team-card>.roster-expanded .roster-player-phot
     const top=Math.max(0,Math.round(workspaceRect.top));
     // Keep a real gutter between ads and content rails; never let artwork overlap panel borders.
     const railGap=18;
-    const leftWidth=Math.max(0,Math.floor(seasonRect.left-railGap));
+    const leftWidth=Math.max(0,Math.round(seasonRect.left));
     const rightStart=Math.ceil(transfersRect.right+railGap);
     const rightWidth=Math.max(0,Math.floor(window.innerWidth-rightStart));
     for(const [slot,side,width] of [[left,'left',leftWidth],[right,'right',rightWidth]]){
