@@ -9025,14 +9025,18 @@ body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-rail-section .
     const shellRect=shell.getBoundingClientRect();
     const seasonRect=season.getBoundingClientRect();
     const transferRect=transfers.getBoundingClientRect();
-    const leftWidth=Math.max(MIN,Math.min(MAX,Math.floor(shellRect.left-EDGE-GAP)));
-    const rightWidth=Math.max(MIN,Math.min(MAX,Math.floor(window.innerWidth-EDGE-GAP-shellRect.right)));
-    const alignedTop=Math.max(seasonRect.top,transferRect.top);
-    for(const [slot,width] of [[left,leftWidth],[right,rightWidth]]){
-      slot.style.setProperty('--side-ad-width',width+'px');
-      slot.style.top=Math.max(0,alignedTop)+'px';
-      slot.style.height=(width*1.5)+'px';
-      slot.style.display=width>40?'flex':'none';
+    const leftSpace=Math.max(MIN,Math.floor(shellRect.left-EDGE-GAP));
+    const rightSpace=Math.max(MIN,Math.floor(window.innerWidth-shellRect.right-EDGE-GAP));
+    const sharedWidth=Math.max(MIN,Math.min(MAX,leftSpace,rightSpace));
+    const leftX=EDGE+(leftSpace-sharedWidth)/2;
+    const rightX=shellRect.right+GAP+(rightSpace-sharedWidth)/2;
+    for(const [slot,x,top] of [[left,leftX,seasonRect.top],[right,rightX,transferRect.top]]){
+      slot.style.setProperty('--side-ad-width',sharedWidth+'px');
+      slot.style.left=x+'px';
+      slot.style.right='auto';
+      slot.style.top=Math.max(0,top)+'px';
+      slot.style.height=(sharedWidth*1.5)+'px';
+      slot.style.display=sharedWidth>40?'flex':'none';
     }
   }
   let raf=0;
