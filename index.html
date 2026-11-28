@@ -9855,3 +9855,43 @@ body[data-design="ahltv"] #teams>.team-card>.roster-expanded .roster-player-phot
   }
 }
 </style>
+
+<style id="mvp-hltv-side-ad-page-grid">
+/* Desktop advertising gutters: keep the whole CSTT workspace centered and reserve clear space on both sides. */
+@media(min-width:1651px){
+  .wrap{
+    width:calc(100% - 420px)!important;
+    max-width:1260px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    padding-left:14px!important;
+    padding-right:14px!important;
+  }
+  .site-brand-bar{
+    width:calc(100% - 420px)!important;
+    max-width:1260px!important;
+  }
+  .top{
+    padding-left:max(12px,calc((100% - 1260px)/2))!important;
+    padding-right:max(12px,calc((100% - 1260px)/2))!important;
+  }
+  .side-ad-slot{
+    display:flex!important;
+    top:300px!important;
+    bottom:22px!important;
+    width:clamp(150px,9vw,178px)!important;
+  }
+  .side-ad-slot.left{left: max(18px,calc((100vw - 1260px)/2 - 198px))!important}
+  .side-ad-slot.right{right:max(18px,calc((100vw - 1260px)/2 - 198px))!important}
+  .side-ad-slot img{
+    width:100%!important;
+    height:100%!important;
+    max-height:100%!important;
+    object-fit:contain!important;
+    object-position:center top!important;
+  }
+}
+@media(max-width:1650px){
+  .side-ad-slot{display:none!important}
+}
+</style>
