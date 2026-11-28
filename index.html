@@ -9046,7 +9046,7 @@ body[data-design="ahltv"] .ranking-with-news .mvp-news-rail .news-rail-section .
   window.addEventListener('pageshow',schedule);
   document.addEventListener('click',e=>{if(e.target.closest('[data-main-nav]'))setTimeout(schedule,80)});
   const observer=new MutationObserver(schedule);
-  observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style']});
+  observer.observe(document.body,{childList:true,subtree:true});
   schedule();setTimeout(schedule,150);setTimeout(schedule,600);
 })();
 </script>
